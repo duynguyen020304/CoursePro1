@@ -1,0 +1,139 @@
+/* Giỏ hàng */
+.cart-section {
+    padding: 60px 0;
+}
+
+.cart-items {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cart-item {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-title {
+    font-size: 1.5em;
+    color: #333;
+}
+
+.cart-item-price {
+    font-size: 1.2em;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.cart-item img {
+    max-width: 100%;
+    height: auto;
+}
+
+.cart-item input {
+    width: 60px;
+    margin-top: 10px;
+}
+
+.cart-item button {
+    margin-top: 10px;
+}
+
+.cart-summary {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cart-summary h4 {
+    font-size: 1.8em;
+    color: #333;
+}
+
+.cart-summary ul {
+    margin-bottom: 20px;
+}
+
+.cart-summary a {
+    font-size: 1.2em;
+    text-transform: uppercase;
+}
+
+.cart-summary a:hover {
+    background-color: #28a745;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cart-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .cart-item .col-md-3, .cart-item .col-md-6 {
+        text-align: center;
+    }
+
+    .cart-summary {
+        margin-top: 30px;
+    }
+}
+
+/* Phần Gợi Ý Khóa Học */
+.recommended-courses {
+    background-color: #f8f9fa;
+    padding: 60px 0;
+}
+
+.recommended-courses .card {
+    margin-bottom: 30px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+}
+
+.recommended-courses .card:hover {
+    transform: translateY(-10px); /* Thêm hiệu ứng hover */
+}
+
+.recommended-courses .card-title {
+    font-size: 1.25em;
+    font-weight: bold;
+}
+
+.recommended-courses .card-text {
+    font-size: 1em;
+    color: #555;
+}
+
+.recommended-courses .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: background-color 0.3s ease;
+}
+
+.recommended-courses .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .recommended-courses .row {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .recommended-courses .col-md-4 {
+        width: 100%; /* Chuyển sang một cột trên di động */
+    }
+}

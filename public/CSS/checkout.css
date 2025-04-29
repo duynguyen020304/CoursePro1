@@ -1,0 +1,236 @@
+/* General Checkout Section Styling */
+.checkout-section {
+    background-color: #f7f9fa; /* Nền nhẹ cho toàn bộ section */
+    padding: 50px 0; /* Padding trên dưới */
+}
+
+.checkout-section h2 {
+    color: #000; /* Màu tiêu đề chính */
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 30px; /* Khoảng cách dưới tiêu đề */
+}
+
+.checkout-section h4 {
+    color: #000; /* Màu tiêu đề các phần nhỏ hơn */
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px; /* Khoảng cách dưới tiêu đề phần */
+}
+
+/* Left Column Sections */
+.checkout-billing-address,
+.checkout-payment-method,
+.checkout-order-details {
+    background-color: #fff; /* Nền trắng cho các phần ở cột trái */
+    padding: 30px; /* Padding bên trong mỗi phần */
+    border: 1px solid #dcdacd; /* Viền nhẹ */
+    margin-bottom: 30px; /* Khoảng cách giữa các phần */
+    border-radius: 4px; /* Bo tròn góc nhẹ */
+}
+
+/* Form Group Styling (for consistency) */
+.checkout-billing-address .form-group,
+.checkout-payment-method .form-group {
+    margin-bottom: 20px; /* Khoảng cách dưới mỗi form group */
+}
+
+.checkout-billing-address label,
+.checkout-payment-method label,
+.checkout-payment-method .form-check-label {
+    color: #6a6f73; /* Màu chữ label */
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px; /* Khoảng cách dưới label */
+    display: block; /* Đảm bảo label là block để căn chỉnh tốt */
+}
+
+.checkout-billing-address .form-control,
+.checkout-payment-method .form-control {
+    font-size: 16px;
+    padding-right: 30px;
+    border-radius: 4px;
+    border: 1px solid #dcdacd;
+    box-shadow: none; /* Bỏ box-shadow mặc định */
+}
+
+.checkout-billing-address .form-control:focus,
+.checkout-payment-method .form-control:focus {
+    border-color: #a435f0; /* Màu viền khi focus */
+    box-shadow: 0 0 0 0.2rem rgba(164, 53, 240, 0.25); /* Hiệu ứng focus màu tím */
+}
+
+/* Payment Method Specific Styling */
+.checkout-payment-method .payment-options .form-check {
+    margin-bottom: 15px; /* Khoảng cách giữa các tùy chọn thanh toán */
+}
+
+.checkout-payment-method .form-check-input {
+    margin-top: 5px; /* Căn chỉnh radio button với label */
+}
+
+.checkout-payment-method .form-check-label {
+     font-weight: normal; /* Đặt lại độ đậm cho label của radio */
+     color: #000; /* Màu chữ đen */
+     font-size: 16px; /* Kích thước chữ */
+}
+
+.checkout-payment-method .form-check-label img {
+    vertical-align: middle; /* Căn chỉnh ảnh logo thẻ với text */
+}
+
+#card-details {
+    /* Style cho phần hiển thị chi tiết thẻ khi chọn */
+    /* Ban đầu có thể ẩn bằng display: none; và dùng JS để hiện */
+    /* display: none; */
+    border: 1px solid #dcdacd; /* Viền quanh phần chi tiết thẻ */
+    padding: 20px; /* Padding bên trong */
+    border-radius: 4px;
+    background-color: #fcfcfc; /* Nền hơi xám */
+}
+
+/* Order Details Styling */
+.checkout-order-details {
+     /* Sử dụng style chung của cột trái */
+}
+
+.order-detail-item {
+    /* Style cho mỗi dòng sản phẩm trong chi tiết đơn hàng */
+    /* Viền dưới và padding đã thêm trong HTML */
+    font-size: 15px;
+    color: #000;
+}
+
+.order-detail-item .row {
+    align-items: center; /* Căn giữa nội dung theo chiều dọc */
+}
+
+.order-detail-item img {
+    border-radius: 4px; /* Bo tròn góc ảnh sản phẩm */
+}
+
+.order-detail-item p {
+    margin-bottom: 0; /* Bỏ margin dưới mặc định của p */
+}
+
+.order-detail-item .font-weight-bold {
+    font-weight: bold; /* Đảm bảo giá in đậm */
+    color: #000; /* Màu đen cho giá */
+}
+
+/* Right Column - Order Summary Styling */
+.checkout-summary {
+    background-color: #fff; /* Nền trắng */
+    padding: 30px; /* Padding bên trong */
+    border: 1px solid #dcdacd; /* Viền nhẹ */
+    border-radius: 4px; /* Bo tròn góc */
+    /* Udemy summary box có thể có nền hơi xám nhạt hơn, bạn có thể điều chỉnh background-color */
+    /* background-color: #f7f9fa; */
+}
+
+.checkout-summary h4 {
+    margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+}
+
+.checkout-summary .summary-item {
+    display: flex; /* Sử dụng flexbox để căn chỉnh text và giá trên cùng một dòng */
+    justify-content: space-between; /* Đẩy text và giá về hai phía */
+    margin-bottom: 15px; /* Khoảng cách giữa các dòng tóm tắt */
+    font-size: 16px;
+    color: #000;
+}
+
+.checkout-summary .summary-item.total {
+    border-top: 1px solid #dcdacd; /* Viền trên cho dòng tổng cộng */
+    padding-top: 15px; /* Padding trên viền */
+    margin-top: 15px; /* Khoảng cách trên viền */
+    font-size: 18px; /* Kích thước lớn hơn cho tổng cộng */
+    font-weight: bold;
+    color: #000;
+}
+
+.checkout-summary .summary-item h5,
+.checkout-summary .summary-item p {
+    margin-bottom: 0; /* Bỏ margin dưới */
+}
+
+
+/* Pay Button Styling */
+.checkout-summary .btn-success {
+    background-color: #a435f0; /* Màu nút Pay (màu tím Udemy) */
+    border-color: #a435f0; /* Màu viền nút */
+    font-size: 18px;
+    padding: 12px 20px; /* Padding nút */
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.checkout-summary .btn-success:hover {
+    background-color: #8710d8; /* Màu hover của nút Pay */
+    border-color: #8710d8;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .checkout-section {
+        padding: 30px 0; /* Giảm padding trên dưới trong mobile */
+    }
+
+    .checkout-section h2 {
+        font-size: 26px; /* Giảm kích thước tiêu đề chính */
+        margin-bottom: 20px;
+    }
+
+    .checkout-section h4 {
+        font-size: 18px; /* Giảm kích thước tiêu đề phần */
+        margin-bottom: 15px;
+    }
+
+    .checkout-billing-address,
+    .checkout-payment-method,
+    .checkout-order-details,
+    .checkout-summary {
+        padding: 20px; /* Giảm padding bên trong các phần */
+        margin-bottom: 20px; /* Giảm khoảng cách giữa các phần */
+    }
+
+    .order-detail-item .row .col-3,
+    .order-detail-item .row .col-6,
+    .order-detail-item .row .col-3 {
+        /* Đảm bảo các cột sản phẩm hiển thị đúng trong mobile */
+        flex: 0 0 auto; /* Ngăn các cột bị co lại quá mức */
+        width: auto; /* Cho phép chiều rộng tự động */
+    }
+
+    .order-detail-item .row .col-3:first-child {
+         width: 100px; /* Đặt chiều rộng cố định cho cột ảnh nếu cần */
+         flex-basis: 100px;
+    }
+
+     .order-detail-item .row .col-6 {
+         flex-grow: 1; /* Cho cột nội dung tên sản phẩm mở rộng */
+     }
+
+
+     .order-detail-item .row .col-3:last-child {
+          width: 80px; /* Đặt chiều rộng cố định cho cột giá nếu cần */
+          flex-basis: 80px;
+     }
+
+
+     .checkout-summary .summary-item {
+         font-size: 15px; /* Giảm kích thước chữ trong tóm tắt */
+     }
+
+     .checkout-summary .summary-item.total {
+         font-size: 16px; /* Giảm kích thước tổng cộng */
+     }
+
+     .checkout-summary .btn-success {
+         font-size: 16px; /* Giảm kích thước chữ nút */
+         padding: 10px 15px; /* Giảm padding nút */
+     }
+}

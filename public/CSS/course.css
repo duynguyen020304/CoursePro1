@@ -1,0 +1,103 @@
+/* Khóa học danh sách */
+.course-list {
+    background-color: #f9f9f9;
+    padding: 60px 0;
+}
+
+.course-list .card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.course-list .card:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.course-list .card-body {
+    padding: 20px;
+}
+
+.course-list .card-title {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.course-list .card-price {
+    font-size: 1.2em;
+    color: #007bff;
+}
+
+.course-list .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-transform: uppercase;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.course-list .btn:hover {
+    background-color: #0056b3;
+}
+
+/* Chi tiết khóa học */
+.course-detail {
+    padding: 60px 0;
+}
+
+.course-info {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.course-info h3 {
+    font-size: 1.8em;
+    margin-top: 30px;
+}
+
+.course-info p {
+    font-size: 1.1em;
+    color: #555;
+}
+
+.review-section {
+    margin-top: 30px;
+}
+
+.review-section .review {
+    margin-bottom: 20px;
+}
+
+/* Sidebar */
+.course-sidebar {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.course-sidebar .price {
+    font-size: 1.5em;
+    color: #007bff;
+}
+
+.course-sidebar .btn {
+    width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .course-detail .row {
+        flex-direction: column;
+    }
+
+    .course-sidebar {
+        margin-top: 30px;
+    }
+}

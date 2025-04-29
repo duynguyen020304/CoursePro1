@@ -1,0 +1,336 @@
+/* Navbar */
+.navbar {
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    background-color: #fff; /* Nền trắng */
+    /* Nếu bạn muốn nền trong suốt, hãy bỏ dòng background-color */
+}
+
+/* Style cho logo (navbar-brand) */
+.custom-navbar .navbar-brand {
+    color: #000; /* Màu chữ đen */
+    font-size: 23px;
+    font-weight: bold;
+    text-transform: none; /* Bỏ viết hoa nếu không cần */
+    letter-spacing: 0; /* Bỏ khoảng cách chữ nếu không cần */
+}
+
+.custom-navbar .navbar-brand:hover {
+     color: #404040; /* Màu hover cho logo */
+}
+
+/* Style cho nút Category */
+.custom-navbar .category-link {
+    color: #000; /* Màu chữ đen */
+    font-size: 14px;
+    font-weight: 400;
+    margin-left: 20px; /* Khoảng cách với logo */
+    text-transform: none;
+    padding: 0.5rem 1rem;
+    text-decoration: none; /* Bỏ gạch chân mặc định */
+}
+
+.custom-navbar .category-link:hover {
+    color: #a435f0; /* Màu tím khi hover */
+}
+
+/* Style cho form tìm kiếm */
+.search-form {
+    flex-grow: 1;
+    margin: 0 20px;
+    max-width: none;
+}
+
+/* Wrapper cho input và icon */
+.search-form .search-input-wrapper {
+    position: relative; /* Quan trọng: Thiết lập điểm gốc cho position: absolute của icon */
+    display: flex; /* Sử dụng flexbox để input chiếm toàn bộ chiều rộng */
+    width: 100%; /* Đảm bảo wrapper chiếm toàn bộ chiều rộng của form */
+}
+
+
+/* Style cho input tìm kiếm */
+.search-form .search-input {
+    border-radius: 50px; /* Bo tròn toàn bộ input */
+    padding-left: 40px; /* Quan trọng: Tạo không gian ở bên trái cho icon */
+    padding-right: 20px; /* Padding bên phải */
+    border: 1px solid #dcdacd;
+    background-color: #f7f9fa;
+    font-size: 14px;
+    height: 40px;
+    /* Bỏ các style border-radius cụ thể cho từng góc */
+    border-top-left-radius: 50px; /* Chỉ định rõ để đảm bảo */
+    border-bottom-left-radius: 50px;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+
+    width: 100%; /* Đảm bảo input chiếm toàn bộ chiều rộng của wrapper */
+    box-sizing: border-box; /* Bao gồm padding và border trong kích thước */
+    /* Bỏ margin-right: 0; nếu không còn input-group */
+    /* margin-right: 0; */
+     margin: 0; /* Bỏ margin mặc định */
+}
+
+/* Style cho placeholder */
+.search-form .search-input::placeholder {
+    color: #6a6f73;
+}
+
+
+/* Style và vị trí cho icon tìm kiếm (nằm bên trong input) */
+.search-form .search-icon-inside {
+    position: absolute; /* Định vị tuyệt đối so với search-input-wrapper */
+    left: 15px; /* Khoảng cách từ lề trái của input (điều chỉnh nếu cần) */
+    top: 50%; /* Đặt ở giữa theo chiều dọc của wrapper */
+    transform: translateY(-50%); /* Dịch lên 50% chiều cao của nó để căn giữa */
+    z-index: 2; /* Đảm bảo icon nằm trên input (input có z-index mặc định là 1) */
+    /* pointer-events: none; */ /* Giữ nếu bạn không muốn click vào icon */
+    color: #6a6f73; /* Màu icon */
+    display: flex; /* Sử dụng flexbox để căn giữa SVG bên trong */
+    align-items: center; /* Căn giữa SVG theo chiều dọc */
+    justify-content: center; /* Căn giữa SVG theo chiều ngang */
+    height: 100%; /* Chiếm toàn bộ chiều cao của wrapper để căn giữa dọc dễ hơn */
+    /* Bỏ background-color và border nếu có */
+    background-color: transparent;
+    border: none;
+}
+
+/* Style cho biểu tượng SVG bên trong icon container */
+.search-form .search-icon-inside svg {
+     width: 18px; /* Kích thước icon */
+     height: 18px;
+     /* display: block; */ /* Có thể bỏ nếu dùng flexbox */
+}
+
+/* Style cho nhóm liên kết và nút ở bên phải */
+.right-nav {
+    display: flex; /* Sử dụng flexbox để căn chỉnh items */
+    align-items: center; /* Căn giữa items theo chiều dọc */
+    padding-left: 0; /* Bỏ padding-left mặc định của ul */
+    margin-bottom: 0; /* Bỏ margin-bottom mặc định của ul */
+}
+
+.right-nav .nav-item {
+    list-style: none; /* Bỏ dấu đầu dòng */
+    margin-right: 5px; /* Khoảng cách giữa các mục bên phải */
+    /* Đảm bảo không có margin-bottom mặc định từ nav-item */
+    margin-bottom: 0;
+}
+
+.right-nav .nav-link {
+    color: #000; /* Màu chữ đen */
+    font-size: 14px;
+    font-weight: 400;
+    text-transform: none;
+    padding: 0.5rem 0.5rem;
+    text-decoration: none;
+    transition: none;
+}
+
+.right-nav .nav-link:hover {
+    color: #a435f0; /* Màu tím khi hover */
+    background-color: transparent;
+    border-radius: 0;
+}
+
+/* Style riêng cho nút Sign In và Sign Up */
+.right-nav .btn {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-left: 5px; /* Khoảng cách giữa các nút */
+    text-decoration: none; /* Bỏ gạch chân */
+    display: inline-block; /* Đảm bảo hiển thị là inline-block */
+}
+
+.right-nav .btn-outline-primary {
+    color: #000; /* Màu chữ đen */
+    border-color: #000; /* Màu viền đen */
+    background-color: transparent;
+}
+
+.right-nav .btn-outline-primary:hover {
+    color: #000;
+    background-color: #f7f9fa; /* Nền nhẹ khi hover */
+    border-color: #000;
+}
+
+.right-nav .btn-primary {
+    background-color: #000; /* Nền đen */
+    color: #fff; /* Chữ trắng */
+    border-color: #000;
+}
+
+.right-nav .btn-primary:hover {
+    background-color: #404040; /* Nền xám đậm khi hover */
+    border-color: #404040;
+    color: #fff;
+}
+
+/* Style cho icon giỏ hàng */
+.right-nav .nav-item svg.bi-cart { /* Chỉ định rõ icon giỏ hàng */
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    color: #000; /* Màu icon giỏ hàng */
+}
+
+
+/* Mobile view adjustments (cho màn hình nhỏ hơn 992px) */
+@media (max-width: 991.98px) {
+    /* Điều chỉnh bố cục khi navbar bị collapsed */
+    .navbar-collapse {
+         align-items: flex-start; /* Căn chỉnh items khi collapse */
+         width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
+         padding-top: 10px; /* Thêm khoảng cách trên */
+    }
+
+    .navbar-nav {
+         width: 100%; /* Đảm bảo nav-nav chiếm 100% chiều rộng khi collapse */
+         margin-bottom: 10px; /* Khoảng cách dưới */
+    }
+
+
+    /* Đặt thứ tự hiển thị trong mobile */
+    .custom-navbar .category-link {
+        order: 0; /* Category link hiển thị đầu tiên */
+        margin-left: 0;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 10px 15px; /* Điều chỉnh padding */
+    }
+
+    .search-form {
+        order: 1; /* Form tìm kiếm hiển thị thứ hai */
+        width: 100%;
+        margin: 10px 0;
+        max-width: none;
+    }
+    /* Wrapper trong mobile */
+    .search-form .search-input-wrapper {
+    width: 100%;
+    }
+
+     /* Đảm bảo input và icon vẫn hiển thị đúng trong mobile */
+     .search-form .search-input {
+        padding-left: 40px; /* Giữ padding trái cho icon */
+        padding-right: 20px; /* Điều chỉnh padding phải nếu cần */
+        width: 100%;
+        border-radius: 50px; /* Đảm bảo bo tròn trong mobile */
+     }
+
+     .search-form .search-icon-container {
+           left: 15px; /* Giữ vị trí icon */
+     }
+
+    .right-nav {
+        order: 2; /* Nhóm bên phải hiển thị cuối cùng */
+        width: 100%;
+        justify-content: center; /* Căn giữa các mục trong mobile */
+        flex-direction: column; /* Xếp dọc các mục */
+        align-items: center; /* Căn giữa theo chiều ngang */
+    }
+
+    .right-nav .nav-item {
+        margin-right: 0; /* Bỏ margin phải */
+        margin-bottom: 10px; /* Thêm margin dưới */
+        width: 100%; /* Cho mục chiếm toàn bộ chiều rộng */
+        text-align: center; /* Căn giữa nội dung item */
+    }
+
+     /* Điều chỉnh padding và căn chỉnh cho các nav-link khi collapse */
+     .navbar-nav .nav-link {
+          padding: 10px 15px; /* Tăng padding */
+          text-align: left; /* Căn trái chữ */
+          width: 100%; /* Đảm bảo link chiếm toàn bộ chiều rộng của item */
+     }
+
+     /* Các nút Sign In/Up trong mobile */
+     .right-nav .nav-link.btn {
+          width: 100%; /* Cho nút chiếm hết chiều rộng */
+          text-align: center; /* Căn giữa chữ */
+          margin-left: 0;
+          margin-right: 0;
+          margin-top: 5px; /* Khoảng cách trên */
+          margin-bottom: 5px;
+     }
+
+     .right-nav .nav-item:last-child .nav-link.btn {
+           margin-bottom: 0;
+     }
+}
+
+
+/* Mobile view adjustments (cho màn hình nhỏ hơn 768px, có thể tinh chỉnh thêm) */
+/* Thường các style trong media query lớn hơn đã bao phủ,
+   nhưng bạn có thể thêm các điều chỉnh cụ thể cho màn hình rất nhỏ nếu cần */
+/*
+@media (max-width: 767.98px) {
+    // Các style bổ sung cho màn hình rất nhỏ
+}
+*/
+
+/* === FOOTER === */
+footer {
+    background-color: #1f1f1f;
+    color: #ecf0f1;
+    padding: 40px 0 20px;
+    font-size: 15px;
+}
+
+footer h5 {
+    color: #ffffff;
+    font-size: 17px;
+    margin-bottom: 15px;
+}
+
+footer p,
+footer a {
+    color: #bdc3c7;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+footer ul li {
+    margin-bottom: 8px;
+}
+
+footer .container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+footer hr {
+    border-top: 1px solid #7f8c8d;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+footer .text-center {
+    font-size: 14px;
+    color: #95a5a6;
+}
+
+@media (max-width: 768px) {
+    footer .row {
+        text-align: center;
+    }
+
+    footer .col-md-4 {
+        margin-bottom: 20px;
+    }
+}

@@ -1,0 +1,344 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Header */
+header.hero-section {
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    padding: 100px 0;
+    text-align: center;
+}
+
+header.hero-section h1 {
+    font-size: 3em;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+header.hero-section p {
+    font-size: 1.25em;
+    margin-bottom: 30px;
+}
+
+header.hero-section .btn {
+    font-size: 1.2em;
+    padding: 15px 30px;
+    border-radius: 30px;
+}
+
+/* About Us Section */
+.about-us {
+    padding: 60px 0;
+    background-color: #fff;
+    text-align: center;
+}
+
+.about-us h2 {
+    font-size: 2.5em;
+    color: #333;
+}
+
+.about-us p {
+    font-size: 1.1em;
+    color: #666;
+    margin-top: 20px;
+}
+
+/* Featured Courses Section */
+.featured-courses {
+    padding: 60px 0;
+    background-color: #f9f9f9;
+}
+
+.featured-courses h2 {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 40px;
+}
+
+.featured-courses .card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.featured-courses .card:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.featured-courses .card-body {
+    padding: 20px;
+}
+
+.featured-courses .card-title {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.featured-courses .card-text {
+    font-size: 1.1em;
+    color: #777;
+}
+
+.featured-courses .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-transform: uppercase;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.featured-courses .btn:hover {
+    background-color: #0056b3;
+}
+
+/* Course Categories Section */
+.course-categories {
+    padding: 60px 0;
+    background-color: #f4f4f4;
+}
+
+.course-categories .card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.course-categories .card:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.course-categories .card-body {
+    padding: 20px;
+}
+
+.course-categories .card-title {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.course-categories .card-text {
+    font-size: 1.1em;
+    color: #777;
+}
+
+.course-categories .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-transform: uppercase;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.course-categories .btn:hover {
+    background-color: #0056b3;
+}
+
+/* Instructors Section */
+.instructors {
+    padding: 60px 0;
+    background-color: #fff;
+}
+
+.instructors h2 {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 40px;
+}
+
+.instructors .card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.instructors .card:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.instructors .card-body {
+    padding: 20px;
+    text-align: center;
+}
+
+.instructors .card-title {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.instructors .card-text {
+    font-size: 1.1em;
+    color: #777;
+}
+
+/* Testimonials Section */
+.testimonials {
+    padding: 60px 0;
+    background-color: #f9f9f9;
+}
+
+.testimonials h2 {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 40px;
+}
+
+.testimonials .card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.testimonials .card:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.testimonials .card-body {
+    padding: 20px;
+    font-style: italic;
+}
+
+.testimonials .card-text {
+    font-size: 1.1em;
+    color: #777;
+}
+
+/* Newsletter Section */
+.newsletter {
+    padding: 60px 0;
+    background-color: #333;
+    text-align: center;
+}
+
+.newsletter h2 {
+    font-size: 2.5em;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.newsletter p {
+    font-size: 1.2em;
+    color: #ddd;
+    margin-bottom: 30px;
+}
+
+.newsletter .form-control {
+    width: 60%;
+    padding: 15px;
+    font-size: 1.1em;
+    border-radius: 30px;
+    margin-bottom: 20px;
+}
+
+.newsletter .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 1.2em;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.newsletter .btn:hover {
+    background-color: #0056b3;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+}
+
+footer p {
+    font-size: 1em;
+    margin: 0;
+}
+
+/* Media Queries for Responsiveness */
+
+/* Mobile First */
+@media (max-width: 768px) {
+    header.hero-section h1 {
+        font-size: 2.2em;
+    }
+
+    header.hero-section p {
+        font-size: 1.1em;
+    }
+
+    header.hero-section .btn {
+        font-size: 1em;
+        padding: 12px 25px;
+    }
+
+    .featured-courses h2, .course-categories h2, .instructors h2, .testimonials h2 {
+        font-size: 2em;
+    }
+
+    .card-title {
+        font-size: 1.2em;
+    }
+
+    .card-text {
+        font-size: 1em;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .newsletter .form-control {
+        width: 80%;
+        margin-bottom: 20px;
+    }
+
+    .newsletter .btn {
+        font-size: 1em;
+        padding: 12px 30px;
+    }
+}
+
+/* Large Devices (Tablets) */
+@media (min-width: 768px) and (max-width: 992px) {
+    .featured-courses .row, .course-categories .row, .instructors .row, .testimonials .row {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .card {
+        margin-bottom: 30px;
+    }
+}
+
+/* Desktop */
+@media (min-width: 992px) {
+    .featured-courses .row, .course-categories .row, .instructors .row, .testimonials .row {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .card {
+        margin-bottom: 30px;
+    }
+}
