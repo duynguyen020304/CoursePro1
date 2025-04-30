@@ -1,11 +1,7 @@
 <?php
 
     require('../model/m_user.php');
-
-
     session_start();
-
-
     if( isset( $_POST ) ){
         $username = $_POST['username'];
         $password = $_POST['password'];

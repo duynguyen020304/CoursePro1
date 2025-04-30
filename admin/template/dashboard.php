@@ -3,10 +3,10 @@
         <a href="admin.php" class="text-white text-decoration-none">Tên Website</a>
     </div>
     <nav class="nav flex-column">
-        <a class="nav-link active" href="admin.php"><i class="fas fa-tachometer-alt fa-fw me-2"></i> Dashboard</a>
-        <a class="nav-link" href="#course-management"><i class="fas fa-book-open fa-fw me-2"></i> Quản Lý Khóa Học</a>
-        <a class="nav-link" href="#purchase-history"><i class="fas fa-history fa-fw me-2"></i> Doanh Thu</a>
-        <a class="nav-link" href="#logout"><i class="fas fa-sign-out-alt fa-fw me-2"></i> Đăng xuất</a>
+        <a class="nav-link active" href="admin.php"><i class="fas fa-tachometer-alt fa-fw me-2"></i>Dashboard</a>
+        <a class="nav-link" href="course-management.php"><i class="fas fa-book-open fa-fw me-2"></i>Quản Lý Khóa Học</a>
+        <a class="nav-link" href="revenue.php"><i class="fas fa-history fa-fw me-2"></i>Doanh Thu</a>
+        <a class="nav-link" href="#logout"><i class="fas fa-sign-out-alt fa-fw me-2"></i>Đăng xuất</a>
     </nav>
 </div>
 
@@ -18,9 +18,9 @@
     <div class="offcanvas-body p-0">
         <nav class="nav flex-column">
             <a class="nav-link active" href="admin.php"><i class="fas fa-tachometer-alt fa-fw me-2"></i> Dashboard</a>
-            <a class="nav-link" href="#course-management"><i class="fas fa-book-open fa-fw me-2"></i>Khóa học của tôi</a>
-            <a class="nav-link" href="#revenue"><i class="fas fa-history fa-fw me-2"></i>Doanh Thu</a>
-            <a class="nav-link" href="#logout"><i class="fas fa-sign-out-alt fa-fw me-2"></i> Đăng xuất</a>
+            <a class="nav-link" href="course-management.php"><i class="fas fa-book-open fa-fw me-2"></i>Khóa học của tôi</a>
+            <a class="nav-link" href="revenue.php"><i class="fas fa-history fa-fw me-2"></i>Doanh Thu</a>
+            <a class="nav-link" href="#logout"><i class="fas fa-sign-out-alt fa-fw me-2"></i>Đăng xuất</a>
         </nav>
     </div>
 </div>
