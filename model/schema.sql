@@ -42,8 +42,6 @@ CREATE TABLE IF NOT EXISTS Course (
     Description TEXT,
     Price       DECIMAL(10,2) NOT NULL,
     CreatedBy   VARCHAR(20) NOT NULL,
-    Image       VARCHAR(255),
-    Video       VARCHAR(255),
     FOREIGN KEY (CreatedBy) REFERENCES Instructor(InstructorID)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
@@ -54,6 +52,34 @@ CREATE TABLE IF NOT EXISTS CourseCategory (
     FOREIGN KEY (CourseID)   REFERENCES Course(CourseID),
     FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS Lesson (
+    LessonID    VARCHAR(20) PRIMARY KEY,
+    CourseID    VARCHAR(20) NOT NULL,
+    Title       VARCHAR(255) NOT NULL,
+    Content     TEXT,
+    SortOrder   INT NOT NULL DEFAULT 0,
+    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS Video (
+    VideoID    VARCHAR(20) PRIMARY KEY,
+    LessonID   VARCHAR(20) NOT NULL,
+    Url        VARCHAR(255) NOT NULL,
+    Title      VARCHAR(255),
+    SortOrder  INT NOT NULL DEFAULT 0,
+    FOREIGN KEY (LessonID) REFERENCES Lesson(LessonID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Bảng hình ảnh cho Course
+CREATE TABLE IF NOT EXISTS CourseImage (
+    ImageID    VARCHAR(20) PRIMARY KEY,
+    CourseID   VARCHAR(20) NOT NULL,
+    ImagePath  VARCHAR(255) NOT NULL,
+    Caption    VARCHAR(255),
+    SortOrder  INT NOT NULL DEFAULT 0,
+    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Cart (
     CartID VARCHAR(20) PRIMARY KEY,

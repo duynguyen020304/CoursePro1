@@ -1,0 +1,100 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #343a40;
+    padding-top: 1rem;
+    transition: all 0.3s;
+    z-index: 1030;
+    /* Ensure sidebar is above content */
+}
+
+.sidebar .nav-link {
+    color: #adb5bd;
+    /* Lighter text color */
+    padding: 0.75rem 1.5rem;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    color: #fff;
+    /* White text on hover/active */
+    background-color: #495057;
+    /* Slightly lighter dark background */
+}
+
+.sidebar .sidebar-header {
+    color: #fff;
+    padding: 0 1.5rem 1rem 1.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+
+.main-content {
+    transition: margin-left 0.3s;
+    padding: 1.5rem;
+    overflow-x: hidden;
+    /* Prevent horizontal scroll */
+}
+
+/* Adjust main content margin when sidebar is visible */
+@media (min-width: 992px) {
+    .main-content {
+        margin-left: 260px;
+    }
+
+    /* Hide the offcanvas toggle button on large screens */
+    .navbar-toggler-icon {
+        display: none !important;
+    }
+}
+
+
+/* --- Offcanvas specific styles (for small screens) --- */
+.offcanvas-start {
+    width: 260px;
+    /* Match sidebar width */
+    background-color: #343a40;
+    /* Dark background */
+}
+
+.offcanvas-header {
+    border-bottom: 1px solid #495057;
+}
+
+.offcanvas-title {
+    color: #fff;
+}
+
+.offcanvas-body .nav-link {
+    color: #adb5bd;
+}
+
+.offcanvas-body .nav-link:hover,
+.offcanvas-body .nav-link.active {
+    color: #fff;
+    background-color: #495057;
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.topbar-sm {
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.5rem 1rem;
+    position: sticky;
+    /* Make it sticky */
+    top: 0;
+    z-index: 1020;
+    /* Below sidebar */
+}
+

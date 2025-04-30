@@ -24,14 +24,13 @@
   </div>
 </footer>
 
-    <body>
-    <!-- Bootstrap JS and dependencies -->
-    <script src="public/JS/jquery-3.5.1.slim.min.js"></script>
-    <script src="public/JS/popper.min.js"></script>
-    <script src="public/JS/bootstrap.min.js"></script>
+<body>
+  <!-- Bootstrap JS and dependencies -->
+  <script src="public/JS/jquery-3.7.1.slim.min.js"></script>
+  <script src="public/JS/popper.min.js"></script>
+  <script src="public/JS/bootstrap.min.js"></script>
 
 
-    <!-- Footer -->
-   
-    </body>
+  <!-- Footer -->
 
+</body>

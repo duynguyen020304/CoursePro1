@@ -1,0 +1,19 @@
+.card {
+    margin-bottom: 1.5rem;
+}
+
+.profile-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 1rem;
+}
+
+.course-thumbnail {
+    width: 80px;
+    height: 50px;
+    object-fit: cover;
+    margin-right: 1rem;
+    border-radius: 0.25rem;
+}
