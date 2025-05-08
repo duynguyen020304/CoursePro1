@@ -31,7 +31,7 @@ class RoleBLL extends Database
     public function get_role(string $roleID): ?RoleDTO
     {
         $sql = "SELECT * FROM `Role` WHERE RoleID = '{$roleID}'";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
             $dto = new RoleDTO($row['RoleID'], $row['RoleName']);
@@ -43,7 +43,7 @@ class RoleBLL extends Database
     public function get_all_roles(): array
     {
         $sql = "SELECT * FROM `Role`";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $roles = [];
         while ($row = $result->fetch_assoc()) {
             $roles[] = new RoleDTO($row['RoleID'], $row['RoleName']);
@@ -79,7 +79,7 @@ class UserBLL extends Database
     public function get_user(string $userID): ?UserDTO
     {
         $sql = "SELECT * FROM `Users` WHERE UserID = '{$userID}'";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
             $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
@@ -91,7 +91,7 @@ class UserBLL extends Database
     public function get_all_users(): array
     {
         $sql = "SELECT * FROM `Users`";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $users = [];
         while ($row = $result->fetch_assoc()) {
             $users[] = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
@@ -131,7 +131,7 @@ class InstructorBLL extends Database
     public function get_instructor(string $instID): ?InstructorDTO
     {
         $sql = "SELECT * FROM `Instructor` WHERE InstructorID = '{$instID}'";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
             $dto = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography'], $row['ProfileImage']);
@@ -143,7 +143,7 @@ class InstructorBLL extends Database
     public function get_all_instructors(): array
     {
         $sql = "SELECT * FROM `Instructor`";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $list = [];
         while ($row = $result->fetch_assoc()) {
             $list[] = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography'], $row['ProfileImage']);
@@ -183,7 +183,7 @@ class StudentBLL extends Database
     public function get_student(string $stuID): ?StudentDTO
     {
         $sql = "SELECT * FROM `Student` WHERE StudentID = '{$stuID}'";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
             $dto = new StudentDTO($row['StudentID'], $row['UserID'], new DateTime($row['EnrollmentDate']), $row['CompletedCourses']);
@@ -195,7 +195,7 @@ class StudentBLL extends Database
     public function get_all_students(): array
     {
         $sql = "SELECT * FROM `Student`";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $list = [];
         while ($row = $result->fetch_assoc()) {
             $list[] = new StudentDTO($row['StudentID'], $row['UserID'], new DateTime($row['EnrollmentDate']), $row['CompletedCourses']);
@@ -231,7 +231,7 @@ class CategoryBLL extends Database
     public function get_category(string $catID): ?CategoryDTO
     {
         $sql = "SELECT * FROM `Category` WHERE CategoryID = '{$catID}'";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
             $dto = new CategoryDTO($row['CategoryID'], $row['Name']);
@@ -243,7 +243,7 @@ class CategoryBLL extends Database
     public function get_all_categories(): array
     {
         $sql = "SELECT * FROM `Category`";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $list = [];
         while ($row = $result->fetch_assoc()) {
             $list[] = new CategoryDTO($row['CategoryID'], $row['Name']);
@@ -281,7 +281,7 @@ class CourseBLL extends Database
     public function get_course(string $courseID): ?CourseDTO
     {
         $sql = "SELECT * FROM `Course` WHERE CourseID = '{$courseID}'";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
             $dto = new CourseDTO($row['CourseID'], $row['Title'], $row['Description'], (float)$row['Price'], $row['CreatedBy']);
@@ -293,7 +293,7 @@ class CourseBLL extends Database
     public function get_all_courses(): array
     {
         $sql = "SELECT * FROM `Course`";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $list = [];
         while ($row = $result->fetch_assoc()) {
             $list[] = new CourseDTO($row['CourseID'], $row['Title'], $row['Description'], (float)$row['Price'], $row['CreatedBy']);
@@ -322,7 +322,7 @@ class CourseCategoryBLL extends Database
     public function get_categories_by_course(string $courseID): array
     {
         $sql = "SELECT * FROM `CourseCategory` WHERE CourseID = '{$courseID}'";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $list = [];
         while ($row = $result->fetch_assoc()) {
             $list[] = new CourseCategoryDTO($row['CourseID'], $row['CategoryID']);
@@ -360,7 +360,7 @@ class LessonBLL extends Database
     public function get_lesson(string $lid): ?LessonDTO
     {
         $sql = "SELECT * FROM Lesson WHERE LessonID = '{$lid}'";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
             $dto = new LessonDTO($row['LessonID'], $row['CourseID'], $row['ChapterID'], $row['Title'], $row['Content'], (int)$row['SortOrder']);
@@ -372,12 +372,136 @@ class LessonBLL extends Database
     public function get_lessons_by_chapter(string $chapterID): array
     {
         $sql = "SELECT * FROM Lesson WHERE ChapterID = '{$chapterID}' ORDER BY SortOrder";
-        $result = $this->query($sql);
+        $result = $this->execute($sql);
         $lessons = [];
         while ($row = $result->fetch_assoc()) {
             $lessons[] = new LessonDTO($row['LessonID'], $row['CourseID'], $row['ChapterID'], $row['Title'], $row['Content'], (int)$row['SortOrder']);
         }
         $this->close();
         return $lessons;
+    }
+}
+
+
+class VideoBLL extends Database
+{
+    public function create_video(VideoDTO $v)
+    {
+        $title = $v->title ? "'{$v->title}'" : 'NULL';
+        $sql = "INSERT INTO Video (VideoID, LessonID, Url, Title, SortOrder) VALUES ('{$v->videoID}', '{$v->lessonID}', '{$v->url}', {$title}, {$v->sortOrder})";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function delete_video(string $vid)
+    {
+        $sql = "DELETE FROM Video WHERE VideoID = '{$vid}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function update_video(VideoDTO $v)
+    {
+        $title = $v->title ? "Title = '{$v->title}'," : '';
+        $sql = "UPDATE Video SET LessonID = '{$v->lessonID}', Url = '{$v->url}', {$title} SortOrder = {$v->sortOrder} WHERE VideoID = '{$v->videoID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function get_videos_by_lesson(string $lessonID): array
+    {
+        $sql = "SELECT * FROM Video WHERE LessonID = '{$lessonID}' ORDER BY SortOrder";
+        $result = $this->execute($sql);
+        $videos = [];
+        while ($row = $result->fetch_assoc()) {
+            $videos[] = new VideoDTO($row['VideoID'], $row['LessonID'], $row['Url'], $row['Title'], (int)$row['SortOrder']);
+        }
+        $this->close();
+        return $videos;
+    }
+}
+
+class CourseImageBLL extends Database
+{
+    public function create_image(CourseImageDTO $img)
+    {
+        $caption = $img->caption ? "'{$img->caption}'" : 'NULL';
+        $sql = "INSERT INTO CourseImage (ImageID, CourseID, ImagePath, Caption, SortOrder) VALUES ('{$img->imageID}', '{$img->courseID}', '{$img->imagePath}', {$caption}, {$img->sortOrder})";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function delete_image(string $imageID)
+    {
+        $sql = "DELETE FROM CourseImage WHERE ImageID = '{$imageID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function get_images_by_course(string $courseID): array
+    {
+        $sql = "SELECT * FROM CourseImage WHERE CourseID = '{$courseID}' ORDER BY SortOrder";
+        $result = $this->execute($sql);
+        $images = [];
+        while ($row = $result->fetch_assoc()) {
+            $images[] = new CourseImageDTO($row['ImageID'], $row['CourseID'], $row['ImagePath'], $row['Caption'], (int)$row['SortOrder']);
+        }
+        $this->close();
+        return $images;
+    }
+}
+
+class ReviewBLL extends Database
+{
+    public function create_review(ReviewDTO $r)
+    {
+        $comment = $r->comment ? "'{$r->comment}'" : 'NULL';
+        $sql = "INSERT INTO Review (ReviewID, UserID, CourseID, Rating, Comment) VALUES ('{$r->reviewID}', '{$r->userID}', '{$r->courseID}', {$r->rating}, {$comment})";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function delete_review(string $reviewID)
+    {
+        $sql = "DELETE FROM Review WHERE ReviewID = '{$reviewID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function get_reviews_by_course(string $courseID): array
+    {
+        $sql = "SELECT * FROM Review WHERE CourseID = '{$courseID}'";
+        $result = $this->execute($sql);
+        $reviews = [];
+        while ($row = $result->fetch_assoc()) {
+            $reviews[] = new ReviewDTO($row['ReviewID'], $row['UserID'], $row['CourseID'], (int)$row['Rating'], $row['Comment']);
+        }
+        $this->close();
+        return $reviews;
+    }
+}
+
+class PaymentBLL extends Database
+{
+    public function create_payment(PaymentDTO $p)
+    {
+        $method = $p->paymentMethod ? "'{$p->paymentMethod}'" : 'NULL';
+        $status = $p->paymentStatus ? "'{$p->paymentStatus}'" : 'NULL';
+        $date = $p->paymentDate->format('Y-m-d H:i:s');
+        $sql = "INSERT INTO Payment (PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount) VALUES ('{$p->paymentID}', '{$p->orderID}', '{$date}', {$method}, {$status}, {$p->amount})";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function get_payment_by_order(string $orderID): ?PaymentDTO
+    {
+        $sql = "SELECT * FROM Payment WHERE OrderID = '{$orderID}'";
+        $result = $this->execute($sql);
+        $dto = null;
+        if ($row = $result->fetch_assoc()) {
+            $dto = new PaymentDTO($row['PaymentID'], $row['OrderID'], new DateTime($row['PaymentDate']), $row['PaymentMethod'], $row['PaymentStatus'], (float)$row['Amount']);
+        }
+        $this->close();
+        return $dto;
     }
 }
