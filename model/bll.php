@@ -1,307 +1,383 @@
 <?php
 
-use DateTime;
-
 require_once("database.php");
 require_once("dto.php");
 
+// Business Logic Layer for each entity
 
 class RoleBLL extends Database
 {
     public function create_role(RoleDTO $role)
     {
-        $sql = "INSERT INTO Role(RoleID, RoleName)
-                VALUES('{$role->roleID}', '{$role->roleName}')";
+        $sql = "INSERT INTO `Role` (RoleID, RoleName) VALUES ('{$role->roleID}', '{$role->roleName}')";
         $this->execute($sql);
         $this->close();
     }
-    public function delete_role($roleID)
+
+    public function delete_role(string $roleID)
     {
-        $sql = "DELETE Role WHERE RoleID = '{$roleID}'";
+        $sql = "DELETE FROM `Role` WHERE RoleID = '{$roleID}'";
         $this->execute($sql);
         $this->close();
     }
+
     public function update_role(RoleDTO $role)
     {
-        $sql = "UPDATE Role Set RoleName = '{$role->roleName}' WHERE RoleID = '{$role->roleID}'";
+        $sql = "UPDATE `Role` SET RoleName = '{$role->roleName}' WHERE RoleID = '{$role->roleID}'";
+        $this->execute($sql);
         $this->close();
     }
-}
 
-// Data Transfer Object for User
-class UserDTO
-{
-    public string $userID;
-    public string $name;
-    public string $email;
-    public string $password;
-    public string $roleID;
-
-    public function __construct(string $userID, string $name, string $email, string $password, string $roleID)
+    public function get_role(string $roleID): ?RoleDTO
     {
-        $this->userID   = $userID;
-        $this->name     = $name;
-        $this->email    = $email;
-        $this->password = $password;
-        $this->roleID   = $roleID;
+        $sql = "SELECT * FROM `Role` WHERE RoleID = '{$roleID}'";
+        $result = $this->query($sql);
+        $dto = null;
+        if ($row = $result->fetch_assoc()) {
+            $dto = new RoleDTO($row['RoleID'], $row['RoleName']);
+        }
+        $this->close();
+        return $dto;
+    }
+
+    public function get_all_roles(): array
+    {
+        $sql = "SELECT * FROM `Role`";
+        $result = $this->query($sql);
+        $roles = [];
+        while ($row = $result->fetch_assoc()) {
+            $roles[] = new RoleDTO($row['RoleID'], $row['RoleName']);
+        }
+        $this->close();
+        return $roles;
     }
 }
 
-// Data Transfer Object for Instructor
-class InstructorDTO
+class UserBLL extends Database
 {
-    public string $instructorID;
-    public string $userID;
-    public ?string $biography;
-    public ?string $profileImage;
-
-    public function __construct(string $instructorID, string $userID, ?string $biography = null, ?string $profileImage = null)
+    public function create_user(UserDTO $user)
     {
-        $this->instructorID = $instructorID;
-        $this->userID       = $userID;
-        $this->biography    = $biography;
-        $this->profileImage = $profileImage;
+        $sql = "INSERT INTO `Users` (UserID, Name, Email, Password, RoleID) VALUES ('{$user->userID}', '{$user->name}', '{$user->email}', '{$user->password}', '{$user->roleID}')";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function delete_user(string $userID)
+    {
+        $sql = "DELETE FROM `Users` WHERE UserID = '{$userID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function update_user(UserDTO $user)
+    {
+        $sql = "UPDATE `Users` SET Name = '{$user->name}', Email = '{$user->email}', Password = '{$user->password}', RoleID = '{$user->roleID}' WHERE UserID = '{$user->userID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function get_user(string $userID): ?UserDTO
+    {
+        $sql = "SELECT * FROM `Users` WHERE UserID = '{$userID}'";
+        $result = $this->query($sql);
+        $dto = null;
+        if ($row = $result->fetch_assoc()) {
+            $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
+        }
+        $this->close();
+        return $dto;
+    }
+
+    public function get_all_users(): array
+    {
+        $sql = "SELECT * FROM `Users`";
+        $result = $this->query($sql);
+        $users = [];
+        while ($row = $result->fetch_assoc()) {
+            $users[] = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
+        }
+        $this->close();
+        return $users;
     }
 }
 
-// Data Transfer Object for Student
-class StudentDTO
+class InstructorBLL extends Database
 {
-    public string $studentID;
-    public string $userID;
-    public DateTime $enrollmentDate;
-    public string $completedCourses;
-
-    public function __construct(string $studentID, string $userID, DateTime $enrollmentDate, string $completedCourses = '')
+    public function create_instructor(InstructorDTO $inst)
     {
-        $this->studentID        = $studentID;
-        $this->userID           = $userID;
-        $this->enrollmentDate   = $enrollmentDate;
-        $this->completedCourses = $completedCourses;
+        $bio = $inst->biography ? "'{$inst->biography}'" : 'NULL';
+        $img = $inst->profileImage ? "'{$inst->profileImage}'" : 'NULL';
+        $sql = "INSERT INTO `Instructor` (InstructorID, UserID, Biography, ProfileImage) VALUES ('{$inst->instructorID}', '{$inst->userID}', {$bio}, {$img})";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function delete_instructor(string $instID)
+    {
+        $sql = "DELETE FROM `Instructor` WHERE InstructorID = '{$instID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function update_instructor(InstructorDTO $inst)
+    {
+        $bio = $inst->biography ? "Biography = '{$inst->biography}'," : '';
+        $img = $inst->profileImage ? "ProfileImage = '{$inst->profileImage}'," : '';
+        $sql = "UPDATE `Instructor` SET {$bio} {$img} UserID = '{$inst->userID}' WHERE InstructorID = '{$inst->instructorID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function get_instructor(string $instID): ?InstructorDTO
+    {
+        $sql = "SELECT * FROM `Instructor` WHERE InstructorID = '{$instID}'";
+        $result = $this->query($sql);
+        $dto = null;
+        if ($row = $result->fetch_assoc()) {
+            $dto = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography'], $row['ProfileImage']);
+        }
+        $this->close();
+        return $dto;
+    }
+
+    public function get_all_instructors(): array
+    {
+        $sql = "SELECT * FROM `Instructor`";
+        $result = $this->query($sql);
+        $list = [];
+        while ($row = $result->fetch_assoc()) {
+            $list[] = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography'], $row['ProfileImage']);
+        }
+        $this->close();
+        return $list;
     }
 }
 
-// Data Transfer Object for Category
-class CategoryDTO
+class StudentBLL extends Database
 {
-    public string $categoryID;
-    public string $name;
-
-    public function __construct(string $categoryID, string $name)
+    public function create_student(StudentDTO $stu)
     {
-        $this->categoryID = $categoryID;
-        $this->name       = $name;
+        $courses = $stu->completedCourses ? "'{$stu->completedCourses}'" : "''";
+        $date = $stu->enrollmentDate->format('Y-m-d H:i:s');
+        $sql = "INSERT INTO `Student` (StudentID, UserID, EnrollmentDate, CompletedCourses) VALUES ('{$stu->studentID}', '{$stu->userID}', '{$date}', {$courses})";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function delete_student(string $stuID)
+    {
+        $sql = "DELETE FROM `Student` WHERE StudentID = '{$stuID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function update_student(StudentDTO $stu)
+    {
+        $courses = $stu->completedCourses ? "CompletedCourses = '{$stu->completedCourses}'," : '';
+        $date = $stu->enrollmentDate->format('Y-m-d H:i:s');
+        $sql = "UPDATE `Student` SET UserID = '{$stu->userID}', EnrollmentDate = '{$date}', {$courses} WHERE StudentID = '{$stu->studentID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function get_student(string $stuID): ?StudentDTO
+    {
+        $sql = "SELECT * FROM `Student` WHERE StudentID = '{$stuID}'";
+        $result = $this->query($sql);
+        $dto = null;
+        if ($row = $result->fetch_assoc()) {
+            $dto = new StudentDTO($row['StudentID'], $row['UserID'], new DateTime($row['EnrollmentDate']), $row['CompletedCourses']);
+        }
+        $this->close();
+        return $dto;
+    }
+
+    public function get_all_students(): array
+    {
+        $sql = "SELECT * FROM `Student`";
+        $result = $this->query($sql);
+        $list = [];
+        while ($row = $result->fetch_assoc()) {
+            $list[] = new StudentDTO($row['StudentID'], $row['UserID'], new DateTime($row['EnrollmentDate']), $row['CompletedCourses']);
+        }
+        $this->close();
+        return $list;
     }
 }
 
-// Data Transfer Object for Course
-class CourseDTO
+class CategoryBLL extends Database
 {
-    public string $courseID;
-    public string $title;
-    public ?string $description;
-    public float $price;
-    public string $createdBy;
-
-    public function __construct(string $courseID, string $title, ?string $description, float $price, string $createdBy)
+    public function create_category(CategoryDTO $cat)
     {
-        $this->courseID    = $courseID;
-        $this->title       = $title;
-        $this->description = $description;
-        $this->price       = $price;
-        $this->createdBy   = $createdBy;
+        $sql = "INSERT INTO `Category` (CategoryID, Name) VALUES ('{$cat->categoryID}', '{$cat->name}')";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function delete_category(string $catID)
+    {
+        $sql = "DELETE FROM `Category` WHERE CategoryID = '{$catID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function update_category(CategoryDTO $cat)
+    {
+        $sql = "UPDATE `Category` SET Name = '{$cat->name}' WHERE CategoryID = '{$cat->categoryID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function get_category(string $catID): ?CategoryDTO
+    {
+        $sql = "SELECT * FROM `Category` WHERE CategoryID = '{$catID}'";
+        $result = $this->query($sql);
+        $dto = null;
+        if ($row = $result->fetch_assoc()) {
+            $dto = new CategoryDTO($row['CategoryID'], $row['Name']);
+        }
+        $this->close();
+        return $dto;
+    }
+
+    public function get_all_categories(): array
+    {
+        $sql = "SELECT * FROM `Category`";
+        $result = $this->query($sql);
+        $list = [];
+        while ($row = $result->fetch_assoc()) {
+            $list[] = new CategoryDTO($row['CategoryID'], $row['Name']);
+        }
+        $this->close();
+        return $list;
     }
 }
 
-// Data Transfer Object for CourseCategory
-class CourseCategoryDTO
+class CourseBLL extends Database
 {
-    public string $courseID;
-    public string $categoryID;
-
-    public function __construct(string $courseID, string $categoryID)
+    public function create_course(CourseDTO $c)
     {
-        $this->courseID   = $courseID;
-        $this->categoryID = $categoryID;
+        $desc = $c->description ? "'{$c->description}'" : 'NULL';
+        $sql = "INSERT INTO `Course` (CourseID, Title, Description, Price, CreatedBy) VALUES ('{$c->courseID}', '{$c->title}', {$desc}, {$c->price}, '{$c->createdBy}')";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function delete_course(string $courseID)
+    {
+        $sql = "DELETE FROM `Course` WHERE CourseID = '{$courseID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function update_course(CourseDTO $c)
+    {
+        $desc = $c->description ? "Description = '{$c->description}'," : '';
+        $sql = "UPDATE `Course` SET Title = '{$c->title}', {$desc} Price = {$c->price}, CreatedBy = '{$c->createdBy}' WHERE CourseID = '{$c->courseID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function get_course(string $courseID): ?CourseDTO
+    {
+        $sql = "SELECT * FROM `Course` WHERE CourseID = '{$courseID}'";
+        $result = $this->query($sql);
+        $dto = null;
+        if ($row = $result->fetch_assoc()) {
+            $dto = new CourseDTO($row['CourseID'], $row['Title'], $row['Description'], (float)$row['Price'], $row['CreatedBy']);
+        }
+        $this->close();
+        return $dto;
+    }
+
+    public function get_all_courses(): array
+    {
+        $sql = "SELECT * FROM `Course`";
+        $result = $this->query($sql);
+        $list = [];
+        while ($row = $result->fetch_assoc()) {
+            $list[] = new CourseDTO($row['CourseID'], $row['Title'], $row['Description'], (float)$row['Price'], $row['CreatedBy']);
+        }
+        $this->close();
+        return $list;
     }
 }
 
-// Data Transfer Object for Chapter
-class ChapterDTO
+class CourseCategoryBLL extends Database
 {
-    public string $chapterID;
-    public string $courseID;
-    public string $title;
-    public ?string $description;
-    public int $sortOrder;
-
-    public function __construct(string $chapterID, string $courseID, string $title, ?string $description, int $sortOrder)
+    public function link_course_category(CourseCategoryDTO $cc)
     {
-        $this->chapterID   = $chapterID;
-        $this->courseID    = $courseID;
-        $this->title       = $title;
-        $this->description = $description;
-        $this->sortOrder   = $sortOrder;
+        $sql = "INSERT INTO `CourseCategory` (CourseID, CategoryID) VALUES ('{$cc->courseID}', '{$cc->categoryID}')";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function unlink_course_category(string $courseID, string $categoryID)
+    {
+        $sql = "DELETE FROM `CourseCategory` WHERE CourseID = '{$courseID}' AND CategoryID = '{$categoryID}'";
+        $this->execute($sql);
+        $this->close();
+    }
+
+    public function get_categories_by_course(string $courseID): array
+    {
+        $sql = "SELECT * FROM `CourseCategory` WHERE CourseID = '{$courseID}'";
+        $result = $this->query($sql);
+        $list = [];
+        while ($row = $result->fetch_assoc()) {
+            $list[] = new CourseCategoryDTO($row['CourseID'], $row['CategoryID']);
+        }
+        $this->close();
+        return $list;
     }
 }
 
-// Data Transfer Object for Lesson
-class LessonDTO
+class LessonBLL extends Database
 {
-    public string $lessonID;
-    public string $courseID;
-    public string $chapterID;
-    public string $title;
-    public ?string $content;
-    public int $sortOrder;
-
-    public function __construct(string $lessonID, string $courseID, string $chapterID, string $title, ?string $content, int $sortOrder)
+    public function create_lesson(LessonDTO $l)
     {
-        $this->lessonID  = $lessonID;
-        $this->courseID  = $courseID;
-        $this->chapterID = $chapterID;
-        $this->title     = $title;
-        $this->content   = $content;
-        $this->sortOrder = $sortOrder;
+        $content = $l->content ? "'{$l->content}'" : 'NULL';
+        $sql = "INSERT INTO Lesson (LessonID, CourseID, ChapterID, Title, Content, SortOrder) VALUES ('{$l->lessonID}', '{$l->courseID}', '{$l->chapterID}', '{$l->title}', {$content}, {$l->sortOrder})";
+        $this->execute($sql);
+        $this->close();
     }
-}
 
-// Data Transfer Object for Video
-class VideoDTO
-{
-    public string $videoID;
-    public string $lessonID;
-    public string $url;
-    public ?string $title;
-    public int $sortOrder;
-
-    public function __construct(string $videoID, string $lessonID, string $url, ?string $title, int $sortOrder)
+    public function delete_lesson(string $lid)
     {
-        $this->videoID   = $videoID;
-        $this->lessonID  = $lessonID;
-        $this->url       = $url;
-        $this->title     = $title;
-        $this->sortOrder = $sortOrder;
+        $sql = "DELETE FROM Lesson WHERE LessonID = '{$lid}'";
+        $this->execute($sql);
+        $this->close();
     }
-}
 
-// Data Transfer Object for CourseImage
-class CourseImageDTO
-{
-    public string $imageID;
-    public string $courseID;
-    public string $imagePath;
-    public ?string $caption;
-    public int $sortOrder;
-
-    public function __construct(string $imageID, string $courseID, string $imagePath, ?string $caption, int $sortOrder)
+    public function update_lesson(LessonDTO $l)
     {
-        $this->imageID    = $imageID;
-        $this->courseID   = $courseID;
-        $this->imagePath  = $imagePath;
-        $this->caption    = $caption;
-        $this->sortOrder  = $sortOrder;
+        $content = $l->content ? "Content = '{$l->content}'," : '';
+        $sql = "UPDATE Lesson SET Title = '{$l->title}', {$content} SortOrder = {$l->sortOrder} WHERE LessonID = '{$l->lessonID}'";
+        $this->execute($sql);
+        $this->close();
     }
-}
 
-// Data Transfer Object for Cart
-class CartDTO
-{
-    public string $cartID;
-    public string $userID;
-
-    public function __construct(string $cartID, string $userID)
+    public function get_lesson(string $lid): ?LessonDTO
     {
-        $this->cartID = $cartID;
-        $this->userID = $userID;
+        $sql = "SELECT * FROM Lesson WHERE LessonID = '{$lid}'";
+        $result = $this->query($sql);
+        $dto = null;
+        if ($row = $result->fetch_assoc()) {
+            $dto = new LessonDTO($row['LessonID'], $row['CourseID'], $row['ChapterID'], $row['Title'], $row['Content'], (int)$row['SortOrder']);
+        }
+        $this->close();
+        return $dto;
     }
-}
 
-// Data Transfer Object for CartItem
-class CartItemDTO
-{
-    public string $cartItemID;
-    public string $cartID;
-    public string $courseID;
-    public int $quantity;
-
-    public function __construct(string $cartItemID, string $cartID, string $courseID, int $quantity)
+    public function get_lessons_by_chapter(string $chapterID): array
     {
-        $this->cartItemID = $cartItemID;
-        $this->cartID     = $cartID;
-        $this->courseID   = $courseID;
-        $this->quantity   = $quantity;
-    }
-}
-
-// Data Transfer Object for Orders
-class OrderDTO
-{
-    public string $orderID;
-    public string $userID;
-    public DateTime $orderDate;
-    public float $totalAmount;
-
-    public function __construct(string $orderID, string $userID, DateTime $orderDate, float $totalAmount)
-    {
-        $this->orderID     = $orderID;
-        $this->userID      = $userID;
-        $this->orderDate   = $orderDate;
-        $this->totalAmount = $totalAmount;
-    }
-}
-
-// Data Transfer Object for OrderDetail
-class OrderDetailDTO
-{
-    public string $orderID;
-    public string $courseID;
-    public float $price;
-
-    public function __construct(string $orderID, string $courseID, float $price)
-    {
-        $this->orderID  = $orderID;
-        $this->courseID = $courseID;
-        $this->price    = $price;
-    }
-}
-
-// Data Transfer Object for Review
-class ReviewDTO
-{
-    public string $reviewID;
-    public string $userID;
-    public string $courseID;
-    public int $rating;
-    public ?string $comment;
-
-    public function __construct(string $reviewID, string $userID, string $courseID, int $rating, ?string $comment)
-    {
-        $this->reviewID = $reviewID;
-        $this->userID   = $userID;
-        $this->courseID = $courseID;
-        $this->rating   = $rating;
-        $this->comment  = $comment;
-    }
-}
-
-// Data Transfer Object for Payment
-class PaymentDTO
-{
-    public string $paymentID;
-    public string $orderID;
-    public DateTime $paymentDate;
-    public ?string $paymentMethod;
-    public ?string $paymentStatus;
-    public float $amount;
-
-    public function __construct(string $paymentID, string $orderID, DateTime $paymentDate, ?string $paymentMethod, ?string $paymentStatus, float $amount)
-    {
-        $this->paymentID      = $paymentID;
-        $this->orderID        = $orderID;
-        $this->paymentDate    = $paymentDate;
-        $this->paymentMethod  = $paymentMethod;
-        $this->paymentStatus  = $paymentStatus;
-        $this->amount         = $amount;
+        $sql = "SELECT * FROM Lesson WHERE ChapterID = '{$chapterID}' ORDER BY SortOrder";
+        $result = $this->query($sql);
+        $lessons = [];
+        while ($row = $result->fetch_assoc()) {
+            $lessons[] = new LessonDTO($row['LessonID'], $row['CourseID'], $row['ChapterID'], $row['Title'], $row['Content'], (int)$row['SortOrder']);
+        }
+        $this->close();
+        return $lessons;
     }
 }
