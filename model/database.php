@@ -122,4 +122,59 @@ class Database
     {
         $this->close();
     }
+    // Trong database.php
+    // Thay đổi execute hoặc thêm một phương thức mới như executePreparedStatement
+    public function executePreparedStatement(string $sql, array $params, string $types): bool
+    {
+        echo "Executing prepared statement: $sql with params: " . json_encode($params) . "\n";
+        if (!$this->isConnected()) {
+            $this->lastError = "Not connected to database.";
+            error_log("[DB] Error: " . $this->lastError . " SQL: " . $sql);
+            return false;
+        }
+        $this->lastQuery = $sql;
+        try {
+            $stmt = $this->conn->prepare($sql);
+            if (!$stmt) {
+                $this->lastError = "Prepare failed: " . $this->conn->error;
+                error_log("[DB] Error: " . $this->lastError . " SQL: " . $sql);
+                return false;
+            }
+
+            // bind_param cần truyền biến theo tham chiếu, nên cần xử lý $params
+            $bindableParams = [];
+            foreach ($params as $key => $value) {
+                $bindableParams[$key] = &$params[$key];
+            }
+
+            if (!empty($params)) {
+                $stmt->bind_param($types, ...$bindableParams);
+            }
+
+            $success = $stmt->execute();
+            if (!$success) {
+                $this->lastError = "Execute failed: " . $stmt->error;
+                error_log("[DB] Error: " . $this->lastError . " SQL: " . $sql . " Params: " . json_encode($params));
+                $stmt->close();
+                return false;
+            }
+
+            // Quan trọng: Đối với INSERT, UPDATE, DELETE, kiểm tra affected_rows
+            if ($stmt->affected_rows > 0) {
+                echo $stmt->affected_rows . " rows affected.";
+                $stmt->close();
+                return true;
+            } else {
+                // 0 rows affected có thể là lỗi logic hoặc không (vd: update không thay đổi gì)
+                // Đối với INSERT, 0 rows affected chắc chắn là vấn đề nếu không có lỗi nào khác.
+                $this->lastError = "Query executed, but no rows affected (affected_rows: " . $stmt->affected_rows . "). SQL: " . $sql . " Params: " . json_encode($params) . " Error: " . $stmt->error;
+                error_log("[DB] Warning: " . $this->lastError);
+                $stmt->close();
+                return $stmt->affected_rows === 0 && $stmt->errno === 0; // Có thể coi là thành công nếu không có lỗi SQL, nhưng không có hàng nào bị ảnh hưởng
+            }
+        } catch (mysqli_sql_exception $e) {
+            $this->handleException($e, 'Prepared statement query failed. SQL: ' . $sql . " Params: " . json_encode($params));
+            return false;
+        }
+    }
 }

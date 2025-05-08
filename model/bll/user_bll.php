@@ -1,13 +1,31 @@
 <?php
-require_once("../database.php");
-require_once("../dto/user_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/user_dto.php';
+
 class UserBLL extends Database
 {
     public function create_user(UserDTO $user)
     {
-        $sql = "INSERT INTO `Users` (UserID, Name, Email, Password, RoleID) VALUES ('{$user->userID}', '{$user->name}', '{$user->email}', '{$user->password}', '{$user->roleID}')";
+        $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
+        // echo $user->userID . "\n";
+        $sql = "INSERT INTO Users (UserID, Name, Email, Password, RoleID) VALUES ('{$user->userID}', '{$user->name}', '{$user->email}', '{$hashedPassword}', '{$user->roleID}')";
         $this->execute($sql);
         $this->close();
+    }
+    
+    public function authenticate(string $email, string $password): ?UserDTO
+    {
+        $sql = "SELECT * FROM `Users` WHERE Email = '{$email}'";
+        $result = $this->execute($sql);
+        $dto = null;
+
+        if ($row = $result->fetch_assoc()) {
+            if (password_verify($password, $row['Password'])) {
+                $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
+            }
+        }
+        $this->close();
+        return $dto;
     }
 
     public function delete_user(string $userID)
@@ -24,9 +42,21 @@ class UserBLL extends Database
         $this->close();
     }
 
-    public function get_user(string $userID): ?UserDTO
+    public function get_user_by_id(string $userID): ?UserDTO
     {
         $sql = "SELECT * FROM `Users` WHERE UserID = '{$userID}'";
+        $result = $this->execute($sql);
+        $dto = null;
+        if ($row = $result->fetch_assoc()) {
+            $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
+        }
+        $this->close();
+        return $dto;
+    }
+
+    public function get_user_by_email(string $email): ?UserDTO
+    {
+        $sql = "SELECT * FROM `Users` WHERE Email = '{$email}'";
         $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
