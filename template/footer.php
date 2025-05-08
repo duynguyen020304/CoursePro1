@@ -26,9 +26,10 @@
 
 <body>
   <!-- Bootstrap JS and dependencies -->
-  <script src="public/JS/jquery-3.7.1.slim.min.js"></script>
-  <script src="public/JS/popper.min.js"></script>
-  <script src="public/JS/bootstrap.min.js"></script>
+  <!-- <script src="../public/JS/jquery-3.7.1.slim.min.js"></script> -->
+  <script src="../public/js/jquery-3.7.1.slim.min.js"></script>
+  <!-- <script src="../public/js/popper.min.js"></script> -->
+  <script src="../public/js/bootstrap.min.js"></script>
 
 
   <!-- Footer -->

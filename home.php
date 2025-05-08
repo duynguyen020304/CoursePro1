@@ -1,5 +1,5 @@
 <?php include('template/head.php'); ?>
-<link href="public/CSS/home.css" rel="stylesheet">
+<link href="./public/css/home.css" rel="stylesheet">
 <?php include('template/header.php'); ?>
 
 
