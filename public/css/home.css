@@ -5,9 +5,19 @@ body {
     padding: 0;
     background-color: #f4f4f4;
     color: #333;
+    line-height: 1.6; /* Tăng khoảng cách dòng */
 }
 
-/* Header */
+.container {
+    /* Các style container của Bootstrap hoặc theme của bạn */
+    width: 100%;
+    max-width: 1140px; /* Điều chỉnh nếu cần */
+    margin: 0 auto;
+    padding: 0 15px; /* Khoảng đệm hai bên */
+    box-sizing: border-box;
+}
+
+/* Header (Hero Section) */
 header.hero-section {
     background-size: cover;
     background-position: center;
@@ -27,11 +37,39 @@ header.hero-section p {
     margin-bottom: 30px;
 }
 
+/* Style cho button trong hero section */
 header.hero-section .btn {
     font-size: 1.2em;
     padding: 15px 30px;
     border-radius: 30px;
+    /* Thêm các style button Bootstrap mặc định nếu cần */
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
+
+/* Ví dụ style cho btn-primary */
+header.hero-section .btn-primary {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+header.hero-section .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
 
 /* About Us Section */
 .about-us {
@@ -43,53 +81,98 @@ header.hero-section .btn {
 .about-us h2 {
     font-size: 2.5em;
     color: #333;
+    margin-bottom: 20px;
 }
 
 .about-us p {
     font-size: 1.1em;
     color: #666;
-    margin-top: 20px;
+    margin-top: 0;
 }
 
-/* Featured Courses Section */
-.featured-courses {
+/* Styles for Sections with Cards (Featured Courses, Categories, Instructors, Testimonials) */
+.featured-courses, .course-categories, .instructors, .testimonials {
     padding: 60px 0;
-    background-color: #f9f9f9;
 }
 
-.featured-courses h2 {
+.featured-courses { background-color: #f9f9f9; }
+.course-categories { background-color: #f4f4f4; }
+.instructors { background-color: #fff; }
+.testimonials { background-color: #f9f9f9; }
+
+.featured-courses h2, .course-categories h2, .instructors h2, .testimonials h2 {
     font-size: 2.5em;
     color: #333;
+    text-align: center;
     margin-bottom: 40px;
 }
 
-.featured-courses .card {
+/* Styles for standard Bootstrap Row (used in Course Categories) */
+.course-categories .row {
+    display: flex; /* Sử dụng flexbox cho row */
+    flex-wrap: wrap; /* Cho phép các cột xuống dòng */
+    margin-left: -15px; /* Bù trừ padding của cột */
+    margin-right: -15px; /* Bù trừ padding của cột */
+}
+
+/* Styles for standard Bootstrap Column (used in Course Categories) */
+.course-categories .col-md-4 {
+     padding-left: 15px; /* Khoảng đệm của cột */
+    padding-right: 15px; /* Khoảng đệm của cột */
+    box-sizing: border-box;
+    margin-bottom: 30px; /* Khoảng cách dưới mỗi card */
+    /* Flexbox properties inherited from .row */
+    flex: 0 0 33.3333%; /* Default Bootstrap md column width */
+    max-width: 33.3333%;
+}
+
+
+/* Styles for Cards (used in multiple sections) */
+.card {
     border: none;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    height: 100%; /* Đảm bảo các card cùng chiều cao */
+    display: flex;
+    flex-direction: column;
 }
 
-.featured-courses .card:hover {
+.card:hover {
     box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
 }
 
-.featured-courses .card-body {
-    padding: 20px;
+.card-img-top {
+    width: 100%;
+    height: 180px; /* Chiều cao cố định cho ảnh (có thể điều chỉnh) */
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
-.featured-courses .card-title {
+.card-body {
+    padding: 20px;
+    flex-grow: 1; /* Đảm bảo card-body chiếm hết không gian */
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title {
     font-size: 1.5em;
     color: #333;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    line-height: 1.3;
 }
 
-.featured-courses .card-text {
+.card-text {
     font-size: 1.1em;
     color: #777;
+    margin-bottom: 15px;
+    flex-grow: 1; /* Cho phép text chiếm không gian còn lại trước button */
 }
 
-.featured-courses .btn {
+/* Style cho button bên trong card body */
+.card-body .btn {
     background-color: #007bff;
     color: white;
     padding: 10px 20px;
@@ -97,128 +180,93 @@ header.hero-section .btn {
     border-radius: 5px;
     font-weight: bold;
     transition: background-color 0.3s ease;
+    align-self: center; /* Thay đổi từ flex-start sang center để căn giữa */
+    margin-top: auto;
+    text-decoration: none;
+    display: inline-block;
+    border: 1px solid transparent;
 }
 
-.featured-courses .btn:hover {
+.card-body .btn:hover {
     background-color: #0056b3;
+    border-color: #0056b3;
 }
 
-/* Course Categories Section */
-.course-categories {
-    padding: 60px 0;
-    background-color: #f4f4f4;
-}
-
-.course-categories .card {
-    border: none;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.course-categories .card:hover {
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-}
-
-.course-categories .card-body {
-    padding: 20px;
-}
-
-.course-categories .card-title {
-    font-size: 1.5em;
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.course-categories .card-text {
-    font-size: 1.1em;
-    color: #777;
-}
-
-.course-categories .btn {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    text-transform: uppercase;
-    border-radius: 5px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-.course-categories .btn:hover {
-    background-color: #0056b3;
-}
-
-/* Instructors Section */
-.instructors {
-    padding: 60px 0;
-    background-color: #fff;
-}
-
-.instructors h2 {
-    font-size: 2.5em;
-    color: #333;
-    margin-bottom: 40px;
-}
-
-.instructors .card {
-    border: none;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.instructors .card:hover {
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-}
-
+/* Instructor Card Specifics (text-align center) */
 .instructors .card-body {
-    padding: 20px;
     text-align: center;
 }
 
-.instructors .card-title {
-    font-size: 1.5em;
-    color: #333;
-    margin-bottom: 15px;
-}
 
-.instructors .card-text {
-    font-size: 1.1em;
-    color: #777;
-}
-
-/* Testimonials Section */
-.testimonials {
-    padding: 60px 0;
-    background-color: #f9f9f9;
-}
-
-.testimonials h2 {
-    font-size: 2.5em;
-    color: #333;
-    margin-bottom: 40px;
-}
-
-.testimonials .card {
-    border: none;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.testimonials .card:hover {
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-}
-
+/* Testimonials Card Specifics */
 .testimonials .card-body {
-    padding: 20px;
     font-style: italic;
 }
 
-.testimonials .card-text {
-    font-size: 1.1em;
-    color: #777;
+
+/* Styles for Swiper Slider */
+
+/* Generic Swiper container styles */
+.swiper {
+    width: 100%;
+    height: auto; /* Chiều cao tự động theo nội dung */
+    padding: 20px 0; /* Thêm padding trên dưới cho mũi tên không bị dính */
+    box-sizing: border-box;
+    margin: 0 auto; /* Căn giữa slider */
+    position: relative; /* Cần thiết cho vị trí mũi tên */
+}
+
+.swiper-wrapper {
+    z-index: 1;
+}
+
+.swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff; /* Nền của slide */
+    /* Center slide text vertically */
+    display: flex; /* Đảm bảo slide là flex container */
+    justify-content: center;
+    align-items: stretch; /* Các item bên trong cùng chiều cao */
+    height: auto; /* Đảm bảo slide có chiều cao tự động */
+}
+
+/* Đảm bảo card bên trong slide chiếm toàn bộ không gian slide */
+.swiper-slide .card {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    /* Kế thừa các style card chung */
+}
+
+/* Style cho mũi tên điều hướng (chung cho tất cả sliders) */
+.swiper-button-next,
+.swiper-button-prev {
+    color: #007bff; /* Màu mũi tên */
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10; /* Đảm bảo mũi tên nằm trên slider */
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.swiper-button-prev {
+    left: 0px; /* Vị trí từ lề trái */
+}
+
+.swiper-button-next {
+    right: 0px; /* Vị trí từ lề phải */
+}
+
+/* Ẩn mũi tên khi không cần thiết */
+.swiper-button-disabled {
+    opacity: 0.3;
+    cursor: auto;
+    pointer-events: none;
 }
 
 /* Newsletter Section */
@@ -226,6 +274,7 @@ header.hero-section .btn {
     padding: 60px 0;
     background-color: #333;
     text-align: center;
+    color: #fff;
 }
 
 .newsletter h2 {
@@ -240,26 +289,44 @@ header.hero-section .btn {
     margin-bottom: 30px;
 }
 
+.newsletter form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
 .newsletter .form-control {
     width: 60%;
     padding: 15px;
     font-size: 1.1em;
-    border-radius: 30px;
-    margin-bottom: 20px;
+    border-radius: 30px 0 0 30px;
+    border: 1px solid #ccc;
+    margin-bottom: 0;
+    box-sizing: border-box;
+    height: 50px;
 }
 
 .newsletter .btn {
     background-color: #007bff;
     color: white;
     padding: 15px 40px;
-    border-radius: 30px;
+    border-radius: 0 30px 30px 0;
     font-size: 1.2em;
     text-transform: uppercase;
     font-weight: bold;
+    transition: background-color 0.3s ease;
+    border: 1px solid #007bff;
+    cursor: pointer;
+    height: 50px;
+    display: inline-block;
 }
 
 .newsletter .btn:hover {
     background-color: #0056b3;
+    border-color: #0056b3;
 }
 
 /* Footer */
@@ -275,70 +342,122 @@ footer p {
     margin: 0;
 }
 
+
 /* Media Queries for Responsiveness */
 
-/* Mobile First */
-@media (max-width: 768px) {
+/* Mobile First - Extra small devices (portraits phones, < 576px) */
+@media (max-width: 575.98px) {
     header.hero-section h1 {
-        font-size: 2.2em;
+        font-size: 2em;
     }
 
     header.hero-section p {
-        font-size: 1.1em;
+        font-size: 1em;
     }
 
     header.hero-section .btn {
         font-size: 1em;
-        padding: 12px 25px;
+        padding: 10px 20px;
     }
 
-    .featured-courses h2, .course-categories h2, .instructors h2, .testimonials h2 {
+    .featured-courses h2, .course-categories h2, .instructors h2, .testimonials h2, .newsletter h2 {
         font-size: 2em;
     }
 
     .card-title {
-        font-size: 1.2em;
+        font-size: 1.3em;
     }
 
-    .card-text {
-        font-size: 1em;
+     .card-text {
+        font-size: 0.9em;
+     }
+
+    /* Newsletter form responsive */
+    .newsletter .form-control, .newsletter .btn {
+        width: 100%;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        height: auto;
     }
 
-    .card-body {
-        padding: 15px;
+    .newsletter form {
+        flex-direction: column;
     }
 
-    .newsletter .form-control {
-        width: 80%;
-        margin-bottom: 20px;
+     /* Slider arrow size on mobile */
+    .swiper-button-next,
+    .swiper-button-prev {
+        width: 25px;
+        height: 25px;
+        font-size: 0.8em; /* Adjust arrow icon size if needed */
     }
-
-    .newsletter .btn {
-        font-size: 1em;
-        padding: 12px 30px;
-    }
+     /* Slider arrow position on mobile */
+    .swiper-button-prev { left: 0px; }
+    .swiper-button-next { right: 0px; }
 }
 
-/* Large Devices (Tablets) */
-@media (min-width: 768px) and (max-width: 992px) {
-    .featured-courses .row, .course-categories .row, .instructors .row, .testimonials .row {
-        display: flex;
-        justify-content: space-between;
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    /* Course Categories standard grid */
+     .course-categories .col-md-4 {
+        flex: 0 0 50%; /* 2 cột */
+        max-width: 50%;
     }
 
-    .card {
-        margin-bottom: 30px;
+    /* Slider arrow size and position on small screens */
+     .swiper-button-next,
+    .swiper-button-prev {
+        width: 30px;
+        height: 30px;
+        font-size: 1em;
     }
+     .swiper-button-prev { left: 5px; }
+     .swiper-button-next { right: 5px; }
+
+     /* Newsletter form responsive */
+     .newsletter .form-control {
+         width: 70%;
+         border-radius: 30px 0 0 30px;
+         margin-bottom: 0;
+         height: 50px;
+    }
+     .newsletter .btn {
+        width: 30%;
+        border-radius: 0 30px 30px 0;
+        height: 50px;
+     }
+      .newsletter form {
+         flex-direction: row;
+      }
 }
 
-/* Desktop */
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    /* Course Categories standard grid */
+    .course-categories .col-md-4 { /* col-md-4 will be 33.33% */ }
+
+    /* Slider arrow position on medium screens */
+     .swiper-button-prev { left: 10px; }
+     .swiper-button-next { right: 10px; }
+}
+
+/* Large devices (desktops, 992px and up) */
 @media (min-width: 992px) {
-    .featured-courses .row, .course-categories .row, .instructors .row, .testimonials .row {
-        display: flex;
-        justify-content: space-between;
-    }
+     /* Course Categories standard grid */
+    .course-categories .col-md-4 { /* col-md-4 remains 33.33% */ }
 
-    .card {
-        margin-bottom: 30px;
-    }
+     /* Slider arrow position on large screens */
+     .swiper-button-prev { left: 15px; }
+     .swiper-button-next { right: 15px; }
 }
+
+/* Extra large devices (large desktops, 1200px and up) */
+/* Nếu bạn muốn 4 cột trên màn hình rất lớn cho Course Categories, bạn có thể thêm: */
+/*
+@media (min-width: 1200px) {
+     .course-categories .col-md-4 {
+        flex: 0 0 25%;
+        max-width: 25%;
+     }
+}
+*/
