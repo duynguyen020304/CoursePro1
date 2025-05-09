@@ -4,15 +4,16 @@ require_once __DIR__ . '/../dto/user_dto.php';
 
 class UserBLL extends Database
 {
-    public function create_user(UserDTO $user)
+    public function create_user(UserDTO $user): bool
     {
         $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
-        // echo $user->userID . "\n";
-        $sql = "INSERT INTO Users (UserID, Name, Email, Password, RoleID) VALUES ('{$user->userID}', '{$user->name}', '{$user->email}', '{$hashedPassword}', '{$user->roleID}')";
-        $this->execute($sql);
-        $this->close();
+        $sql = "INSERT INTO `Users` (UserID, Name, Email, Password, RoleID)
+            VALUES ('{$user->userID}', '{$user->name}', '{$user->email}', '{$hashedPassword}', '{$user->roleID}')";
+
+        $result = $this->execute($sql);
+        return $result === true && $this->getAffectedRows() === 1;
     }
-    
+
     public function authenticate(string $email, string $password): ?UserDTO
     {
         $sql = "SELECT * FROM `Users` WHERE Email = '{$email}'";
@@ -24,7 +25,7 @@ class UserBLL extends Database
                 $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
             }
         }
-        $this->close();
+        // $this->close();
         return $dto;
     }
 
@@ -32,14 +33,14 @@ class UserBLL extends Database
     {
         $sql = "DELETE FROM `Users` WHERE UserID = '{$userID}'";
         $this->execute($sql);
-        $this->close();
+        // $this->close();
     }
 
     public function update_user(UserDTO $user)
     {
         $sql = "UPDATE `Users` SET Name = '{$user->name}', Email = '{$user->email}', Password = '{$user->password}', RoleID = '{$user->roleID}' WHERE UserID = '{$user->userID}'";
         $this->execute($sql);
-        $this->close();
+        // $this->close();
     }
 
     public function get_user_by_id(string $userID): ?UserDTO
@@ -50,7 +51,7 @@ class UserBLL extends Database
         if ($row = $result->fetch_assoc()) {
             $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
         }
-        $this->close();
+        // $this->close();
         return $dto;
     }
 
@@ -62,7 +63,7 @@ class UserBLL extends Database
         if ($row = $result->fetch_assoc()) {
             $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
         }
-        $this->close();
+        // $this->close();
         return $dto;
     }
 
@@ -74,7 +75,7 @@ class UserBLL extends Database
         while ($row = $result->fetch_assoc()) {
             $users[] = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
         }
-        $this->close();
+        // $this->close();
         return $users;
     }
 }

@@ -36,9 +36,8 @@ class UserService
         // echo $userID;
         $fullName = trim($firstName . ' ' . $lastName);
         $dto = new UserDTO($userID, $fullName, $email, $password, 'student');
-
         $userBll->create_user($dto);
-
+        // echo "Tạo tài khoản thành công";
         return new ServiceResponse(true, "Tạo tài khoản thành công", $dto);
     }
 }
