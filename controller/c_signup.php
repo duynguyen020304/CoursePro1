@@ -2,7 +2,7 @@
 session_start();
 
 // 1. Đảm bảo include đúng đường dẫn đến service xử lý signup
-require_once __DIR__ . '/../service/service_signup.php';
+require_once __DIR__ . '/../service/service_user.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     // Nếu không phải POST thì chuyển về form đăng ký

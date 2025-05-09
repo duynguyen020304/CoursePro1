@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../model/dto/user_dto.php';
-require_once __DIR__ . '/../service/service_signup.php';
+require_once __DIR__ . '/../service/service_user.php';
 
 header("Content-Type: application/json");
 session_start();
