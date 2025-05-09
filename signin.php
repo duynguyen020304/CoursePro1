@@ -1,5 +1,5 @@
 <?php include('template/head.php') ?>
-<link href="public/CSS/signin.css" rel="stylesheet">
+<link href="public/css/signin.css" rel="stylesheet">
 <?php include('template/header.php') ?>
 <main>
     <div class="form-container">
