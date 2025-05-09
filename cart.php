@@ -1,5 +1,5 @@
 <?php include('template/head.php'); ?>
-<link href="public/CSS/cart.css" rel="stylesheet">
+<link href="public/css/cart.css" rel="stylesheet">
 <?php include('template/header.php'); ?>
 
 <!-- Giỏ hàng -->

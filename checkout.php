@@ -1,5 +1,5 @@
 <?php include('template/head.php'); ?>
-<link href="public/CSS/checkout.css" rel="stylesheet">
+<link href="public/css/checkout.css" rel="stylesheet">
 <?php include('template/header.php'); ?>
 
 <section class="checkout-section py-5">

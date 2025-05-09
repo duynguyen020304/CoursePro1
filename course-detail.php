@@ -1,6 +1,6 @@
 
 <?php include('template/head.php'); ?>
-<link href="public/CSS/course.css" rel="stylesheet">
+<link href="public/css/course.css" rel="stylesheet">
 <?php include('template/header.php'); ?>
 
 <!-- Banner -->
