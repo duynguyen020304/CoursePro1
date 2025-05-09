@@ -11,9 +11,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Phương thức không được hỗ trợ']);
     exit;
 }
+$service = new UserService();
 
 $data = json_decode(file_get_contents("php://input"), true);
 
+echo $data;
+echo $data;
 // Kiểm tra trường bắt buộc
 if (!isset($data['email']) || !isset($data['password'])) {
     http_response_code(400);
@@ -21,7 +24,6 @@ if (!isset($data['email']) || !isset($data['password'])) {
     exit;
 }
 
-$service = new UserService();
 
 // Trường hợp đăng ký
 if (isset($data['isSignup']) && $data['isSignup'] === true) {
