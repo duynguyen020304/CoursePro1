@@ -9,6 +9,9 @@ CREATE TABLE IF NOT EXISTS Role (
 INSERT INTO Role (RoleID, RoleName) VALUES ('student', 'Học sinh')
     ON DUPLICATE KEY UPDATE RoleName = RoleName;
 
+INSERT INTO Role (RoleID, RoleName) VALUES ('instructor', 'Giảng viên')
+    ON DUPLICATE KEY UPDATE RoleName = RoleName;
+
 INSERT INTO Role (RoleID, RoleName) VALUES ('admin', 'Quản trị viên')
     ON DUPLICATE KEY UPDATE RoleName = RoleName;
 
