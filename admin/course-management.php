@@ -88,14 +88,7 @@
 
                             <div class="col-md-6">
                                 <label for="CreatedBy" class="form-label">Giảng viên</label>
-                                <select class="form-select" id="CreatedBy" name="CreatedBy" required>
-                                    <option value="">-- Chọn giảng viên --</option>
-                                    <?php
-                                    // foreach (fetchInstructors() as $ins) {
-                                    //   echo "<option value='{$ins['InstructorID']}'>{$ins['Name']}</option>";
-                                    // }
-                                    ?>
-                                </select>
+                                <input type="number" step="0.01" class="form-control" id="Instructor" name="Instructor" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="Categories" class="form-label">Danh mục</label>
