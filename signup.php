@@ -26,7 +26,9 @@
         <p class="message">Already have an account? <a href="signin.php">Sign in</a></p>
     </div>
 </main>
-
+<?php if(!empty($_GET['error'])): ?>
+  <p style="color:red;"><?= htmlspecialchars($_GET['error']) ?></p>
+<?php endif; ?>
 <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
     <div class="popup-overlay" id="popup">
         <div class="popup">
