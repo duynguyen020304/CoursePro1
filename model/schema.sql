@@ -6,6 +6,12 @@ CREATE TABLE IF NOT EXISTS Role (
     RoleName    VARCHAR(50) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+INSERT INTO Role (RoleID, RoleName) VALUES ('student', 'Học sinh')
+    ON DUPLICATE KEY UPDATE RoleName = RoleName;
+
+INSERT INTO Role (RoleID, RoleName) VALUES ('admin', 'Quản trị viên')
+    ON DUPLICATE KEY UPDATE RoleName = RoleName;
+
 -- 2. Users
 CREATE TABLE IF NOT EXISTS Users (
     UserID   VARCHAR(20) PRIMARY KEY,

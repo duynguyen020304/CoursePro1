@@ -23,8 +23,9 @@ class UserService
         return new ServiceResponse(true, 'Đăng nhập thành công', $user);
     }
 
-    public function create_user(string $email, string $password, string $firstName, string $lastName): ServiceResponse
+    public function create_user(string $email, string $password, string $firstName, string $lastName, string $role): ServiceResponse
     {
+        // echo "đang ở phía trước BLL";
         $userBll = new UserBLL();
         $existing = $userBll->get_user_by_email($email);
 
@@ -33,11 +34,14 @@ class UserService
         }
 
         $userID = uniqid('u_');
-        // echo $userID;
+
         $fullName = trim($firstName . ' ' . $lastName);
-        $dto = new UserDTO($userID, $fullName, $email, $password, 'student');
-        $userBll->create_user($dto);
-        // echo "Tạo tài khoản thành công";
-        return new ServiceResponse(true, "Tạo tài khoản thành công", $dto);
+        
+        $dto = new UserDTO($userID, $fullName, $email, $password, $role);
+        if ($userBll->create_user($dto)) {
+            return new ServiceResponse(true, "Tạo tài khoản thành công", $dto);
+        }
+
+        return new ServiceResponse(false, "Tạo tài khoản thất bại");
     }
 }

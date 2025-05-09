@@ -25,17 +25,24 @@ $service = new UserService();
 
 // Trường hợp đăng ký
 if (isset($data['isSignup']) && $data['isSignup'] === true) {
-    if (!isset($data['firstname']) || !isset($data['lastname'])) {
+    if (
+        !isset($data['email']) ||
+        !isset($data['password']) ||
+        !isset($data['firstname']) ||
+        !isset($data['lastname']) ||
+        !isset($data['role'])
+    ) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Thiếu họ hoặc tên']);
+        echo json_encode(['success' => false, 'message' => 'Thiếu thông tin đăng ký']);
         exit;
     }
-
+    // echo "đang ở phía trước create user";
     $registerResult = $service->create_user(
         $data['email'],
         $data['password'],
         $data['firstname'],
-        $data['lastname']
+        $data['lastname'],
+        $data['role'],
     );
 
     if ($registerResult->success) {
