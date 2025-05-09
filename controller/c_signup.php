@@ -38,8 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'lastname'  => $lastname
     ]);
 
-    $ch = curl_init('http://localhost/CoursePro1/api/login_api.php'); // ✅ điều chỉnh path đúng
-
+    $ch = curl_init('http://localhost/CoursePro1/api/login_api.php');
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,

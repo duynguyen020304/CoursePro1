@@ -6,7 +6,7 @@ class Database
     private string $user   = 'root';
     private string $pass   = '';
     private string $dbname = 'ecourse';
-    private string $charset = 'utf8mb4';
+    // private string $charset = 'utf8mb4';
 
     private ?mysqli $conn = null;
     private ?string $lastError = null;
@@ -19,7 +19,7 @@ class Database
 
         try {
             $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->dbname);
-            $this->conn->set_charset($this->charset);
+            // $this->conn->set_charset($this->charset);
             // echo "kết nối database thành công";
         } catch (mysqli_sql_exception $e) {
             $this->handleException($e, 'Kết nối database thất bại');

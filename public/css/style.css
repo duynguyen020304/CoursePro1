@@ -2,8 +2,7 @@
 .navbar {
     padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    background-color: #fff; /* Nền trắng */
-    /* Nếu bạn muốn nền trong suốt, hãy bỏ dòng background-color */
+    background-color: #fff;
 }
 
 /* Style cho logo (navbar-brand) */

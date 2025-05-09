@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg custom-navbar">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Course Online</a>
+        <a class="navbar-brand" href="home.php">Course Online</a>
         <a class="nav-link category-link" href="#">Category</a>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
@@ -28,7 +28,7 @@
 
             <ul class="navbar-nav right-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="cart.php">
                         <!-- cart icon -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-cart" viewBox="0 0 16 16">
