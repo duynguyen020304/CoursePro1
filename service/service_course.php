@@ -72,7 +72,13 @@ class CourseService
     public function delete_course(string $courseID): ServiceResponse
     {
         try {
-            // Xóa toàn bộ liên kết category trước
+            // Kiểm tra khóa học có tồn tại không
+            $course = $this->courseBll->get_course($courseID);
+            if (!$course) {
+                return new ServiceResponse(false, 'Khóa học không tồn tại');
+            }
+
+            // Xóa toàn bộ liên kết với danh mục
             $categories = $this->categoryBll->get_categories_by_course($courseID);
             foreach ($categories as $cat) {
                 $this->categoryBll->unlink_course_category($courseID, $cat->categoryID);

@@ -68,7 +68,7 @@
     <div class="modal fade" id="courseModal" tabindex="-1" aria-labelledby="courseModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form id="courseForm" method="post" action="course_save.php">
+                <form id="courseForm" method="post" action="course_save.php" enctype="multipart/form-data">
                     <div class="modal-header">
                         <h5 class="modal-title" id="courseModalLabel">Thêm Khóa học</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
@@ -87,8 +87,8 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label for="CreatedBy" class="form-label">Giảng viên</label>
-                                <input type="number" step="0.01" class="form-control" id="Instructor" name="Instructor" required>
+                                <label for="Instructor" class="form-label">Giảng viên</label>
+                                <input type="text" class="form-control" id="Title" name="Title" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="Categories" class="form-label">Danh mục</label>
@@ -104,6 +104,11 @@
                             <div class="col-12">
                                 <label for="Description" class="form-label">Mô tả</label>
                                 <textarea class="form-control" id="Description" name="Description" rows="4"></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="CourseImage" class="form-label">Chọn ảnh đại diện Khóa học</label>
+                                <input type="file" class="form-control" id="CourseImage" name="CourseImage">
                             </div>
                         </div>
                     </div>

@@ -1,6 +1,6 @@
 <?php
-require_once("../database.php");
-require_once("../dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/course_category_dto.php';
 class CourseCategoryBLL extends Database
 {
     public function link_course_category(CourseCategoryDTO $cc)

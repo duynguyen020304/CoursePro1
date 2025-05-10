@@ -1,6 +1,6 @@
 <?php
-require_once("../database.php");
-require_once("../dto/course_chapter_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/course_chapter_dto.php';
 class CourseChapterBLL extends Database
 {
     public function get_chapters_by_course(string $courseID): array

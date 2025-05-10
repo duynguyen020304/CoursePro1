@@ -1,6 +1,6 @@
 <?php
-require_once("../database.php");
-require_once("../dto/instructor_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/instructor_dto.php';
 class InstructorBLL extends Database
 {
     public function create_instructor(InstructorDTO $inst)

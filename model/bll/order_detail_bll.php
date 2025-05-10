@@ -1,6 +1,6 @@
 <?php
-require_once("../database.php");
-require_once("../dto/order_detail_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/order_detail_dto.php';
 class OrderDetailBLL extends Database
 {
     public function add_detail(OrderDetailDTO $detail)

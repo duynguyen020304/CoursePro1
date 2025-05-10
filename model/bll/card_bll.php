@@ -1,6 +1,6 @@
 <?php
-require_once("../database.php");
-require_once("../dto/card_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/cart_dto.php';
 
 class CartBLL extends Database
 {
