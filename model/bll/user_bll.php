@@ -32,14 +32,16 @@ class UserBLL extends Database
     public function delete_user(string $userID)
     {
         $sql = "DELETE FROM `Users` WHERE UserID = '{$userID}'";
-        $this->execute($sql);
+        $result = $this->execute($sql);
+        return $result === true && $this->getAffectedRows() === 1;
         // $this->close();
     }
 
     public function update_user(UserDTO $user)
     {
         $sql = "UPDATE `Users` SET Name = '{$user->name}', Email = '{$user->email}', Password = '{$user->password}', RoleID = '{$user->roleID}' WHERE UserID = '{$user->userID}'";
-        $this->execute($sql);
+        $result = $this->execute($sql);
+        return $result === true && $this->getAffectedRows() === 1;
         // $this->close();
     }
 

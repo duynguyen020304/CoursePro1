@@ -11,7 +11,7 @@ class CourseChapterBLL extends Database
         while ($row = $result->fetch_assoc()) {
             $chapters[] = new ChapterDTO($row['ChapterID'], $row['CourseID'], $row['Title'], $row['Description'], (int)$row['SortOrder']);
         }
-        $this->close();
+        // $this->close();
         return $chapters;
     }
 }
