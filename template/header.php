@@ -90,42 +90,7 @@ if (session_status() == PHP_SESSION_NONE) { // Chỉ cần kiểm tra và gọi 
                         <li><a class="dropdown-item text-danger" href="logout.php">Log out</a></li>
                     </ul>
                 </li>
-                <style>
-                    .avatar-btn { position: relative; cursor: pointer; }
-                    .avatar-circle, .avatar-circle-big {
-                        display: inline-flex; /* Sử dụng flex để căn giữa tốt hơn */
-                        align-items: center;
-                        justify-content: center;
-                        background: #343a40; /* Màu nền tối hơn một chút */
-                        color: #fff;
-                        font-weight: bold;
-                        border-radius: 50%;
-                        width: 32px; height: 32px;
-                        font-size: 0.9rem; /* Giảm kích thước font một chút */
-                        user-select: none;
-                        text-transform: uppercase; /* Đảm bảo chữ hoa */
-                    }
-                    .avatar-circle-big {
-                        width: 50px; height: 50px;
-                        font-size: 1.4rem; /* Điều chỉnh font */
-                    }
-                    .avatar-dot {
-                        width:10px; height:10px;
-                        border-radius:50%;
-                        background: #0d6efd; /* Màu xanh dương của Bootstrap primary */
-                        border:2px solid #fff;
-                        position:absolute; top:2px; right:4px;
-                    }
-                    .user-dropdown-menu { /* Đã thêm dropdown-menu-end vào class HTML */
-                        width: 280px; /* Có thể tăng chiều rộng một chút */
-                        border-radius: 0.5rem; /* Bo góc nhẹ nhàng hơn */
-                        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* Box shadow chuẩn của Bootstrap */
-                        font-size: 0.95rem; /* Điều chỉnh font cho menu item */
-                    }
-                    .dropdown-header { padding: 1rem; } /* Tăng padding */
-                    .dropdown-item .badge { font-size: 0.75em; }
-                </style>
-                <?php if (false): // Tạm thời vô hiệu hóa JS tùy chỉnh nếu dùng JS của Bootstrap 5 ?>
+                <?php if (true): // Tạm thời vô hiệu hóa JS tùy chỉnh nếu dùng JS của Bootstrap 5 ?>
                 <script>
                 // Đảm bảo dropdown hoạt động với Bootstrap 5
                 // Nếu bạn đã include JS của Bootstrap 5 (bootstrap.bundle.min.js), đoạn này có thể không cần thiết.
