@@ -4,6 +4,16 @@
 <main>
     <div class="form-container">
         <h2>Tìm tài khoản của bạn</h2>
+        <?php
+            if (!empty($_SESSION['error'])) {
+                echo '<div class="alert alert-danger">'.$_SESSION['error'].'</div>';
+                unset($_SESSION['error']);
+            }
+            if (!empty($_SESSION['success'])) {
+                echo '<div class="alert alert-success">'.$_SESSION['success'].'</div>';
+                unset($_SESSION['success']);
+            }
+        ?>
         <form method="POST" action="controller/c_forgot_password.php">
             <div class="form-group">
                 <label for="email">Nhập email của bạn</label>
