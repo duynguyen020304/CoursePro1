@@ -1,6 +1,6 @@
 <?php
-require_once("../database.php");
-require_once("../dto/course_image_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/course_image_dto.php';
 class CourseImageBLL extends Database
 {
     public function create_image(CourseImageDTO $img)

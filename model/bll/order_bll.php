@@ -1,6 +1,6 @@
 <?php
-require_once("../database.php");
-require_once("../dto/order_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/order_dto.php';
 class OrderBLL extends Database
 {
     public function create_order(OrderDTO $order)

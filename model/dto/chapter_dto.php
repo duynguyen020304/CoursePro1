@@ -1,8 +1,4 @@
 <?php
-
-use DateTime;
-
-require_once("../database.php");
 class ChapterDTO
 {
     public string $chapterID;

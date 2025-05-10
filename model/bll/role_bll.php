@@ -1,6 +1,6 @@
 <?php
-require_once("../database.php");
-require_once("../dto/role_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/role_dto.php';
 class RoleBLL extends Database
 {
     public function create_role(RoleDTO $role)

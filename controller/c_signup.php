@@ -1,62 +1,51 @@
 <?php
 session_start();
 
-// Kiểm tra phương thức POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username  = $_POST['username'] ?? '';
-    $password  = $_POST['password'] ?? '';
-    $firstname = $_POST['firstname'] ?? '';
-    $lastname  = $_POST['lastname'] ?? '';
+// 1. Đảm bảo include đúng đường dẫn đến service xử lý signup
+require_once __DIR__ . '/../service/service_user.php';
 
-    $errors = [];
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    // Nếu không phải POST thì chuyển về form đăng ký
+    header('Location: ../signup.php');
+    exit();
+}
 
-    // Kiểm tra username từ 6–20 ký tự
-    if (strlen($username) < 6 || strlen($username) > 20) {
-        $errors[] = "Tên đăng nhập phải từ 6 đến 20 ký tự.";
-    }
+// 2. Lấy dữ liệu từ form
+$email     = trim($_POST['username']   ?? '');
+$password  = trim($_POST['password']   ?? '');
+$firstName = trim($_POST['firstname']  ?? '');
+$lastName  = trim($_POST['lastname']   ?? '');
 
-    // Kiểm tra password: tối thiểu 8 ký tự, 1 in hoa, 1 đặc biệt
-    if (
-        strlen($password) < 8 ||
-        !preg_match('/[A-Z]/', $password) ||
-        !preg_match('/[^a-zA-Z0-9]/', $password)
-    ) {
-        $errors[] = "Mật khẩu phải ít nhất 8 ký tự, chứa 1 chữ in hoa và 1 ký tự đặc biệt.";
-    }
+// 3. Validate cơ bản (có thể mở rộng thêm)
+$errors = [];
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errors[] = 'Email không hợp lệ.';
+}
+if (strlen($password) < 6) {
+    $errors[] = 'Mật khẩu phải ít nhất 6 ký tự.';
+}
+if ($firstName === '' || $lastName === '') {
+    $errors[] = 'Họ và tên không được để trống.';
+}
 
-    if (!empty($errors)) {
-        $_SESSION['signup_errors'] = $errors;
-        header("Location: ../signup.php?error=1");
-        exit();
-    }
+if (!empty($errors)) {
+    $_SESSION['signup_errors'] = $errors;
+    header('Location: ../signup.php');
+    exit();
+}
 
-    // Gửi POST đến API
-    $postData = json_encode([
-        'username'  => $username,
-        'password'  => $password,
-        'firstname' => $firstname,
-        'lastname'  => $lastname
-    ]);
+// 4. Tạo service và gọi hàm signup
+$service = new UserService();
+// Mặc định cho role ID = 1 (ví dụ: học viên)
+$response = $service->create_user($email, $password, $firstName, $lastName, 'student');
 
-    $ch = curl_init('http://localhost/CoursePro1/api/login_api.php');
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST           => true,
-        CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-        CURLOPT_POSTFIELDS     => $postData
-    ]);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    $result = json_decode($response, true);
-
-    if ($httpCode === 201 && $result['success']) {
-        header("Location: ../signup.php?success=1");
-    } else {
-        $_SESSION['signup_errors'] = [$result['message'] ?? 'Đăng ký thất bại'];
-        header("Location: ../signup.php?error=1");
-    }
+if ($response->success) {
+    // Đăng ký thành công
+    header('Location: ../signup.php?success=1');
+    exit();
+} else {
+    // Đăng ký thất bại, đọc thông báo lỗi từ service
+    $_SESSION['signup_errors'] = [ $response->message ];
+    header('Location: ../signup.php');
     exit();
 }

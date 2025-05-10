@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../model/dto/user_dto.php';
-require_once __DIR__ . '/../service/service_signup.php';
+require_once __DIR__ . '/../service/service_user.php';
 
 header("Content-Type: application/json");
 session_start();
@@ -11,9 +11,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Phương thức không được hỗ trợ']);
     exit;
 }
+$service = new UserService();
 
 $data = json_decode(file_get_contents("php://input"), true);
 
+echo $data;
+echo $data;
 // Kiểm tra trường bắt buộc
 if (!isset($data['email']) || !isset($data['password'])) {
     http_response_code(400);
@@ -21,21 +24,27 @@ if (!isset($data['email']) || !isset($data['password'])) {
     exit;
 }
 
-$service = new UserService();
 
 // Trường hợp đăng ký
 if (isset($data['isSignup']) && $data['isSignup'] === true) {
-    if (!isset($data['firstname']) || !isset($data['lastname'])) {
+    if (
+        !isset($data['email']) ||
+        !isset($data['password']) ||
+        !isset($data['firstname']) ||
+        !isset($data['lastname']) ||
+        !isset($data['role'])
+    ) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Thiếu họ hoặc tên']);
+        echo json_encode(['success' => false, 'message' => 'Thiếu thông tin đăng ký']);
         exit;
     }
-
+    // echo "đang ở phía trước create user";
     $registerResult = $service->create_user(
         $data['email'],
         $data['password'],
         $data['firstname'],
-        $data['lastname']
+        $data['lastname'],
+        $data['role'],
     );
 
     if ($registerResult->success) {

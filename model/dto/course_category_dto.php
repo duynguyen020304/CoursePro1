@@ -1,9 +1,4 @@
 <?php
-
-use DateTime;
-
-require_once("../database.php");
-
 class CourseCategoryDTO
 {
     public string $courseID;

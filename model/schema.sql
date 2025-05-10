@@ -6,6 +6,15 @@ CREATE TABLE IF NOT EXISTS Role (
     RoleName    VARCHAR(50) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+INSERT INTO Role (RoleID, RoleName) VALUES ('student', 'Học sinh')
+    ON DUPLICATE KEY UPDATE RoleName = RoleName;
+
+INSERT INTO Role (RoleID, RoleName) VALUES ('instructor', 'Giảng viên')
+    ON DUPLICATE KEY UPDATE RoleName = RoleName;
+
+INSERT INTO Role (RoleID, RoleName) VALUES ('admin', 'Quản trị viên')
+    ON DUPLICATE KEY UPDATE RoleName = RoleName;
+
 -- 2. Users
 CREATE TABLE IF NOT EXISTS Users (
     UserID   VARCHAR(20) PRIMARY KEY,
@@ -35,10 +44,13 @@ CREATE TABLE IF NOT EXISTS Student (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 5. Category
-CREATE TABLE IF NOT EXISTS Category (
-    CategoryID VARCHAR(20) PRIMARY KEY,
-    Name       VARCHAR(100) NOT NULL UNIQUE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE  categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    parent_id INT DEFAULT NULL,  -- NULL nếu là danh mục gốc
+    sort_order INT DEFAULT 0,    -- (Tùy chọn) để sắp xếp
+    FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE -- (Tùy chọn) Tự động xóa con khi xóa cha
+);
 
 -- 6. Course
 CREATE TABLE IF NOT EXISTS Course (
