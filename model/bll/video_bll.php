@@ -1,6 +1,6 @@
 <?php
-require_once("../database.php");
-require_once("../dto/video_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/video_dto.php';
 class VideoBLL extends Database
 {
     public function create_video(VideoDTO $v)

@@ -84,7 +84,7 @@ if (session_status() == PHP_SESSION_NONE) { // Chỉ cần kiểm tra và gọi 
                         <li><a class="dropdown-item" href="#">Purchase history</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item d-flex align-items-center justify-content-between" href="#">Language <span class="text-muted small">English &nbsp;<i class="bi bi-globe"></i></span></a></li>
-                        <li><a class="dropdown-item" href="#">Public profile</a></li>
+                        <li><a class="dropdown-item" href="user.php">Public profile</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="logout.php">Log out</a></li>
                     </ul>

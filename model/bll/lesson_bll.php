@@ -1,6 +1,6 @@
 <?php
-require_once("../database.php");
-require_once("../dto/lesson_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/lesson_dto.php';
 class LessonBLL extends Database
 {
     public function create_lesson(LessonDTO $l)

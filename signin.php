@@ -32,6 +32,7 @@ include('template/head.php');
             </div>
             <button type="submit" class="btn">Sign In</button>
         </form>
+        <p class="message"><a href="forgot-password.php">Quên mật khẩu?</a></p>
         <p class="message">Don't have an account? <a href="signup.php">Sign up</a></p>
     </div>
 </main>
