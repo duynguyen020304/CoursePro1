@@ -63,4 +63,33 @@ class CategoryBLL extends Database
         $this->close();
         return $list;
     }
+    public function get_nested_categories(): array
+    {
+        $sql = "SELECT * FROM categories ORDER BY sort_order ASC, name ASC";
+        $result = $this->execute($sql);
+
+        $all = [];
+        while ($row = $result->fetch_assoc()) {
+            $dto = new CategoryDTO(
+                (int)$row['id'],
+                $row['name'],
+                isset($row['parent_id']) ? (int)$row['parent_id'] : null,
+                (int)$row['sort_order']
+            );
+            $all[$dto->id] = ['data' => $dto, 'children' => []];
+        }
+
+        $tree = [];
+        foreach ($all as $id => &$node) {
+            $parentID = $node['data']->parent_id;
+            if ($parentID === null) {
+                $tree[$id] = &$node;
+            } elseif (isset($all[$parentID])) {
+                $all[$parentID]['children'][] = &$node;
+            }
+        }
+
+        $this->close();
+        return $tree;
+    }
 }
