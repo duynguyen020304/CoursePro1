@@ -2,7 +2,8 @@
 <nav class="navbar navbar-expand-lg custom-navbar">
     <div class="container-fluid">
         <a class="navbar-brand" href="home.php">Course Online</a>
-        <a class="nav-link category-link" href="#">Category</a>
+        <a class="nav-link category-link" href="#" id="categoryMenuBtn">Category</a>
+        <div id="categoryDropdownMenu" class="category-dropdown-menu"></div>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,5 +129,61 @@ if (isset($_SESSION['user'])) {
 <?php } ?>
             </ul>
         </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+            const categoryBtn = document.getElementById("categoryMenuBtn");
+            const dropdown = document.getElementById("categoryDropdownMenu");
+            let loaded = false;
+
+            // Build tree HTML
+            function buildTree(categories, parentId = null) {
+                let html = '<ul class="cat-tree-menu">';
+                categories.filter(cat => String(cat.parent_id) === String(parentId)).forEach(cat => {
+                const children = categories.filter(c => String(c.parent_id) === String(cat.id));
+                const hasChildren = children.length > 0;
+                html += `<li class="cat-tree-item${hasChildren ? ' has-children' : ''}">`;
+                html += `<a href="#" class="cat-tree-link">${cat.name}${hasChildren ? '<span class="cat-arrow">&#8250;</span>' : ''}</a>`;
+                if(hasChildren) html += buildTree(categories, cat.id);
+                html += `</li>`;
+                });
+                html += '</ul>';
+                return html;
+            }
+
+            // Canh dropdown sát dưới nút Category
+            function alignDropdown() {
+                const rect = categoryBtn.getBoundingClientRect();
+                dropdown.style.position = "absolute";
+                dropdown.style.left = rect.left + 'px';
+                dropdown.style.top = rect.bottom + window.scrollY + 'px';
+                dropdown.style.minWidth = categoryBtn.offsetWidth + 'px';
+                dropdown.style.zIndex = 1050;
+            }
+
+            let dropdownTimeout = null;
+            categoryBtn.addEventListener("mouseenter", function() {
+                alignDropdown();
+                dropdown.style.display = "block";
+                if (!loaded) {
+                fetch("/CoursePro1/api/category_api.php?tree=0")
+                    .then(res => res.json())
+                    .then(data => {
+                    dropdown.innerHTML = buildTree(data.data);
+                    loaded = true;
+                    });
+                }
+            });
+            categoryBtn.addEventListener("mouseleave", function() {
+                dropdownTimeout = setTimeout(()=>{ if (!dropdown.matches(":hover")) dropdown.style.display = "none"; }, 250);
+            });
+            dropdown.addEventListener("mouseleave", function() {
+                dropdownTimeout = setTimeout(()=>{ dropdown.style.display = "none"; }, 250);
+            });
+            dropdown.addEventListener("mouseenter", function() {
+                if (dropdownTimeout) clearTimeout(dropdownTimeout);
+                dropdown.style.display = "block";
+            });
+            });
+        </script>
     </div>
 </nav>

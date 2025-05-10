@@ -51,6 +51,116 @@ CREATE TABLE  categories (
     sort_order INT DEFAULT 0,    -- (Tùy chọn) để sắp xếp
     FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE -- (Tùy chọn) Tự động xóa con khi xóa cha
 );
+-- Insert root categories
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (1, 'Phát triển', NULL, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (33, 'Kinh doanh', NULL, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (41, 'CNTT & Phần mềm', NULL, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (49, 'Thiết kế', NULL, 4);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (56, 'Marketing', NULL, 5);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (63, 'Phát triển cá nhân', NULL, 6);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (69, 'Âm nhạc', NULL, 7);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (73, 'Sức khỏe & Thể hình', NULL, 8);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (78, 'Giảng dạy & Học thuật', NULL, 9);
+
+-- Insert sub-categories for Phát triển (ID: 1)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (2, 'Lập trình Web', 1, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (14, 'Lập trình Mobile', 1, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (20, 'Lập trình Game', 1, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (24, 'Phát triển phần mềm', 1, 4);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (30, 'Lập trình nhúng / IoT', 1, 5);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (31, 'Blockchain', 1, 6);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (32, 'No-Code Development', 1, 7);
+
+-- Insert sub-categories for Lập trình Web (ID: 2)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (3, 'HTML & CSS', 2, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (4, 'JavaScript', 2, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (5, 'ReactJS', 2, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (6, 'VueJS', 2, 4);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (7, 'Angular', 2, 5);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (8, 'PHP', 2, 6);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (9, 'Laravel', 2, 7);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (10, 'ASP.NET', 2, 8);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (11, 'Django', 2, 9);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (12, 'NodeJS', 2, 10);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (13, 'Web APIs', 2, 11);
+
+-- Insert sub-categories for Lập trình Mobile (ID: 14)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (15, 'Android Development', 14, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (16, 'iOS Development', 14, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (17, 'React Native', 14, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (18, 'Flutter', 14, 4);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (19, 'Xamarin', 14, 5);
+
+-- Insert sub-categories for Lập trình Game (ID: 20)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (21, 'Unity', 20, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (22, 'Unreal Engine', 20, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (23, 'Godot', 20, 3);
+
+-- Insert sub-categories for Phát triển phần mềm (ID: 24)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (25, 'Python', 24, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (26, 'Java', 24, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (27, 'C++', 24, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (28, 'C#', 24, 4);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (29, 'Rust', 24, 5);
+
+-- Insert sub-categories for Kinh doanh (ID: 33)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (34, 'Quản trị kinh doanh', 33, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (35, 'Doanh nghiệp khởi nghiệp', 33, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (36, 'Quản lý dự án', 33, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (37, 'Agile & Scrum', 33, 4);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (38, 'Tài chính & Kế toán', 33, 5);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (39, 'Phân tích kinh doanh (Business Analytics)', 33, 6);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (40, 'Nhân sự (HR)', 33, 7);
+
+-- Insert sub-categories for CNTT & Phần mềm (ID: 41)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (42, 'Mạng máy tính & Bảo mật', 41, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (43, 'Ethical Hacking', 41, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (44, 'Khoa học dữ liệu (Data Science)', 41, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (45, 'Trí tuệ nhân tạo (AI)', 41, 4);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (46, 'Hệ điều hành (Linux, Windows Server)', 41, 5);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (47, 'DevOps', 41, 6);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (48, 'Kiểm thử phần mềm (Software Testing)', 41, 7);
+
+-- Insert sub-categories for Thiết kế (ID: 49)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (50, 'Thiết kế Web', 49, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (51, 'Thiết kế UI/UX', 49, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (52, 'Adobe Photoshop', 49, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (53, 'Illustrator', 49, 4);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (54, 'Thiết kế đồ họa 2D/3D', 49, 5);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (55, 'Thiết kế sản phẩm', 49, 6);
+
+-- Insert sub-categories for Marketing (ID: 56)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (57, 'Digital Marketing', 56, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (58, 'SEO', 56, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (59, 'Google Ads / Facebook Ads', 56, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (60, 'Content Marketing', 56, 4);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (61, 'Email Marketing', 56, 5);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (62, 'Affiliate Marketing', 56, 6);
+
+-- Insert sub-categories for Phát triển cá nhân (ID: 63)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (64, 'Kỹ năng giao tiếp', 63, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (65, 'Lãnh đạo', 63, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (66, 'Quản lý thời gian', 63, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (67, 'Tư duy phản biện', 63, 4);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (68, 'Đọc nhanh & Ghi nhớ', 63, 5);
+
+-- Insert sub-categories for Âm nhạc (ID: 69)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (70, 'Nhạc cụ (Piano, Guitar, v.v.)', 69, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (71, 'Sản xuất âm nhạc', 69, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (72, 'DJ & Âm thanh điện tử', 69, 3);
+
+-- Insert sub-categories for Sức khỏe & Thể hình (ID: 73)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (74, 'Yoga', 73, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (75, 'Thiền', 73, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (76, 'Dinh dưỡng', 73, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (77, 'Tập luyện thể hình', 73, 4);
+
+-- Insert sub-categories for Giảng dạy & Học thuật (ID: 78)
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (79, 'Toán học', 78, 1);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (80, 'Vật lý', 78, 2);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (81, 'Lập trình cho trẻ em', 78, 3);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (82, 'Khoa học máy tính', 78, 4);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (83, 'IELTS, TOEIC, TOEFL', 78, 5);
 
 -- 6. Course
 CREATE TABLE IF NOT EXISTS Course (
