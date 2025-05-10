@@ -36,7 +36,7 @@ if (!empty($errors)) {
 
 // 4. Tạo service và gọi hàm signup
 $service = new UserService();
-// Mặc định cho role ID = 1 (ví dụ: học viên)
+
 $response = $service->create_user($email, $password, $firstName, $lastName, 'student');
 
 if ($response->success) {
