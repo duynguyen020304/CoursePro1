@@ -60,8 +60,10 @@ class CategoryService
                 return new ServiceResponse(false, 'Danh mục không tồn tại');
             }
 
-            $this->bll->delete_category($id);
-            return new ServiceResponse(true, 'Xóa danh mục thành công');
+            if ($this->bll->delete_category($id)) {
+                return new ServiceResponse(true, 'Xóa danh mục thành công');
+            }
+            return new ServiceResponse(false, 'Xóa danh mục thất bại');
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi xóa: ' . $e->getMessage());
         }

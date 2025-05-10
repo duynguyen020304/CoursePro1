@@ -6,8 +6,9 @@ class OrderDetailBLL extends Database
     public function add_detail(OrderDetailDTO $detail)
     {
         $sql = "INSERT INTO OrderDetail (OrderID, CourseID, Price) VALUES ('{$detail->orderID}', '{$detail->courseID}', {$detail->price})";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function get_details_by_order(string $orderID): array

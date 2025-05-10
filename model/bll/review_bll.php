@@ -7,15 +7,17 @@ class ReviewBLL extends Database
     {
         $comment = $r->comment ? "'{$r->comment}'" : 'NULL';
         $sql = "INSERT INTO Review (ReviewID, UserID, CourseID, Rating, Comment) VALUES ('{$r->reviewID}', '{$r->userID}', '{$r->courseID}', {$r->rating}, {$comment})";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function delete_review(string $reviewID)
     {
         $sql = "DELETE FROM Review WHERE ReviewID = '{$reviewID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function get_reviews_by_course(string $courseID): array

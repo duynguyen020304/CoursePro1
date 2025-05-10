@@ -9,15 +9,17 @@ class CategoryBLL extends Database
         $parent = is_null($cat->parent_id) ? "NULL" : $cat->parent_id;
         $sql = "INSERT INTO categories (name, parent_id, sort_order)
                 VALUES ('{$cat->name}', {$parent}, {$cat->sort_order})";
-        $this->execute($sql);
+        $result = $this->execute($sql);
         // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function delete_category(int $id)
     {
         $sql = "DELETE FROM categories WHERE id = {$id}";
-        $this->execute($sql);
+        $result = $this->execute($sql);
         // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function update_category(CategoryDTO $cat)
@@ -26,8 +28,9 @@ class CategoryBLL extends Database
         $sql = "UPDATE categories
                 SET name = '{$cat->name}', parent_id = {$parent}, sort_order = {$cat->sort_order}
                 WHERE id = {$cat->id}";
-        $this->execute($sql);
+        $result = $this->execute($sql);
         // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function get_category(int $id): ?CategoryDTO

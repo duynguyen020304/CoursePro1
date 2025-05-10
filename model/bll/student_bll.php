@@ -8,15 +8,17 @@ class StudentBLL extends Database
         $courses = $stu->completedCourses ? "'{$stu->completedCourses}'" : "''";
         $date = $stu->enrollmentDate->format('Y-m-d H:i:s');
         $sql = "INSERT INTO `Student` (StudentID, UserID, EnrollmentDate, CompletedCourses) VALUES ('{$stu->studentID}', '{$stu->userID}', '{$date}', {$courses})";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function delete_student(string $stuID)
     {
         $sql = "DELETE FROM `Student` WHERE StudentID = '{$stuID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function update_student(StudentDTO $stu)
@@ -24,8 +26,9 @@ class StudentBLL extends Database
         $courses = $stu->completedCourses ? "CompletedCourses = '{$stu->completedCourses}'," : '';
         $date = $stu->enrollmentDate->format('Y-m-d H:i:s');
         $sql = "UPDATE `Student` SET UserID = '{$stu->userID}', EnrollmentDate = '{$date}', {$courses} WHERE StudentID = '{$stu->studentID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function get_student(string $stuID): ?StudentDTO
@@ -36,7 +39,7 @@ class StudentBLL extends Database
         if ($row = $result->fetch_assoc()) {
             $dto = new StudentDTO($row['StudentID'], $row['UserID'], new DateTime($row['EnrollmentDate']), $row['CompletedCourses']);
         }
-        $this->close();
+        // $this->close();
         return $dto;
     }
 
@@ -48,7 +51,7 @@ class StudentBLL extends Database
         while ($row = $result->fetch_assoc()) {
             $list[] = new StudentDTO($row['StudentID'], $row['UserID'], new DateTime($row['EnrollmentDate']), $row['CompletedCourses']);
         }
-        $this->close();
+        // $this->close();
         return $list;
     }
 }

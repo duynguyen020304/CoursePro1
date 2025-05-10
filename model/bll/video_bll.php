@@ -7,8 +7,9 @@ class VideoBLL extends Database
     {
         $title = $v->title ? "'{$v->title}'" : 'NULL';
         $sql = "INSERT INTO Video (VideoID, LessonID, Url, Title, SortOrder) VALUES ('{$v->videoID}', '{$v->lessonID}', '{$v->url}', {$title}, {$v->sortOrder})";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function delete_video(string $vid)

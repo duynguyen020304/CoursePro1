@@ -9,7 +9,6 @@ class UserBLL extends Database
         $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
         $sql = "INSERT INTO `Users` (UserID, Name, Email, Password, RoleID)
             VALUES ('{$user->userID}', '{$user->name}', '{$user->email}', '{$hashedPassword}', '{$user->roleID}')";
-
         $result = $this->execute($sql);
         return $result === true && $this->getAffectedRows() === 1;
     }

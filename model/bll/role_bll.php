@@ -6,22 +6,25 @@ class RoleBLL extends Database
     public function create_role(RoleDTO $role)
     {
         $sql = "INSERT INTO `Role` (RoleID, RoleName) VALUES ('{$role->roleID}', '{$role->roleName}')";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function delete_role(string $roleID)
     {
         $sql = "DELETE FROM `Role` WHERE RoleID = '{$roleID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function update_role(RoleDTO $role)
     {
         $sql = "UPDATE `Role` SET RoleName = '{$role->roleName}' WHERE RoleID = '{$role->roleID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function get_role(string $roleID): ?RoleDTO
@@ -32,7 +35,7 @@ class RoleBLL extends Database
         if ($row = $result->fetch_assoc()) {
             $dto = new RoleDTO($row['RoleID'], $row['RoleName']);
         }
-        $this->close();
+        // $this->close();
         return $dto;
     }
 
@@ -44,7 +47,7 @@ class RoleBLL extends Database
         while ($row = $result->fetch_assoc()) {
             $roles[] = new RoleDTO($row['RoleID'], $row['RoleName']);
         }
-        $this->close();
+        // $this->close();
         return $roles;
     }
 }
