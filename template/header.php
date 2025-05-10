@@ -91,49 +91,11 @@ if (isset($_SESSION['user'])) {
                         <li><a class="dropdown-item" href="#">Purchase history</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item d-flex align-items-center justify-content-between" href="#">Language <span class="text-muted small">English &nbsp;<i class="bi bi-globe"></i></span></a></li>
-                        <li><a class="dropdown-item" href="#">Public profile</a></li>
+                        <li><a class="dropdown-item" href="user.php">Public profile</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="logout.php">Log out</a></li>
                     </ul>
                 </li>
-                <style>
-                    /* Thêm CSS để avatar & menu giống mẫu */
-                    .avatar-btn { position: relative; cursor: pointer; }
-                    .avatar-circle, .avatar-circle-big {
-                        display: inline-block;
-                        background: #222;
-                        color: #fff;
-                        font-weight: bold;
-                        border-radius: 50%;
-                        width: 32px; height: 32px;
-                        text-align: center; line-height: 32px;
-                        font-size: 1rem;
-                        user-select: none;
-                    }
-                    .avatar-circle-big {
-                        width: 50px; height: 50px;
-                        font-size: 1.5rem; line-height: 50px;
-                    }
-                    .avatar-dot {
-                        width:10px; height:10px;
-                        border-radius:50%;
-                        background: #a259ff; border:2px solid #fff;
-                        position:absolute; top:2px; right:4px;
-                    }
-                    .user-dropdown-menu {
-                        width: 270px;
-                        border-radius: 12px;
-                        box-shadow: 0 6px 48px rgba(32, 32, 72, 0.12);
-                    }
-                    .user-avatar-nav .dropdown-menu {
-                        left: auto; right: 0;
-                    }
-                    .dropdown-header { padding: 16px 10px 10px 10px; }
-                    .dropdown-item .badge { font-size: 12px; }
-                    .dropdown-divider {
-                        margin: 0.4rem 0;
-                    }
-                </style>
                 <script>
                 // Đảm bảo dropdown hoạt động với Bootstrap 5
                 document.addEventListener("DOMContentLoaded", function() {
