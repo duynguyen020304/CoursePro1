@@ -6,15 +6,17 @@ class CourseCategoryBLL extends Database
     public function link_course_category(CourseCategoryDTO $cc)
     {
         $sql = "INSERT INTO `CourseCategory` (CourseID, CategoryID) VALUES ('{$cc->courseID}', '{$cc->categoryID}')";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function unlink_course_category(string $courseID, string $categoryID)
     {
         $sql = "DELETE FROM `CourseCategory` WHERE CourseID = '{$courseID}' AND CategoryID = '{$categoryID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function get_categories_by_course(string $courseID): array

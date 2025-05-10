@@ -7,15 +7,16 @@ class CourseBLL extends Database
     {
         $desc = $c->description ? "'{$c->description}'" : 'NULL';
         $sql = "INSERT INTO `Course` (CourseID, Title, Description, Price, CreatedBy) VALUES ('{$c->courseID}', '{$c->title}', {$desc}, {$c->price}, '{$c->createdBy}')";
-        $this->execute($sql);
+        $result = $this->execute($sql);
         // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function delete_course(string $courseID)
     {
         $sql = "DELETE FROM `Course` WHERE CourseID = '{$courseID}'";
         $this->execute($sql);
-        // $this->close();
+        $this->close();
     }
 
     public function update_course(CourseDTO $c)
@@ -23,7 +24,7 @@ class CourseBLL extends Database
         $desc = $c->description ? "Description = '{$c->description}'," : '';
         $sql = "UPDATE `Course` SET Title = '{$c->title}', {$desc} Price = {$c->price}, CreatedBy = '{$c->createdBy}' WHERE CourseID = '{$c->courseID}'";
         $this->execute($sql);
-        // $this->close();
+        $this->close();
     }
 
     public function get_course(string $courseID): ?CourseDTO

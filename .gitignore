@@ -1,0 +1,21 @@
+# Composer dependencies
+/vendor/
+
+# If you used a composer.phar in your repo:
+composer.phar
+
+# Composer runtime file (you usually commit composer.json + composer.lock)
+/composer.lock
+
+# Environment files
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE/editor settings
+/.idea/
+/.vscode/
+/*.sublime-workspace
+*.swp
