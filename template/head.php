@@ -1,6 +1,7 @@
 <?php
 // Đặt đúng tên folder của bạn trên webserver, ví dụ '/COURSEPRO1'
 define('BASE_URL', '/CoursePro1');
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

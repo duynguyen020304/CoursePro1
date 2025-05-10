@@ -44,4 +44,86 @@ class UserService
 
         return new ServiceResponse(false, "Tạo tài khoản thất bại");
     }
+    
+    public function get_user_by_id(string $userID): ServiceResponse
+    {
+        try {
+            $user = $this->userBll->get_user_by_id($userID);
+            if (!$user) {
+                return new ServiceResponse(false, 'Người dùng không tồn tại');
+            }
+            return new ServiceResponse(true, 'Lấy thông tin người dùng thành công', $user);
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi: ' . $e->getMessage());
+        }
+    }
+    public function get_all_users(): ServiceResponse
+    {
+        try {
+            $users = $this->userBll->get_all_users();
+            return new ServiceResponse(true, 'Lấy danh sách người dùng thành công', $users);
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi: ' . $e->getMessage());
+        }
+    }
+        public function update_user_partial(array $data): ServiceResponse
+{
+    try {
+        if (empty($data['userID'])) {
+            return new ServiceResponse(false, 'Thiếu userID');
+        }
+
+        $existing = $this->userBll->get_user_by_id($data['userID']);
+        if (!$existing) {
+            return new ServiceResponse(false, 'Người dùng không tồn tại');
+        }
+
+        // build từng trường: nếu client có thì dùng, không thì giữ nguyên
+        $newPassword = isset($data['password'])
+            ? password_hash($data['password'], PASSWORD_DEFAULT)
+            : $existing->password;
+
+        $newEmail     = isset($data['email'])
+            ? $data['email']
+            : $existing->email;
+
+        $newRole      = isset($data['role'])
+            ? $data['role']
+            : $existing->roleID;
+
+        $newName = isset($data['name'])
+            ? $data['name']
+            : $existing->name;
+
+
+        // Tạo DTO mới với đủ 6 tham số
+        $updated = new UserDTO(
+            $existing->userID,
+            $newName,
+            $newEmail,
+            $newPassword,
+            $newRole
+        );
+        $this->userBll->update_user($updated);
+        return new ServiceResponse(true, 'Cập nhật người dùng thành công');
+    } catch (Exception $e) {
+        return new ServiceResponse(false, 'Lỗi khi cập nhật: ' . $e->getMessage());
+    }
+}
+
+
+    public function delete_user(string $userID): ServiceResponse
+    {
+        try {
+            $exists = $this->userBll->get_user_by_id($userID);
+            if (!$exists) {
+                return new ServiceResponse(false, 'Người dùng không tồn tại');
+            }
+
+            $this->userBll->delete_user($userID); // đảm bảo có phương thức này
+            return new ServiceResponse(true, 'Xóa người dùng thành công');
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi khi xóa: ' . $e->getMessage());
+        }
+    }
 }

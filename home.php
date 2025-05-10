@@ -1,3 +1,18 @@
+<?php
+// Luôn gọi session_start() ở đầu file để sử dụng session
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (isset($_SESSION['user']) && isset($_SESSION['user']['userID'])) {
+    $current_userID = $_SESSION['user']['userID'];
+
+    // echo "ID của người dùng đang đăng nhập là: " . htmlspecialchars($current_userID);
+} else {
+   
+    echo "Người dùng chưa đăng nhập.";
+}
+?>
 <?php include('template/head.php'); ?>
 
 <link href="public/CSS/home.css" rel="stylesheet">
