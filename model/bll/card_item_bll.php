@@ -1,6 +1,6 @@
 <?php
-require_once("database.php");
-require_once("../dto/cart_item_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/cart_item_dto.php';
 class CartItemBLL extends Database
 {
     public function create_item(CartItemDTO $item)

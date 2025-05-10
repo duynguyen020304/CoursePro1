@@ -1,6 +1,6 @@
 <?php
-require_once("../database.php");
-require_once("../dto/review_dto.php");
+require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../dto/review_dto.php';
 class ReviewBLL extends Database
 {
     public function create_review(ReviewDTO $r)
