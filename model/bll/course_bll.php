@@ -15,16 +15,18 @@ class CourseBLL extends Database
     public function delete_course(string $courseID)
     {
         $sql = "DELETE FROM `Course` WHERE CourseID = '{$courseID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function update_course(CourseDTO $c)
     {
         $desc = $c->description ? "Description = '{$c->description}'," : '';
         $sql = "UPDATE `Course` SET Title = '{$c->title}', {$desc} Price = {$c->price}, CreatedBy = '{$c->createdBy}' WHERE CourseID = '{$c->courseID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function get_course(string $courseID): ?CourseDTO
