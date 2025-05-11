@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../service/service_course.php';
+// echo "B1";
+
 
 header("Content-Type: application/json");
 $service = new CourseService();
@@ -17,20 +19,22 @@ switch ($_SERVER['REQUEST_METHOD']) {
     case 'POST':
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!isset($data['title'], $data['price'], $data['instructorID'], $data['categories'])) {
+        if (!isset($data['title'], $data['price'], $data['instructorID'], $data['categoriesID'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu đầu vào']);
             exit;
         }
-
+        echo "B2";
         $description = $data['description'] ?? null;
+        // echo $description;
         $response = $service->create_course(
             $data['title'],
             $description,
             floatval($data['price']),
             $data['instructorID'],
-            $data['categories']
+            $data['categoriesID']
         );
+        echo "B3";
 
         http_response_code($response->success ? 200 : 500);
         echo json_encode(['success' => $response->success, 'message' => $response->message]);
@@ -52,7 +56,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $description,
             floatval($data['price']),
             $data['instructorID'],
-            $data['categories']
+            $data['categoriesID']
         );
 
         http_response_code($response->success ? 200 : 500);

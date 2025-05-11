@@ -43,6 +43,24 @@ CREATE TABLE IF NOT EXISTS Student (
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Sample data for Users
+INSERT INTO Users (UserID, Name, Email, Password, RoleID) VALUES
+('u_1', 'Nguyen Van A', 'vana@example.com', 'hashed_password_1', 'R2'),
+('u_2', 'Tran Thi B', 'thib@example.com', 'hashed_password_2', 'R3'),
+('u_3', 'Le Van C', 'vanc@example.com', 'hashed_password_3', 'R3'),
+('u_4', 'Pham Thi D', 'thid@example.com', 'hashed_password_4', 'R2');
+
+
+-- Sample data for Instructor
+INSERT INTO Instructor (InstructorID, UserID, Biography, ProfileImage) VALUES
+('i_1', 'u_1', 'Nguyen Van A has 10 years of experience in software development.', 'images/vana_profile.jpg'),
+('i_2', 'u_2', 'Tran Thi B specializes in data science and AI.', 'images/thid_profile.jpg');
+
+-- Sample data for Student
+INSERT INTO Student (StudentID, UserID, EnrollmentDate, CompletedCourses) VALUES
+('s_1', 'u_3', '2023-09-01 08:00:00', 'Math 101, Physics 101'),
+('s_2', 'u_4', '2024-01-15 09:30:00', 'English 101');
+
 -- 5. Category
 CREATE TABLE  categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
