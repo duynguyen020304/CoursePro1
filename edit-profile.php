@@ -1,0 +1,327 @@
+<?php
+// Bật session
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Kiểm tra đã login chưa
+if (!isset($_SESSION['user']['userID'])) {
+    header('Location: /login.php');
+    exit;
+}
+
+// Nạp class service và DTO
+require_once __DIR__ . '/service/service_user.php';
+require_once __DIR__ . '/model/dto/user_dto.php';
+
+// Khởi tạo service và gọi lấy user
+$userService = new UserService();
+$response    = $userService->get_user_by_id($_SESSION['user']['userID']);
+
+if (!$response->success) {
+    $user = (object) [
+        'userID' => $_SESSION['user']['userID'],
+        'name' => 'Người dùng Mẫu',
+        'firstName' => 'Người',
+        'lastName' => 'Dùng Mẫu',
+        'headline' => 'Học viên tại Ecourse',
+        'bio' => 'Tôi là một người đam mê học hỏi và khám phá những điều mới mẻ thông qua các khóa học trực tuyến.',
+        'email' => 'user@example.com',
+        'profileImage' => null,
+        'websiteLink' => 'https://example.com',
+        'twitterLink' => 'https://twitter.com/ecourseUser',
+        'facebookLink' => 'https://facebook.com/ecourseUser',
+        'linkedinLink' => 'https://linkedin.com/in/ecourseUser',
+        'youtubeLink' => 'https://youtube.com/ecourseUser'
+    ];
+} else {
+    /** @var \App\DTO\UserDTO $user */
+    $user = $response->data;
+    if (!isset($user->firstName)) $user->firstName = strtok($user->name, ' ');
+    if (!isset($user->lastName)) $user->lastName = substr(strstr($user->name, ' '), 1) ?: '';
+    if (!isset($user->headline)) $user->headline = '';
+    if (!isset($user->bio)) $user->bio = '';
+    if (!isset($user->websiteLink)) $user->websiteLink = '';
+    if (!isset($user->twitterLink)) $user->twitterLink = '';
+    if (!isset($user->facebookLink)) $user->facebookLink = '';
+    if (!isset($user->linkedinLink)) $user->linkedinLink = '';
+    if (!isset($user->youtubeLink)) $user->youtubeLink = '';
+}
+
+$updateMessage = '';
+$messageType = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['save_profile'])) {
+        $updateMessage = 'Chức năng cập nhật thông tin đang được phát triển.';
+        $messageType = 'info';
+    }
+    if (isset($_POST['save_photo']) && isset($_FILES['profileImageFile']) && $_FILES['profileImageFile']['error'] == 0) {
+         $updateMessage = 'Chức năng cập nhật ảnh đại diện đang được phát triển.';
+        $messageType = 'info';
+    }
+    if (isset($_POST['save_password'])) {
+        $updateMessage = 'Chức năng cập nhật mật khẩu đang được phát triển.';
+        $messageType = 'info';
+    }
+}
+
+// Xác định trang hiện tại để active menu
+$current_page = basename($_SERVER['PHP_SELF']);
+?>
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa Hồ sơ - Ecourse</title>
+    <link href="public/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { width: 260px; height: 100vh; position: fixed; top: 0; left: 0; background-color: #343a40; padding-top: 1rem; transition: all 0.3s; z-index: 1030; }
+        .sidebar .nav-link { color: #adb5bd; padding: 0.75rem 1.5rem; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background-color: #495057; }
+        .sidebar .sidebar-header { color: #fff; padding: 0 1.5rem 1rem 1.5rem; font-size: 1.2rem; font-weight: bold; }
+        .main-content { transition: margin-left 0.3s; padding: 0; overflow-x: hidden; }
+        @media (min-width: 992px) { .main-content { margin-left: 260px; } }
+        .offcanvas-start { width: 260px; background-color: #343a40; }
+        .offcanvas-header { border-bottom: 1px solid #495057; }
+        .offcanvas-title { color: #fff; }
+        .offcanvas-body .nav-link { color: #adb5bd; }
+        .offcanvas-body .nav-link:hover, .offcanvas-body .nav-link.active { color: #fff; background-color: #495057; }
+        .btn-close-white { filter: invert(1) grayscale(100%) brightness(200%); }
+        .nav-link i { vertical-align: middle; }
+        .profile-header { background-color: #212529; color: #fff; padding: 2rem 1.5rem; }
+        @media (min-width: 992px) {
+             .profile-header { padding: 2rem calc((100% - 260px - (min(1140px, 100% - 260px - 3rem)))/2 + 1.5rem); }
+             .profile-content-wrapper { padding-left: calc((100% - 260px - (min(1140px, 100% - 260px - 3rem)))/2 + 1.5rem); padding-right: calc((100% - 260px - (min(1140px, 100% - 260px - 3rem)))/2 + 1.5rem); padding-top: 1.5rem; padding-bottom: 1.5rem; }
+        }
+        @media (max-width: 991.98px) { .profile-content-wrapper { padding: 1.5rem; } }
+        .profile-nav .nav-link { color: #f8f9fa; padding: 0.75rem 1rem; border-bottom: 3px solid transparent; margin-right: 0.5rem; }
+        .profile-nav .nav-link.active { color: #fff; border-bottom-color: #fff; font-weight: 500; }
+        .profile-nav .nav-link:hover { color: #fff; }
+        .form-section { padding: 2rem; background-color: #fff; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); margin-bottom:1.5rem; /* Thêm margin bottom cho card */ }
+        .profile-image-lg { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075); }
+        .form-control:disabled, .form-control[readonly] { background-color: #e9ecef; opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar d-none d-lg-block">
+        <div class="sidebar-header">
+            <a href="home.php" class="text-white text-decoration-none">Ecourse</a>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link <?php echo ($current_page == 'user.php') ? 'active' : ''; ?>" href="user.php"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+            <a class="nav-link <?php echo ($current_page == 'purchase-history.php') ? 'active' : ''; ?>" href="purchase-history.php"><i class="bi bi-clock-history me-2"></i> Lịch sử mua hàng</a>
+            <a class="nav-link <?php echo ($current_page == 'certificates.php') ? 'active' : ''; ?>" href="certificates.php"><i class="bi bi-patch-check me-2"></i> Chứng chỉ</a>
+            <a class="nav-link <?php echo ($current_page == 'edit-profile.php') ? 'active' : ''; ?>" href="edit-profile.php"><i class="bi bi-pencil-square me-2"></i> Chỉnh sửa Hồ sơ</a>
+            <a class="nav-link <?php echo ($current_page == 'support.php') ? 'active' : ''; ?>" href="support.php"><i class="bi bi-headset me-2"></i> Hỗ trợ</a>
+            <a class="nav-link" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Đăng xuất</a>
+        </nav>
+    </div>
+
+    <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
+            <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <nav class="nav flex-column">
+                 <a class="nav-link <?php echo ($current_page == 'user.php') ? 'active' : ''; ?>" href="user.php"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                <a class="nav-link <?php echo ($current_page == 'purchase-history.php') ? 'active' : ''; ?>" href="purchase-history.php"><i class="bi bi-clock-history me-2"></i> Lịch sử mua hàng</a>
+                <a class="nav-link <?php echo ($current_page == 'certificates.php') ? 'active' : ''; ?>" href="certificates.php"><i class="bi bi-patch-check me-2"></i> Chứng chỉ</a>
+                <a class="nav-link <?php echo ($current_page == 'edit-profile.php') ? 'active' : ''; ?>" href="edit-profile.php"><i class="bi bi-pencil-square me-2"></i> Chỉnh sửa Hồ sơ</a>
+                <a class="nav-link <?php echo ($current_page == 'support.php') ? 'active' : ''; ?>" href="support.php"><i class="bi bi-headset me-2"></i> Hỗ trợ</a>
+                <a class="nav-link" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Đăng xuất</a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header class="profile-header">
+            <div class="container-xl px-0 px-lg-3"> <h2 class="mb-3">Tài khoản</h2>
+                <ul class="nav profile-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profileContent" role="tab" aria-controls="profileContent" aria-selected="true"><i class="bi bi-person-fill me-1"></i> Hồ sơ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="photo-tab" data-bs-toggle="tab" href="#photoContent" role="tab" aria-controls="photoContent" aria-selected="false"><i class="bi bi-image-fill me-1"></i> Ảnh đại diện</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="account-tab" data-bs-toggle="tab" href="#accountContent" role="tab" aria-controls="accountContent" aria-selected="false"><i class="bi bi-shield-lock-fill me-1"></i> Tài khoản</a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" id="social-tab" data-bs-toggle="tab" href="#socialContent" role="tab" aria-controls="socialContent" aria-selected="false"><i class="bi bi-share-fill me-1"></i> Mạng xã hội</a>
+                    </li>
+                </ul>
+            </div>
+        </header>
+
+        <div class="profile-content-wrapper container-xl px-0 px-lg-3">
+            <?php if ($updateMessage): ?>
+            <div class="alert alert-<?= $messageType ?> alert-dismissible fade show my-3" role="alert">
+                <?= htmlspecialchars($updateMessage) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php endif; ?>
+
+            <div class="tab-content py-3" id="profileTabContent">
+                <div class="tab-pane fade show active" id="profileContent" role="tabpanel" aria-labelledby="profile-tab">
+                    <section class="form-section">
+                        <h4 class="mb-4">Thông tin công khai</h4>
+                        <form action="edit-profile.php" method="post">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label">Tên</label>
+                                    <input type="text" class="form-control" id="firstName" name="firstName" value="<?= htmlspecialchars($user->firstName ?? '') ?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">Họ</label>
+                                    <input type="text" class="form-control" id="lastName" name="lastName" value="<?= htmlspecialchars($user->lastName ?? '') ?>">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="headline" class="form-label">Tiêu đề</label>
+                                <input type="text" class="form-control" id="headline" name="headline" placeholder="Ví dụ: Nhà phát triển Web | Người đam mê học hỏi" value="<?= htmlspecialchars($user->headline ?? '') ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label for="bio" class="form-label">Tiểu sử</label>
+                                <textarea class="form-control" id="bio" name="bio" rows="5" placeholder="Giới thiệu ngắn gọn về bản thân..."><?= htmlspecialchars($user->bio ?? '') ?></textarea>
+                            </div>
+                            <button type="submit" name="save_profile" class="btn btn-primary"><i class="bi bi-save me-1"></i> Lưu hồ sơ</button>
+                        </form>
+                    </section>
+                </div>
+
+                <div class="tab-pane fade" id="photoContent" role="tabpanel" aria-labelledby="photo-tab">
+                    <section class="form-section">
+                        <h4 class="mb-4">Ảnh đại diện</h4>
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center mb-3 mb-md-0">
+                                <img src="<?= htmlspecialchars(!empty($user->profileImage) ? '/media/' . $user->profileImage : '/public/img/avatar-user.png') ?>" alt="Ảnh đại diện hiện tại" class="profile-image-lg" id="currentProfileImage">
+                            </div>
+                            <div class="col-md-9">
+                                <p class="text-muted">Để có kết quả tốt nhất, hãy tải lên ảnh vuông có kích thước ít nhất 200x200 pixel.</p>
+                                <form action="edit-profile.php" method="post" enctype="multipart/form-data">
+                                    <div class="mb-3">
+                                        <label for="profileImageFile" class="form-label">Tải ảnh mới</label>
+                                        <input class="form-control" type="file" id="profileImageFile" name="profileImageFile" accept="image/jpeg, image/png, image/gif">
+                                    </div>
+                                    <button type="submit" name="save_photo" class="btn btn-primary"><i class="bi bi-upload me-1"></i> Tải lên</button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="tab-pane fade" id="accountContent" role="tabpanel" aria-labelledby="account-tab">
+                    <section class="form-section">
+                        <h4 class="mb-4">Cài đặt tài khoản</h4>
+                        <form action="edit-profile.php" method="post">
+                             <div class="mb-3">
+                                <label for="email" class="form-label">Địa chỉ email</label>
+                                <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($user->email ?? '') ?>" readonly disabled>
+                                <small class="form-text text-muted">Email không thể thay đổi.</small>
+                            </div>
+                            <hr class="my-4">
+                            <h5 class="mb-3">Đổi mật khẩu</h5>
+                            <div class="mb-3">
+                                <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+                                <input type="password" class="form-control" id="currentPassword" name="currentPassword">
+                            </div>
+                            <div class="mb-3">
+                                <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                                <input type="password" class="form-control" id="newPassword" name="newPassword">
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu mới</label>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
+                            </div>
+                            <button type="submit" name="save_password" class="btn btn-primary"><i class="bi bi-key-fill me-1"></i> Đổi mật khẩu</button>
+                        </form>
+                    </section>
+                </div>
+
+                <div class="tab-pane fade" id="socialContent" role="tabpanel" aria-labelledby="social-tab">
+                    <section class="form-section">
+                        <h4 class="mb-4">Liên kết mạng xã hội</h4>
+                        <p class="text-muted">Thêm liên kết đến các trang mạng xã hội của bạn.</p>
+                        <form action="edit-profile.php" method="post">
+                             <div class="input-group mb-3">
+                                <span class="input-group-text" style="width: 40px;"><i class="bi bi-globe"></i></span>
+                                <input type="url" class="form-control" name="websiteLink" placeholder="Trang web (ví dụ: https://yourwebsite.com)" value="<?= htmlspecialchars($user->websiteLink ?? '') ?>">
+                            </div>
+                             <div class="input-group mb-3">
+                                <span class="input-group-text" style="width: 40px;"><i class="bi bi-twitter-x"></i></span>
+                                <input type="url" class="form-control" name="twitterLink" placeholder="Twitter (ví dụ: https://x.com/yourprofile)" value="<?= htmlspecialchars($user->twitterLink ?? '') ?>">
+                            </div>
+                             <div class="input-group mb-3">
+                                <span class="input-group-text" style="width: 40px;"><i class="bi bi-facebook"></i></span>
+                                <input type="url" class="form-control" name="facebookLink" placeholder="Facebook (ví dụ: https://facebook.com/yourprofile)" value="<?= htmlspecialchars($user->facebookLink ?? '') ?>">
+                            </div>
+                             <div class="input-group mb-3">
+                                <span class="input-group-text" style="width: 40px;"><i class="bi bi-linkedin"></i></span>
+                                <input type="url" class="form-control" name="linkedinLink" placeholder="LinkedIn (ví dụ: https://linkedin.com/in/yourprofile)" value="<?= htmlspecialchars($user->linkedinLink ?? '') ?>">
+                            </div>
+                             <div class="input-group mb-3">
+                                <span class="input-group-text" style="width: 40px;"><i class="bi bi-youtube"></i></span>
+                                <input type="url" class="form-control" name="youtubeLink" placeholder="YouTube (ví dụ: https://youtube.com/c/yourchannel)" value="<?= htmlspecialchars($user->youtubeLink ?? '') ?>">
+                            </div>
+                            <button type="submit" name="save_profile" class="btn btn-primary"><i class="bi bi-save me-1"></i> Lưu liên kết</button>
+                        </form>
+                    </section>
+                </div>
+
+            </div>
+        </div>
+
+        <footer class="text-center text-muted mt-4 py-3 border-top">
+            <small>&copy; <?= date('Y') ?> Tên Website. All Rights Reserved.</small>
+        </footer>
+    </div>
+    <script src="public/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const profileImageFile = document.getElementById('profileImageFile');
+        const currentProfileImage = document.getElementById('currentProfileImage');
+        if (profileImageFile && currentProfileImage) {
+            profileImageFile.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        currentProfileImage.src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            let activeTab = localStorage.getItem('activeProfileTab');
+            if (activeTab) {
+                let tabElement = document.querySelector('#profileTabContent .tab-pane' + activeTab);
+                let navLink = document.querySelector('.profile-nav .nav-link[href="' + activeTab + '"]');
+                if (tabElement && navLink) {
+                    document.querySelector('.profile-nav .nav-link.active').classList.remove('active');
+                    document.querySelector('#profileTabContent .tab-pane.active').classList.remove('show', 'active');
+                    navLink.classList.add('active');
+                    navLink.setAttribute('aria-selected', 'true');
+                    tabElement.classList.add('show', 'active');
+                } else {
+                    document.querySelector('.profile-nav .nav-link#profile-tab').classList.add('active');
+                    document.querySelector('#profileTabContent .tab-pane#profileContent').classList.add('show', 'active');
+                }
+            }
+            var profileNavLinks = document.querySelectorAll('.profile-nav .nav-link');
+            profileNavLinks.forEach(function(link) {
+                link.addEventListener('click', function(event) {
+                    localStorage.setItem('activeProfileTab', this.getAttribute('href'));
+                });
+            });
+        });
+    </script>
+</body>
+</html>
