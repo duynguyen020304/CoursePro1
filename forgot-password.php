@@ -3,7 +3,7 @@
 <?php include('template/header.php') ?>
 <main>
     <div class="form-container">
-        <h2>Tìm tài khoản của bạn</h2>
+        <h2>Quên mật khẩu</h2>
         <?php
             if (!empty($_SESSION['error'])) {
                 echo '<div class="alert alert-danger">'.$_SESSION['error'].'</div>';

@@ -70,24 +70,24 @@ if (session_status() == PHP_SESSION_NONE) { // Chỉ cần kiểm tra và gọi 
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="courses.php">My learning</a></li>
-                        <li><a class="dropdown-item" href="cart.php">My cart <span class="badge rounded-pill bg-primary ms-1">1</span></a></li>
-                        <li><a class="dropdown-item" href="#">Wishlist</a></li>
-                        <li><a class="dropdown-item" href="#">Teach on Course Online</a></li> <?php // Sửa tên cho nhất quán ?>
+                        <li><a class="dropdown-item" href="courses.php">Khóa học</a></li>
+                        <li><a class="dropdown-item" href="cart.php">Giỏ hàng <span class="badge rounded-pill bg-primary ms-1">1</span></a></li>
+                        <li><a class="dropdown-item" href="#">Danh sách yêu thích</a></li>
+                        <!-- <li><a class="dropdown-item" href="#">Teach on Course Online</a></li> <?php // Sửa tên cho nhất quán ?> -->
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Notifications</a></li>
-                        <li><a class="dropdown-item" href="#">Messages <span class="badge rounded-pill bg-primary ms-1">3</span></a></li>
+                        <li><a class="dropdown-item" href="#">Thông báo</a></li>
+                        <li><a class="dropdown-item" href="#">Tin nhắn <span class="badge rounded-pill bg-primary ms-1">3</span></a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Account settings</a></li>
-                        <li><a class="dropdown-item" href="#">Payment methods</a></li>
-                        <li><a class="dropdown-item" href="#">Subscriptions</a></li>
-                        <li><a class="dropdown-item" href="#">Course Online credits</a></li> <?php // Sửa tên cho nhất quán ?>
-                        <li><a class="dropdown-item" href="#">Purchase history</a></li>
+                        <li><a class="dropdown-item" href="#">Cài đặt</a></li>
+                        <li><a class="dropdown-item" href="#">Phương thức thanh toán</a></li>
+                        <li><a class="dropdown-item" href="#">Gói đăng ký</a></li>
+                        <!-- <li><a class="dropdown-item" href="#">Course Online credits</a></li> <?php // Sửa tên cho nhất quán ?> -->
+                        <li><a class="dropdown-item" href="#">Lịch sử mua hàng</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item d-flex align-items-center justify-content-between" href="#">Language <span class="text-muted small">English &nbsp;<i class="bi bi-globe"></i></span></a></li>
-                        <li><a class="dropdown-item" href="user.php">Public profile</a></li>
+                        <li><a class="dropdown-item" href="user.php">Hồ sơ</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="logout.php">Log out</a></li>
+                        <li><a class="dropdown-item text-danger" href="logout.php">Đăng xuất</a></li>
                     </ul>
                 </li>
                 <?php if (true): // Tạm thời vô hiệu hóa JS tùy chỉnh nếu dùng JS của Bootstrap 5 ?>

@@ -1,10 +1,40 @@
+<?php
+// Bật session
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Kiểm tra đã login chưa
+if (!isset($_SESSION['user']['userID'])) {
+    header('Location: /login.php');
+    exit;
+}
+
+// Nạp class service và DTO
+require_once __DIR__ . '/service/service_user.php';
+require_once __DIR__ . '/model/dto/user_dto.php';
+
+// Khởi tạo service và gọi lấy user
+$userService = new UserService();
+$response    = $userService->get_user_by_id($_SESSION['user']['userID']);
+
+if (!$response->success) {
+    // nếu có lỗi, bạn có thể redirect hoặc show message
+    die('Không tìm thấy thông tin người dùng: ' . htmlspecialchars($response->message));
+}
+
+// Đưa đối tượng user ra biến $user cho dễ dùng
+/** @var \App\DTO\UserDTO $user */
+$user = $response->data;
+?>
+
 <!DOCTYPE html>
 <html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Học viên</title>
+    <title>Học viên</title>
     <link href="public/css/bootstrap.min.css" rel="stylesheet">
     <link href="public/css/font_awesome_all.min.css" rel="stylesheet" />
     <style>
@@ -139,7 +169,7 @@
 
     <div class="sidebar d-none d-lg-block">
         <div class="sidebar-header">
-            <a href="/" class="text-white text-decoration-none">Tên Website</a>
+            <a href="/" class="text-white text-decoration-none">Ecourse</a>
         </div>
         <nav class="nav flex-column">
             <a class="nav-link active" href="#dashboard"><i class="fas fa-tachometer-alt fa-fw me-2"></i> Dashboard</a>
@@ -240,11 +270,37 @@
                 <div class="col-lg-4">
                     <div class="card shadow-sm mb-4">
                         <div class="card-body text-center">
-                            <img src="https://via.placeholder.com/60/0d6efd/fff.png?text=AV" alt="Avatar" class="profile-avatar mb-2">
-                            <h5 class="card-title">Chào, Nguyễn Văn A!</h5>
-                            <p class="card-text text-muted mb-1">Email: nguyenvana@email.com</p>
-                            <p class="card-text text-muted mb-3">Ngày tham gia: 20/10/2024</p>
-                            <a href="#profile" class="btn btn-outline-primary btn-sm"><i class="fas fa-user-edit me-1"></i> Chỉnh sửa Hồ sơ</a>
+                            <!-- Avatar: nếu user có ảnh thì dùng, không thì dùng placeholder -->
+                            <img
+                                src="<?= htmlspecialchars(
+                                    !empty($user->profileImage)
+                                        ? '/media/' . $user->profileImage
+                                        : 'public\img\avatar-user.png'
+                                )?>"
+                                alt="Avatar"
+                                class="profile-avatar mb-2"
+                            >
+
+                            <!-- Tên đầy đủ -->
+                            <h5 class="card-title">
+                                Chào, <?= htmlspecialchars($user->name) ?>!
+                            </h5>
+
+                            <!-- Email -->
+                            <p class="card-text text-muted mb-1">
+                                Email: <?= htmlspecialchars($user->email) ?>
+                            </p>
+
+                            <!-- Ngày tham gia (định dạng ngày/tháng/năm) -->
+                            <!-- <p class="card-text text-muted mb-3">
+                                Ngày tham gia:
+                                <?= date('d/m/Y', strtotime($user->createdAt)) ?>
+                            </p> -->
+
+                            <!-- Nút sửa hồ sơ -->
+                            <a href="/profile.php" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-user-edit me-1"></i> Chỉnh sửa Hồ sơ
+                            </a>
                         </div>
                     </div>
 
