@@ -9,8 +9,9 @@ class PaymentBLL extends Database
         $status = $p->paymentStatus ? "'{$p->paymentStatus}'" : 'NULL';
         $date = $p->paymentDate->format('Y-m-d H:i:s');
         $sql = "INSERT INTO Payment (PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount) VALUES ('{$p->paymentID}', '{$p->orderID}', '{$date}', {$method}, {$status}, {$p->amount})";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function get_payment_by_order(string $orderID): ?PaymentDTO

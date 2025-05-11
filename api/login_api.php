@@ -15,8 +15,6 @@ $service = new UserService();
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-echo $data;
-echo $data;
 // Kiểm tra trường bắt buộc
 if (!isset($data['email']) || !isset($data['password'])) {
     http_response_code(400);

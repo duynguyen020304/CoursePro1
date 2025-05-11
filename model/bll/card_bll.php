@@ -7,8 +7,9 @@ class CartBLL extends Database
     public function create_cart(CartDTO $cart)
     {
         $sql = "INSERT INTO Cart (CartID, UserID) VALUES ('{$cart->cartID}', '{$cart->userID}')";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function get_cart_by_user(string $userID): ?CartDTO
@@ -26,7 +27,8 @@ class CartBLL extends Database
     public function delete_cart(string $cartID)
     {
         $sql = "DELETE FROM Cart WHERE CartID = '{$cartID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 }

@@ -7,23 +7,26 @@ class LessonBLL extends Database
     {
         $content = $l->content ? "'{$l->content}'" : 'NULL';
         $sql = "INSERT INTO Lesson (LessonID, CourseID, ChapterID, Title, Content, SortOrder) VALUES ('{$l->lessonID}', '{$l->courseID}', '{$l->chapterID}', '{$l->title}', {$content}, {$l->sortOrder})";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function delete_lesson(string $lid)
     {
         $sql = "DELETE FROM Lesson WHERE LessonID = '{$lid}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function update_lesson(LessonDTO $l)
     {
         $content = $l->content ? "Content = '{$l->content}'," : '';
         $sql = "UPDATE Lesson SET Title = '{$l->title}', {$content} SortOrder = {$l->sortOrder} WHERE LessonID = '{$l->lessonID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function get_lesson(string $lid): ?LessonDTO
@@ -34,7 +37,7 @@ class LessonBLL extends Database
         if ($row = $result->fetch_assoc()) {
             $dto = new LessonDTO($row['LessonID'], $row['CourseID'], $row['ChapterID'], $row['Title'], $row['Content'], (int)$row['SortOrder']);
         }
-        $this->close();
+        // $this->close();
         return $dto;
     }
 
@@ -46,7 +49,7 @@ class LessonBLL extends Database
         while ($row = $result->fetch_assoc()) {
             $lessons[] = new LessonDTO($row['LessonID'], $row['CourseID'], $row['ChapterID'], $row['Title'], $row['Content'], (int)$row['SortOrder']);
         }
-        $this->close();
+        // $this->close();
         return $lessons;
     }
 }

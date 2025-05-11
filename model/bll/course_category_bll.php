@@ -27,7 +27,7 @@ class CourseCategoryBLL extends Database
         while ($row = $result->fetch_assoc()) {
             $list[] = new CourseCategoryDTO($row['CourseID'], $row['CategoryID']);
         }
-        $this->close();
+        // $this->close();
         return $list;
     }
 }

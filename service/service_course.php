@@ -85,9 +85,10 @@ class CourseService
             }
 
             // Xóa khóa học
-            $this->courseBll->delete_course($courseID);
-
-            return new ServiceResponse(true, 'Xóa khóa học thành công');
+            if ($this->courseBll->delete_course($courseID)) {
+                return new ServiceResponse(true, 'Xóa khóa học thành công');
+            }
+            return new ServiceResponse(true, 'Xóa khóa học thất bại');
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi xóa khóa học: ' . $e->getMessage());
         }

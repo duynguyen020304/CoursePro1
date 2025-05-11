@@ -8,15 +8,17 @@ class InstructorBLL extends Database
         $bio = $inst->biography ? "'{$inst->biography}'" : 'NULL';
         $img = $inst->profileImage ? "'{$inst->profileImage}'" : 'NULL';
         $sql = "INSERT INTO `Instructor` (InstructorID, UserID, Biography, ProfileImage) VALUES ('{$inst->instructorID}', '{$inst->userID}', {$bio}, {$img})";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function delete_instructor(string $instID)
     {
         $sql = "DELETE FROM `Instructor` WHERE InstructorID = '{$instID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function update_instructor(InstructorDTO $inst)
@@ -24,8 +26,9 @@ class InstructorBLL extends Database
         $bio = $inst->biography ? "Biography = '{$inst->biography}'," : '';
         $img = $inst->profileImage ? "ProfileImage = '{$inst->profileImage}'," : '';
         $sql = "UPDATE `Instructor` SET {$bio} {$img} UserID = '{$inst->userID}' WHERE InstructorID = '{$inst->instructorID}'";
-        $this->execute($sql);
-        $this->close();
+        $result = $this->execute($sql);
+        // $this->close();
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function get_instructor(string $instID): ?InstructorDTO
