@@ -193,10 +193,10 @@ CREATE TABLE IF NOT EXISTS Course (
 -- 7. CourseCategory (liên kết nhiều-nhiều)
 CREATE TABLE IF NOT EXISTS CourseCategory (
     CourseID   VARCHAR(20) NOT NULL,
-    CategoryID VARCHAR(20) NOT NULL,
+    CategoryID INT NOT NULL,
     PRIMARY KEY (CourseID, CategoryID),
     FOREIGN KEY (CourseID)   REFERENCES Course(CourseID),
-    FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
+    FOREIGN KEY (CategoryID) REFERENCES categories(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 8. Chapter (các chương của mỗi course)

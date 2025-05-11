@@ -18,23 +18,27 @@ class CourseService
 
     public function create_course(string $title, ?string $description, float $price, string $instructorID, array $categoryIDs): ServiceResponse
     {
-        echo "B5";
         $courseID = uniqid('course_');
         $dto = new CourseDTO($courseID, $title, $description, $price, $instructorID);
-        
+
         try {
-            if ($this->courseBll->create_course($dto)) {
-                return new ServiceResponse(true, 'Tạo khóa học thành công', $courseID);
-            } else {
+            // Bước 1: Tạo khóa học
+            if (!$this->courseBll->create_course($dto)) {
                 return new ServiceResponse(false, 'Tạo khóa học thất bại');
             }
+
+            // Bước 2: Gắn category
             foreach ($categoryIDs as $catID) {
+                // Chuyển CategoryID thành chuỗi
+                $catID = (string) $catID;
                 $cc = new CourseCategoryDTO($courseID, $catID);
                 if (!$this->categoryBll->link_course_category($cc)) {
                     return new ServiceResponse(false, 'Liên kết thể loại thất bại');
                 }
             }
-            return new ServiceResponse(false, 'Tạo khóa học thất bại');
+
+            // Bước 3: Thành công
+            return new ServiceResponse(true, 'Tạo khóa học thành công', $courseID);
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi tạo khóa học: ' . $e->getMessage());
         }

@@ -18,7 +18,7 @@ class Database
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
         try {
-            $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->dbname);
+            $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->dbname, 3307);
             $this->conn->set_charset($this->charset);
             // echo "kết nối database thành công";
         } catch (mysqli_sql_exception $e) {
