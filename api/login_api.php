@@ -60,12 +60,13 @@ if (isset($data['isSignup']) && $data['isSignup'] === true) {
 $response = $service->authenticate($data['email'], $data['password']);
 
 if ($response->success) {
-    $_SESSION['user'] = [
-        'userID' => $response->data->userID,
-        'email'  => $response->data->email,
-        'roleID' => $response->data->roleID,
-    ];
-    echo json_encode(['success' => true, 'message' => 'Đăng nhập thành công']);
+    // $_SESSION['user'] = [
+    //     'userID' => $response->data->userID,
+    //     'email'  => $response->data->email,
+    //     'roleID' => $response->data->roleID,
+    //     'name'   => $response->data->name,
+    // ];
+    echo json_encode(['success' => true, 'message' => 'Đăng nhập thành công', 'userID' => $response->data->userID, 'email' => $response->data->email, 'roleID' => $response->data->roleID, 'name' => $response->data->name]);
 } else {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => $response->message]);
