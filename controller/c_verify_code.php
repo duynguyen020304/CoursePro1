@@ -2,7 +2,7 @@
 session_start();
 require_once '../model/database.php';
 
-date_default_timezone_set('Asia/Ho_Chi_Minh'); // Múi giờ VN
+// date_default_timezone_set('Asia/Ho_Chi_Minh'); // Múi giờ VN
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_POST['code'])) {
     $email = trim($_POST['email']);
