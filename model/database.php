@@ -12,13 +12,13 @@ class Database
     private ?string $lastError = null;
     private ?string $lastQuery = null;
     private int $affectedRows = 0;
+    private int $databasePort = 3306;
 
     public function __construct()
     {
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
         try {
-            $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->dbname, 3307);
+            $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->dbname, $this->databasePort);
             $this->conn->set_charset($this->charset);
             // echo "kết nối database thành công";
         } catch (mysqli_sql_exception $e) {
