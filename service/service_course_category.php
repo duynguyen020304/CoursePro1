@@ -51,7 +51,9 @@ class CourseCategoryService
     public function remove_category_from_course(string $courseID, string $categoryID): ServiceResponse
     {
         try {
-            $this->bll->unlink_course_category($courseID, $categoryID);
+            if (!$this->bll->unlink_course_category($courseID, $categoryID)) {
+                return new ServiceResponse(false, "Xóa danh mục {$categoryID} khỏi khóa học {$courseID} thất bại");
+            }
             return new ServiceResponse(true, 'Xóa danh mục thành công');
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi xóa: ' . $e->getMessage());

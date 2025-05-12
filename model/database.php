@@ -8,7 +8,7 @@ class Database
     private string $dbname = 'ecourse';
     private string $charset = 'utf8mb4';
 
-    private ?mysqli $conn = null;
+    protected ?mysqli $conn = null;
     private ?string $lastError = null;
     private ?string $lastQuery = null;
     private int $affectedRows = 0;

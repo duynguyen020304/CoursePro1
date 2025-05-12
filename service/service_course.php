@@ -102,7 +102,7 @@ class CourseService
             return new ServiceResponse(false, 'Lỗi khi xóa khóa học: ' . $e->getMessage());
         }
     }
-    public function save_course_image(string $courseID, string $imagePath): void
+    public function save_course_image(string $courseID, string $imagePath)
     {
         require_once __DIR__ . '/../model/bll/course_image_bll.php';
         require_once __DIR__ . '/../model/dto/course_image_dto.php';
@@ -110,6 +110,10 @@ class CourseService
         $imageBLL = new CourseImageBLL();
         $imageID = uniqid('img_');
         $dto = new CourseImageDTO($imageID, $courseID, $imagePath, null, 0);
-        $imageBLL->create_image($dto);
+        $result = $imageBLL->create_image($dto);
+        if (!$result) {
+            return new ServiceResponse(false, 'Lỗi khi lưu ảnh khóa học');
+        }
+        return new ServiceResponse(true, 'Lưu ảnh thành công');
     }
 }
