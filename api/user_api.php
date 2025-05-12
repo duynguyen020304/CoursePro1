@@ -8,17 +8,46 @@ $service = new UserService();
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
-        // echo $_GET['id'];
+        $response = null;
+
         if (isset($_GET['id'])) {
             $response = $service->get_user_by_id($_GET['id']);
         } else {
             $response = $service->get_all_users();
         }
+
+        $data_to_encode = null;
+
+        if ($response && $response->success && !empty($response->data)) {
+            $data_to_encode = $response->data;
+
+            if (isset($_GET['id'])) {
+                if (is_object($data_to_encode)) {
+                    unset($data_to_encode->password);
+                } elseif (is_array($data_to_encode)) {
+                    unset($data_to_encode['password']);
+                }
+            } else {
+                if (is_array($data_to_encode)) {
+                    foreach ($data_to_encode as $key => $user_data) {
+                        if (is_object($user_data)) {
+                            unset($data_to_encode[$key]->password);
+                        } elseif (is_array($user_data)) {
+                            unset($data_to_encode[$key]['password']);
+                        }
+                    }
+                }
+            }
+        } else {
+            $data_to_encode = $response->data ?? null;
+        }
+
         echo json_encode([
-            'success' => $response->success,
-            'message' => $response->message,
-            'data'    => $response->data
-        ]);
+            'success' => $response->success ?? false,
+            'message' => $response->message ?? 'An error occurred.',
+            'data'    => $data_to_encode
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
         break;
 
     case 'PUT':

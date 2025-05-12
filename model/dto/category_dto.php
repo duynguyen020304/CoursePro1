@@ -1,6 +1,5 @@
 <?php
 
-//use DateTime;
 class CategoryDTO
 {
     public int $id;

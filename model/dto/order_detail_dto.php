@@ -1,9 +1,5 @@
 <?php
 
-use DateTime;
-
-require_once("../database.php");
-
 class OrderDetailDTO
 {
     public string $orderID;

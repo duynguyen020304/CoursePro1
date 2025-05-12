@@ -19,7 +19,8 @@ class CourseService
     public function create_course(string $title, ?string $description, float $price, string $instructorID, array $categoryIDs): ServiceResponse
     {
         $courseID = uniqid('course_');
-        $dto = new CourseDTO($courseID, $title, $description, $price, $instructorID);
+        $now = date('Y-m-d H:i:s');
+        $dto = new CourseDTO($courseID, $title, $description, $price, $instructorID, $now);
 
         try {
             // Bước 1: Tạo khóa học
@@ -44,9 +45,9 @@ class CourseService
         }
     }
 
-    public function update_course(string $courseID, string $title, ?string $description, float $price, string $instructorID, array $categoryIDs): ServiceResponse
+    public function update_course(string $courseID, string $title, ?string $description, float $price, string $instructorID, array $categoryIDs, string $createdBy): ServiceResponse
     {
-        $dto = new CourseDTO($courseID, $title, $description, $price, $instructorID);
+        $dto = new CourseDTO($courseID, $title, $description, $price, $instructorID, $createdBy);
 
         try {
             $this->courseBll->update_course($dto);
@@ -100,6 +101,20 @@ class CourseService
             return new ServiceResponse(true, 'Xóa khóa học thất bại');
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi xóa khóa học: ' . $e->getMessage());
+        }
+    }
+    public function get_course_by_id(string $courseID): ServiceResponse
+    {
+        try {
+            $course = $this->courseBll->get_course($courseID);
+
+            if ($course) {
+                return new ServiceResponse(true, 'Tìm thấy khóa học', $course);
+            } else {
+                return new ServiceResponse(false, 'Không tìm thấy khóa học với ID đã cung cấp');
+            }
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi khi lấy thông tin khóa học: ' . $e->getMessage());
         }
     }
     public function save_course_image(string $courseID, string $imagePath)

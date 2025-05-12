@@ -39,7 +39,7 @@ class InstructorBLL extends Database
         if ($row = $result->fetch_assoc()) {
             $dto = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography'], $row['ProfileImage']);
         }
-        $this->close();
+        // $this->close();
         return $dto;
     }
 
@@ -51,7 +51,7 @@ class InstructorBLL extends Database
         while ($row = $result->fetch_assoc()) {
             $list[] = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography'], $row['ProfileImage']);
         }
-        $this->close();
+        // $this->close();
         return $list;
     }
 }

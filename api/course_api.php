@@ -17,19 +17,18 @@ switch ($_SERVER['REQUEST_METHOD']) {
     case 'POST':
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!isset($data['title'], $data['price'], $data['instructorID'], $data['categories'])) {
+        if (!isset($data['title'], $data['price'], $data['instructorID'], $data['categoriesID'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu đầu vào']);
             exit;
         }
-
         $description = $data['description'] ?? null;
         $response = $service->create_course(
             $data['title'],
             $description,
             floatval($data['price']),
             $data['instructorID'],
-            $data['categories']
+            $data['categoriesID']
         );
 
         http_response_code($response->success ? 200 : 500);
@@ -51,8 +50,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $data['title'],
             $description,
             floatval($data['price']),
+            $data['categories'],
             $data['instructorID'],
-            $data['categories']
+            $data['createdBy']
         );
 
         http_response_code($response->success ? 200 : 500);

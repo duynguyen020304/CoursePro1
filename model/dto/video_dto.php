@@ -1,8 +1,5 @@
 <?php
 
-use DateTime;
-
-require_once("../database.php");
 class VideoDTO
 {
     public string $videoID;

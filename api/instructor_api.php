@@ -1,16 +1,18 @@
 <?php
 // File: api/instructor_api.php
-
 require_once __DIR__ . '/../service/service_instructor.php';
 header('Content-Type: application/json');
 
 $service = new InstructorService();
+
 $method  = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
+        
         if (isset($_GET['instructorID'])) {
             $respCode = 200;
+            
             $resp = $service->get_instructor($_GET['instructorID']);
             if (!$resp->success) {
                 $respCode = 404;

@@ -186,8 +186,9 @@ CREATE TABLE IF NOT EXISTS Course (
     Title       VARCHAR(255) NOT NULL,
     Description TEXT,
     Price       DECIMAL(10,2) NOT NULL,
+    InstructorID VARCHAR(20) NOT NULL,
     CreatedBy   VARCHAR(20) NOT NULL,
-    FOREIGN KEY (CreatedBy) REFERENCES Instructor(InstructorID)
+    FOREIGN KEY (InstructorID) REFERENCES Instructor(InstructorID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 7. CourseCategory (liên kết nhiều-nhiều)

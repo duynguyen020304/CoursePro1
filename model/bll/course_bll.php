@@ -6,7 +6,9 @@ class CourseBLL extends Database
     public function create_course(CourseDTO $c)
     {
         $desc = $c->description ? "'{$c->description}'" : 'NULL';
-        $sql = "INSERT INTO `Course` (CourseID, Title, Description, Price, CreatedBy) VALUES ('{$c->courseID}', '{$c->title}', {$desc}, {$c->price}, '{$c->createdBy}')";
+        $sql = "INSERT INTO `Course` (CourseID, Title, Description, Price, InstructorID, CreatedBy) VALUES ('{$c->courseID}', '{$c->title}', {$desc}, {$c->price}, '{$c->instructorID}', '{$c->createdBy}')";
+        // echo $sql;
+        // echo $c->createdBy . "\n";
         $result = $this->execute($sql);
         // $this->close();
         return $result === true && $this->getAffectedRows() === 1;
@@ -23,7 +25,7 @@ class CourseBLL extends Database
     public function update_course(CourseDTO $c)
     {
         $desc = $c->description ? "Description = '{$c->description}'," : '';
-        $sql = "UPDATE `Course` SET Title = '{$c->title}', {$desc} Price = {$c->price}, CreatedBy = '{$c->createdBy}' WHERE CourseID = '{$c->courseID}'";
+        $sql = "UPDATE `Course` SET Title = '{$c->title}', {$desc}, Price = {$c->price}, InstructorID = {$c->instructorID}, CreatedBy = '{$c->createdBy}' WHERE CourseID = '{$c->courseID}'";
         $result = $this->execute($sql);
         // $this->close();
         return $result === true && $this->getAffectedRows() === 1;
@@ -35,7 +37,7 @@ class CourseBLL extends Database
         $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
-            $dto = new CourseDTO($row['CourseID'], $row['Title'], $row['Description'], (float)$row['Price'], $row['CreatedBy']);
+            $dto = new CourseDTO($row['CourseID'], $row['Title'], $row['Description'], (float)$row['Price'], $row['InstructorID'], $row['CreatedBy']);
         }
         // $this->close();
         return $dto;
@@ -47,7 +49,7 @@ class CourseBLL extends Database
         $result = $this->execute($sql);
         $list = [];
         while ($row = $result->fetch_assoc()) {
-            $list[] = new CourseDTO($row['CourseID'], $row['Title'], $row['Description'], (float)$row['Price'], $row['CreatedBy']);
+            $list[] = new CourseDTO($row['CourseID'], $row['Title'], $row['Description'], (float)$row['Price'], $row['InstructorID'], $row['CreatedBy']);
         }
         // $this->close();
         return $list;

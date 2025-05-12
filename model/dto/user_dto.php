@@ -1,9 +1,5 @@
 <?php
 
-//use DateTime;
-
-require_once __DIR__ . '/../database.php';
-
 class UserDTO
 {
     public string $userID;

@@ -58,11 +58,11 @@ class UserBLL extends Database
 
     public function get_user_by_email(string $email): ?UserDTO
     {
-        $sql = "SELECT * FROM `Users` WHERE Email = '{$email}'";
+        $sql = "SELECT UserID, Name, Email, RoleID, FROM `Users` WHERE Email = '{$email}'";
         $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
-            $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
+            $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], "", $row['RoleID']);
         }
         // $this->close();
         return $dto;
