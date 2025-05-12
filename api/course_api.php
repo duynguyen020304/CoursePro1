@@ -32,7 +32,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
         );
 
         http_response_code($response->success ? 200 : 500);
-        echo json_encode(['success' => $response->success, 'message' => $response->message]);
+        echo json_encode([
+            'success' => $response->success,
+            'message' => $response->message,
+            'course_id' => $response->data ?? null
+        ]);
         break;
 
     case 'PUT':

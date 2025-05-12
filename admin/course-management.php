@@ -72,7 +72,7 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
 // Lấy danh sách khóa học
 $courseResp = callApi('course_api.php', 'GET');
 $courses    = $courseResp['success'] ? $courseResp['data'] : [];
-
+//print_r($courses);
 // Lấy danh sách danh mục
 $catResp   = callApi('category_api.php', 'GET');
 $categories = $catResp['success'] ? $catResp['data'] : [];
@@ -194,9 +194,9 @@ if (!empty($_SESSION['debug_messages']) && is_array($_SESSION['debug_messages'])
                             <?php foreach ($courses as $i => $c): ?>
                                 <tr>
                                     <td><?= $i + 1 ?></td>
-                                    <td><?= htmlspecialchars($c['Title'] ?? $c['title'] ?? '') ?></td>
-                                    <td><?= number_format($c['Price'], 0, ',', '.') ?> ₫</td>
-                                    <td><?= htmlspecialchars($c['CreatedBy'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($c['title'] ?? $c['title'] ?? '') ?></td>
+                                    <td><?= number_format($c['price'], 0, ',', '.') ?> ₫</td>
+                                    <td><?= htmlspecialchars($c['instructorID'] ?? '') ?></td>
                                     <td>
                                         <?php
                                         $cats = $c['Categories'] ?? [];
@@ -206,14 +206,14 @@ if (!empty($_SESSION['debug_messages']) && is_array($_SESSION['debug_messages'])
                                         echo htmlspecialchars(implode(', ', $names));
                                         ?>
                                     </td>
-                                    <td><?= date('d/m/Y', strtotime($c['CreatedAt'] ?? $c['CreatedDate'] ?? '')) ?></td>
+                                    <td><?= htmlspecialchars($c['createdBy']) ?></td>
                                     <td class="text-end action-buttons">
                                         <button class="btn btn-sm btn-outline-primary edit-course"
                                             data-course='<?= json_encode($c, JSON_UNESCAPED_UNICODE) ?>'
                                             data-bs-toggle="modal" data-bs-target="#courseModal" title="Sửa">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger delete-course" data-id="<?= $c['CourseID'] ?>" title="Xóa">
+                                        <button class="btn btn-sm btn-outline-danger delete-course" data-id="<?= htmlspecialchars($c['CourseID'] ?? ($c['id'] ?? '')) ?>" title="Xóa">
                                             <i class="bi bi-trash3-fill"></i>
                                         </button>
                                     </td>
