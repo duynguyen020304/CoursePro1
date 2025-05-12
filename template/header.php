@@ -84,7 +84,7 @@ if (session_status() == PHP_SESSION_NONE) { // Chỉ cần kiểm tra và gọi 
                         <!-- <li><a class="dropdown-item" href="#">Course Online credits</a></li> <?php // Sửa tên cho nhất quán ?> -->
                         <li><a class="dropdown-item" href="#">Lịch sử mua hàng</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item d-flex align-items-center justify-content-between" href="#">Language <span class="text-muted small">English &nbsp;<i class="bi bi-globe"></i></span></a></li>
+                        <!-- <li><a class="dropdown-item d-flex align-items-center justify-content-between" href="#">Language <span class="text-muted small">English &nbsp;<i class="bi bi-globe"></i></span></a></li> -->
                         <li><a class="dropdown-item" href="user.php">Hồ sơ</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="logout.php">Đăng xuất</a></li>
