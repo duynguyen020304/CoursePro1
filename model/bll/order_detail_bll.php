@@ -12,9 +12,19 @@ class OrderDetailBLL extends Database
      */
     public function add_detail(OrderDetailDTO $detail): bool
     {
-        $sql = "INSERT INTO OrderDetail (OrderID, CourseID, Price) \
-                VALUES ('{$detail->orderID}', '{$detail->courseID}', {$detail->price})";
+        // Lấy giá trị từ OrderDetailDTO
+        $orderID = $detail->orderID;
+        $courseID = $detail->courseID;
+        $price = is_numeric($detail->price) ? (float)$detail->price : 0;  // Đảm bảo giá trị price hợp lệ
+
+        // Tạo câu lệnh SQL
+        $sql = "INSERT INTO OrderDetail (OrderID, CourseID, Price) 
+            VALUES ('{$orderID}', '{$courseID}', {$price})";
+
+        // Thực thi câu lệnh SQL
         $result = $this->execute($sql);
+
+        // Kiểm tra kết quả thực thi
         return $result === true && $this->getAffectedRows() === 1;
     }
 
@@ -49,9 +59,14 @@ class OrderDetailBLL extends Database
      */
     public function update_detail(OrderDetailDTO $detail): bool
     {
-        $sql = "UPDATE OrderDetail SET \
-                Price = {$detail->price} \
-                WHERE OrderID = '{$detail->orderID}' AND CourseID = '{$detail->courseID}'";
+        // Kiểm tra giá trị Price
+        if (!is_numeric($detail->price) || $detail->price <= 0) {
+            return false;  // Trả về false nếu price không hợp lệ
+        }
+
+        $sql = "UPDATE OrderDetail SET Price = {$detail->price}
+            WHERE OrderID = '{$detail->orderID}' AND CourseID = '{$detail->courseID}'";
+
         $result = $this->execute($sql);
         return $result === true && $this->getAffectedRows() === 1;
     }
@@ -65,8 +80,14 @@ class OrderDetailBLL extends Database
      */
     public function delete_detail(string $orderID, string $courseID): bool
     {
-        $sql = "DELETE FROM OrderDetail \
-                WHERE OrderID = '{$orderID}' AND CourseID = '{$courseID}'";
+        // Kiểm tra xem bản ghi có tồn tại không
+        $sql_check = "SELECT * FROM OrderDetail WHERE OrderID = '{$orderID}' AND CourseID = '{$courseID}'";
+        $check_result = $this->execute($sql_check);
+        if ($check_result->num_rows === 0) {
+            return false;  // Trả về false nếu không có bản ghi nào
+        }
+
+        $sql = "DELETE FROM OrderDetail WHERE OrderID = '{$orderID}' AND CourseID = '{$courseID}'";
         $result = $this->execute($sql);
         return $result === true && $this->getAffectedRows() === 1;
     }
