@@ -16,22 +16,54 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     case 'POST':
         $data = json_decode(file_get_contents("php://input"), true);
+        $requiredFields = ['title', 'price'];
+        $requiredArrayFields = ['instructorsID', 'categoriesID'];
+        $missingFields = [];
+        $invalidArrayFields = [];
 
-        if (!isset($data['title'], $data['price'], $data['instructorID'], $data['categoriesID'])) {
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field])) {
+                $missingFields[] = $field;
+            }
+        }
+
+        foreach ($requiredArrayFields as $field) {
+            if (!isset($data[$field])) {
+                $missingFields[] = $field;
+            } elseif (!is_array($data[$field]) || empty($data[$field])) {
+                $invalidArrayFields[] = $field;
+            }
+        }
+
+        if (!empty($missingFields)) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu đầu vào']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Thiếu các dữ liệu đầu vào bắt buộc: ' . implode(', ', $missingFields)
+            ]);
             exit;
         }
+
+        if (!empty($invalidArrayFields)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Các trường sau phải là mảng không rỗng: ' . implode(', ', $invalidArrayFields)
+            ]);
+            exit;
+        }
+
         $description = $data['description'] ?? null;
         $response = $service->create_course(
             $data['title'],
             $description,
             floatval($data['price']),
-            $data['instructorID'],
-            $data['categoriesID']
+            $data['instructorsID'],
+            $data['categoriesID'],
+            $data['createdBy']
         );
 
-        http_response_code($response->success ? 200 : 500);
+        http_response_code($response->success ? 201 : 500);
         echo json_encode([
             'success' => $response->success,
             'message' => $response->message,
@@ -41,10 +73,40 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     case 'PUT':
         $data = json_decode(file_get_contents("php://input"), true);
+        $requiredFields = ['courseID', 'title', 'price'];
+        $requiredArrayFields = ['instructorsID', 'categoriesID'];
+        $missingFields = [];
+        $invalidArrayFields = [];
 
-        if (!isset($data['courseID'], $data['title'], $data['price'], $data['instructorID'], $data['categories'])) {
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field])) {
+                $missingFields[] = $field;
+            }
+        }
+
+        foreach ($requiredArrayFields as $field) {
+            if (!isset($data[$field])) {
+                $missingFields[] = $field;
+            } elseif (!is_array($data[$field]) || empty($data[$field])) {
+                $invalidArrayFields[] = $field;
+            }
+        }
+
+        if (!empty($missingFields)) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu cần cập nhật']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Thiếu các dữ liệu cần cập nhật bắt buộc: ' . implode(', ', $missingFields)
+            ]);
+            exit;
+        }
+
+        if (!empty($invalidArrayFields)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Các trường sau phải là mảng không rỗng: ' . implode(', ', $invalidArrayFields)
+            ]);
             exit;
         }
 
@@ -54,9 +116,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $data['title'],
             $description,
             floatval($data['price']),
-            $data['categories'],
-            $data['instructorID'],
-            $data['createdBy']
+            $data['instructorsID'],
+            $data['categoriesID'],
         );
 
         http_response_code($response->success ? 200 : 500);
@@ -65,13 +126,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     case 'DELETE':
         $data = json_decode(file_get_contents("php://input"), true);
-
         if (!isset($data['courseID'])) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Thiếu courseID để xóa']);
+            echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu cần thiết để xóa: courseID']);
             exit;
         }
-
         $response = $service->delete_course($data['courseID']);
         http_response_code($response->success ? 200 : 500);
         echo json_encode(['success' => $response->success, 'message' => $response->message]);

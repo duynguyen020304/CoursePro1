@@ -23,28 +23,23 @@ class UserService
         return new ServiceResponse(true, 'Đăng nhập thành công', $user);
     }
 
-    public function create_user(string $email, string $password, string $firstName, string $lastName, string $role): ServiceResponse
+    public function create_user(string $email, string $password, string $firstName, string $lastName, string $role, ?string $profileImage = null): ServiceResponse
     {
-        // echo "đang ở phía trước BLL";
         $userBll = new UserBLL();
         $existing = $userBll->get_user_by_email($email);
-
         if ($existing) {
             return new ServiceResponse(false, "Email đã được sử dụng");
         }
-
         $userID = uniqid('u_');
+//        $fullName = trim($firstName . ' ' . $lastName);
 
-        $fullName = trim($firstName . ' ' . $lastName);
-        
-        $dto = new UserDTO($userID, $fullName, $email, $password, $role);
+        $dto = new UserDTO($userID, $firstName, $lastName, $email, $password, $role, $profileImage);
         if ($userBll->create_user($dto)) {
             return new ServiceResponse(true, "Tạo tài khoản thành công", $dto);
         }
-
         return new ServiceResponse(false, "Tạo tài khoản thất bại");
     }
-    
+
     public function get_user_by_id(string $userID): ServiceResponse
     {
         try {
@@ -66,51 +61,51 @@ class UserService
             return new ServiceResponse(false, 'Lỗi: ' . $e->getMessage());
         }
     }
-        public function update_user_partial(array $data): ServiceResponse
-{
-    try {
-        if (empty($data['userID'])) {
-            return new ServiceResponse(false, 'Thiếu userID');
+    public function update_user_partial(array $data): ServiceResponse
+    {
+        try {
+            if (empty($data['userID'])) {
+                return new ServiceResponse(false, 'Thiếu userID');
+            }
+
+            $existing = $this->userBll->get_user_by_id($data['userID']);
+            if (!$existing) {
+                return new ServiceResponse(false, 'Người dùng không tồn tại');
+            }
+
+            // build từng trường: nếu client có thì dùng, không thì giữ nguyên
+            $newPassword = isset($data['password'])
+                ? password_hash($data['password'], PASSWORD_DEFAULT)
+                : $existing->password;
+
+            $newEmail = $data['email'] ?? $existing->email;
+
+            $newRole = $data['role'] ?? $existing->roleID;
+
+            $newFirstName = $data['firstName'] ?? $existing->firstName;
+
+            $newLastName = $data['lasttName'] ?? $existing->lastName;
+
+            $newProfileImage = $data['profileImage'] ?? $existing->profileImage;
+
+            // Tạo DTO mới với đủ 6 tham số
+            $updated = new UserDTO(
+                $existing->userID,
+                $newFirstName,
+                $newLastName,
+                $newEmail,
+                $newPassword,
+                $newRole,
+                $newProfileImage
+            );
+            if ($this->userBll->update_user($updated)) {
+                return new ServiceResponse(true, 'Cập nhật người dùng thành công');
+            }
+            return new ServiceResponse(false, 'Cập nhật người dùng thất bại');
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi khi cập nhật: ' . $e->getMessage());
         }
-
-        $existing = $this->userBll->get_user_by_id($data['userID']);
-        if (!$existing) {
-            return new ServiceResponse(false, 'Người dùng không tồn tại');
-        }
-
-        // build từng trường: nếu client có thì dùng, không thì giữ nguyên
-        $newPassword = isset($data['password'])
-            ? password_hash($data['password'], PASSWORD_DEFAULT)
-            : $existing->password;
-
-        $newEmail     = isset($data['email'])
-            ? $data['email']
-            : $existing->email;
-
-        $newRole      = isset($data['role'])
-            ? $data['role']
-            : $existing->roleID;
-
-        $newName = isset($data['name'])
-            ? $data['name']
-            : $existing->name;
-
-
-        // Tạo DTO mới với đủ 6 tham số
-        $updated = new UserDTO(
-            $existing->userID,
-            $newName,
-            $newEmail,
-            $newPassword,
-            $newRole
-        );
-        $this->userBll->update_user($updated);
-        return new ServiceResponse(true, 'Cập nhật người dùng thành công');
-    } catch (Exception $e) {
-        return new ServiceResponse(false, 'Lỗi khi cập nhật: ' . $e->getMessage());
     }
-}
-
 
     public function delete_user(string $userID): ServiceResponse
     {
@@ -120,8 +115,10 @@ class UserService
                 return new ServiceResponse(false, 'Người dùng không tồn tại');
             }
 
-            $this->userBll->delete_user($userID); // đảm bảo có phương thức này
-            return new ServiceResponse(true, 'Xóa người dùng thành công');
+            if ($this->userBll->delete_user($userID)) {
+                return new ServiceResponse(true, 'Xóa người dùng thành công');
+            }
+            return new ServiceResponse(true, 'Xóa người dùng thất bại');
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi xóa: ' . $e->getMessage());
         }

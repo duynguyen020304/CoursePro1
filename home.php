@@ -7,7 +7,7 @@ if (session_status() == PHP_SESSION_NONE) {
 if (isset($_SESSION['user']) && isset($_SESSION['user']['userID'])) {
     $current_userID = $_SESSION['user']['userID'];
 
-    // echo "ID của người dùng đang đăng nhập là: " . htmlspecialchars($current_userID);
+    echo "ID của người dùng đang đăng nhập là: " . htmlspecialchars($current_userID);
 }
 ?>
 <?php include('template/head.php'); ?>

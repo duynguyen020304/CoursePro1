@@ -36,6 +36,9 @@ if (isset($data['isSignup']) && $data['isSignup'] === true) {
         echo json_encode(['success' => false, 'message' => 'Thiếu thông tin đăng ký']);
         exit;
     }
+    if (!isset($data['profileImage'])) {
+        $data['profileImage'] = null;
+    }
     // echo "đang ở phía trước create user";
     $registerResult = $service->create_user(
         $data['email'],
@@ -43,6 +46,7 @@ if (isset($data['isSignup']) && $data['isSignup'] === true) {
         $data['firstname'],
         $data['lastname'],
         $data['role'],
+        $data['profileImage']
     );
 
     if ($registerResult->success) {
@@ -66,7 +70,7 @@ if ($response->success) {
     //     'roleID' => $response->data->roleID,
     //     'name'   => $response->data->name,
     // ];
-    echo json_encode(['success' => true, 'message' => 'Đăng nhập thành công', 'userID' => $response->data->userID, 'email' => $response->data->email, 'roleID' => $response->data->roleID, 'name' => $response->data->name]);
+    echo json_encode(['success' => true, 'message' => 'Đăng nhập thành công', 'userID' => $response->data->userID, 'firstName' => $response->data->firstName, 'lastName' => $response->data->lastName, 'email' => $response->data->email, 'roleID' => $response->data->roleID, 'profileImage' => $response->data->profileImage]);
 } else {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => $response->message]);
