@@ -25,13 +25,20 @@ switch ($method) {
         break;
 
     case 'POST':
-        // Create order
+        // Tạo order
         $data = json_decode(file_get_contents('php://input'), true);
-        if (empty($data['orderID']) || empty($data['userID']) || empty($data['orderDate']) || !isset($data['totalAmount'])) {
+
+        // Kiểm tra các trường bắt buộc
+        if (empty($data['userID']) || empty($data['orderDate']) || !isset($data['totalAmount'])) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu: orderID,userID,orderDate,totalAmount']);
+            echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu: userID, orderDate, totalAmount']);
             exit;
         }
+
+        // Tạo orderID tự động
+        $orderID = uniqid('order_', true);
+
+        // Kiểm tra định dạng orderDate
         try {
             $dt = new DateTime($data['orderDate']);
         } catch (Exception $e) {
@@ -39,12 +46,16 @@ switch ($method) {
             echo json_encode(['success' => false, 'message' => 'Định dạng orderDate không hợp lệ']);
             exit;
         }
+
+        // Tạo đơn hàng
         $resp = $service->create_order(
-            $data['orderID'],
+            $orderID,        // Sử dụng orderID tự động tạo
             $data['userID'],
             $dt,
             floatval($data['totalAmount'])
         );
+
+        // Phản hồi kết quả
         http_response_code($resp->success ? 201 : 500);
         echo json_encode(['success' => $resp->success, 'message' => $resp->message, 'data' => $resp->data]);
         break;
