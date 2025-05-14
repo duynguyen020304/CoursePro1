@@ -3,6 +3,7 @@ $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
 require_once __DIR__ . '/../model/dto/user_dto.php';
 require_once __DIR__ . '/../service/service_user.php';
 require_once __DIR__ . '/../vendor/autoload.php';
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
@@ -59,13 +60,32 @@ if (isset($data['isSignup']) && $data['isSignup'] === true) {
         echo json_encode(['success' => false, 'message' => $registerResult->message]);
     }
     exit;
+} else if (isset($data['isChangePassword']) && $data['isChangePassword'] === true) {
+    if (
+        !isset($data['email']) ||
+        !isset($data['password'])
+    ) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Thiếu thông tin đổi mật khẩu']);
+        exit;
+    }
+    $response = $service->update_user_partial(
+        [
+            'email' => $data['email'],
+            'password' => $data['password']
+        ]
+    );
+    if ($response->success) {
+        http_response_code(200);
+        echo json_encode(['success' => true, 'message' => 'Đổi mật khẩu thành công']);
+    }
 }
 
 // Trường hợp đăng nhập
 $response = $service->authenticate($data['email'], $data['password']);
 
 if ($response->success) {
-     // << RẤT QUAN TRỌNG: Thay bằng một khóa bí mật mạnh và duy nhất của bạn
+    // << RẤT QUAN TRỌNG: Thay bằng một khóa bí mật mạnh và duy nhất của bạn
     $issuedAt   = time();
     $expire     = $issuedAt + (60 * 60 * 24);
     $serverName = "CoursePro1";

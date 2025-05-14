@@ -5,20 +5,14 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
-
 $host = $_SERVER['HTTP_HOST'];
-
 $script_path = $_SERVER['SCRIPT_NAME'];
-
 $path_parts = explode('/', ltrim($script_path, '/'));
-
 $app_root_directory_name = $path_parts[0];
-
 $app_root_path_relative = '/' . $app_root_directory_name;
-
 $known_app_subdir_markers = ['/admin/', '/api/', '/includes/'];
-
 $found_marker = false;
+
 foreach ($known_app_subdir_markers as $marker) {
     $pos = strpos($script_path, $marker);
     if ($pos !== false) {
@@ -43,7 +37,6 @@ if ($app_root_path_relative !== '/' && $app_root_path_relative !== '' && substr(
 
 define('API_BASE', $protocol . '://' . $host . $app_root_path_relative . '/api');
 
-
 function callApi(string $endpoint, string $method = 'GET', array $payload = []): array
 {
     $url = API_BASE . '/' . ltrim($endpoint, '/');
@@ -54,11 +47,22 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
         $url .= '?' . http_build_query($payload);
     }
 
+    // Khởi tạo chuỗi header
+    $headers = "Content-Type: application/json; charset=utf-8\r\n" .
+        "Accept: application/json\r\n";
+
+    // Lấy token từ session nếu có
+    $token = $_SESSION['user']['token'] ?? null;
+
+    // Nếu có token, thêm header Authorization
+    if ($token) {
+        $headers .= "Authorization: Bearer " . $token . "\r\n";
+    }
+
     $options = [
         'http' => [
             'method'        => $methodUpper,
-            'header'        => "Content-Type: application/json; charset=utf-8\r\n" .
-                "Accept: application/json\r\n", // Thêm Accept header
+            'header'        => $headers, // Sử dụng chuỗi headers đã được cập nhật
             'ignore_errors' => true,
         ]
     ];
@@ -77,7 +81,7 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
     $response = @file_get_contents($url, false, $context);
     $result   = json_decode($response, true);
 
-    $status_code = 500;
+    $status_code = 500; // Mặc định là lỗi server nếu không lấy được header
     if (isset($http_response_header[0])) {
         preg_match('{HTTP\/\S*\s(\d{3})}', $http_response_header[0], $match);
         if (isset($match[1])) {
@@ -85,43 +89,72 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
         }
     }
 
-    if (is_array($result)) {
-        $result['http_status_code'] = $status_code;
-        if (!isset($result['success'])) {
-            $result['success'] = ($status_code >= 200 && $status_code < 300);
-        }
-        return $result;
+    // Nếu $result không phải là mảng (ví dụ: lỗi decode JSON), trả về cấu trúc lỗi chuẩn
+    if (!is_array($result)) {
+        return [
+            'success' => false,
+            'message' => 'Invalid API response or failed to decode JSON.',
+            'data' => null,
+            'raw_response' => $response, // Giữ lại raw response để debug
+            'http_status_code' => $status_code
+        ];
     }
-    return [
-        'success' => false,
-        'message' => 'Invalid API response or failed to decode JSON.',
-        'data' => null,
-        'raw_response' => $response,
-        'http_status_code' => $status_code
-    ];
+
+    // Đảm bảo có 'http_status_code' và 'success' trong kết quả trả về
+    $result['http_status_code'] = $status_code;
+    if (!isset($result['success'])) {
+        $result['success'] = ($status_code >= 200 && $status_code < 300);
+    }
+    return $result;
 }
 
 // Kiểm tra đã login chưa
-if (!isset($_SESSION['user']['userID'])) {
-    header('Location: /login.php'); // Kiểm tra lại đường dẫn này
-    exit;
+if (!isset($_SESSION['user']['userID']) || !isset($_SESSION['user']['token'])) { // Thêm kiểm tra token
+    // Bạn có thể muốn xử lý việc chuyển hướng hoặc báo lỗi nếu không có token
+    // Ví dụ: nếu API yêu cầu token cho mọi request
+    // header('Location: /login.php'); // Kiểm tra lại đường dẫn này
+    // exit;
+    // Hoặc nếu một số endpoint không cần token, bạn có thể bỏ qua
+    // echo "Cảnh báo: Người dùng chưa đăng nhập hoặc không có token.";
+    // Trong trường hợp này, hàm callApi sẽ không gửi header Authorization
 }
 
-$loggedInUserID = $_SESSION['user']['userID'];
+$loggedInUserID = $_SESSION['user']['userID'] ?? null; // Đảm bảo userID tồn tại
 
 // Gọi API, truyền ID qua mảng $payload
-$userResp = callApi('user_api.php', 'GET', ['id' => $loggedInUserID]);
-$user = [];
+// Chỉ gọi API nếu loggedInUserID có giá trị
+if ($loggedInUserID) {
+    $userResp = callApi('user_api.php', 'GET', ['id' => $loggedInUserID]);
+    $user = $userResp; // Gán toàn bộ response để có thể kiểm tra success và message
+} else {
+    // Xử lý trường hợp không có userID (ví dụ: nếu bạn không exit ở trên)
+    $user = [
+        'success' => false,
+        'message' => 'UserID không hợp lệ hoặc người dùng chưa đăng nhập.',
+        'data' => null,
+        'http_status_code' => 401 // Unauthorized
+    ];
+}
+
+// Ví dụ cách hiển thị thông tin người dùng hoặc lỗi
+if ($user['success']) {
+    echo "Lấy thông tin người dùng thành công: <pre>" . print_r($user['data'], true) . "</pre>";
+} else {
+    echo "Lỗi khi gọi API: " . ($user['message'] ?? 'Lỗi không xác định.');
+    if (isset($user['raw_response'])) {
+        echo "<br>Raw response: " . htmlspecialchars($user['raw_response']);
+    }
+    if (isset($user['http_status_code'])) {
+        echo "<br>HTTP Status Code: " . $user['http_status_code'];
+    }
+}
 
 if (isset($userResp['success']) && $userResp['success'] === true && isset($userResp['data'])) {
     $user = $userResp['data'];
 } else {
     // Xử lý lỗi
-    // echo "Lỗi khi lấy thông tin người dùng: " . ($userResp['message'] ?? 'Không rõ lỗi');
+    echo "Lỗi khi lấy thông tin người dùng: " . ($userResp['message'] ?? 'Không rõ lỗi');
 }
-
-echo "Thông tin User (Cách 2):<br>";
-print_r($user);
 
 // Xác định trang hiện tại để active menu
 $current_page = basename($_SERVER['PHP_SELF']);

@@ -1,23 +1,23 @@
 <?php
 require_once __DIR__ . '/../service/service_user.php';
+require_once __DIR__ . '/../model/database.php';
 
-/**
- * Script to create initial user accounts after schema.sql initialization
- * Creates 10 student and 4 instructor accounts with predefined data
- */
+
 class UserInitializer
 {
     private UserService $userService;
+    private Database $db;
 
     public function __construct()
     {
         $this->userService = new UserService();
+        $this->db = new Database();
     }
 
     public function initialize(): void
     {
         echo "Starting user initialization...\n";
-        
+        $this->db.
         // Create 4 instructor accounts
         $instructors = [
             [
