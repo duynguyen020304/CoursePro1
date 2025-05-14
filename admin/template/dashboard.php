@@ -1,6 +1,6 @@
 <div class="sidebar d-none d-lg-block">
     <div class="sidebar-header">
-        <a href="admin.php" class="text-white text-decoration-none">Tên Website</a>
+        <a href="admin.php" class="text-white text-decoration-none">E-Course</a>
     </div>
     <nav class="nav flex-column">
         <a class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin.php') ? 'active' : ''; ?>" href="admin.php"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
