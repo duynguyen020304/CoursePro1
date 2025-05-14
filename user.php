@@ -137,23 +137,9 @@ if ($loggedInUserID) {
 }
 
 // Ví dụ cách hiển thị thông tin người dùng hoặc lỗi
-if ($user['success']) {
-    echo "Lấy thông tin người dùng thành công: <pre>" . print_r($user['data'], true) . "</pre>";
-} else {
-    echo "Lỗi khi gọi API: " . ($user['message'] ?? 'Lỗi không xác định.');
-    if (isset($user['raw_response'])) {
-        echo "<br>Raw response: " . htmlspecialchars($user['raw_response']);
-    }
-    if (isset($user['http_status_code'])) {
-        echo "<br>HTTP Status Code: " . $user['http_status_code'];
-    }
-}
 
 if (isset($userResp['success']) && $userResp['success'] === true && isset($userResp['data'])) {
     $user = $userResp['data'];
-} else {
-    // Xử lý lỗi
-    echo "Lỗi khi lấy thông tin người dùng: " . ($userResp['message'] ?? 'Không rõ lỗi');
 }
 
 // Xác định trang hiện tại để active menu

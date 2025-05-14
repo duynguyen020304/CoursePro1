@@ -14,7 +14,6 @@ if (!isset($current_page)) {
         <a class="nav-link <?php echo ($current_page == 'purchase-history.php') ? 'active' : ''; ?>" href="purchase-history.php"><i class="bi bi-clock-history me-2"></i> Lịch sử mua hàng</a>
         <a class="nav-link <?php echo ($current_page == 'certificates.php') ? 'active' : ''; ?>" href="certificates.php"><i class="bi bi-patch-check me-2"></i> Chứng chỉ</a>
         <a class="nav-link <?php echo ($current_page == 'edit-profile.php') ? 'active' : ''; ?>" href="edit-profile.php"><i class="bi bi-pencil-square me-2"></i> Chỉnh sửa Hồ sơ</a>
-        <a class="nav-link <?php echo ($current_page == 'support.php') ? 'active' : ''; ?>" href="support.php"><i class="bi bi-headset me-2"></i> Hỗ trợ</a>
         <a class="nav-link" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Đăng xuất</a>
     </nav>
 </div>
@@ -30,7 +29,6 @@ if (!isset($current_page)) {
             <a class="nav-link <?php echo ($current_page == 'purchase-history.php') ? 'active' : ''; ?>" href="purchase-history.php"><i class="bi bi-clock-history me-2"></i> Lịch sử mua hàng</a>
             <a class="nav-link <?php echo ($current_page == 'certificates.php') ? 'active' : ''; ?>" href="certificates.php"><i class="bi bi-patch-check me-2"></i> Chứng chỉ</a>
             <a class="nav-link <?php echo ($current_page == 'edit-profile.php') ? 'active' : ''; ?>" href="edit-profile.php"><i class="bi bi-pencil-square me-2"></i> Chỉnh sửa Hồ sơ</a>
-            <a class="nav-link <?php echo ($current_page == 'support.php') ? 'active' : ''; ?>" href="support.php"><i class="bi bi-headset me-2"></i> Hỗ trợ</a>
             <a class="nav-link" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Đăng xuất</a>
         </nav>
     </div>
