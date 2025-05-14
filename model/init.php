@@ -9,7 +9,8 @@ class InitDatabase extends Database
     {
         $sql = file_get_contents(__DIR__ . '/schema.sql');
         if ($this->runScript($sql)) {
-            echo "INIT COMPLETE";
+//            echo "INIT COMPLETE";
+            header("Location: user_initializer.php");
         }
         else {
             echo "INIT FAILED";

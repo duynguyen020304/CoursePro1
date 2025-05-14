@@ -4,8 +4,6 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    $_SESSION['error_message'] = 'Phương thức không được phép.';
     header('Location: ../signin.php');
     exit;
 }
@@ -14,7 +12,6 @@ $username = trim($_POST['username'] ?? '');
 $password = $_POST['password'] ?? '';
 
 if (empty($username) || empty($password)) {
-    $_SESSION['error_message'] = 'Vui lòng nhập đầy đủ email và mật khẩu.';
     header('Location: ../signin.php');
     exit;
 }
@@ -41,7 +38,6 @@ $curlError = curl_error($ch);
 curl_close($ch);
 
 if ($curlError) {
-    $_SESSION['error_message'] = 'Lỗi kết nối đến máy chủ xác thực: ' . $curlError;
     header('Location: ../signin.php');
     exit;
 }
@@ -49,7 +45,6 @@ if ($curlError) {
 $responseData = json_decode($responseJson, true);
 
 if ($responseData === null && json_last_error() !== JSON_ERROR_NONE) {
-    $_SESSION['error_message'] = 'Lỗi xử lý phản hồi từ máy chủ xác thực. Mã HTTP: ' . $httpCode . '. Lỗi JSON: ' . json_last_error_msg();
     header('Location: ../signin.php');
     exit;
 }
@@ -62,13 +57,12 @@ if ($httpCode === 200 && isset($responseData['success']) && $responseData['succe
         'userID' => $responseData['userID'] ?? null,
         'firstName'   => $responseData['firstName'] ?? null,
         'lastName' => $responseData['lastName'] ?? null,
-        'profileImage' => $responseData['profileImage'] ?? null
+        'profileImage' => $responseData['profileImage'] ?? null,
+        'token' => $responseData['token'] ?? null
     ];
-    unset($_SESSION['error_message']);
     header('Location: ../home.php');
     exit;
 } else {
-    $_SESSION['error_message'] = $responseData['message'] ?? 'Tên đăng nhập hoặc mật khẩu không đúng. (Mã HTTP: ' . $httpCode . ')';
     header('Location: ../signin.php');
     exit;
 }

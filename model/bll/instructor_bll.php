@@ -6,8 +6,7 @@ class InstructorBLL extends Database
     public function create_instructor(InstructorDTO $inst)
     {
         $bio = $inst->biography ? "'{$inst->biography}'" : 'NULL';
-        $img = $inst->profileImage ? "'{$inst->profileImage}'" : 'NULL';
-        $sql = "INSERT INTO `Instructor` (InstructorID, UserID, Biography, ProfileImage) VALUES ('{$inst->instructorID}', '{$inst->userID}', {$bio}, {$img})";
+        $sql = "INSERT INTO `Instructor` (InstructorID, UserID, Biography) VALUES ('{$inst->instructorID}', '{$inst->userID}', '{$bio}')";
         $result = $this->execute($sql);
         // $this->close();
         return $result === true && $this->getAffectedRows() === 1;
@@ -37,7 +36,7 @@ class InstructorBLL extends Database
         $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
-            $dto = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography'], $row['ProfileImage']);
+            $dto = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography']);
         }
         // $this->close();
         return $dto;
@@ -49,7 +48,7 @@ class InstructorBLL extends Database
         $result = $this->execute($sql);
         $list = [];
         while ($row = $result->fetch_assoc()) {
-            $list[] = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography'], $row['ProfileImage']);
+            $list[] = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography']);
         }
         // $this->close();
         return $list;

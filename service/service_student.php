@@ -23,9 +23,9 @@ class StudentService
      * @param string|null $completedCourses
      * @return ServiceResponse
      */
-    public function create_student(string $studentID, string $userID, DateTime $enrollmentDate, ?string $completedCourses): ServiceResponse
+    public function create_student(string $studentID, string $userID): ServiceResponse
     {
-        $dto = new StudentDTO($studentID, $userID, $enrollmentDate, $completedCourses);
+        $dto = new StudentDTO($studentID, $userID);
         $ok = $this->bll->create_student($dto);
         if ($ok) {
             return new ServiceResponse(true, 'Tạo sinh viên thành công', $dto);
@@ -68,9 +68,9 @@ class StudentService
      * @param string|null $completedCourses
      * @return ServiceResponse
      */
-    public function update_student(string $studentID, string $userID, DateTime $enrollmentDate, ?string $completedCourses): ServiceResponse
+    public function update_student(string $studentID, string $userID): ServiceResponse
     {
-        $dto = new StudentDTO($studentID, $userID, $enrollmentDate, $completedCourses);
+        $dto = new StudentDTO($studentID, $userID);
         $ok = $this->bll->update_student($dto);
         if ($ok) {
             return new ServiceResponse(true, 'Cập nhật sinh viên thành công');

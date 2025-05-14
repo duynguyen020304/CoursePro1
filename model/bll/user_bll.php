@@ -48,8 +48,10 @@ class UserBLL extends Database
     {
         $sql = "SELECT * FROM `Users` WHERE UserID = '{$userID}'";
         $result = $this->execute($sql);
-        if ($row = $result->fetch_assoc()) {
-            $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+        if ($result instanceof mysqli_result && $result->num_rows > 0) {
+            if ($row = $result->fetch_assoc()) {
+                $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+            }
         }
         // $this->close();
         return $dto;
@@ -57,13 +59,14 @@ class UserBLL extends Database
 
     public function get_user_by_email(string $email): ?UserDTO
     {
-        $sql = "SELECT UserID, Name, Email, RoleID, FROM `Users` WHERE Email = '{$email}'";
+        $sql = "SELECT UserID, FirstName, LastName, Email, RoleID, created_at FROM `Users` WHERE Email = '{$email}'";
         $result = $this->execute($sql);
         $dto = null;
-        if ($row = $result->fetch_assoc()) {
-            $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+        if ($result instanceof mysqli_result && $result->num_rows > 0) {
+            if ($row = $result->fetch_assoc()) {
+                $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+            }
         }
-        // $this->close();
         return $dto;
     }
 
@@ -72,10 +75,11 @@ class UserBLL extends Database
         $sql = "SELECT * FROM `Users`";
         $result = $this->execute($sql);
         $users = [];
-        while ($row = $result->fetch_assoc()) {
-            $users[] = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+        if ($result instanceof mysqli_result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $users[] = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+            }
         }
-        // $this->close();
         return $users;
     }
 }

@@ -18,12 +18,12 @@ INSERT INTO Role (RoleID, RoleName) VALUES ('admin', 'Quản trị viên')
 
 -- 2. Users
 CREATE TABLE IF NOT EXISTS Users (
-    UserID   VARCHAR(20) PRIMARY KEY,
+    UserID   VARCHAR(40) PRIMARY KEY,
     FirstName     VARCHAR(100) NOT NULL,
     LastName VARCHAR(100) NOT NULL,
     Email    VARCHAR(100) NOT NULL UNIQUE,
     Password VARCHAR(255) NOT NULL,
-    RoleID   VARCHAR(20) NOT NULL,
+    RoleID   VARCHAR(36) NOT NULL,
     ProfileImage  VARCHAR(255),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (RoleID) REFERENCES Role(RoleID)
@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS Users (
 
 -- 3. Instructor
 CREATE TABLE IF NOT EXISTS Instructor (
-    InstructorID  VARCHAR(20) PRIMARY KEY,
-    UserID        VARCHAR(20) NOT NULL UNIQUE,
+    InstructorID  VARCHAR(40) PRIMARY KEY,
+    UserID        VARCHAR(40) NOT NULL UNIQUE,
     Biography     TEXT,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
@@ -40,28 +40,11 @@ CREATE TABLE IF NOT EXISTS Instructor (
 
 -- 4. Student
 CREATE TABLE IF NOT EXISTS Student (
-    StudentID       VARCHAR(20) PRIMARY KEY,
-    UserID          VARCHAR(20) NOT NULL UNIQUE,
+    StudentID       VARCHAR(40) PRIMARY KEY,
+    UserID          VARCHAR(40) NOT NULL UNIQUE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Sample data for Users
-INSERT INTO Users (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage) VALUES
-('u_1', 'Nguyen', 'Van A', 'vana@example.com', 'hashed_password_1', 'instructor', 'null'),
-('u_2', 'Tran', 'Thi B', 'thib@example.com', 'hashed_password_2', 'instructor', 'null'),
-('u_3', 'Le', 'Van C', 'vanc@example.com', 'hashed_password_3', 'student', 'null'),
-('u_4', 'Pham', 'Thi D', 'thid@example.com', 'hashed_password_4', 'student', 'null');
-
--- Sample data for Instructor
-INSERT INTO Instructor (InstructorID, UserID, Biography) VALUES
-('i_1', 'u_1', 'Nguyen Van A has 10 years of experience in software development.'),
-('i_2', 'u_2', 'Tran Thi B specializes in data science and AI.');
-
--- Sample data for Student
-INSERT INTO Student (StudentID, UserID) VALUES
-('s_1', 'u_3'),
-('s_2', 'u_4');
 
 -- 5. Category
 CREATE TABLE  categories (
@@ -185,17 +168,17 @@ INSERT INTO categories (id, name, parent_id, sort_order) VALUES (83, 'IELTS, TOE
 
 -- 6. Course
 CREATE TABLE IF NOT EXISTS Course (
-    CourseID    VARCHAR(20) PRIMARY KEY,
+    CourseID    VARCHAR(40) PRIMARY KEY,
     Title       VARCHAR(255) NOT NULL,
     Description TEXT,
     Price       DECIMAL(10,2) NOT NULL,
-    CreatedBy   VARCHAR(20) NOT NULL,
+    CreatedBy   VARCHAR(40) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS CourseInstructor (
-    CourseID      VARCHAR(20),
-    InstructorID  VARCHAR(20),
+    CourseID      VARCHAR(40),
+    InstructorID  VARCHAR(40),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (CourseID, InstructorID), 
     FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
@@ -204,7 +187,7 @@ CREATE TABLE IF NOT EXISTS CourseInstructor (
 
 -- 7. CourseCategory (liên kết nhiều-nhiều)
 CREATE TABLE IF NOT EXISTS CourseCategory (
-    CourseID   VARCHAR(20) NOT NULL,
+    CourseID   VARCHAR(40) NOT NULL,
     CategoryID INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (CourseID, CategoryID),
@@ -215,8 +198,8 @@ CREATE TABLE IF NOT EXISTS CourseCategory (
 
 -- 8. Chapter (các chương của mỗi course)
 CREATE TABLE IF NOT EXISTS Chapter (
-    ChapterID    VARCHAR(20) PRIMARY KEY,
-    CourseID     VARCHAR(20) NOT NULL,
+    ChapterID    VARCHAR(40) PRIMARY KEY,
+    CourseID     VARCHAR(40) NOT NULL,
     Title        VARCHAR(255) NOT NULL,
     Description  TEXT,
     SortOrder    INT NOT NULL DEFAULT 0,
@@ -226,9 +209,9 @@ CREATE TABLE IF NOT EXISTS Chapter (
 
 -- 9. Lesson (thuộc về một chương và một course)
 CREATE TABLE IF NOT EXISTS Lesson (
-    LessonID    VARCHAR(20) PRIMARY KEY,
-    CourseID    VARCHAR(20) NOT NULL,
-    ChapterID   VARCHAR(20) NOT NULL,
+    LessonID    VARCHAR(40) PRIMARY KEY,
+    CourseID    VARCHAR(40) NOT NULL,
+    ChapterID   VARCHAR(40) NOT NULL,
     Title       VARCHAR(255) NOT NULL,
     Content     TEXT,
     SortOrder   INT NOT NULL DEFAULT 0,
@@ -239,8 +222,8 @@ CREATE TABLE IF NOT EXISTS Lesson (
 
 -- 10. Video (thuộc về một lesson)
 CREATE TABLE IF NOT EXISTS Video (
-    VideoID    VARCHAR(20) PRIMARY KEY,
-    LessonID   VARCHAR(20) NOT NULL,
+    VideoID    VARCHAR(40) PRIMARY KEY,
+    LessonID   VARCHAR(40) NOT NULL,
     Url        VARCHAR(255) NOT NULL,
     Title      VARCHAR(255),
     SortOrder  INT NOT NULL DEFAULT 0,
@@ -250,8 +233,8 @@ CREATE TABLE IF NOT EXISTS Video (
 
 -- 11. CourseImage (hình ảnh minh họa cho course)
 CREATE TABLE IF NOT EXISTS CourseImage (
-    ImageID    VARCHAR(20) PRIMARY KEY,
-    CourseID   VARCHAR(20) NOT NULL,
+    ImageID    VARCHAR(40) PRIMARY KEY,
+    CourseID   VARCHAR(40) NOT NULL,
     ImagePath  VARCHAR(255) NOT NULL,
     Caption    VARCHAR(255),
     SortOrder  INT NOT NULL DEFAULT 0,
@@ -261,17 +244,17 @@ CREATE TABLE IF NOT EXISTS CourseImage (
 
 -- 12. Cart (giỏ hàng của user)
 CREATE TABLE IF NOT EXISTS Cart (
-    CartID VARCHAR(20) PRIMARY KEY,
-    UserID VARCHAR(20) NOT NULL UNIQUE,
+    CartID VARCHAR(40) PRIMARY KEY,
+    UserID VARCHAR(40) NOT NULL UNIQUE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 13. CartItem (item trong cart)
 CREATE TABLE IF NOT EXISTS CartItem (
-    CartItemID VARCHAR(20) PRIMARY KEY,
-    CartID     VARCHAR(20) NOT NULL,
-    CourseID   VARCHAR(20) NOT NULL,
+    CartItemID VARCHAR(40) PRIMARY KEY,
+    CartID     VARCHAR(40) NOT NULL,
+    CourseID   VARCHAR(40) NOT NULL,
     Quantity   INT NOT NULL CHECK (Quantity > 0),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (CartID)   REFERENCES Cart(CartID),
@@ -280,8 +263,8 @@ CREATE TABLE IF NOT EXISTS CartItem (
 
 -- 14. Orders
 CREATE TABLE IF NOT EXISTS Orders (
-    OrderID     VARCHAR(20) PRIMARY KEY,
-    UserID      VARCHAR(20) NOT NULL,
+    OrderID     VARCHAR(40) PRIMARY KEY,
+    UserID      VARCHAR(40) NOT NULL,
     OrderDate   DATETIME DEFAULT CURRENT_TIMESTAMP,
     TotalAmount DECIMAL(10,2) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -290,8 +273,8 @@ CREATE TABLE IF NOT EXISTS Orders (
 
 -- 15. OrderDetail (chi tiết từng course trong order)
 CREATE TABLE IF NOT EXISTS OrderDetail (
-    OrderID  VARCHAR(20) NOT NULL,
-    CourseID VARCHAR(20) NOT NULL,
+    OrderID  VARCHAR(40) NOT NULL,
+    CourseID VARCHAR(40) NOT NULL,
     Price    DECIMAL(10,2) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (OrderID, CourseID),
@@ -301,9 +284,9 @@ CREATE TABLE IF NOT EXISTS OrderDetail (
 
 -- 16. Review
 CREATE TABLE IF NOT EXISTS Review (
-    ReviewID VARCHAR(20) PRIMARY KEY,
-    UserID   VARCHAR(20) NOT NULL,
-    CourseID VARCHAR(20) NOT NULL,
+    ReviewID VARCHAR(40) PRIMARY KEY,
+    UserID   VARCHAR(40) NOT NULL,
+    CourseID VARCHAR(40) NOT NULL,
     Rating   INT NOT NULL CHECK (Rating BETWEEN 1 AND 5),
     Comment  TEXT,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -313,8 +296,8 @@ CREATE TABLE IF NOT EXISTS Review (
 
 -- 17. Payment
 CREATE TABLE IF NOT EXISTS Payment (
-    PaymentID      VARCHAR(20) PRIMARY KEY,
-    OrderID        VARCHAR(20) NOT NULL,
+    PaymentID      VARCHAR(40) PRIMARY KEY,
+    OrderID        VARCHAR(40) NOT NULL,
     PaymentDate    DATETIME DEFAULT CURRENT_TIMESTAMP,
     PaymentMethod  VARCHAR(50),
     PaymentStatus  VARCHAR(50),

@@ -2,16 +2,26 @@
 
 require_once __DIR__ . '/../model/database.php';
 require_once __DIR__ . '/../model/bll/user_bll.php';
+require_once __DIR__ . '/../model/bll/instructor_bll.php';
 require_once __DIR__ . '/../model/dto/user_dto.php';
+require_once __DIR__ . '/../model/dto/instructor_dto.php';
+require_once __DIR__ . '/../model/dto/student_dto.php';
+require_once __DIR__ . '/../model/bll/student_bll.php';
+require_once __DIR__ . '/../model/bll/role_bll.php';
+require_once __DIR__ . '/../model/dto/role_dto.php';
 require_once __DIR__ . '/service_response.php';  // service_response nằm cùng thư mục
 
 class UserService
 {
     private UserBLL $userBll;
+    private InstructorBLL $instructorBll;
+    private StudentBLL $studentBll;
 
     public function __construct()
     {
         $this->userBll = new UserBLL();
+        $this->instructorBll = new InstructorBLL();
+        $this->studentBll = new StudentBLL();
     }
 
     public function authenticate(string $email, string $password): ServiceResponse
@@ -25,16 +35,40 @@ class UserService
 
     public function create_user(string $email, string $password, string $firstName, string $lastName, string $role, ?string $profileImage = null): ServiceResponse
     {
+        if ($role == "admin") {
+            return new ServiceResponse(false, "Không cho phép tạo tài khoản có role admin");
+        }
+        else if ($role != "instructor" && $role != "student") {
+            return new ServiceResponse(false, "Vai trò không có trên hệ thống");
+        }
         $userBll = new UserBLL();
         $existing = $userBll->get_user_by_email($email);
         if ($existing) {
             return new ServiceResponse(false, "Email đã được sử dụng");
         }
-        $userID = uniqid('u_');
+        $userID =str_replace('.', '_', uniqid('user', true));
 //        $fullName = trim($firstName . ' ' . $lastName);
 
         $dto = new UserDTO($userID, $firstName, $lastName, $email, $password, $role, $profileImage);
-        if ($userBll->create_user($dto)) {
+        if ($this->userBll->create_user($dto)) {
+            if ($role == "instructor") {
+                $instructorDto = new InstructorDTO(
+                    str_replace('.', '_', uniqid('instructor', true)),
+                    $userID
+                );
+                if (!$this->instructorBll->create_instructor($instructorDto)) {
+                    return new ServiceResponse(false, "Tạo tài khoản cho giảng viên thất bại");
+                }
+            }
+            else if ($role == "student") {
+                $studentDto = new StudentDTO(
+                    str_replace('.', '_', uniqid('student', true)),
+                    $userID
+                );
+                if (!$this->studentBll->create_student($studentDto)) {
+                    return new ServiceResponse(false, "Tạo tài khoản cho học sinh thất bại");
+                }
+            }
             return new ServiceResponse(true, "Tạo tài khoản thành công", $dto);
         }
         return new ServiceResponse(false, "Tạo tài khoản thất bại");

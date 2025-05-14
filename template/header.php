@@ -108,7 +108,15 @@ if (session_status() == PHP_SESSION_NONE) { // Chỉ cần kiểm tra và gọi 
                                 <hr class="dropdown-divider">
                             </li>
                             <!-- <li><a class="dropdown-item d-flex align-items-center justify-content-between" href="#">Language <span class="text-muted small">English &nbsp;<i class="bi bi-globe"></i></span></a></li> -->
-                            <li><a class="dropdown-item" href="user.php">Hồ sơ</a></li>
+                            <li>
+                                <?php
+                                    $role_href = "user.php";
+                                    if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] == 'admin') {
+                                        $role_href = "admin/admin.php";
+                                    }
+                                ?>
+                                <a class="dropdown-item" href="<?php echo htmlspecialchars($role_href) ?>">Hồ sơ</a>
+                            </li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
