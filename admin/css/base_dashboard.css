@@ -1,100 +1,151 @@
+/* -----------------------------------------
+   Global
+----------------------------------------- */
 body {
     background-color: #f8f9fa;
+    margin: 0;
+    font-family: Arial, sans-serif;
 }
 
-.sidebar {
-    width: 260px;
+/* -----------------------------------------
+   Sidebar (Desktop)
+----------------------------------------- */
+#sidebar {
+    width: 250px;              /* Thống nhất width */
     height: 100vh;
     position: fixed;
     top: 0;
     left: 0;
     background-color: #343a40;
     padding-top: 1rem;
-    transition: all 0.3s;
+    transition: width 0.3s ease;
     z-index: 1030;
-    /* Ensure sidebar is above content */
+    overflow: hidden;          /* ẩn phần bị tràn khi collapsed */
 }
 
-.sidebar .nav-link {
-    color: #adb5bd;
-    /* Lighter text color */
-    padding: 0.75rem 1.5rem;
+/* Khi collapsed */
+#sidebar.collapsed {
+    width: 60px;
 }
 
-.sidebar .nav-link:hover,
-.sidebar .nav-link.active {
+/* Header trong sidebar */
+#sidebar .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.75rem;
     color: #fff;
-    /* White text on hover/active */
-    background-color: #495057;
-    /* Slightly lighter dark background */
-}
-
-.sidebar .sidebar-header {
-    color: #fff;
-    padding: 0 1.5rem 1rem 1.5rem;
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-
-.main-content {
-    transition: margin-left 0.3s;
-    padding: 1.5rem;
-    overflow-x: hidden;
-    /* Prevent horizontal scroll */
-}
-
-/* Adjust main content margin when sidebar is visible */
-@media (min-width: 992px) {
-    .main-content {
-        margin-left: 260px;
-    }
-
-    /* Hide the offcanvas toggle button on large screens */
-    .navbar-toggler-icon {
-        display: none !important;
-    }
-}
-
-
-/* --- Offcanvas specific styles (for small screens) --- */
-.offcanvas-start {
-    width: 260px;
-    /* Match sidebar width */
-    background-color: #343a40;
-    /* Dark background */
-}
-
-.offcanvas-header {
-    border-bottom: 1px solid #495057;
-}
-
-.offcanvas-title {
-    color: #fff;
-}
-
-.offcanvas-body .nav-link {
+/* Link trong sidebar */
+#sidebar .nav-link {
+    display: flex;
+    align-items: center;
     color: #adb5bd;
+    padding: 0.75rem 1.5rem;
+    transition: color 0.2s, background-color 0.2s;
 }
-
-.offcanvas-body .nav-link:hover,
-.offcanvas-body .nav-link.active {
+#sidebar .nav-link:hover,
+#sidebar .nav-link.active {
     color: #fff;
     background-color: #495057;
 }
 
-.btn-close-white {
-    filter: invert(1) grayscale(100%) brightness(200%);
+/* Ẩn text khi collapsed, chỉ show icon */
+#sidebar.collapsed .nav-link {
+    justify-content: center;
+    font-size: 0;
+}
+#sidebar.collapsed .nav-link i {
+    font-size: 1.25rem;
+    margin: 0;
+}
+/* Ẩn tên logo khi collapsed */
+#sidebar.collapsed .sidebar-header a {
+    font-size: 0;
 }
 
+/* Nút toggle */
+.btn-toggle {
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 0;
+}
+.btn-toggle:focus {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+/* Xoay icon khi collapsed */
+#sidebarCollapse i {
+    transition: transform 0.3s ease;
+}
+#sidebar.collapsed #sidebarCollapse i {
+    transform: rotate(180deg);
+}
+
+/* -----------------------------------------
+   Main content
+----------------------------------------- */
+.main-content {
+    padding: 1.5rem;
+    transition: margin-left 0.3s ease;
+    margin-left: 250px;        /* Khoảng cách khi sidebar mở */
+}
+#sidebar.collapsed ~ .main-content {
+    margin-left: 60px;         /* Khi sidebar collapsed */
+}
+/* Với màn hình nhỏ, bỏ margin-left */
+@media (max-width: 991px) {
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+/* -----------------------------------------
+   Mobile topbar & Offcanvas
+----------------------------------------- */
 .topbar-sm {
     background-color: #fff;
     border-bottom: 1px solid #dee2e6;
     padding: 0.5rem 1rem;
     position: sticky;
-    /* Make it sticky */
     top: 0;
-    z-index: 1020;
-    /* Below sidebar */
+    z-index: 1020;  /* Dưới sidebar */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+/* Ẩn nút toggle trên desktop nếu cần */
+@media (min-width: 992px) {
+    .topbar-sm .btn[data-bs-toggle="offcanvas"] {
+        display: none;
+    }
 }
 
+/* Offcanvas menu */
+.offcanvas-start {
+    width: 250px;             /* giống sidebar */
+    background-color: #343a40;
+}
+.offcanvas-header {
+    border-bottom: 1px solid #495057;
+}
+.offcanvas-title {
+    color: #fff;
+}
+.offcanvas-body .nav-link {
+    color: #adb5bd;
+    padding: 0.75rem 1.5rem;
+}
+.offcanvas-body .nav-link:hover,
+.offcanvas-body .nav-link.active {
+    color: #fff;
+    background-color: #495057;
+}
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}

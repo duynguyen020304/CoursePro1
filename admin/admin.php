@@ -57,14 +57,6 @@ $newOrdersToday = 0;  // Thay thế bằng số liệu thật
     <?php include('template/dashboard.php'); ?>
 
     <div class="main-content">
-        <div class="topbar-sm d-lg-none d-flex justify-content-between align-items-center mb-3">
-            <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
-                <i class="bi bi-list"></i>
-            </button>
-            <h5 class="mb-0">Dashboard</h5>
-            <div></div>
-        </div>
-
         <div class="container-fluid py-4">
             <h3 class="mb-4">Bảng điều khiển chung</h3>
 
