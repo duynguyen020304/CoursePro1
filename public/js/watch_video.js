@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (window.innerWidth < 992 && courseSidebar && courseSidebar.classList.contains('open')) {
                 // closeSidebar(); // Tạm thời comment dòng này nếu bạn muốn người dùng tự đóng
             }
-            // TODO: Logic để tải video mới hoặc cuộn đến video tương ứng
+            // TODO: Logic để tải videos mới hoặc cuộn đến videos tương ứng
             console.log('Clicked lesson:', this.textContent.trim());
         });
     });

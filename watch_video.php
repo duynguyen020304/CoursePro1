@@ -53,7 +53,7 @@ $instructorTitle = "Electrical engineer & Graphic Designer";
     <div class="video-player-area">
       <div class="video-container ratio ratio-16x9">
         <video controls poster="poster.jpg">
-          <source src="video/206309_medium.mp4" type="video/mp4">
+          <source src="videos/206309_medium.mp4" type="video/mp4">
           Trình duyệt của bạn không hỗ trợ thẻ video.
         </video>
       </div>

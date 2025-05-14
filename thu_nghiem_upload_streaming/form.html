@@ -7,9 +7,29 @@
 <body>
     <h1>Php File Uploads</h1>
     <form method="post" enctype="multipart/form-data" action="process-form.php">
+<!--        <input type="hidden" name="MAX_FILE_SIZE" value="1048576" />-->
         <label for="image">Image file</label>
         <input type="file" id="image" name="image">
+        <label for="file2">Another file</label>
+        <input type="file" id="file2" name="file2">
         <button>Upload</button>
     </form>
+
+    <h2>Uploaded Image:</h2>
+    <img id="uploadedImage" src="" alt="Chưa có ảnh được tải lên">
+
+    <script>
+        // Lấy tên file từ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const uploadedFileName = urlParams.get('uploaded_file');
+
+        // Hiển thị ảnh nếu có tên file
+        if (uploadedFileName) {
+            const imgElement = document.getElementById('uploadedImage');
+            // Sử dụng get_image.php để lấy ảnh
+            imgElement.src = 'get_image.php?file=' + encodeURIComponent("php_logo_68243e1017.png");
+            imgElement.alt = 'Uploaded Image: ' + php_logo_68243e1017;
+        }
+    </script>
 </body>
 </html>
