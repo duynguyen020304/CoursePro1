@@ -134,7 +134,7 @@ class Database
         $this->lastError = $e->getMessage();
         $msg = "[DB] {$context}: {$this->lastError}";
         error_log($msg);
-        echo "<script>console.error('{$context}');</script>";
+//        echo "<script>console.error('{$context}');</script>";
     }
 
     public function __destruct()

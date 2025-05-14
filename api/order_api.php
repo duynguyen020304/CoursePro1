@@ -1,8 +1,41 @@
 <?php
-// File: api/order_api.php
-
+$secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
 require_once __DIR__ . '/../service/service_order.php';
+require __DIR__ . '/../vendor/autoload.php';
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 header('Content-Type: application/json');
+$authHeader = apache_request_headers();
+$token = null;
+
+if ($authHeader['Authorization']) {
+    if (preg_match('/Bearer\s(\S+)/', $authHeader['Authorization'], $matches)) {
+        $token = $matches[1];
+    }
+}
+
+if (!$token) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Không tìm thấy token xác thực.']);
+    exit;
+}
+
+try {
+    $decoded = JWT::decode($token, new Key($secretKey, 'HS256'));
+} catch (Firebase\JWT\ExpiredException $e) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Token đã hết hạn.']);
+    exit;
+} catch (Firebase\JWT\SignatureInvalidException $e) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Chữ ký token không hợp lệ.']);
+    exit;
+} catch (Exception $e) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Token không hợp lệ hoặc có lỗi xảy ra: ' . $e->getMessage()]);
+    exit;
+}
 
 $service = new OrderService();
 $method  = $_SERVER['REQUEST_METHOD'];

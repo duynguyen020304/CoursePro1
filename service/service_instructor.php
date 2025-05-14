@@ -120,7 +120,8 @@ class InstructorService
             if ($userDto) {
                 $combinedData = [
                     'userID'       => $userDto->userID,
-                    'name'         => $userDto->name,
+                    'firstName'    => $userDto->firstName,
+                    'lastName'     => $userDto->lastName,
                     'email'        => $userDto->email,
                     'roleID'       => $userDto->roleID,
                     'instructorID' => $instructorDto->instructorID,

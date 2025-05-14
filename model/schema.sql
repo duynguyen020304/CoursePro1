@@ -3,7 +3,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- 1. Role
 CREATE TABLE IF NOT EXISTS Role (
     RoleID      VARCHAR(20) PRIMARY KEY,
-    RoleName    VARCHAR(50) NOT NULL UNIQUE
+    RoleName    VARCHAR(50) NOT NULL UNIQUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO Role (RoleID, RoleName) VALUES ('student', 'Học sinh')
@@ -17,49 +18,33 @@ INSERT INTO Role (RoleID, RoleName) VALUES ('admin', 'Quản trị viên')
 
 -- 2. Users
 CREATE TABLE IF NOT EXISTS Users (
-    UserID   VARCHAR(20) PRIMARY KEY,
-    Name     VARCHAR(100) NOT NULL,
+    UserID   VARCHAR(40) PRIMARY KEY,
+    FirstName     VARCHAR(100) NOT NULL,
+    LastName VARCHAR(100) NOT NULL,
     Email    VARCHAR(100) NOT NULL UNIQUE,
     Password VARCHAR(255) NOT NULL,
-    RoleID   VARCHAR(20) NOT NULL,
+    RoleID   VARCHAR(36) NOT NULL,
+    ProfileImage  VARCHAR(255),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (RoleID) REFERENCES Role(RoleID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 3. Instructor
 CREATE TABLE IF NOT EXISTS Instructor (
-    InstructorID  VARCHAR(20) PRIMARY KEY,
-    UserID        VARCHAR(20) NOT NULL UNIQUE,
+    InstructorID  VARCHAR(40) PRIMARY KEY,
+    UserID        VARCHAR(40) NOT NULL UNIQUE,
     Biography     TEXT,
-    ProfileImage  VARCHAR(255),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 4. Student
 CREATE TABLE IF NOT EXISTS Student (
-    StudentID       VARCHAR(20) PRIMARY KEY,
-    UserID          VARCHAR(20) NOT NULL UNIQUE,
-    EnrollmentDate  DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CompletedCourses TEXT,
+    StudentID       VARCHAR(40) PRIMARY KEY,
+    UserID          VARCHAR(40) NOT NULL UNIQUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Sample data for Users
-INSERT INTO Users (UserID, Name, Email, Password, RoleID) VALUES
-('u_1', 'Nguyen Van A', 'vana@example.com', 'hashed_password_1', 'R2'),
-('u_2', 'Tran Thi B', 'thib@example.com', 'hashed_password_2', 'R3'),
-('u_3', 'Le Van C', 'vanc@example.com', 'hashed_password_3', 'R3'),
-('u_4', 'Pham Thi D', 'thid@example.com', 'hashed_password_4', 'R2');
-
-
--- Sample data for Instructor
-INSERT INTO Instructor (InstructorID, UserID, Biography, ProfileImage) VALUES
-('i_1', 'u_1', 'Nguyen Van A has 10 years of experience in software development.', 'images/vana_profile.jpg'),
-('i_2', 'u_2', 'Tran Thi B specializes in data science and AI.', 'images/thid_profile.jpg');
-
--- Sample data for Student
-INSERT INTO Student (StudentID, UserID, EnrollmentDate, CompletedCourses) VALUES
-('s_1', 'u_3', '2023-09-01 08:00:00', 'Math 101, Physics 101'),
-('s_2', 'u_4', '2024-01-15 09:30:00', 'English 101');
 
 -- 5. Category
 CREATE TABLE  categories (
@@ -67,6 +52,7 @@ CREATE TABLE  categories (
     name VARCHAR(255) NOT NULL,
     parent_id INT DEFAULT NULL,  -- NULL nếu là danh mục gốc
     sort_order INT DEFAULT 0,    -- (Tùy chọn) để sắp xếp
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE -- (Tùy chọn) Tự động xóa con khi xóa cha
 );
 -- Insert root categories
@@ -182,97 +168,115 @@ INSERT INTO categories (id, name, parent_id, sort_order) VALUES (83, 'IELTS, TOE
 
 -- 6. Course
 CREATE TABLE IF NOT EXISTS Course (
-    CourseID    VARCHAR(20) PRIMARY KEY,
+    CourseID    VARCHAR(40) PRIMARY KEY,
     Title       VARCHAR(255) NOT NULL,
     Description TEXT,
     Price       DECIMAL(10,2) NOT NULL,
-    InstructorID VARCHAR(20) NOT NULL,
-    CreatedBy   VARCHAR(20) NOT NULL,
-    FOREIGN KEY (InstructorID) REFERENCES Instructor(InstructorID)
+    CreatedBy   VARCHAR(40) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS CourseInstructor (
+    CourseID      VARCHAR(40),
+    InstructorID  VARCHAR(40),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (CourseID, InstructorID), 
+    FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
+    FOREIGN KEY (InstructorID) REFERENCES Instructor(InstructorID) ON DELETE CASCADE 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 7. CourseCategory (liên kết nhiều-nhiều)
 CREATE TABLE IF NOT EXISTS CourseCategory (
-    CourseID   VARCHAR(20) NOT NULL,
+    CourseID   VARCHAR(40) NOT NULL,
     CategoryID INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (CourseID, CategoryID),
     FOREIGN KEY (CourseID)   REFERENCES Course(CourseID),
     FOREIGN KEY (CategoryID) REFERENCES categories(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
 -- 8. Chapter (các chương của mỗi course)
 CREATE TABLE IF NOT EXISTS Chapter (
-    ChapterID    VARCHAR(20) PRIMARY KEY,
-    CourseID     VARCHAR(20) NOT NULL,
+    ChapterID    VARCHAR(40) PRIMARY KEY,
+    CourseID     VARCHAR(40) NOT NULL,
     Title        VARCHAR(255) NOT NULL,
     Description  TEXT,
     SortOrder    INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 9. Lesson (thuộc về một chương và một course)
 CREATE TABLE IF NOT EXISTS Lesson (
-    LessonID    VARCHAR(20) PRIMARY KEY,
-    CourseID    VARCHAR(20) NOT NULL,
-    ChapterID   VARCHAR(20) NOT NULL,
+    LessonID    VARCHAR(40) PRIMARY KEY,
+    CourseID    VARCHAR(40) NOT NULL,
+    ChapterID   VARCHAR(40) NOT NULL,
     Title       VARCHAR(255) NOT NULL,
     Content     TEXT,
     SortOrder   INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (CourseID)  REFERENCES Course(CourseID),
     FOREIGN KEY (ChapterID) REFERENCES Chapter(ChapterID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 10. Video (thuộc về một lesson)
 CREATE TABLE IF NOT EXISTS Video (
-    VideoID    VARCHAR(20) PRIMARY KEY,
-    LessonID   VARCHAR(20) NOT NULL,
+    VideoID    VARCHAR(40) PRIMARY KEY,
+    LessonID   VARCHAR(40) NOT NULL,
     Url        VARCHAR(255) NOT NULL,
     Title      VARCHAR(255),
     SortOrder  INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (LessonID) REFERENCES Lesson(LessonID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 11. CourseImage (hình ảnh minh họa cho course)
 CREATE TABLE IF NOT EXISTS CourseImage (
-    ImageID    VARCHAR(20) PRIMARY KEY,
-    CourseID   VARCHAR(20) NOT NULL,
+    ImageID    VARCHAR(40) PRIMARY KEY,
+    CourseID   VARCHAR(40) NOT NULL,
     ImagePath  VARCHAR(255) NOT NULL,
     Caption    VARCHAR(255),
     SortOrder  INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 12. Cart (giỏ hàng của user)
 CREATE TABLE IF NOT EXISTS Cart (
-    CartID VARCHAR(20) PRIMARY KEY,
-    UserID VARCHAR(20) NOT NULL UNIQUE,
+    CartID VARCHAR(40) PRIMARY KEY,
+    UserID VARCHAR(40) NOT NULL UNIQUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 13. CartItem (item trong cart)
 CREATE TABLE IF NOT EXISTS CartItem (
-    CartItemID VARCHAR(20) PRIMARY KEY,
-    CartID     VARCHAR(20) NOT NULL,
-    CourseID   VARCHAR(20) NOT NULL,
+    CartItemID VARCHAR(40) PRIMARY KEY,
+    CartID     VARCHAR(40) NOT NULL,
+    CourseID   VARCHAR(40) NOT NULL,
     Quantity   INT NOT NULL CHECK (Quantity > 0),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (CartID)   REFERENCES Cart(CartID),
     FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 14. Orders
 CREATE TABLE IF NOT EXISTS Orders (
-    OrderID     VARCHAR(20) PRIMARY KEY,
-    UserID      VARCHAR(20) NOT NULL,
+    OrderID     VARCHAR(40) PRIMARY KEY,
+    UserID      VARCHAR(40) NOT NULL,
     OrderDate   DATETIME DEFAULT CURRENT_TIMESTAMP,
     TotalAmount DECIMAL(10,2) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 15. OrderDetail (chi tiết từng course trong order)
 CREATE TABLE IF NOT EXISTS OrderDetail (
-    OrderID  VARCHAR(20) NOT NULL,
-    CourseID VARCHAR(20) NOT NULL,
+    OrderID  VARCHAR(40) NOT NULL,
+    CourseID VARCHAR(40) NOT NULL,
     Price    DECIMAL(10,2) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (OrderID, CourseID),
     FOREIGN KEY (OrderID)  REFERENCES Orders(OrderID),
     FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
@@ -280,23 +284,25 @@ CREATE TABLE IF NOT EXISTS OrderDetail (
 
 -- 16. Review
 CREATE TABLE IF NOT EXISTS Review (
-    ReviewID VARCHAR(20) PRIMARY KEY,
-    UserID   VARCHAR(20) NOT NULL,
-    CourseID VARCHAR(20) NOT NULL,
+    ReviewID VARCHAR(40) PRIMARY KEY,
+    UserID   VARCHAR(40) NOT NULL,
+    CourseID VARCHAR(40) NOT NULL,
     Rating   INT NOT NULL CHECK (Rating BETWEEN 1 AND 5),
     Comment  TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID)   REFERENCES Users(UserID),
     FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 17. Payment
 CREATE TABLE IF NOT EXISTS Payment (
-    PaymentID      VARCHAR(20) PRIMARY KEY,
-    OrderID        VARCHAR(20) NOT NULL,
+    PaymentID      VARCHAR(40) PRIMARY KEY,
+    OrderID        VARCHAR(40) NOT NULL,
     PaymentDate    DATETIME DEFAULT CURRENT_TIMESTAMP,
     PaymentMethod  VARCHAR(50),
     PaymentStatus  VARCHAR(50),
     Amount         DECIMAL(10,2) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -309,6 +315,7 @@ CREATE TABLE IF NOT EXISTS password_resets (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 ALTER TABLE password_resets
 MODIFY created_at TIMESTAMP NOT NULL
-  DEFAULT CURRENT_TIMESTAMP;
+DEFAULT CURRENT_TIMESTAMP;

@@ -72,17 +72,17 @@ include('template/head.php');
 
         <?php
         // Hiển thị thông báo lỗi từ session nếu có
-        if (isset($_SESSION['error_message'])) {
-            echo '<div class="popup-overlay" id="popup" style="display: flex;">'; // Hiển thị popup
-            echo '    <div class="popup popup-error">';
-            echo '        <div class="error-icon">&#10006;</div>'; // Dấu X
-            echo '        <p>' . htmlspecialchars($_SESSION['error_message']) . '</p>';
-            echo '        <button class="popup-btn" onclick="closePopup()">OK</button>';
-            echo '    </div>';
-            echo '</div>';
-            unset($_SESSION['error_message']); // Xóa thông báo lỗi sau khi hiển thị
-        }
-        ?>
+//        if (isset($_SESSION['error_message'])) {
+//            echo '<div class="popup-overlay" id="popup" style="display: flex;">'; // Hiển thị popup
+//            echo '    <div class="popup popup-error">';
+//            echo '        <div class="error-icon">&#10006;</div>'; // Dấu X
+//            echo '        <p>' . htmlspecialchars($_SESSION['error_message']) . '</p>';
+//            echo '        <button class="popup-btn" onclick="closePopup()">OK</button>';
+//            echo '    </div>';
+//            echo '</div>';
+//            unset($_SESSION['error_message']); // Xóa thông báo lỗi sau khi hiển thị
+//        }
+//        ?>
 
         <form method="POST" action="controller/c_signin.php">
             <div class="form-group">

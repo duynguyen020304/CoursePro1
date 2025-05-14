@@ -5,7 +5,7 @@ class CourseCategoryBLL extends Database
 {
     public function link_course_category(CourseCategoryDTO $cc)
     {
-        $sql = "INSERT INTO `CourseCategory` (CourseID, CategoryID) VALUES ('{$cc->courseID}', '{$cc->categoryID}')";
+        $sql = "INSERT INTO `CourseCategory` (CourseID, CategoryID) VALUES ('{$cc->courseID}', {$cc->categoryID})";
         $result = $this->execute($sql);
         // $this->close();
         return $result === true && $this->getAffectedRows() === 1;
@@ -13,7 +13,7 @@ class CourseCategoryBLL extends Database
 
     public function unlink_course_category(string $courseID, string $categoryID)
     {
-        $sql = "DELETE FROM `CourseCategory` WHERE CourseID = '{$courseID}' AND CategoryID = '{$categoryID}'";
+        $sql = "DELETE FROM `CourseCategory` WHERE CourseID = '{$courseID}' AND CategoryID = {$categoryID}";
         $result = $this->execute($sql);
         // $this->close();
         return $result === true && $this->getAffectedRows() === 1;

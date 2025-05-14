@@ -175,7 +175,7 @@ $newOrdersToday = 0;  // Thay thế bằng số liệu thật
 
             </div>
          <footer class="text-center text-muted mt-4 py-3 border-top">
-            <small>&copy; <?= date('Y') ?> Tên Website. All Rights Reserved.</small>
+            <small>&copy; <?= date('Y') ?> Course Online. All Rights Reserved.</small>
         </footer>
     </div>
 

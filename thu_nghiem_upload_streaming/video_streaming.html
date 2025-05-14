@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apache X-Sendfile Video Streaming</title>
+    <style>
+        video {
+            width: 80%;
+            max-width: 800px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Video Streaming với Apache X-Sendfile</h1>
+    <video controls preload="metadata">
+        <!-- Thay 'my_large_video.mp4' bằng tên file video của bạn -->
+        <source src="stream_video_apache.php?file=BigBuckBunny.mp4" type="video/mp4">
+        Trình duyệt của bạn không hỗ trợ thẻ video.
+    </video>
+</body>
+</html>

@@ -1,0 +1,242 @@
+/* public/css/watch_video.css */
+
+:root {
+  --header-height: 56px; /* Chiều cao của header */
+  --sidebar-width-lg: 360px; /* Chiều rộng sidebar trên màn hình lớn */
+  --sidebar-width-mobile: 300px; /* Chiều rộng sidebar trên mobile */
+}
+
+body {
+  padding-top: var(--header-height);
+  background-color: #fff; /* Nền trắng cho body */
+  /* overflow-x: hidden;  Để lại nếu bạn thấy có cuộn ngang không mong muốn, nếu không có thể bỏ */
+}
+
+/* Header Styles */
+.navbar-brand {
+    min-width: 60px; /* Đảm bảo logo có không gian */
+}
+.course-title-header {
+  flex-grow: 1;
+  text-align: left; /* Căn trái tiêu đề khóa học trong header */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: calc(100% - 300px); /* Điều chỉnh để không chồng lên các nút khác */
+}
+
+
+/* Main Layout for Video and Sidebar */
+.course-main-layout {
+  display: flex;
+  /* height: calc(100vh - var(--header-height)); Bỏ dòng này để body cuộn */
+  position: relative; /* For mobile sidebar positioning */
+}
+
+.video-player-area {
+  flex-grow: 1;
+  background-color: #1c1d1f; /* Nền tối cho khu vực videos */
+  display: flex;
+  flex-direction: column;
+  /* overflow-y: auto; Bỏ dòng này, để body cuộn */
+  position: relative; /* Để videos container chiếm đúng không gian */
+  min-height: calc(100vh - var(--header-height)); /* Giữ lại để sidebar sticky hoạt động đúng */
+}
+
+.video-container {
+  background: #000;
+  width: 100%;
+  /* ratio class của bootstrap sẽ xử lý chiều cao */
+}
+
+.video-container video {
+  display: block;
+  width: 100%;
+  height: 100%; /* Để videos chiếm hết videos-container */
+}
+
+.video-bottom-tabs-container {
+    background-color: #fff; /* Nền trắng cho khu vực tabs */
+    border-top: 1px solid #dee2e6;
+    flex-shrink: 0; /* Ngăn không cho co lại khi videos lớn */
+    padding-left: 1rem; /* Thêm padding cho phần tabs */
+    padding-right: 1rem;
+}
+
+.nav-tabs {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+  font-weight: 500;
+  color: #6a6f73;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+.nav-tabs .nav-link.active {
+  color: #212529;
+  background-color: #fff;
+  border-color: #dee2e6 #dee2e6 #fff;
+}
+.tab-content {
+  background: #fff;
+}
+.course-title-in-overview {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+
+/* Course Content Sidebar */
+.course-content-sidebar {
+  width: var(--sidebar-width-lg);
+  background-color: #f7f9fa;
+  border-left: 1px solid #d1d7dc;
+  height: calc(100vh - var(--header-height)); /* Chiều cao cố định bằng viewport trừ header */
+  position: sticky; /* Làm cho sidebar "dính" */
+  top: var(--header-height); /* Vị trí dính, ngay dưới header */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Cho phép cuộn nội bộ NẾU nội dung sidebar dài */
+  transition: transform 0.3s ease-in-out; /* Giữ lại cho mobile animation */
+  flex-shrink: 0; /* Ngăn co lại */
+}
+
+.sidebar-header {
+  background-color: #fff;
+  border-bottom: 1px solid #d1d7dc;
+  flex-shrink: 0;
+  position: sticky; /* Làm cho header của sidebar dính ở trên cùng của sidebar */
+  top: 0; /* Dính ở top của .course-content-sidebar */
+  z-index: 1; /* Đảm bảo nó ở trên nội dung accordion */
+}
+.sidebar-header h5 {
+    font-weight: 700;
+}
+
+.accordion-flush .accordion-item {
+    border-bottom: 1px solid #d1d7dc;
+}
+.accordion-flush .accordion-item:last-child {
+    border-bottom: none;
+}
+
+.accordion-button {
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.8rem 1.25rem;
+  color: #1c1d1f;
+  background-color: #f7f9fa; /* Nền mặc định cho nút accordion */
+}
+.accordion-button:not(.collapsed) {
+  background-color: #e9ecef; /* Nền khi mở */
+  color: #1c1d1f;
+  box-shadow: none;
+}
+.accordion-button:focus {
+  box-shadow: none;
+}
+.accordion-button .lectures-count {
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
+.accordion-body {
+  padding: 0;
+  background-color: #fff;
+}
+
+.lesson-list li a {
+  display: block;
+  padding: 0.6rem 1.25rem 0.6rem 2.5rem; /* Thêm padding trái cho icon */
+  text-decoration: none;
+  color: #1c1d1f;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #f7f9fa; /* Đường kẻ mờ giữa các bài học */
+  position: relative;
+}
+.lesson-list li:last-child a {
+    border-bottom: none;
+}
+
+.lesson-list li a:hover {
+  background-color: #f7f9fa;
+}
+.lesson-list li a.active-lesson {
+  background-color: #e9ecef;
+  font-weight: 700;
+}
+.lesson-list li a i {
+  color: #6a6f73;
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.lesson-list li a.active-lesson i {
+    color: #0d6efd; /* Màu icon cho bài học đang hoạt động */
+}
+
+
+/* Rating stars color */
+.rating-stars i {
+  color: #f4c150;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) { /* lg breakpoint: Sidebar sẽ ẩn/hiện */
+  .course-content-sidebar {
+    position: fixed; /* Quay lại fixed cho mobile */
+    /* top: var(--header-height); Đã có ở trên và vẫn đúng */
+    right: 0;
+    transform: translateX(100%);
+    width: var(--sidebar-width-mobile);
+    /* height: calc(100vh - var(--header-height)); Đã có ở trên và vẫn đúng */
+    z-index: 1045;
+    box-shadow: -0.5rem 0 1rem rgba(0, 0, 0, 0.15);
+    /* overflow-y: auto; Đã có ở trên */
+  }
+  .course-content-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .video-player-area {
+    /* Chiếm toàn bộ chiều rộng khi sidebar ẩn */
+    min-height: auto; /* Reset min-height trên mobile nếu cần để tránh layout bị đẩy quá dài */
+  }
+   .course-title-header {
+    max-width: calc(100% - 180px); /* Điều chỉnh cho nút mobile */
+  }
+}
+
+@media (max-width: 767.98px) { /* md breakpoint */
+  .course-title-in-overview {
+    font-size: 1.5rem;
+  }
+  .video-bottom-tabs-container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  .tab-content {
+    padding: 0.75rem !important;
+  }
+   .course-title-header {
+    max-width: calc(100% - 130px); /* Điều chỉnh cho nút mobile */
+  }
+}
+
+/* Overlay for when mobile sidebar is open */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1040; /* Dưới sidebar, trên nội dung chính */
+    display: none; /* Ẩn ban đầu */
+}
+.sidebar-overlay.active {
+    display: block;
+}

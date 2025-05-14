@@ -7,8 +7,8 @@ class UserBLL extends Database
     public function create_user(UserDTO $user): bool
     {
         $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
-        $sql = "INSERT INTO `Users` (UserID, Name, Email, Password, RoleID)
-            VALUES ('{$user->userID}', '{$user->name}', '{$user->email}', '{$hashedPassword}', '{$user->roleID}')";
+        $sql = "INSERT INTO `Users` (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage)
+            VALUES ('{$user->userID}', '{$user->firstName}', '{$user->lastName}', '{$user->email}', '{$hashedPassword}', '{$user->roleID}', '{$user->profileImage}')";
         $result = $this->execute($sql);
         return $result === true && $this->getAffectedRows() === 1;
     }
@@ -21,7 +21,7 @@ class UserBLL extends Database
 
         if ($row = $result->fetch_assoc()) {
             if (password_verify($password, $row['Password'])) {
-                $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
+                $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage']);
             }
         }
         // $this->close();
@@ -38,7 +38,7 @@ class UserBLL extends Database
 
     public function update_user(UserDTO $user)
     {
-        $sql = "UPDATE `Users` SET Name = '{$user->name}', Email = '{$user->email}', Password = '{$user->password}', RoleID = '{$user->roleID}' WHERE UserID = '{$user->userID}'";
+        $sql = "UPDATE `Users` SET FirstName = '{$user->firstName}', LastName='{$user->lastName}', Email = '{$user->email}', Password = '{$user->password}', RoleID = '{$user->roleID}' WHERE UserID = '{$user->userID}'";
         $result = $this->execute($sql);
         return $result === true && $this->getAffectedRows() === 1;
         // $this->close();
@@ -48,9 +48,10 @@ class UserBLL extends Database
     {
         $sql = "SELECT * FROM `Users` WHERE UserID = '{$userID}'";
         $result = $this->execute($sql);
-        $dto = null;
-        if ($row = $result->fetch_assoc()) {
-            $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
+        if ($result instanceof mysqli_result && $result->num_rows > 0) {
+            if ($row = $result->fetch_assoc()) {
+                $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+            }
         }
         // $this->close();
         return $dto;
@@ -58,13 +59,14 @@ class UserBLL extends Database
 
     public function get_user_by_email(string $email): ?UserDTO
     {
-        $sql = "SELECT UserID, Name, Email, RoleID, FROM `Users` WHERE Email = '{$email}'";
+        $sql = "SELECT UserID, FirstName, LastName, Email, RoleID, created_at FROM `Users` WHERE Email = '{$email}'";
         $result = $this->execute($sql);
         $dto = null;
-        if ($row = $result->fetch_assoc()) {
-            $dto = new UserDTO($row['UserID'], $row['Name'], $row['Email'], "", $row['RoleID']);
+        if ($result instanceof mysqli_result && $result->num_rows > 0) {
+            if ($row = $result->fetch_assoc()) {
+                $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+            }
         }
-        // $this->close();
         return $dto;
     }
 
@@ -73,10 +75,11 @@ class UserBLL extends Database
         $sql = "SELECT * FROM `Users`";
         $result = $this->execute($sql);
         $users = [];
-        while ($row = $result->fetch_assoc()) {
-            $users[] = new UserDTO($row['UserID'], $row['Name'], $row['Email'], $row['Password'], $row['RoleID']);
+        if ($result instanceof mysqli_result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $users[] = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+            }
         }
-        // $this->close();
         return $users;
     }
 }
