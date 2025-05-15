@@ -150,6 +150,8 @@ class CourseService
                         'categoryName' => $category_name,
                     ];
                 }
+                $tmp_course_images = [];
+                
 
                 $list_course_with_instructors_details[] = [
                     'courseID' => $course->courseID,

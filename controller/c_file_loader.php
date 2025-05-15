@@ -9,14 +9,6 @@ $apiBaseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" 
     . dirname(dirname($_SERVER['SCRIPT_NAME']))
     . '/api/course_api.php';
 
-$act = '';
-$method = $_SERVER['REQUEST_METHOD'];
-
-if ($method === 'POST') {
-    $act = $_POST['act'] ?? '';
-} elseif ($method === 'GET') {
-    $act = $_GET['act'] ?? '';
-}
 
 function callApi(string $url, string $requestMethod, array $payload = []): array
 {
@@ -115,8 +107,12 @@ if ($method === 'POST') {
     $act = $_GET['act'] ?? '';
 }
 
+$act = null;
+$method = $_SERVER['REQUEST_METHOD'];
+
 switch ($act) {
     case 'home_page':
         
         break;
 }
+
