@@ -1,21 +1,17 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
-
 $host = $_SERVER['HTTP_HOST'];
-
 $script_path = $_SERVER['SCRIPT_NAME'];
-
 $path_parts = explode('/', ltrim($script_path, '/'));
-
 $app_root_directory_name = $path_parts[0];
-
 $app_root_path_relative = '/' . $app_root_directory_name;
-
 $known_app_subdir_markers = ['/admin/', '/api/', '/includes/'];
-
 $found_marker = false;
+
 foreach ($known_app_subdir_markers as $marker) {
     $pos = strpos($script_path, $marker);
     if ($pos !== false) {
@@ -43,58 +39,73 @@ define('API_BASE', $protocol . '://' . $host . $app_root_path_relative . '/api')
 function callApi(string $endpoint, string $method = 'GET', array $payload = []): array
 {
     $url = API_BASE . '/' . ltrim($endpoint, '/');
+    $methodUpper = strtoupper($method); // Chuyển method thành chữ hoa để xử lý nhất quán
+
+    // Nếu là GET và có $payload, xây dựng query string
+    if ($methodUpper === 'GET' && !empty($payload)) {
+        $url .= '?' . http_build_query($payload);
+    }
+
+    // Khởi tạo chuỗi header
+    $headers = "Content-Type: application/json; charset=utf-8\r\n" .
+        "Accept: application/json\r\n";
+
+    // Lấy token từ session nếu có
+    $token = $_SESSION['user']['token'] ?? null;
+
+    // Nếu có token, thêm header Authorization
+    if ($token) {
+        $headers .= "Authorization: Bearer " . $token . "\r\n";
+    }
+
     $options = [
         'http' => [
-            'method'        => $method,
-            'header'        => "Content-Type: application/json; charset=utf-8",
+            'method'        => $methodUpper,
+            'header'        => $headers, // Sử dụng chuỗi headers đã được cập nhật
             'ignore_errors' => true,
         ]
     ];
-    if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
-        $options['http']['content'] = json_encode($payload);
+
+    // Chỉ thêm 'content' (body) cho các method không phải GET và có $payload
+    if ($methodUpper !== 'GET') {
+        if (!empty($payload)) {
+            $options['http']['content'] = json_encode($payload);
+        } else if (in_array($methodUpper, ['POST', 'PUT'])) {
+            // Gửi một đối tượng JSON rỗng nếu không có payload cho POST/PUT
+            $options['http']['content'] = '{}';
+        }
     }
+
     $context  = stream_context_create($options);
     $response = @file_get_contents($url, false, $context);
     $result   = json_decode($response, true);
-    return is_array($result)
-        ? $result
-        : ['success' => false, 'message' => 'Invalid API response', 'data' => null];
+
+    $status_code = 500; // Mặc định là lỗi server nếu không lấy được header
+    if (isset($http_response_header[0])) {
+        preg_match('{HTTP\/\S*\s(\d{3})}', $http_response_header[0], $match);
+        if (isset($match[1])) {
+            $status_code = intval($match[1]);
+        }
+    }
+
+    // Nếu $result không phải là mảng (ví dụ: lỗi decode JSON), trả về cấu trúc lỗi chuẩn
+    if (!is_array($result)) {
+        return [
+            'success' => false,
+            'message' => 'Invalid API response or failed to decode JSON.',
+            'data' => null,
+            'raw_response' => $response, // Giữ lại raw response để debug
+            'http_status_code' => $status_code
+        ];
+    }
+
+    // Đảm bảo có 'http_status_code' và 'success' trong kết quả trả về
+    $result['http_status_code'] = $status_code;
+    if (!isset($result['success'])) {
+        $result['success'] = ($status_code >= 200 && $status_code < 300);
+    }
+    return $result;
 }
-
-// if (!empty($_SESSION['success'])) {
-//     echo '<div class="alert alert-success" style="background-color: #d4edda; color: #155724; padding: 10px; border: 1px solid #c3e6cb; margin-bottom: 15px; border-radius: 5px;">';
-//     echo '<h4>Thành công:</h4>';
-//     echo '<p style="margin: 5px 0;">' . htmlspecialchars($_SESSION['success']) . '</p>';
-//     echo '</div>';
-//     unset($_SESSION['success']);
-// }
-
-// if (!empty($_SESSION['error'])) {
-//     echo '<div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; margin-bottom: 15px; border-radius: 5px;">';
-//     echo '<h4>Lỗi:</h4>';
-//     echo '<p style="margin: 5px 0;">' . htmlspecialchars($_SESSION['error']) . '</p>';
-//     echo '</div>';
-//     unset($_SESSION['error']);
-// }
-
-// if (!empty($_SESSION['warning_message'])) {
-//     echo '<div class="alert alert-warning" style="background-color: #fff3cd; color: #856404; padding: 10px; border: 1px solid #ffeeba; margin-bottom: 15px; border-radius: 5px;">';
-//     echo '<h4>Cảnh báo:</h4>';
-//     echo '<p style="margin: 5px 0;">' . htmlspecialchars($_SESSION['warning_message']) . '</p>';
-//     echo '</div>';
-//     unset($_SESSION['warning_message']);
-// }
-
-// if (!empty($_SESSION['debug_messages']) && is_array($_SESSION['debug_messages'])) {
-//     echo '<div class="alert alert-info" style="background-color: #d1ecf1; color: #0c5460; padding: 10px; border: 1px solid #bee5eb; margin-bottom: 15px; border-radius: 5px;">';
-//     echo '<h4>Thông tin Debug (c_course.php):</h4>';
-//     echo '<pre style="white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 5px; background-color: #f9f9f9;">';
-//     foreach ($_SESSION['debug_messages'] as $index => $message) {
-//         echo '<strong>' . ($index + 1) . ':</strong> ' . htmlspecialchars($message) . "\n";
-//     }
-//     echo '</pre>';
-//     echo '</div>';
-// }
 $courseResp = callApi('course_api.php', 'GET');
 $courses    = $courseResp['success'] ? $courseResp['data'] : [];
 
@@ -104,7 +115,7 @@ $categories = $catResp['success'] ? $catResp['data'] : [];
 $instructorResp = callApi('instructor_api.php', 'GET');
 $instructors = $instructorResp['success'] ? $instructorResp['data'] : [];
 
-print_r($instructors);
+//print_r($instructors);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -235,7 +246,7 @@ print_r($instructors);
     <div class="modal fade" id="courseModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
-                <form id="courseForm" method="POST" action="../controller/c_course.php" enctype="multipart/form-data">
+                <form id="courseForm" method="POST" action="../controller/c_course_management.php" enctype="multipart/form-data">
                     <input type="hidden" name="act" id="formAct" value="create">
                     <input type="hidden" name="CourseID" id="modalCourseID">
                     <div class="modal-header">
@@ -398,8 +409,9 @@ print_r($instructors);
             document.querySelectorAll('.delete-course').forEach(btn => {
                 btn.addEventListener('click', () => {
                     if (!confirm('Bạn có chắc muốn xóa khóa học này?')) return;
-                    // Đảm bảo bạn có ../controller/c_course.php hoặc đường dẫn đúng
-                    window.location.href = `../controller/c_course.php?act=delete&courseID=${btn.dataset.id}`;
+                    actInput.value = 'delete';
+                    const courseIdToDelete = btn.getAttribute('data-id');
+                    window.location.href = `../controller/c_course_management.php?act=delete&courseID=${courseIdToDelete}`;
                 });
             });
         });

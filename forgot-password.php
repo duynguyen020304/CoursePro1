@@ -1,3 +1,6 @@
+<?php
+
+?>
 <?php include('template/head.php') ?>
 <link href="public/css/signin.css" rel="stylesheet">
 <?php include('template/header.php') ?>

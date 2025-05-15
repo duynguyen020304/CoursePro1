@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS CourseImage (
     Caption    VARCHAR(255),
     SortOrder  INT NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+    FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 12. Cart (giỏ hàng của user)

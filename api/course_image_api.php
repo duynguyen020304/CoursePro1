@@ -9,7 +9,7 @@ header('Content-Type: application/json');
 $authHeader = apache_request_headers();
 $token = null;
 
-if ($authHeader['Authorization']) {
+if (isset($authHeader['Authorization'])) {
     if (preg_match('/Bearer\s(\S+)/', $authHeader['Authorization'], $matches)) {
         $token = $matches[1];
     }
@@ -38,74 +38,45 @@ try {
 }
 
 $service = new CourseImageService();
+$data = json_decode(file_get_contents("php://input"), true);
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
-        // GET /api/course_image_api.php?courseID=...
-        if (!isset($_GET['courseID'])) {
+        if (!isset($data['courseID'])) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Thiếu courseID']);
+            echo json_encode(['success' => false, 'message' => 'Thiếu thông tin']);
             exit;
         }
-        $resp = $service->get_images($_GET['courseID']);
+        $resp = $service->get_images($data['courseID']);
         http_response_code($resp->success ? 200 : 500);
         echo json_encode(['success' => $resp->success, 'message' => $resp->message, 'data' => $resp->data]);
         break;
 
     case 'POST':
-        // Nhận file upload qua multipart/form-data
-        if (!isset($_POST['courseID']) || !isset($_FILES['CourseImage'])) {
+        if (!isset($data['courseID']) || !isset($data['imageID']) || !isset($data['imagePath'])) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Thiếu courseID hoặc file ảnh']);
+            echo json_encode(['success' => false, 'message' => 'Thiếu thông tin']);
             exit;
         }
-        $courseID  = $_POST['courseID'];
-        $caption   = $_POST['caption'] ?? null;
-        $sortOrder = isset($_POST['sortOrder']) ? intval($_POST['sortOrder']) : 0;
-        $file      = $_FILES['CourseImage'];
-
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Lỗi khi upload ảnh: ' . $file['error']]);
-            exit;
-        }
-
-        // Kiểm tra định dạng
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        if (!in_array($ext, $allowed)) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Định dạng ảnh không hợp lệ']);
-            exit;
-        }
-
-        // Lưu file
-        $uploadDir = __DIR__ . '/../uploads/course_images/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-        $newName = uniqid('img_', true) . '.' . $ext;
-        $dest = $uploadDir . $newName;
-        if (!move_uploaded_file($file['tmp_name'], $dest)) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Lưu file thất bại']);
-            exit;
-        }
-
-        $imagePath = 'uploads/course_images/' . $newName;
-        $resp = $service->add_image($courseID, $imagePath, $caption, $sortOrder);
+        $courseID        = $data['courseID'];
+        $imageID         = $data['imageID'];
+        $imagePath       = $data['imagePath'];
+        $caption         = $dataST['caption'] ?? null;
+        $sortOrder       = isset($data['sortOrder']) ? intval($data['sortOrder']) : 0;
+        $resp = $service->add_image($imageID, $courseID, $imagePath, $caption, $sortOrder);
         http_response_code($resp->success ? 201 : 500);
-        echo json_encode(['success' => $resp->success, 'message' => $resp->message, 'data' => $resp->data]);
+        echo json_encode(['success' => $resp->success, 'message' => $resp->message]);
         break;
 
     case 'DELETE':
-        // DELETE body JSON: { imageID }
         $data = json_decode(file_get_contents('php://input'), true);
-        if (!isset($data['imageID'])) {
+        if (!isset($data['imageID']) || !isset($data['courseID'])) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Thiếu imageID']);
+            echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu']);
             exit;
         }
-        $resp = $service->delete_image($data['imageID']);
-        http_response_code($resp->success ? 200 : 404);
+        $resp = $service->delete_image($data['imageID'], $data['courseID']);
+        http_response_code($resp->success ? 200 : ($resp->message == 'Image not found' ? 404 : 500));
         echo json_encode(['success' => $resp->success, 'message' => $resp->message]);
         break;
 
@@ -114,3 +85,4 @@ switch ($_SERVER['REQUEST_METHOD']) {
         echo json_encode(['success' => false, 'message' => 'Phương thức không được hỗ trợ']);
         break;
 }
+?>

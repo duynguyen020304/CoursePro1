@@ -12,8 +12,8 @@ class CourseImageBLL extends Database
      */
     public function create_image(CourseImageDTO $img): bool
     {
-        $caption = $img->caption ? "'{$img->caption}'" : 'NULL';
-        $sql = "INSERT INTO CourseImage (ImageID, CourseID, ImagePath, Caption, SortOrder) VALUES ('{$img->imageID}', '{$img->courseID}', '{$img->imagePath}', {$caption}, {$img->sortOrder})";
+        $caption = $img->caption ? "{$img->caption}" : 'NULL';
+        $sql = "INSERT INTO CourseImage (ImageID, CourseID, ImagePath, Caption, SortOrder) VALUES ('{$img->imageID}', '{$img->courseID}', '{$img->imagePath}', '{$caption}', {$img->sortOrder})";
         $result = $this->execute($sql);
         return $result === true && $this->getAffectedRows() === 1;
     }
@@ -43,9 +43,9 @@ class CourseImageBLL extends Database
      * @param string $imageID
      * @return bool
      */
-    public function delete_image(string $imageID): bool
+    public function delete_image(string $imageID, string $courseID): bool
     {
-        $sql = "DELETE FROM CourseImage WHERE ImageID = '{$imageID}'";
+        $sql = "DELETE FROM CourseImage WHERE ImageID = '{$imageID}' AND CourseID = '{$courseID}'";
         $result = $this->execute($sql);
         return $result === true && $this->getAffectedRows() === 1;
     }
