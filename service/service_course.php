@@ -8,6 +8,8 @@ require_once __DIR__ . '/../model/bll/course_image_bll.php';
 require_once __DIR__ . '/../model/bll/user_bll.php';
 require_once __DIR__ . '/../model/bll/instructor_bll.php';
 require_once __DIR__ . '/../model/bll/category_bll.php';
+require_once __DIR__ . '/../model/bll/course_image_bll.php';
+require_once __DIR__ . '/../model/dto/course_category_dto.php';
 require_once __DIR__ . '/service_response.php';
 
 
@@ -130,6 +132,7 @@ class CourseService
             foreach ($list_course as $course) {
                 $instructor_dtos_for_course = $this->courseInstructorBll->get_by_course($course->courseID);
                 $course_categories = $this->courseCategoryBll->get_categories_by_course($course->courseID);
+                $course_images = $this->courseImageBll->get_images_by_course($course->courseID);
                 $instructors_info = [];
                 if (!empty($instructor_dtos_for_course)) {
                     foreach ($instructor_dtos_for_course as $instructor_dto) {
@@ -151,8 +154,13 @@ class CourseService
                     ];
                 }
                 $tmp_course_images = [];
+                foreach ($course_images as $course_image) {
+                    $tmp_course_images[] = [
+                        'imageID' => $course_image->imageID,
+                        'imagePath' => $course_image->imagePath
+                    ];
+                }
                 
-
                 $list_course_with_instructors_details[] = [
                     'courseID' => $course->courseID,
                     'title' => $course->title,
@@ -161,6 +169,7 @@ class CourseService
                     'createdBy' => $course->createdBy,
                     'instructors' => $instructors_info,
                     'categories' => $tmp_course_categories,
+                    'images' => $tmp_course_images
                 ];
             }
             return new ServiceResponse(true, 'Lấy danh sách thành công', $list_course_with_instructors_details);
