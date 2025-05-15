@@ -44,15 +44,25 @@ class UserBLL extends Database
         // $this->close();
     }
 
-    public function get_user_by_id(string $userID): ?UserDTO
+    public function get_user_by_id(string $userID, string $purpose = "get"): ?UserDTO
     {
         $sql = "SELECT * FROM `Users` WHERE UserID = '{$userID}'";
         $result = $this->execute($sql);
-        if ($result instanceof mysqli_result && $result->num_rows > 0) {
-            if ($row = $result->fetch_assoc()) {
-                $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+        if ($purpose == "get") {
+            if ($result instanceof mysqli_result && $result->num_rows > 0) {
+                if ($row = $result->fetch_assoc()) {
+                    $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+                }
             }
         }
+        else if ($purpose == "update") {
+            if ($result instanceof mysqli_result && $result->num_rows > 0) {
+                if ($row = $result->fetch_assoc()) {
+                    $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], $row['Password'], $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+                }
+            }
+        }
+
         // $this->close();
         return $dto;
     }
