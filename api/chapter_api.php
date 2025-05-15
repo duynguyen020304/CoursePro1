@@ -9,11 +9,14 @@ $response = null;
 
 switch ($method) {
     case 'GET':
+        $response = null;
         if (isset($_GET['id'])) {
             $response = $service->get_chapter_by_id($_GET['id']);
         } else {
             $response = $service->get_all_chapters();
         }
+        http_response_code($response->success ? 201 : 500);
+        echo json_encode(['success' => $response->success, 'message' => $response->message, 'data' => $response->data]);
         break;
 
     case 'POST':
@@ -24,7 +27,10 @@ switch ($method) {
             $input['description'] ?? null,
             (int)($input['sortOrder'] ?? 0)
         );
-        break;
+        http_response_code($response->success ? 201 : 500);
+        echo json_encode(['success' => $response->success, 'message' => $response->message]);
+        if ($response)
+            break;
 
     case 'PUT':
         $input = json_decode(file_get_contents('php://input'), true);
@@ -35,6 +41,8 @@ switch ($method) {
             $input['description'] ?? null,
             (int)($input['sortOrder'] ?? 0)
         );
+        http_response_code($response->success ? 201 : 500);
+        echo json_encode(['success' => $response->success, 'message' => $response->message]);
         break;
 
     case 'DELETE':
