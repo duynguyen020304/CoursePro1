@@ -4,6 +4,7 @@
 require_once __DIR__ . '/../model/bll/instructor_bll.php';
 require_once __DIR__ . '/../model/dto/instructor_dto.php';
 require_once __DIR__ . '/../model/bll/user_bll.php';
+require_once __DIR__ . '/../model/dto/user_dto.php';
 require_once __DIR__ . '/service_response.php';
 class InstructorService
 {
