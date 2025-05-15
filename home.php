@@ -12,6 +12,7 @@ if (isset($_SESSION['user']) && isset($_SESSION['user']['userID'])) {
 ?>
 <?php include('template/head.php'); ?>
 
+<link href="public/css/bootstrap.min.css" rel="stylesheet">
 <link href="public/css/home.css" rel="stylesheet">
 
 <link href="public/css/swiper-bundle.min.css" rel="stylesheet">

@@ -1,0 +1,50 @@
+/* -----------------------------------------
+   Global
+----------------------------------------- */
+body {
+    background-color: #f8f9fa;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* -----------------------------------------
+   Main content
+----------------------------------------- */
+.main-content {
+    padding: 1.5rem;
+    transition: margin-left 0.3s ease;
+    margin-left: 250px;
+}
+@media (max-width: 991px) {
+    .main-content {
+        margin-left: 0;
+    }
+}
+/* Khi sidebar collapsed */
+#sidebar.collapsed ~ .main-content {
+    margin-left: 60px;
+}
+
+/* -----------------------------------------
+   Utility classes
+----------------------------------------- */
+.profile-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+}
+.course-thumbnail {
+    width: 80px;
+    height: 50px;
+    object-fit: cover;
+    margin-right: 1rem;
+    border-radius: 0.25rem;
+}
+.nav-link i {
+    vertical-align: middle;
+}
+
+

@@ -33,29 +33,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <title>Chứng chỉ của tôi - Ecourse</title>
     <link href="public/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .sidebar { width: 260px; height: 100vh; position: fixed; top: 0; left: 0; background-color: #343a40; padding-top: 1rem; transition: all 0.3s; z-index: 1030; }
-        .sidebar .nav-link { color: #adb5bd; padding: 0.75rem 1.5rem; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background-color: #495057; }
-        .sidebar .sidebar-header { color: #fff; padding: 0 1.5rem 1rem 1.5rem; font-size: 1.2rem; font-weight: bold; }
-        .main-content { transition: margin-left 0.3s; padding: 1.5rem; overflow-x: hidden; }
-        @media (min-width: 992px) { .main-content { margin-left: 260px; } }
-        .offcanvas-start { width: 260px; background-color: #343a40; }
-        .offcanvas-header { border-bottom: 1px solid #495057; }
-        .offcanvas-title { color: #fff; }
-        .offcanvas-body .nav-link { color: #adb5bd; }
-        .offcanvas-body .nav-link:hover, .offcanvas-body .nav-link.active { color: #fff; background-color: #495057; }
-        .btn-close-white { filter: invert(1) grayscale(100%) brightness(200%); }
-        .topbar-sm { background-color: #fff; border-bottom: 1px solid #dee2e6; padding: 0.5rem 1rem; position: sticky; top: 0; z-index: 1020; }
-        .nav-link i { vertical-align: middle; }
-        .card { margin-bottom: 1.5rem; } /* Thêm lại style card nếu đã xóa */
-        .certificate-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: 1px solid var(--bs-border-color-translucent); }
-        .certificate-card:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
-        .certificate-card .card-img-top { width: 100%; height: 180px; object-fit: cover; background-color: #e9ecef; }
-        .certificate-card .card-title { font-size: 1.1rem; font-weight: 500; }
-        .certificate-card .card-text small { font-size: 0.85rem; }
-    </style>
+    <link href="public/css/certificates.css" rel="stylesheet">
 </head>
 
 <body>

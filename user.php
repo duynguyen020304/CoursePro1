@@ -155,124 +155,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <title>Học viên - <?= htmlspecialchars($user->name) ?></title>
     <link href="public/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        /* TOÀN BỘ CSS GỐC CỦA BẠN SẼ NẰM Ở ĐÂY */
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #343a40;
-            padding-top: 1rem;
-            transition: all 0.3s;
-            z-index: 1030;
-        }
-
-        .sidebar .nav-link {
-            color: #adb5bd;
-            padding: 0.75rem 1.5rem;
-        }
-
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            color: #fff;
-            background-color: #495057;
-        }
-
-        .sidebar .sidebar-header {
-            color: #fff;
-            padding: 0 1.5rem 1rem 1.5rem;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .main-content {
-            transition: margin-left 0.3s;
-            padding: 1.5rem;
-            overflow-x: hidden;
-        }
-
-        @media (min-width: 992px) {
-            .main-content {
-                margin-left: 260px;
-            }
-
-            .navbar-toggler-icon {
-                display: none !important;
-            }
-        }
-
-        .offcanvas-start {
-            width: 260px;
-            background-color: #343a40;
-        }
-
-        .offcanvas-header {
-            border-bottom: 1px solid #495057;
-        }
-
-        .offcanvas-title {
-            color: #fff;
-        }
-
-        .offcanvas-body .nav-link {
-            color: #adb5bd;
-        }
-
-        .offcanvas-body .nav-link:hover,
-        .offcanvas-body .nav-link.active {
-            color: #fff;
-            background-color: #495057;
-        }
-
-        .btn-close-white {
-            filter: invert(1) grayscale(100%) brightness(200%);
-        }
-
-        .topbar-sm {
-            background-color: #fff;
-            border-bottom: 1px solid #dee2e6;
-            padding: 0.5rem 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 1020;
-        }
-
-        .card {
-            margin-bottom: 1.5rem;
-        }
-
-        .profile-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .course-thumbnail {
-            width: 80px;
-            height: 50px;
-            object-fit: cover;
-            margin-right: 1rem;
-            border-radius: 0.25rem;
-        }
-
-        .nav-link i {
-            vertical-align: middle;
-        }
-    </style>
+    <link href="public/css/user.css" rel="stylesheet">
 </head>
 
 <body>
 
-    <?php include('template/user_sidebar.php'); // Include template sidebar người dùng 
+    <?php include('template/user_sidebar.php');
     ?>
 
     <div class="main-content">

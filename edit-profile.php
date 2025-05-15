@@ -79,34 +79,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <title>Chỉnh sửa Hồ sơ - Ecourse</title>
     <link href="public/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .sidebar { width: 260px; height: 100vh; position: fixed; top: 0; left: 0; background-color: #343a40; padding-top: 1rem; transition: all 0.3s; z-index: 1030; }
-        .sidebar .nav-link { color: #adb5bd; padding: 0.75rem 1.5rem; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background-color: #495057; }
-        .sidebar .sidebar-header { color: #fff; padding: 0 1.5rem 1rem 1.5rem; font-size: 1.2rem; font-weight: bold; }
-        .main-content { transition: margin-left 0.3s; padding: 0; overflow-x: hidden; }
-        @media (min-width: 992px) { .main-content { margin-left: 260px; } }
-        .offcanvas-start { width: 260px; background-color: #343a40; }
-        .offcanvas-header { border-bottom: 1px solid #495057; }
-        .offcanvas-title { color: #fff; }
-        .offcanvas-body .nav-link { color: #adb5bd; }
-        .offcanvas-body .nav-link:hover, .offcanvas-body .nav-link.active { color: #fff; background-color: #495057; }
-        .btn-close-white { filter: invert(1) grayscale(100%) brightness(200%); }
-        .nav-link i { vertical-align: middle; }
-        .profile-header { background-color: #212529; color: #fff; padding: 2rem 1.5rem; }
-        @media (min-width: 992px) {
-             .profile-header { padding: 2rem calc((100% - 260px - (min(1140px, 100% - 260px - 3rem)))/2 + 1.5rem); }
-             .profile-content-wrapper { padding-left: calc((100% - 260px - (min(1140px, 100% - 260px - 3rem)))/2 + 1.5rem); padding-right: calc((100% - 260px - (min(1140px, 100% - 260px - 3rem)))/2 + 1.5rem); padding-top: 1.5rem; padding-bottom: 1.5rem; }
-        }
-        @media (max-width: 991.98px) { .profile-content-wrapper { padding: 1.5rem; } }
-        .profile-nav .nav-link { color: #f8f9fa; padding: 0.75rem 1rem; border-bottom: 3px solid transparent; margin-right: 0.5rem; }
-        .profile-nav .nav-link.active { color: #fff; border-bottom-color: #fff; font-weight: 500; }
-        .profile-nav .nav-link:hover { color: #fff; }
-        .form-section { padding: 2rem; background-color: #fff; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); margin-bottom:1.5rem; /* Thêm margin bottom cho card */ }
-        .profile-image-lg { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075); }
-        .form-control:disabled, .form-control[readonly] { background-color: #e9ecef; opacity: 1; }
-    </style>
+    <link href="public/css/edit-profile.css" rel="stylesheet">
 </head>
 <body>
 

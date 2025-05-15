@@ -1,0 +1,131 @@
+/* public/css/purchase-history.css */
+
+/* ========== SIDEBAR ========== */
+#sidebar {
+  width: 250px;
+  background-color: #343a40;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding-top: 1rem;
+  transition: width .3s ease;
+  z-index: 1030;
+}
+#sidebar.collapsed {
+  width: 60px;
+}
+
+/* Header trong sidebar */
+#sidebar .sidebar-header {
+  color: #fff;
+  padding: 0 1.5rem 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Link trong sidebar */
+#sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  color: #adb5bd;
+  padding: .75rem 1.5rem;
+  transition: color .2s, background .2s;
+}
+#sidebar .nav-link:hover,
+#sidebar .nav-link.active {
+  color: #fff;
+  background-color: #495057;
+}
+
+/* Khi collapsed: chỉ show icon, ẩn text */
+#sidebar.collapsed .nav-link {
+  justify-content: center;
+}
+#sidebar.collapsed .link-text {
+  display: none;
+}
+#sidebar.collapsed .nav-link .me-2 {
+  margin-right: 0 !important;
+}
+
+/* ========== OFFCANVAS (mobile) ========== */
+.offcanvas-start {
+  width: 260px;
+  background-color: #343a40;
+}
+.offcanvas-header {
+  border-bottom: 1px solid #495057;
+}
+.offcanvas-title {
+  color: #fff;
+}
+.offcanvas-body .nav-link {
+  color: #adb5bd;
+}
+.offcanvas-body .nav-link:hover,
+.offcanvas-body .nav-link.active {
+  color: #fff;
+  background-color: #495057;
+}
+.btn-close-white {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* ========== MAIN CONTENT ========== */
+.main-content {
+  margin-left: 260px;
+  padding: 1.5rem;
+  transition: margin-left .3s;
+  overflow-x: hidden;
+}
+/* Khi sidebar collapsed, đẩy main-content lại */
+#sidebar.collapsed ~ .main-content {
+  margin-left: 80px;
+}
+
+/* ========== MOBILE TOPBAR ========== */
+.topbar-sm {
+  background-color: #fff;
+  border-bottom: 1px solid #dee2e6;
+  padding: .5rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+@media (min-width: 992px) {
+  .topbar-sm { display: none; }
+  .navbar-toggler-icon { display: none !important; }
+}
+
+/* ========== PURCHASE HISTORY TABLE ========== */
+.table th {
+  font-weight: 500;
+}
+.table td, .table th {
+  vertical-align: middle;
+}
+.card {
+  margin-bottom: 1.5rem;
+}
+.badge.bg-success-light {
+  background-color: var(--bs-success-bg-subtle);
+  color: var(--bs-success-text-emphasis);
+}
+.badge.bg-warning-light {
+  background-color: var(--bs-warning-bg-subtle);
+  color: var(--bs-warning-text-emphasis);
+}
+/* Make the collapse button visible on dark sidebar */
+.btn-toggle {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+}
+.btn-toggle i {
+  color: #fff;            /* icon trắng */
+  font-size: 1.2rem;      /* to vừa phải */
+}
+.btn-toggle:hover i {
+  color: #adb5bd;         /* hover hơi nhạt */
+}
