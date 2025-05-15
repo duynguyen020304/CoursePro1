@@ -197,7 +197,7 @@ switch ($act) {
         if (!function_exists('ensureUploadDirectory')) {
             function ensureUploadDirectory(string $absoluteDirectoryPath): bool
             {
-                if (!is_dir($absoluteDirectoryPath)) {
+                if (!is_dir($absoluteDirectoryPath)) { // Kiểm tra thư mục đã tồn tại chưa
                     if (!mkdir($absoluteDirectoryPath, 0755, true)) {
                         error_log("UPLOAD_ERROR: Không thể tạo thư mục: " . $absoluteDirectoryPath);
                         return false;
@@ -239,8 +239,8 @@ switch ($act) {
 
             if (empty($uploadErrors)) {
                 $safeCourseID = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$targetCourseID);
-                $projectRoot = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-                $relativeUploadPath = 'uploads' . DIRECTORY_SEPARATOR . $safeCourseID . DIRECTORY_SEPARATOR;
+                $projectRoot = dirname(dirname(__FILE__)) . "/";
+                $relativeUploadPath = 'uploads' . "/" . $safeCourseID . "/";
                 $absoluteUploadDir = $projectRoot . $relativeUploadPath;
 
                 if (ensureUploadDirectory($absoluteUploadDir)) {

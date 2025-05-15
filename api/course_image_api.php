@@ -42,12 +42,12 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
-        if (!isset($data['courseID'])) {
+        if (!isset($_GET['courseID'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Thiếu thông tin']);
             exit;
         }
-        $resp = $service->get_images($data['courseID']);
+        $resp = $service->get_images($_GET['courseID']);
         http_response_code($resp->success ? 200 : 500);
         echo json_encode(['success' => $resp->success, 'message' => $resp->message, 'data' => $resp->data]);
         break;

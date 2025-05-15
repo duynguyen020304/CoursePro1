@@ -63,13 +63,14 @@ class InstructorService
         try {
             $combinedData = [];
             $combinedData['userID'] = $userDto->userID;
-            $combinedData['name']   = $userDto->name;
+            $combinedData['firstName']   = $userDto->firstName;
+            $combinedData['lastName'] = $userDto->lastName;
             $combinedData['email']  = $userDto->email;
             $combinedData['roleID'] = $userDto->roleID;
-
+            $combinedData['profileImage'] = $userDto->profileImage;
             $combinedData['instructorID'] = $instructorDto->instructorID;
             $combinedData['biography']    = $instructorDto->biography;
-            $combinedData['profileImage'] = $instructorDto->profileImage;
+            
 
             return new ServiceResponse(true, 'Lấy thông tin giảng viên thành công', $combinedData);
         } catch (Exception $e) {
