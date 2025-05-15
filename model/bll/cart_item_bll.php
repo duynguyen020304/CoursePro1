@@ -33,9 +33,16 @@ class CartItemBLL extends Database
 
     public function clear_cart(string $cartID)
     {
+        $sql = "SELECT COUNT(*) FROM CartItem WHERE CartID = '{$cartID}'";
+        $result = $this->execute($sql);
+        $count = $result->fetch_assoc()['COUNT(*)'];
+
+        if ($count == 0) {
+            return false; // Không có item trong giỏ hàng
+        }
+
         $sql = "DELETE FROM CartItem WHERE CartID = '{$cartID}'";
         $result = $this->execute($sql);
-        // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        return $result === true && $this->getAffectedRows() > 0;
     }
 }
