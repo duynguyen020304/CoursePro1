@@ -107,9 +107,9 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
     return $result;
 }
 
-// Kiểm tra đã login chưa
+
 if (!isset($_SESSION['user']['userID'])) {
-    header('Location: /login.php');
+    header('Location: /signin.php');
     exit;
 }
 
@@ -127,47 +127,46 @@ if (!$response->success) {
         'name' => 'Người dùng Mẫu',
         'firstName' => 'Người',
         'lastName' => 'Dùng Mẫu',
-        'headline' => 'Học viên tại Ecourse',
-        'bio' => 'Tôi là một người đam mê học hỏi và khám phá những điều mới mẻ thông qua các khóa học trực tuyến.',
         'email' => 'user@example.com',
         'profileImage' => null,
-        'websiteLink' => 'https://example.com',
-        'twitterLink' => 'https://twitter.com/ecourseUser',
-        'facebookLink' => 'https://facebook.com/ecourseUser',
-        'linkedinLink' => 'https://linkedin.com/in/ecourseUser',
-        'youtubeLink' => 'https://youtube.com/ecourseUser'
     ];
 } else {
     /** @var \App\DTO\UserDTO $user */
     $user = $response->data;
     if (!isset($user->firstName)) $user->firstName = strtok($user->name, ' ');
     if (!isset($user->lastName)) $user->lastName = substr(strstr($user->name, ' '), 1) ?: '';
-    if (!isset($user->headline)) $user->headline = '';
-    if (!isset($user->bio)) $user->bio = '';
-    if (!isset($user->websiteLink)) $user->websiteLink = '';
-    if (!isset($user->twitterLink)) $user->twitterLink = '';
-    if (!isset($user->facebookLink)) $user->facebookLink = '';
-    if (!isset($user->linkedinLink)) $user->linkedinLink = '';
-    if (!isset($user->youtubeLink)) $user->youtubeLink = '';
+    // Đảm bảo các thuộc tính Email, ProfileImage, UserID tồn tại để tránh lỗi undefined property sau này
+    if (!isset($user->Email)) $user->Email = 'user@example.com'; // Giá trị mặc định nếu thiếu
+    if (!isset($user->ProfileImage)) $user->ProfileImage = null;
+    if (!isset($user->userID)) $user->userID = $_SESSION['user']['userID'];
 }
 
 $updateMessage = '';
 $messageType = '';
 
+// Xử lý POST request (để hiển thị thông báo tạm thời, logic chính nằm ở controllers/c_edit-profile.php)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['save_profile'])) {
-        $updateMessage = 'Chức năng cập nhật thông tin đang được phát triển.';
-        $messageType = 'info';
-    }
-    if (isset($_POST['save_photo']) && isset($_FILES['profileImageFile']) && $_FILES['profileImageFile']['error'] == 0) {
-         $updateMessage = 'Chức năng cập nhật ảnh đại diện đang được phát triển.';
-        $messageType = 'info';
-    }
-    if (isset($_POST['save_password'])) {
-        $updateMessage = 'Chức năng cập nhật mật khẩu đang được phát triển.';
-        $messageType = 'info';
+    // Giả sử controller sẽ redirect về với một param hoặc session message để hiển thị
+    // Hoặc nếu bạn muốn xử lý trực tiếp ở đây (ít phổ biến hơn khi action trỏ đi nơi khác)
+    // thì bạn cần submit form về chính trang này hoặc dùng AJAX.
+    // Đoạn code hiện tại sẽ không chạy vì form action trỏ đến controllers/c_edit-profile.php
+    // Tuy nhiên, tôi vẫn giữ lại cấu trúc này nếu bạn có ý định khác.
+    if (isset($_POST['action'])) { // Thay vì check tên button, check giá trị của input hidden 'action'
+        if ($_POST['action'] == 'save_profile') {
+            $updateMessage = 'Chức năng cập nhật thông tin đang được phát triển.';
+            $messageType = 'info';
+        }
+        if ($_POST['action'] == 'save_photo' && isset($_FILES['profileImageFile']) && $_FILES['profileImageFile']['error'] == 0) {
+             $updateMessage = 'Chức năng cập nhật ảnh đại diện đang được phát triển.';
+            $messageType = 'info';
+        }
+        if ($_POST['action'] == 'save_password') {
+            $updateMessage = 'Chức năng cập nhật mật khẩu đang được phát triển.';
+            $messageType = 'info';
+        }
     }
 }
+
 
 // Xác định trang hiện tại để active menu
 $current_page = basename($_SERVER['PHP_SELF']);
@@ -186,30 +185,24 @@ $current_page = basename($_SERVER['PHP_SELF']);
 </head>
 <body>
 
-    <?php include('template/user_sidebar.php'); ?>
+    <?php include('template/user_sidebar.php'); // Đường dẫn tới sidebar của bạn ?>
     <div class="main-content">
         <header class="profile-header">
-            <div class="container-xl px-0 px-lg-3"> <h2 class="mb-3">Tài khoản</h2>
+            <div class="container-xl px-0 px-lg-3"> <h2 class="mb-3">Tài khoản của tôi</h2>
                 <ul class="nav profile-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profileContent" role="tab" aria-controls="profileContent" aria-selected="true"><i class="bi bi-person-fill me-1"></i> Hồ sơ</a>
+                        <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profileContent" role="tab" aria-controls="profileContent" aria-selected="true"><i class="bi bi-person-badge me-1"></i> Hồ sơ & Bảo mật</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="photo-tab" data-bs-toggle="tab" href="#photoContent" role="tab" aria-controls="photoContent" aria-selected="false"><i class="bi bi-image-fill me-1"></i> Ảnh đại diện</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="account-tab" data-bs-toggle="tab" href="#accountContent" role="tab" aria-controls="accountContent" aria-selected="false"><i class="bi bi-shield-lock-fill me-1"></i> Tài khoản</a>
-                    </li>
-                     <li class="nav-item">
-                        <a class="nav-link" id="social-tab" data-bs-toggle="tab" href="#socialContent" role="tab" aria-controls="socialContent" aria-selected="false"><i class="bi bi-share-fill me-1"></i> Mạng xã hội</a>
-                    </li>
-                </ul>
+                    </ul>
             </div>
         </header>
 
         <div class="profile-content-wrapper container-xl px-0 px-lg-3">
             <?php if ($updateMessage): ?>
-            <div class="alert alert-<?= $messageType ?> alert-dismissible fade show my-3" role="alert">
+            <div class="alert alert-<?= htmlspecialchars($messageType) ?> alert-dismissible fade show my-3" role="alert">
                 <?= htmlspecialchars($updateMessage) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -218,27 +211,49 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <div class="tab-content py-3" id="profileTabContent">
                 <div class="tab-pane fade show active" id="profileContent" role="tabpanel" aria-labelledby="profile-tab">
                     <section class="form-section">
-                        <h4 class="mb-4">Thông tin công khai</h4>
-                        <form action="edit-profile.php" method="post">
+                        <h4 class="mb-4">Thông tin cá nhân</h4>
+                        <form action="controllers/c_edit-profile.php" method="post">
+                            <input type="hidden" name="action" value="save_profile"> <input type="hidden" name="userID" value="<?= htmlspecialchars($user->userID ?? '') ?>">
+
                             <div class="row g-3 mb-3">
                                 <div class="col-md-6">
                                     <label for="firstName" class="form-label">Tên</label>
-                                    <input type="text" class="form-control" id="firstName" name="firstName" value="<?= htmlspecialchars($user->firstName ?? '') ?>">
+                                    <input type="text" class="form-control" id="firstName" name="firstName" value="<?= htmlspecialchars($user->firstName ?? '') ?>" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="lastName" class="form-label">Họ</label>
-                                    <input type="text" class="form-control" id="lastName" name="lastName" value="<?= htmlspecialchars($user->lastName ?? '') ?>">
+                                    <input type="text" class="form-control" id="lastName" name="lastName" value="<?= htmlspecialchars($user->lastName ?? '') ?>" required>
                                 </div>
                             </div>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Lưu thay đổi</button>
+                        </form>
+                    </section>
+
+                    <hr class="my-4"> <section class="form-section">
+                        <h4 class="mb-4">Cài đặt tài khoản & Bảo mật</h4>
+                         <form action="controllers/c_edit-profile.php" method="post">
+                            <input type="hidden" name="action" value="save_password"> <input type="hidden" name="userID" value="<?= htmlspecialchars($user->userID ?? '') ?>">
+
                             <div class="mb-3">
-                                <label for="headline" class="form-label">Tiêu đề</label>
-                                <input type="text" class="form-control" id="headline" name="headline" placeholder="Ví dụ: Nhà phát triển Web | Người đam mê học hỏi" value="<?= htmlspecialchars($user->headline ?? '') ?>">
+                                <label for="email" class="form-label">Địa chỉ email</label>
+                                <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($user->email ?? '') ?>" readonly disabled>
+                                <small class="form-text text-muted">Email không thể thay đổi.</small>
+                            </div>
+                            <hr class="my-4">
+                            <h5 class="mb-3">Đổi mật khẩu</h5>
+                            <div class="mb-3">
+                                <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+                                <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
                             </div>
                             <div class="mb-3">
-                                <label for="bio" class="form-label">Tiểu sử</label>
-                                <textarea class="form-control" id="bio" name="bio" rows="5" placeholder="Giới thiệu ngắn gọn về bản thân..."><?= htmlspecialchars($user->bio ?? '') ?></textarea>
+                                <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                                <input type="password" class="form-control" id="newPassword" name="newPassword" required>
                             </div>
-                            <button type="submit" name="save_profile" class="btn btn-primary"><i class="bi bi-save me-1"></i> Lưu hồ sơ</button>
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu mới</label>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-key-fill me-1"></i> Đổi mật khẩu</button>
                         </form>
                     </section>
                 </div>
@@ -252,85 +267,29 @@ $current_page = basename($_SERVER['PHP_SELF']);
                             </div>
                             <div class="col-md-9">
                                 <p class="text-muted">Để có kết quả tốt nhất, hãy tải lên ảnh vuông có kích thước ít nhất 200x200 pixel.</p>
-                                <form action="edit-profile.php" method="post" enctype="multipart/form-data">
+                                <form action="controllers/c_edit-profile.php" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" name="action" value="save_photo"> <input type="hidden" name="userID" value="<?= htmlspecialchars($user->userID ?? '') ?>">
                                     <div class="mb-3">
                                         <label for="profileImageFile" class="form-label">Tải ảnh mới</label>
-                                        <input class="form-control" type="file" id="profileImageFile" name="profileImageFile" accept="image/jpeg, image/png, image/gif">
+                                        <input class="form-control" type="file" id="profileImageFile" name="profileImageFile" accept="image/jpeg, image/png, image/gif" required>
                                     </div>
-                                    <button type="submit" name="save_photo" class="btn btn-primary"><i class="bi bi-upload me-1"></i> Tải lên</button>
+                                    <button type="submit" class="btn btn-primary"><i class="bi bi-upload me-1"></i> Tải lên</button>
                                 </form>
                             </div>
                         </div>
                     </section>
                 </div>
 
-                <div class="tab-pane fade" id="accountContent" role="tabpanel" aria-labelledby="account-tab">
-                    <section class="form-section">
-                        <h4 class="mb-4">Cài đặt tài khoản</h4>
-                        <form action="edit-profile.php" method="post">
-                             <div class="mb-3">
-                                <label for="email" class="form-label">Địa chỉ email</label>
-                                <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($user->email ?? '') ?>" readonly disabled>
-                                <small class="form-text text-muted">Email không thể thay đổi.</small>
-                            </div>
-                            <hr class="my-4">
-                            <h5 class="mb-3">Đổi mật khẩu</h5>
-                            <div class="mb-3">
-                                <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
-                                <input type="password" class="form-control" id="currentPassword" name="currentPassword">
-                            </div>
-                            <div class="mb-3">
-                                <label for="newPassword" class="form-label">Mật khẩu mới</label>
-                                <input type="password" class="form-control" id="newPassword" name="newPassword">
-                            </div>
-                            <div class="mb-3">
-                                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu mới</label>
-                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
-                            </div>
-                            <button type="submit" name="save_password" class="btn btn-primary"><i class="bi bi-key-fill me-1"></i> Đổi mật khẩu</button>
-                        </form>
-                    </section>
                 </div>
-
-                <div class="tab-pane fade" id="socialContent" role="tabpanel" aria-labelledby="social-tab">
-                    <section class="form-section">
-                        <h4 class="mb-4">Liên kết mạng xã hội</h4>
-                        <p class="text-muted">Thêm liên kết đến các trang mạng xã hội của bạn.</p>
-                        <form action="edit-profile.php" method="post">
-                             <div class="input-group mb-3">
-                                <span class="input-group-text" style="width: 40px;"><i class="bi bi-globe"></i></span>
-                                <input type="url" class="form-control" name="websiteLink" placeholder="Trang web (ví dụ: https://yourwebsite.com)" value="<?= htmlspecialchars($user->websiteLink ?? '') ?>">
-                            </div>
-                             <div class="input-group mb-3">
-                                <span class="input-group-text" style="width: 40px;"><i class="bi bi-twitter-x"></i></span>
-                                <input type="url" class="form-control" name="twitterLink" placeholder="Twitter (ví dụ: https://x.com/yourprofile)" value="<?= htmlspecialchars($user->twitterLink ?? '') ?>">
-                            </div>
-                             <div class="input-group mb-3">
-                                <span class="input-group-text" style="width: 40px;"><i class="bi bi-facebook"></i></span>
-                                <input type="url" class="form-control" name="facebookLink" placeholder="Facebook (ví dụ: https://facebook.com/yourprofile)" value="<?= htmlspecialchars($user->facebookLink ?? '') ?>">
-                            </div>
-                             <div class="input-group mb-3">
-                                <span class="input-group-text" style="width: 40px;"><i class="bi bi-linkedin"></i></span>
-                                <input type="url" class="form-control" name="linkedinLink" placeholder="LinkedIn (ví dụ: https://linkedin.com/in/yourprofile)" value="<?= htmlspecialchars($user->linkedinLink ?? '') ?>">
-                            </div>
-                             <div class="input-group mb-3">
-                                <span class="input-group-text" style="width: 40px;"><i class="bi bi-youtube"></i></span>
-                                <input type="url" class="form-control" name="youtubeLink" placeholder="YouTube (ví dụ: https://youtube.com/c/yourchannel)" value="<?= htmlspecialchars($user->youtubeLink ?? '') ?>">
-                            </div>
-                            <button type="submit" name="save_profile" class="btn btn-primary"><i class="bi bi-save me-1"></i> Lưu liên kết</button>
-                        </form>
-                    </section>
-                </div>
-
-            </div>
         </div>
 
         <footer class="text-center text-muted mt-4 py-3 border-top">
-            <small>&copy; <?= date('Y') ?> Tên Website. All Rights Reserved.</small>
+            <small>© <?= date('Y') ?> Tên Website Của Bạn. All Rights Reserved.</small>
         </footer>
     </div>
     <script src="public/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Giữ nguyên phần JavaScript xử lý active tab và preview ảnh
         const profileImageFile = document.getElementById('profileImageFile');
         const currentProfileImage = document.getElementById('currentProfileImage');
         if (profileImageFile && currentProfileImage) {
@@ -345,25 +304,47 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 }
             });
         }
+
         document.addEventListener('DOMContentLoaded', function() {
-            let activeTab = localStorage.getItem('activeProfileTab');
-            if (activeTab) {
-                let tabElement = document.querySelector('#profileTabContent .tab-pane' + activeTab);
-                let navLink = document.querySelector('.profile-nav .nav-link[href="' + activeTab + '"]');
-                if (tabElement && navLink) {
-                    document.querySelector('.profile-nav .nav-link.active').classList.remove('active');
-                    document.querySelector('#profileTabContent .tab-pane.active').classList.remove('show', 'active');
-                    navLink.classList.add('active');
-                    navLink.setAttribute('aria-selected', 'true');
-                    tabElement.classList.add('show', 'active');
-                } else {
-                    document.querySelector('.profile-nav .nav-link#profile-tab').classList.add('active');
-                    document.querySelector('#profileTabContent .tab-pane#profileContent').classList.add('show', 'active');
+            let activeTabId = localStorage.getItem('activeProfileTab');
+
+            const defaultTabId = '#profileContent';
+            // Cập nhật danh sách validTabIds, loại bỏ #accountContent
+            const validTabIds = ['#profileContent', '#photoContent'];
+
+            if (!activeTabId || !validTabIds.includes(activeTabId)) {
+                activeTabId = defaultTabId;
+            }
+            
+            // Deactivate all tabs and nav links first
+            document.querySelectorAll('.profile-nav .nav-link.active').forEach(link => link.classList.remove('active'));
+            document.querySelectorAll('#profileTabContent .tab-pane.active').forEach(pane => pane.classList.remove('show', 'active'));
+
+            // Activate the stored/default tab
+            // Đảm bảo selector đúng cho tab pane (nối activeTabId trực tiếp)
+            const tabElement = document.querySelector('#profileTabContent .tab-pane' + activeTabId);
+            const navLink = document.querySelector('.profile-nav .nav-link[href="' + activeTabId + '"]');
+
+            if (tabElement && navLink) {
+                navLink.classList.add('active');
+                navLink.setAttribute('aria-selected', 'true'); // Cần thiết cho Bootstrap 5 tabs
+                tabElement.classList.add('show', 'active');
+            } else {
+                // Fallback nếu có lỗi (dù đã kiểm tra ở trên)
+                const defaultNavLink = document.querySelector('.profile-nav .nav-link[href="' + defaultTabId + '"]');
+                const defaultTabElement = document.querySelector('#profileTabContent .tab-pane' + defaultTabId);
+                if (defaultNavLink && defaultTabElement) {
+                    defaultNavLink.classList.add('active');
+                    defaultNavLink.setAttribute('aria-selected', 'true');
+                    defaultTabElement.classList.add('show', 'active');
                 }
             }
+
             var profileNavLinks = document.querySelectorAll('.profile-nav .nav-link');
             profileNavLinks.forEach(function(link) {
                 link.addEventListener('click', function(event) {
+                    // Bootstrap tự xử lý việc active tab khi click,
+                    // chúng ta chỉ cần lưu lại href của tab vừa được click
                     localStorage.setItem('activeProfileTab', this.getAttribute('href'));
                 });
             });
