@@ -3,6 +3,7 @@
 $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
 require_once __DIR__ . '/../service/service_video.php';
 require __DIR__ . '/../vendor/autoload.php';
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
