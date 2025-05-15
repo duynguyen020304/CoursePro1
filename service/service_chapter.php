@@ -27,6 +27,15 @@ class ChapterService
         return new ServiceResponse(false, 'Không tìm thấy chương');
     }
 
+    public function get_chapter_by_courseID(string $courseID): ServiceResponse
+    {
+        $chap = $this->chapterBll->get_chapter_by_courseID($courseID);
+        if ($chap) {
+            return new ServiceResponse(true, 'Lấy chương thành công', $chap);
+        }
+        return new ServiceResponse(false, 'Không tìm thấy chương');
+    }
+
     public function create_chapter(string $courseID, string $title, ?string $description, int $sortOrder): ServiceResponse
     {
         $chapterID = str_replace('.', '_', uniqid('chapter', true));

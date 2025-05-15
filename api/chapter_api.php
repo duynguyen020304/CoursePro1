@@ -8,9 +8,8 @@ $response = null;
 
 switch ($method) {
     case 'GET':
-        $response = null;
-        if (isset($_GET['id'])) {
-            $response = $service->get_chapter_by_id($_GET['id']);
+        if (isset($_GET['courseID'])) {
+            $response = $service->get_chapter_by_courseID($_GET['courseID']);
         } else {
             $response = $service->get_all_chapters();
         }
@@ -55,9 +54,3 @@ switch ($method) {
     default:
         $response = new ServiceResponse(false, "Phương thức {$method} không được hỗ trợ");
 }
-
-echo json_encode([
-    'success' => $response->success,
-    'message' => $response->message,
-    'data'    => $response->data ?? null
-]);
