@@ -80,7 +80,6 @@ switch ($method) {
             $data['instructorID'],
             $data['userID'],
             $data['biography'] ?? null,
-            $data['profileImage'] ?? null
         );
         http_response_code($resp->success ? 201 : 500);
         echo json_encode(['success' => $resp->success, 'message' => $resp->message, 'data' => $resp->data ?? null]);

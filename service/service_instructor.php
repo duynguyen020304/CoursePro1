@@ -26,9 +26,9 @@ class InstructorService
      * @param string|null $profileImage
      * @return ServiceResponse
      */
-    public function create_instructor(string $instructorID, string $userID, ?string $biography, ?string $profileImage): ServiceResponse
+    public function create_instructor(string $instructorID, string $userID, ?string $biography): ServiceResponse
     {
-        $dto = new InstructorDTO($instructorID, $userID, $biography, $profileImage);
+        $dto = new InstructorDTO($instructorID, $userID, $biography);
         $ok = $this->bll->create_instructor($dto);
         if ($ok) {
             return new ServiceResponse(true, 'Tạo giảng viên thành công', $dto);
@@ -128,7 +128,7 @@ class InstructorService
                     'roleID'       => $userDto->roleID,
                     'instructorID' => $instructorDto->instructorID,
                     'biography'    => $instructorDto->biography,
-                    'profileImage' => $instructorDto->profileImage,
+                    'profileImage' => $userDto->profileImage,
                 ];
                 $combined_list[] = $combinedData;
             } else {
