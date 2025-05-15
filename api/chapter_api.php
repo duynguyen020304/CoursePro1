@@ -1,4 +1,3 @@
-// api/chapter_api.php
 <?php
 header("Content-Type: application/json");
 require_once __DIR__ . '/../service/service_chapter.php';

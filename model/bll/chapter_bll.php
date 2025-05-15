@@ -1,4 +1,3 @@
-// model/bll/chapter_bll.php
 <?php
 require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../dto/chapter_dto.php';

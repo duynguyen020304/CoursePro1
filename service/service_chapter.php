@@ -1,4 +1,3 @@
-// service/service_chapter.php
 <?php
 require_once __DIR__ . '/../model/bll/chapter_bll.php';
 require_once __DIR__ . '/../model/dto/chapter_dto.php';
