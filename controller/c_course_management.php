@@ -266,6 +266,9 @@ switch ($act) {
                             'imageID' => $imageID,
                             'imagePath' => $imageFileName
                         ]);
+                        if ($courseImageResp && isset($courseImageResp['success']) && $courseImageResp['success']) {
+                            $uploadErrors[] = "Lỗi hệ thống: Không thể lưu file vào CSDL.";
+                        }
                     } else {
                         $uploadErrors[] = "Lỗi hệ thống: Không thể lưu file đã tải lên.";
                         error_log("UPLOAD_ERROR: move_uploaded_file thất bại từ {$fileTmpName} tới {$destinationPath}");
@@ -284,18 +287,7 @@ switch ($act) {
             error_log("UPLOAD_ERROR: Mã lỗi tải lên CourseImage: " . $_FILES['CourseImage']['error']);
         }
 
-    // 5. Gọi service nếu upload thành công
-//        if ($imageFileNameForApi) {
-//            $serviceFile = __DIR__ . '/../service/service_course_image.php';
-//            if (is_readable($serviceFile)) {
-//                require_once $serviceFile;
-//                if (class_exists('CourseImageService')) {
-//                    $caption = $title ?? 'Course Image';
-//                    (new CourseImageService())
-//                        ->add_image($targetCourseID, $imageFileNameForApi, $caption, 0);
-//                }
-//            }
-//        }
+
 
         $_SESSION['success'] = $resp['message'] ?? ($act === 'create' ? 'Course created successfully.' : 'Course updated successfully.');
 
@@ -313,8 +305,8 @@ switch ($act) {
         ];
         $resp = callApi($apiBaseUrl, "DELETE", $payload);
 
-        if ($resp && isset($resp->success) && $resp->success) {
-            $_SESSION['success'] = $delRes->message ?? "Course deleted successfully!";
+        if ($resp && isset($resp['success']) && $resp['success']) {
+            $_SESSION['success'] = $resp['message'] ?? "Course deleted successfully!";
         }
         header('Location: ../admin/course-management.php?view=list&delete_status=1');
         exit;
