@@ -39,9 +39,9 @@ class ChapterBLL extends Database
         return $list;
     }
 
-    public function get_chapter_by_courseID(string $courseID)
+    public function get_chapter_by_courseID(string $courseID): array
     {
-        $sql = "SELECT * FROM `Chapter` WHERE CourseID = $courseID ORDER BY SortOrder ASC";
+        $sql = "SELECT * FROM `Chapter` WHERE CourseID = '{$courseID}' ORDER BY SortOrder ASC";
         $rows = $this->execute($sql);
         $list = [];
         while ($row = $rows->fetch_assoc()) {
