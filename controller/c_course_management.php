@@ -1,17 +1,10 @@
 <?php
 
-// Ensure session is started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Initialize debug messages array in session if not already present
-// (This is no longer necessary since we're removing debug logs)
-if (!isset($_SESSION['debug_messages'])) {
-    $_SESSION['debug_messages'] = [];
-}
 
-// Construct the base URL for the course API
 $apiBaseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
     . "://" . $_SERVER['HTTP_HOST']
     . dirname(dirname($_SERVER['SCRIPT_NAME']))
@@ -26,14 +19,6 @@ if ($method === 'POST') {
     $act = $_GET['act'] ?? '';
 }
 
-/**
- * Calls an API endpoint.
- *
- * @param string $url The full URL of the API endpoint.
- * @param string $requestMethod The HTTP method (GET, POST, PUT, DELETE).
- * @param array $payload The data to send with the request.
- * @return array The decoded API response.
- */
 function callApi(string $url, string $requestMethod, array $payload = []): array
 {
     $jsonPayload = null;
@@ -78,7 +63,6 @@ function callApi(string $url, string $requestMethod, array $payload = []): array
     $decodedResponse = json_decode($response, true);
     $jsonError = json_last_error();
 
-    // Extract HTTP status code
     $httpStatusCode = null;
     foreach ($responseHeaders as $header) {
         if (preg_match('{HTTP/\d\.\d\s+(\d+)\s+}', $header, $match)) {
@@ -90,7 +74,7 @@ function callApi(string $url, string $requestMethod, array $payload = []): array
     if ($response !== '' && $decodedResponse === null && $jsonError !== JSON_ERROR_NONE) {
         return [
             'success' => false,
-            'message' => 'Invalid API response format (not JSON). Status: ' . ($httpStatusCode ?? 'Unknown') . '. Error: ' . json_last_error_msg(),
+            'message' => 'Invalid API response format (not JSON).',
             'raw_response' => $response,
             'http_status_code' => $httpStatusCode
         ];
@@ -99,7 +83,7 @@ function callApi(string $url, string $requestMethod, array $payload = []): array
     if ($response === '' || ($decodedResponse === null && $jsonError === JSON_ERROR_NONE)) {
         return [
             'success' => $httpStatusCode >= 200 && $httpStatusCode < 300,
-            'message' => 'Operation successful (empty or non-JSON response).',
+            'message' => 'Operation completed with empty response.',
             'raw_response' => $response,
             'http_status_code' => $httpStatusCode
         ];
@@ -112,18 +96,23 @@ function callApi(string $url, string $requestMethod, array $payload = []): array
         if (!isset($decodedResponse['success'])) {
             $decodedResponse['success'] = ($httpStatusCode >= 200 && $httpStatusCode < 300);
         }
+    } else {
+        $decodedResponse = [
+            'success' => $httpStatusCode >= 200 && $httpStatusCode < 300,
+            'message' => 'API returned non-array JSON.',
+            'data' => $decodedResponse,
+            'http_status_code' => $httpStatusCode
+        ];
     }
 
     return $decodedResponse;
 }
 
-// Main action switch
 switch ($act) {
     case 'create':
     case 'update':
         if ($method !== 'POST') {
-            $_SESSION['error'] = 'Invalid request method for ' . htmlspecialchars($act) . '.';
-            header('Location: ../admin/course-management.php?view=list&error=invalid_request_method');
+            header('Location: ../admin/course-management.php?view=list');
             exit;
         }
 
@@ -138,19 +127,16 @@ switch ($act) {
         $createdBy = trim($_POST['CreatedBy'] ?? ($_SESSION['user']['userID'] ?? ''));
         $description = trim($_POST['Description'] ?? '');
 
-        $errors = [];
-        if (empty($title)) $errors[] = "Title is required.";
-        if ($price < 0) $errors[] = "Price must be a non-negative number.";
-        if (empty($instructors)) $errors[] = "At least one Instructor is required.";
-        if (empty($categories)) $errors[] = "At least one Category is required.";
-        if (empty($createdBy) && $act === 'create') $errors[] = "CreatedBy information is missing.";
-        if ($act === 'update' && empty($courseID)) $errors[] = 'Course ID is missing for update operation.';
+        $isValid = true;
+        if (empty($title)) $isValid = false;
+        if ($price < 0) $isValid = false;
+        if (empty($instructors)) $isValid = false;
+        if (empty($categories)) $isValid = false;
+        if (empty($createdBy) && $act === 'create') $isValid = false;
+        if ($act === 'update' && empty($courseID)) $isValid = false;
 
-        if (!empty($errors)) {
-            $_SESSION['error'] = implode('<br>', $errors);
-            $_SESSION['form_data'] = $_POST;
-            $redirect_param = $act === 'update' ? 'edit&id=' . urlencode($courseID) : 'add';
-            header('Location: ../admin/course-management.php?view=' . $redirect_param . '&error=validation');
+        if (!$isValid) {
+            header('Location: ../admin/course-management.php?view=' . ($act === 'update' ? 'edit&id=' . urlencode($courseID) : 'add'));
             exit;
         }
 
@@ -172,18 +158,12 @@ switch ($act) {
         }
 
         $resp = callApi($currentApiUrl, $apiMethodType, $payload);
+
         if (!isset($resp['success']) || $resp['success'] !== true) {
-            $_SESSION['error'] = $resp['message'] ?? 'API operation failed for ' . htmlspecialchars($act) . '.';
-            if (isset($resp['errors']) && is_array($resp['errors'])) {
-                $_SESSION['error'] .= '<br>' . implode('<br>', $resp['errors']);
-            }
-            $_SESSION['form_data'] = $_POST;
             $redirect_param = $act === 'update' ? 'edit&id=' . urlencode($courseID) : 'add';
-            header('Location: ../admin/course-management.php?view=' . $redirect_param . '&error=api_operation_failed');
+            header('Location: ../admin/course-management.php?view=' . $redirect_param);
             exit;
         }
-
-        unset($_SESSION['form_data']);
 
         $targetCourseID = null;
         if ($act === 'update') {
@@ -214,135 +194,132 @@ switch ($act) {
         $imageUploadSuccess = false;
         $imageFileNameForApi = null;
 
-        if ($targetCourseID && isset($_FILES['CourseImage']) && $_FILES['CourseImage']['error'] !== UPLOAD_ERR_NO_FILE) {
-            $file = $_FILES['CourseImage'];
-
-            if ($file['error'] === UPLOAD_ERR_OK) {
-                $destDirRelative = 'uploads/courses/';
-                $destDirAbsolute = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/' . ltrim($destDirRelative, '/');
-
-                $allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                $max_size = 5 * 1024 * 1024;
-
-                if ($file['size'] > $max_size) {
-                    $_SESSION['warning_message'] = ($act === 'create' ? 'Course created' : 'Course updated') . ' successfully, but image upload failed: File too large (max 5MB).';
-                } else {
-                    $origName = basename($file["name"]);
-                    $fileType = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
-
-                    if (!in_array($fileType, $allowed_types)) {
-                        $_SESSION['warning_message'] = ($act === 'create' ? 'Course created' : 'Course updated') . ' successfully, but image upload failed: Invalid file type.';
-                    } else {
-                        if (!is_dir($destDirAbsolute)) {
-                            if (!@mkdir($destDirAbsolute, 0755, true)) {
-                                $_SESSION['warning_message'] = ($act === 'create' ? 'Course created' : 'Course updated') . ' successfully, but image upload failed: Could not create upload directory.';
-                            } else {
-                                @file_put_contents($destDirAbsolute . '.htaccess', "Options -Indexes\nDeny from all");
-                                @file_put_contents($destDirAbsolute . 'index.html', '');
-                            }
-                        }
-
-                        if (is_dir($destDirAbsolute) && is_writable($destDirAbsolute)) {
-                            $safeTargetCourseID = preg_replace('/[^a-zA-Z0-9_-]/', '_', $targetCourseID);
-                            $filename = "course_{$safeTargetCourseID}_" . uniqid() . "." . $fileType;
-                            $destinationPath = $destDirAbsolute . $filename;
-
-                            $imageFileNameForApi = $destDirRelative . $filename;
-
-                            if (move_uploaded_file($file['tmp_name'], $destinationPath)) {
-                                $imageUploadSuccess = true;
-                            } else {
-                                $imageFileNameForApi = null;
-                                $_SESSION['warning_message'] = ($act === 'create' ? 'Course created' : 'Course updated') . ' successfully, but image upload failed: Could not move uploaded file.';
-                            }
-                        } else {
-                            $_SESSION['warning_message'] = ($act === 'create' ? 'Course created' : 'Course updated') . ' successfully, but image upload failed: Upload directory not writable or does not exist.';
-                        }
+        if (!function_exists('ensureUploadDirectory')) {
+            function ensureUploadDirectory(string $absoluteDirectoryPath): bool
+            {
+                if (!is_dir($absoluteDirectoryPath)) {
+                    if (!mkdir($absoluteDirectoryPath, 0755, true)) {
+                        error_log("UPLOAD_ERROR: Không thể tạo thư mục: " . $absoluteDirectoryPath);
+                        return false;
                     }
                 }
-            } elseif ($file['error'] !== UPLOAD_ERR_NO_FILE) {
-                $_SESSION['warning_message'] = ($act === 'create' ? 'Course created' : 'Course updated') . ' successfully, but image upload encountered an error: Code ' . $file['error'];
-            }
-        } elseif ($targetCourseID && isset($_FILES['CourseImage']) && $_FILES['CourseImage']['error'] === UPLOAD_ERR_NO_FILE) {
-            // No uploaded file, do nothing
-        } elseif (!$targetCourseID && isset($_FILES['CourseImage']) && $_FILES['CourseImage']['error'] === UPLOAD_ERR_OK) {
-            $_SESSION['warning_message'] = 'Course information processed, but image could not be associated because Course ID was not determined from API response.';
-        }
-
-        if ($imageUploadSuccess && $imageFileNameForApi && $targetCourseID) {
-            $servicePath = __DIR__ . '/../service/service_course_image.php';
-            if (file_exists($servicePath)) {
-                require_once $servicePath;
-                if (class_exists('CourseImageService')) {
-                    $caption = $title ?? 'Course Image';
-                    $sortOrder = 0;
-                    $courseImageService = new CourseImageService();
-                    $saveResp = $courseImageService->add_image($targetCourseID, $imageFileNameForApi, $caption, $sortOrder);
-                    if ($saveResp && isset($saveResp->success) && $saveResp->success) {
-                        $_SESSION['success'] = ($act === 'create' ? 'Course created' : 'Course updated') . ' and image saved successfully!';
-                    } else {
-                        $_SESSION['warning_message'] = ($act === 'create' ? 'Course created' : 'Course updated') . ' successfully, but saving image information failed: ' . ($saveResp->message ?? 'Unknown error from Image Service.');
-                    }
-                } else {
-                    $_SESSION['warning_message'] = ($act === 'create' ? 'Course created' : 'Course updated') . ' successfully, but CourseImageService class not found.';
+                if (!is_writable($absoluteDirectoryPath)) {
+                    error_log("UPLOAD_ERROR: Thư mục không có quyền ghi: " . $absoluteDirectoryPath);
+                    return false;
                 }
-            } else {
-                $_SESSION['warning_message'] = ($act === 'create' ? 'Course created' : 'Course updated') . ' successfully, but image service file not found.';
+                return true;
             }
         }
 
-        if (!isset($_SESSION['success']) && !isset($_SESSION['warning_message'])) {
-            $_SESSION['success'] = $resp['message'] ?? ($act === 'create' ? 'Course created successfully.' : 'Course updated successfully.');
-        } elseif (isset($_SESSION['success']) && isset($_SESSION['warning_message'])) {
-            $_SESSION['success'] = null;
+        if (
+            isset($targetCourseID) && $targetCourseID !== '' &&
+            isset($_FILES['CourseImage']) &&
+            $_FILES['CourseImage']['error'] === UPLOAD_ERR_OK &&
+            !empty($_FILES['CourseImage']['tmp_name'])
+        ) {
+            $uploadedFile = $_FILES['CourseImage'];
+
+            $originalFileName = $uploadedFile['name'];
+            $fileTmpName = $uploadedFile['tmp_name'];
+            $fileSize = $uploadedFile['size'];
+
+            $fileExtension = strtolower(pathinfo($originalFileName, PATHINFO_EXTENSION));
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+            $maxFileSize = 20 * 1024 * 1024;
+
+            $uploadErrors = [];
+
+            if (!in_array($fileExtension, $allowedExtensions, true)) {
+                $uploadErrors[] = "Định dạng file không hợp lệ. Chỉ chấp nhận: " . implode(', ', $allowedExtensions);
+            }
+
+            if ($fileSize > $maxFileSize) {
+                $uploadErrors[] = "Kích thước file quá lớn. Tối đa: " . ($maxFileSize / 1024 / 1024) . "MB.";
+            }
+
+            if (empty($uploadErrors)) {
+                $safeCourseID = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$targetCourseID);
+                $projectRoot = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+                $relativeUploadPath = 'uploads' . DIRECTORY_SEPARATOR . $safeCourseID . DIRECTORY_SEPARATOR;
+                $absoluteUploadDir = $projectRoot . $relativeUploadPath;
+
+                if (ensureUploadDirectory($absoluteUploadDir)) {
+                    $imageID = str_replace('.', '_', uniqid('img_', true));
+                    $i = 1;
+                    $imageFileName = $imageID . "." . $fileExtension;
+                    $destinationPath = $absoluteUploadDir . $imageFileName;
+
+                    while (file_exists($destinationPath)) {
+                        $imageFileName = $imageID . "($i)." . $fileExtension;
+                        $destination = $absoluteUploadDir . $imageFileName;
+                        $i++;
+                    }
+                    if (move_uploaded_file($fileTmpName, $destinationPath)) {
+                        $imageUploadSuccess = true;
+                        $imageFileNameForApi = $relativeUploadPath . $imageFileName;
+                        $courseImageAPIUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
+                            . "://" . $_SERVER['HTTP_HOST']
+                            . dirname(dirname($_SERVER['SCRIPT_NAME']))
+                            . '/api/course_image_api.php';
+                        $courseImageResp = callApi($courseImageAPIUrl, "POST", [
+                            'courseID' => $targetCourseID,
+                            'imageID' => $imageID,
+                            'imagePath' => $imageFileName
+                        ]);
+                    } else {
+                        $uploadErrors[] = "Lỗi hệ thống: Không thể lưu file đã tải lên.";
+                        error_log("UPLOAD_ERROR: move_uploaded_file thất bại từ {$fileTmpName} tới {$destinationPath}");
+                    }
+                } else {
+                    $uploadErrors[] = "Lỗi hệ thống: Không thể chuẩn bị thư mục lưu trữ.";
+                }
+            }
+
+            if (!empty($uploadErrors)) {
+                foreach ($uploadErrors as $error) {
+                    error_log("UPLOAD_VALIDATION_ERROR: " . $error);
+                }
+            }
+        } elseif (isset($_FILES['CourseImage']) && $_FILES['CourseImage']['error'] !== UPLOAD_ERR_OK && $_FILES['CourseImage']['error'] !== UPLOAD_ERR_NO_FILE) {
+            error_log("UPLOAD_ERROR: Mã lỗi tải lên CourseImage: " . $_FILES['CourseImage']['error']);
         }
+
+    // 5. Gọi service nếu upload thành công
+//        if ($imageFileNameForApi) {
+//            $serviceFile = __DIR__ . '/../service/service_course_image.php';
+//            if (is_readable($serviceFile)) {
+//                require_once $serviceFile;
+//                if (class_exists('CourseImageService')) {
+//                    $caption = $title ?? 'Course Image';
+//                    (new CourseImageService())
+//                        ->add_image($targetCourseID, $imageFileNameForApi, $caption, 0);
+//                }
+//            }
+//        }
+
+        $_SESSION['success'] = $resp['message'] ?? ($act === 'create' ? 'Course created successfully.' : 'Course updated successfully.');
 
         header('Location: ../admin/course-management.php?view=list&operation_status=1');
         exit;
 
     case 'delete':
-        if (!in_array($method, ['POST', 'GET'])) {
-            $_SESSION['error'] = 'Invalid request method for delete.';
-            header('Location: ../admin/course-management.php?error=invalid_method_for_delete');
-            exit;
-        }
-
         $deleteID = $_POST['courseID'] ?? $_GET['courseID'] ?? null;
-
-        if (empty($deleteID)) {
-            $_SESSION['error'] = "Invalid or missing course ID for deletion.";
-            header('Location: ../admin/course-management.php?error=missing_id_for_delete');
+        if ($deleteID == null || !is_scalar($deleteID) || trim($deleteID) === '') {
+            header('Location: ../admin/course-management.php?view=list');
             exit;
         }
+        $payload = [
+            'courseID' => $deleteID,
+        ];
+        $resp = callApi($apiBaseUrl, "DELETE", $payload);
 
-        $servicePath = __DIR__ . '/../service/service_course.php';
-        if (!file_exists($servicePath)) {
-            $_SESSION['error'] = "Course service file not found. Deletion failed.";
-            header('Location: ../admin/course-management.php?error=service_unavailable');
-            exit;
-        }
-        require_once $servicePath;
-
-        if (!class_exists('CourseService')) {
-            $_SESSION['error'] = "CourseService class not found. Deletion failed.";
-            header('Location: ../admin/course-management.php?error=service_class_missing');
-            exit;
-        }
-
-        $svc = new CourseService();
-        $delRes = $svc->delete_course($deleteID);
-
-        if ($delRes && isset($delRes->success) && $delRes->success) {
+        if ($resp && isset($resp->success) && $resp->success) {
             $_SESSION['success'] = $delRes->message ?? "Course deleted successfully!";
-        } else {
-            $_SESSION['error'] = "Deletion failed: " . ($delRes->message ?? "Unknown error from service.");
         }
         header('Location: ../admin/course-management.php?view=list&delete_status=1');
         exit;
 
     default:
-        $_SESSION['error'] = "Unsupported action: '" . htmlspecialchars($act) . "'.";
-        header('Location: ../admin/course-management.php?view=list&error=unknown_action');
+        header('Location: ../admin/course-management.php?view=list');
         exit;
 }
-?>

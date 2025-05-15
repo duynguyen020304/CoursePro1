@@ -53,7 +53,7 @@ class UserService
         if ($this->userBll->create_user($dto)) {
             if ($role == "instructor") {
                 $instructorDto = new InstructorDTO(
-                    str_replace('.', '_', uniqid('instructor', true)),
+                    str_replace('.', '_', uniqid('instructor_', true)),
                     $userID
                 );
                 if (!$this->instructorBll->create_instructor($instructorDto)) {

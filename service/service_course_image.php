@@ -39,10 +39,9 @@ class CourseImageService
      * @param int         $sortOrder
      * @return ServiceResponse
      */
-    public function add_image(string $courseID, string $imagePath, ?string $caption = null, int $sortOrder = 0): ServiceResponse
+    public function add_image(string $imageID, string $courseID, string $imagePath, ?string $caption = null, int $sortOrder = 0): ServiceResponse
     {
         try {
-            $imageID = uniqid('img_', true);
             $dto = new CourseImageDTO($imageID, $courseID, $imagePath, $caption, $sortOrder);
             $ok = $this->bll->create_image($dto);
             if ($ok) {
@@ -60,10 +59,10 @@ class CourseImageService
      * @param string $imageID
      * @return ServiceResponse
      */
-    public function delete_image(string $imageID): ServiceResponse
+    public function delete_image(string $imageID, string $courseID): ServiceResponse
     {
         try {
-            $ok = $this->bll->delete_image($imageID);
+            $ok = $this->bll->delete_image($imageID, $courseID);
             if ($ok) {
                 return new ServiceResponse(true, 'Xóa ảnh thành công');
             }

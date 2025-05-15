@@ -9,7 +9,7 @@ header("Content-Type: application/json");
 $authHeader = apache_request_headers();
 $token = null;
 
-if ($authHeader['Authorization']) {
+if (isset($authHeader['Authorization'])) {
     if (preg_match('/Bearer\s(\S+)/', $authHeader['Authorization'], $matches)) {
         $token = $matches[1];
     }
