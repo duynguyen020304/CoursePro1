@@ -102,7 +102,7 @@ class UserService
                 return new ServiceResponse(false, 'Thiếu userID');
             }
 
-            $existing = $this->userBll->get_user_by_id($data['userID']);
+            $existing = $this->userBll->get_user_by_id($data['userID'], "update");
             if (!$existing) {
                 return new ServiceResponse(false, 'Người dùng không tồn tại');
             }
