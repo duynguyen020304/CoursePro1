@@ -1,110 +1,138 @@
 <?php
-// // Ensure session is started at the very beginning of your script, before any output.
-// if (session_status() === PHP_SESSION_NONE) {
-//     session_start();
-// }
+// QUAN TRỌNG: Khởi tạo session để truy cập các biến session.
+// Phải được gọi trước bất kỳ output HTML nào.
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
+// Lấy các lỗi cụ thể và email đã nhập từ session (do controller gốc thiết lập)
+$session_error_email = $_SESSION['error1'] ?? null;       // Thông báo lỗi cho trường email
+$session_error_password = $_SESSION['error2'] ?? null;    // Thông báo lỗi cho trường mật khẩu
+$session_error_name = $_SESSION['error3'] ?? null;        // Thông báo lỗi cho trường họ và tên
+// $_SESSION['error4'] là lỗi kết nối API cụ thể, sẽ được hiển thị trong lỗi chung nếu có.
 
+// Lấy giá trị email đã nhập trước đó để điền lại vào form
+$submitted_email_value = $_SESSION['email'] ?? '';
 
-// // Display general signup errors if any
-// if (!empty($_SESSION['signup_errors'])) {
-//     echo '<div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; margin-bottom: 15px; border-radius: 5px;">';
-//     echo '<h4>Signup Errors:</h4>';
-//     foreach ($_SESSION['signup_errors'] as $err) {
-//         echo '<p style="margin: 5px 0;">' . htmlspecialchars($err) . '</p>';
-//     }
-//     echo '</div>';
-//     unset($_SESSION['signup_errors']); // Clear after displaying
-// }
+// Xử lý hiển thị các lỗi chung từ $_SESSION['signup_errors']
+// Loại bỏ các thông báo đã được hiển thị dưới dạng lỗi cụ thể cho từng trường
+$handled_field_errors_messages = [];
+if ($session_error_email) $handled_field_errors_messages[] = $session_error_email;
+if ($session_error_password) $handled_field_errors_messages[] = $session_error_password;
+if ($session_error_name) $handled_field_errors_messages[] = $session_error_name;
 
-// // Display detailed debug messages
-// if (!empty($_SESSION['debug_messages']) && is_array($_SESSION['debug_messages'])) {
-//     echo '<div class="alert alert-info" style="background-color: #d1ecf1; color: #0c5460; padding: 10px; border: 1px solid #bee5eb; margin-bottom: 15px; border-radius: 5px;">';
-//     echo '<h4>Debug Information:</h4>';
-//     echo '<pre style="white-space: pre-wrap; word-wrap: break-word;">'; // pre for formatting, with wrap
-//     foreach ($_SESSION['debug_messages'] as $message) {
-//         echo htmlspecialchars($message) . "\n";
-//     }
-//     echo '</pre>';
-//     echo '</div>';
-//     // unset($_SESSION['debug_messages']); // Optionally clear debug messages after displaying
-// }
+$general_errors_to_display = [];
+$all_signup_errors_from_session = $_SESSION['signup_errors'] ?? [];
 
-// // Display other specific session messages you had (if still needed)
-// // It's generally better to consolidate errors/messages into the arrays above
+if (!empty($all_signup_errors_from_session)) {
+    foreach ($all_signup_errors_from_session as $error_message) {
+        // Nếu thông báo lỗi này chưa được xử lý (chưa hiển thị dưới trường cụ thể)
+        // thì thêm vào danh sách lỗi chung để hiển thị
+        if (!in_array($error_message, $handled_field_errors_messages)) {
+            $general_errors_to_display[] = $error_message;
+        }
+    }
+}
 
-// // Example of how you were trying to display other messages:
-// // if (isset($_SESSION['email'])) {
-// //     echo '<p>Current Email in Session: ' . htmlspecialchars($_SESSION['email']) . '</p>';
-// // }
-// // if (isset($_SESSION['m1'])) {
-// //     echo '<p>Message m1: ' . htmlspecialchars($_SESSION['m1']) . '</p>';
-// // }
+// Xóa các biến session lỗi sau khi đã lấy giá trị để chúng không hiển thị lại ở lần tải trang sau
+unset($_SESSION['error1'], $_SESSION['error2'], $_SESSION['error3'], $_SESSION['error4']);
+unset($_SESSION['signup_errors']);
+// $_SESSION['email'] được controller ghi đè mỗi lần POST nên không cần unset ở đây nếu muốn giữ lại qua nhiều lần thử sai.
 
-// // Display payload if it exists (useful for debugging form submissions)
-// if (!empty($_SESSION['payload']) && is_array($_SESSION['payload'])) {
-//     echo '<div class="alert alert-warning" style="background-color: #fff3cd; color: #856404; padding: 10px; border: 1px solid #ffeeba; margin-bottom: 15px; border-radius: 5px;">';
-//     echo '<h4>Last Submitted Payload:</h4>';
-//     echo '<pre style="white-space: pre-wrap; word-wrap: break-word;">';
-//     // Be careful about printing sensitive data like passwords from the payload
-//     $displayPayload = $_SESSION['payload'];
-//     if (isset($displayPayload['password'])) {
-//         $displayPayload['password'] = '(hidden for display)';
-//     }
-//     echo htmlspecialchars(print_r($displayPayload, true));
-//     echo '</pre>';
-//     echo '</div>';
-//     // unset($_SESSION['payload']); // Optionally clear payload after displaying
-// }
-?>
-
-<?php
+// Include header và head (đảm bảo chúng không có output trước session_start())
 include('template/header.php');
-include('template/head.php'); // Assuming this file doesn't output anything before session_start()
+include('template/head.php');
 ?>
 <link rel="stylesheet" href="public/css/signup.css">
+<style>
+    /* CSS cho thông báo lỗi dưới trường input */
+    .error-message {
+        color: red;
+        font-size: 0.875em; /* Tương đương 14px nếu font cơ sở là 16px */
+        margin-top: 5px;
+    }
+    /* CSS cho khu vực hiển thị lỗi chung */
+    .general-errors {
+        color: red;
+        margin-bottom: 15px;
+        border: 1px solid red;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #ffebeb;
+    }
+</style>
 <main>
     <div class="form-container">
         <h2 class="form-title">Sign Up</h2>
+
+        <?php // Hiển thị các lỗi chung (ví dụ: lỗi API, hoặc các lỗi không thuộc trường cụ thể) ?>
+        <?php if (!empty($general_errors_to_display)): ?>
+            <div class="general-errors">
+                <?php foreach ($general_errors_to_display as $err_msg): ?>
+                    <p><?= htmlspecialchars($err_msg) ?></p>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+
         <form method="POST" action="controller/c_signup.php">
             <div class="form-group">
                 <label for="username">Email Address</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="username" value="<?= htmlspecialchars($submitted_email_value) ?>" required>
+                <?php if ($session_error_email): ?>
+                    <p class="error-message"><?= htmlspecialchars($session_error_email) ?></p>
+                <?php endif; ?>
             </div>
+
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
+                <?php if ($session_error_password): ?>
+                    <p class="error-message"><?= htmlspecialchars($session_error_password) ?></p>
+                <?php endif; ?>
             </div>
+
             <div class="form-group">
                 <label for="firstname">First Name</label>
                 <input type="text" id="firstname" name="firstname" required>
+                <?php if ($session_error_name): // Lỗi "Họ và tên không được để trống" sẽ hiển thị ở đây ?>
+                    <p class="error-message"><?= htmlspecialchars($session_error_name) ?></p>
+                <?php endif; ?>
             </div>
+
             <div class="form-group">
                 <label for="lastname">Last Name</label>
                 <input type="text" id="lastname" name="lastname" required>
+                <?php // Thông báo lỗi tên đã hiển thị ở trên, không cần lặp lại trừ khi muốn tách riêng ?>
             </div>
+
             <button type="submit" class="btn">Sign Up</button>
         </form>
         <p class="message">Already have an account? <a href="signin.php">Sign in</a></p>
     </div>
 </main>
-<?php if (!empty($_GET['error'])): ?>
-    <p style="color:red;"><?= htmlspecialchars($_GET['error']) ?></p>
+<?php if (!empty($form_errors['email'])): ?>
+    <p class="error-message"><?= htmlspecialchars($form_errors['email']) ?></p>
 <?php endif; ?>
 <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
-    <div class="popup-overlay" id="popup">
+    <div class="popup-overlay" id="popup" style="display: flex; justify-content: center; align-items: center;"> <?php // Đảm bảo popup hiển thị ?>
         <div class="popup">
             <div class="checkmark">&#10004;</div>
             <p>Đăng ký thành công</p>
-            <button class="popup-btn" onclick="closePopup()">OK</button>
+            <button class="popup-btn" onclick="closePopupAndRedirect()">OK</button>
         </div>
     </div>
     <script>
-        function closePopup() {
-            document.getElementById('popup').style.display = 'none';
+        // Hàm đóng popup và chuyển hướng để xóa tham số 'success' khỏi URL
+        function closePopupAndRedirect() {
+            const popup = document.getElementById('popup');
+            if (popup) {
+                popup.style.display = 'none';
+            }
+            // Chuyển hướng về trang signup.php không có tham số success
+            window.location.href = 'signup.php';
         }
+        // Nếu bạn muốn popup tự động ẩn sau một khoảng thời gian, bạn có thể thêm setTimeout ở đây.
     </script>
 <?php endif; ?>
-
 
 <?php include('template/footer.php') ?>

@@ -9,8 +9,8 @@ use Firebase\JWT\Key;
 header("Content-Type: application/json");
 $authHeader = apache_request_headers();
 $token = null;
-
-if (!isset($_GET['isGetAllCourse']) && !$_GET['isGetAllCourse'] == true) {
+$isGetAllCourse = $_GET['isGetAllCourse'] ?? null;
+if (!isset($isGetAllCourse) && !$isGetAllCourse == true) {
     if (isset($authHeader['Authorization'])) {
         if (preg_match('/Bearer\s(\S+)/', $authHeader['Authorization'], $matches)) {
             $token = $matches[1];

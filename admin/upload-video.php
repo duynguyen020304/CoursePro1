@@ -108,6 +108,8 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
 
 $courseResp = callApi('course_api.php', 'GET');
 $courses    = $courseResp['success'] && isset($courseResp['data']) && is_array($courseResp['data']) ? $courseResp['data'] : [];
+$chapterResp = callApi('chapter_api.php', 'GET');
+$chapters    = $chapterResp['success'] && isset($chapterResp['data']) && is_array($chapterResp['data']) ? $chapterResp['data'] : [];
 
 ?>
 <!DOCTYPE html>

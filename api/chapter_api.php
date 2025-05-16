@@ -13,7 +13,7 @@ switch ($method) {
         } else {
             $response = $service->get_all_chapters();
         }
-        http_response_code($response->success ? 201 : 500);
+        http_response_code($response->success ? 200 : 500);
         echo json_encode(['success' => $response->success, 'message' => $response->message, 'data' => $response->data]);
         break;
 
