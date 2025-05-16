@@ -33,7 +33,10 @@ class ChapterService
         if ($chap) {
             return new ServiceResponse(true, 'Lấy chương thành công', $chap);
         }
-        return new ServiceResponse(false, 'Không tìm thấy chương');
+        if (empty($chap)) {
+            return new ServiceResponse(true, 'Không tìm thấy chương');
+        }
+        return new ServiceResponse(false, 'Lỗi hệ thống');
     }
 
     public function create_chapter(string $courseID, string $title, ?string $description, int $sortOrder): ServiceResponse
