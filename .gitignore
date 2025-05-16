@@ -19,3 +19,5 @@ Thumbs.db
 /.vscode/
 /*.sublime-workspace
 *.swp
+
+/uploads/
