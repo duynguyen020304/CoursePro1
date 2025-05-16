@@ -24,7 +24,7 @@ class StudentBLL extends Database
         $sql = "UPDATE `Student` SET UserID = '{$stu->userID}' WHERE StudentID = '{$stu->studentID}'";
         $result = $this->execute($sql);
         // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        return $result === true;
     }
 
     public function get_student(string $stuID): ?StudentDTO

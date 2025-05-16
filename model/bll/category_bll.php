@@ -30,7 +30,7 @@ class CategoryBLL extends Database
                 WHERE id = {$cat->id}";
         $result = $this->execute($sql);
         // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        return $result === true;
     }
 
     public function get_category(int $id): ?CategoryDTO

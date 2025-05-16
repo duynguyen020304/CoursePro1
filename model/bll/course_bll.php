@@ -28,7 +28,7 @@ class CourseBLL extends Database
         $sql = "UPDATE `Course` SET Title = '{$c->title}', {$desc}, Price = {$c->price}, CreatedBy = '{$c->createdBy}' WHERE CourseID = '{$c->courseID}'";
         $result = $this->execute($sql);
         // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        return $result === true;
     }
 
     public function get_course(string $courseID): ?CourseDTO

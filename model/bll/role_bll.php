@@ -24,7 +24,7 @@ class RoleBLL extends Database
         $sql = "UPDATE `Role` SET RoleName = '{$role->roleName}' WHERE RoleID = '{$role->roleID}'";
         $result = $this->execute($sql);
         // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        return $result === true;
     }
 
     public function get_role(string $roleID): ?RoleDTO

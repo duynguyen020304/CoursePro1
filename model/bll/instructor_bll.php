@@ -27,7 +27,7 @@ class InstructorBLL extends Database
         $sql = "UPDATE `Instructor` SET {$bio} {$img} UserID = '{$inst->userID}' WHERE InstructorID = '{$inst->instructorID}'";
         $result = $this->execute($sql);
         // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        return $result === true;
     }
 
     public function get_instructor(string $instID): ?InstructorDTO

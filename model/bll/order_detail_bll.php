@@ -68,7 +68,7 @@ class OrderDetailBLL extends Database
             WHERE OrderID = '{$detail->orderID}' AND CourseID = '{$detail->courseID}'";
 
         $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        return $result === true;
     }
 
     /**

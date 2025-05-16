@@ -105,35 +105,70 @@ class UserService
                 return new ServiceResponse(false, 'Người dùng không tồn tại');
             }
 
-            // build từng trường: nếu client có thì dùng, không thì giữ nguyên
-            $newPassword = isset($data['password'])
-                ? password_hash($data['password'], PASSWORD_DEFAULT)
-                : $existing->password;
+            if (isset($data['isChangePassword']) && $data['isChangePassword'] && isset($data['currentPassword']) && isset($data['newPassword'])) {
+                if (!password_verify($data['currentPassword'], $existing->password)) {
+                    return new ServiceResponse(false, 'Đổi mật khẩu thất bại');
+                }
+                $newPassword = isset($data['newPassword'])
+                    ? password_hash($data['newPassword'], PASSWORD_DEFAULT)
+                    : $existing->password;
 
-            $newEmail =  $existing->email;
+                $newEmail =  $existing->email;
 
-            $newRole =  $existing->roleID;
+                $newRole =  $existing->roleID;
 
-            $newFirstName = $data['firstName'] ?? $existing->firstName;
+                $newFirstName = $existing->firstName;
 
-            $newLastName = $data['lastName'] ?? $existing->lastName;
+                $newLastName = $existing->lastName;
 
-            $newProfileImage = $data['profileImage'] ?? $existing->profileImage;
+                $newProfileImage = $existing->profileImage;
 
-            // Tạo DTO mới với đủ 6 tham số
-            $updated = new UserDTO(
-                $existing->userID,
-                $newFirstName,
-                $newLastName,
-                $newEmail,
-                $newPassword,
-                $newRole,
-                $newProfileImage
-            );
-            if ($this->userBll->update_user($updated)) {
-                return new ServiceResponse(true, 'Cập nhật người dùng thành công');
+                // Tạo DTO mới với đủ 6 tham số
+                $updated = new UserDTO(
+                    $existing->userID,
+                    $newFirstName,
+                    $newLastName,
+                    $newEmail,
+                    $newPassword,
+                    $newRole,
+                    $newProfileImage
+                );
+                if ($this->userBll->update_user($updated)) {
+                    return new ServiceResponse(true, 'Cập nhật người dùng thành công');
+                }
+                return new ServiceResponse(false, 'Cập nhật người dùng thất bại');
             }
-            return new ServiceResponse(false, 'Cập nhật người dùng thất bại');
+            else {
+                $newPassword = isset($data['password'])
+                    ? password_hash($data['password'], PASSWORD_DEFAULT)
+                    : $existing->password;
+
+                $newEmail =  $existing->email;
+
+                $newRole =  $existing->roleID;
+
+                $newFirstName = $data['firstName'] ?? $existing->firstName;
+
+                $newLastName = $data['lastName'] ?? $existing->lastName;
+
+                $newProfileImage = $data['profileImage'] ?? $existing->profileImage;
+
+                // Tạo DTO mới với đủ 6 tham số
+                $updated = new UserDTO(
+                    $existing->userID,
+                    $newFirstName,
+                    $newLastName,
+                    $newEmail,
+                    $newPassword,
+                    $newRole,
+                    $newProfileImage
+                );
+                if ($this->userBll->update_user($updated)) {
+                    return new ServiceResponse(true, 'Cập nhật người dùng thành công');
+                }
+                return new ServiceResponse(false, 'Cập nhật người dùng thất bại');
+            }
+
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi cập nhật: ' . $e->getMessage());
         }

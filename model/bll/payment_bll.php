@@ -78,7 +78,7 @@ class PaymentBLL extends Database
                 Amount = {$p->amount} \
                 WHERE PaymentID = '{$p->paymentID}'";
         $res = $this->execute($sql);
-        return $res === true && $this->getAffectedRows() === 1;
+        return $res === true;
     }
 
     /**

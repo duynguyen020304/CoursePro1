@@ -22,7 +22,8 @@ class CourseInstructorBLL extends Database
     {
         $sql = "INSERT INTO CourseInstructor (CourseID, InstructorID)
                 VALUES ('{$courseID}', '{$instructorID}')";
-        return $this->execute($sql) !== false;
+        $result = $this->execute($sql);
+        return $result === true && $this->getAffectedRows() === 1;
     }
 
     public function update($oldCourseID, $oldInstructorID, $newCourseID, $newInstructorID)
@@ -37,6 +38,7 @@ class CourseInstructorBLL extends Database
     {
         $sql = "DELETE FROM CourseInstructor
                 WHERE CourseID = '{$courseID}' AND InstructorID = '{$instructorID}'";
-        return $this->execute($sql) !== false;
+        $result = $this->execute($sql);
+        return $result === true && $this->getAffectedRows() === 1;
     }
 }

@@ -35,7 +35,7 @@ class ReviewBLL extends Database
                 Comment  = {$comment} \
                 WHERE ReviewID = '{$r->reviewID}'";
         $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        return $result === true;
     }
 
     /**

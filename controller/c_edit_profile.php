@@ -5,7 +5,12 @@ if (session_status() === PHP_SESSION_NONE) {
 
 define('PROJECT_ROOT', dirname(__DIR__));
 define('UPLOADS_DIR', PROJECT_ROOT . '/uploads');
-define('API_BASE_URL', getenv('API_BASE_URL') ?: 'http://your-api-domain.com/api');
+
+$baseAppPath = dirname(dirname($_SERVER['SCRIPT_NAME']));
+if ($baseAppPath === '/' || $baseAppPath === '\\') {
+    $baseAppPath = '';
+}
+
 
 if (!function_exists('ensureUploadDirectory')) {
     function ensureUploadDirectory(string $absoluteDirectoryPath): bool
@@ -125,7 +130,7 @@ if ($requestMethod === 'POST') {
     $action = $_GET['action'] ?? '';
 }
 
-$redirectUrl = '../edit_profile.php';
+$redirectUrl = '../edit-profile.php';
 
 switch ($action) {
     case 'update_user_profile':
@@ -137,6 +142,8 @@ switch ($action) {
         }
 
         $userID = $_POST['userID'] ?? null;
+        $oldProfileImageFileNameFromSession = $_SESSION['user']['profileImage'] ?? null;
+
         $firstName = isset($_POST['firstName']) ? trim($_POST['firstName']) : null;
         $lastName = isset($_POST['lastName']) ? trim($_POST['lastName']) : null;
 
@@ -149,14 +156,15 @@ switch ($action) {
             $apiPayload['userID'] = $userID;
         }
 
-        if (isset($_POST['firstName'])) {
+        if (isset($_POST['firstName']) && $firstName !== ($_SESSION['user']['firstName'] ?? null)) {
             $apiPayload['firstName'] = $firstName;
         }
-        if (isset($_POST['lastName'])) {
+        if (isset($_POST['lastName']) && $lastName !== ($_SESSION['user']['lastName'] ?? null)) {
             $apiPayload['lastName'] = $lastName;
         }
 
         $newProfileImageFileName = null;
+        $userUploadDir = null;
 
         if (isset($_FILES['profileImageFile']) && $_FILES['profileImageFile']['error'] === UPLOAD_ERR_OK && !empty($_FILES['profileImageFile']['tmp_name'])) {
             if (empty($userID)) {
@@ -198,9 +206,11 @@ switch ($action) {
                             $apiPayload['profileImage'] = $newProfileImageFileName;
                         } else {
                             $formErrors[] = "System error: Could not save uploaded profile image.";
+                            error_log("Error moving uploaded file for user {$userID}: move_uploaded_file failed from {$fileTmpName} to {$destinationPath}");
                         }
                     } else {
                         $formErrors[] = "System error: Could not prepare storage for profile image.";
+                        error_log("Error ensuring upload directory for user {$userID}: {$userUploadDir}");
                     }
                 }
             }
@@ -212,20 +222,57 @@ switch ($action) {
             $_SESSION['update_message'] = implode("<br>", $formErrors);
             $_SESSION['message_type'] = 'danger';
         } else {
-            if (count($apiPayload) > 1) {
-                $updateApiUrl = API_BASE_URL . '/users/update_profile';
-                $response = callApi($updateApiUrl, 'POST', $apiPayload);
+            $numberOfFieldsToUpdate = 0;
+            if (isset($apiPayload['firstName'])) $numberOfFieldsToUpdate++;
+            if (isset($apiPayload['lastName'])) $numberOfFieldsToUpdate++;
+            if (isset($apiPayload['profileImage'])) $numberOfFieldsToUpdate++;
 
-                if ($response['success']) {
+            if ($numberOfFieldsToUpdate > 0) {
+                $updateUserURL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
+                    . "://" . $_SERVER['HTTP_HOST']
+                    . $baseAppPath
+                    . '/api/user_api.php';
+
+                $response = callApi($updateUserURL, 'PUT', $apiPayload);
+
+                if ($response && isset($response['success']) && $response['success']) {
                     $_SESSION['update_message'] = $response['message'] ?? 'Profile updated successfully.';
                     $_SESSION['message_type'] = 'success';
-                    if (isset($response['data']['user'])) {
-                        if (isset($apiPayload['firstName'])) $_SESSION['user']['firstName'] = $apiPayload['firstName'];
-                        if (isset($apiPayload['lastName'])) $_SESSION['user']['lastName'] = $apiPayload['lastName'];
-                        if (isset($apiPayload['profileImage'])) $_SESSION['user']['profileImage'] = $apiPayload['profileImage'];
+
+                    if (isset($apiPayload['firstName'])) {
+                        $_SESSION['user']['firstName'] = $apiPayload['firstName'];
+                    }
+                    if (isset($apiPayload['lastName'])) {
+                        $_SESSION['user']['lastName'] = $apiPayload['lastName'];
+                    }
+
+                    if (isset($apiPayload['profileImage'])) {
+                        $newlyUploadedImage = $apiPayload['profileImage'];
+                        $_SESSION['user']['profileImage'] = $newlyUploadedImage;
+
+                        if ($oldProfileImageFileNameFromSession &&
+                            $oldProfileImageFileNameFromSession !== $newlyUploadedImage &&
+                            $userUploadDir
+                        ) {
+                            $oldImageFilePath = $userUploadDir . DIRECTORY_SEPARATOR . $oldProfileImageFileNameFromSession;
+                            if (file_exists($oldImageFilePath)) {
+                                if (@unlink($oldImageFilePath)) {
+                                    error_log("Successfully deleted old profile image: {$oldImageFilePath}");
+                                } else {
+                                    error_log("Failed to delete old profile image: {$oldImageFilePath}. Check permissions.");
+                                }
+                            } else {
+                                error_log("Old profile image not found for deletion (this might be OK): {$oldImageFilePath}");
+                            }
+                        }
                     }
                 } else {
                     $_SESSION['update_message'] = 'Failed to update profile: ' . ($response['message'] ?? 'Unknown API error.');
+                    $_SESSION['message_type'] = 'danger';
+
+                    if ($newProfileImageFileName && $userUploadDir) {
+                        error_log("API update failed for user {$userID} but new image {$newProfileImageFileName} was uploaded to {$userUploadDir}. Consider manual cleanup or retry logic.");
+                    }
                 }
             } else {
                 $_SESSION['update_message'] = 'No changes were submitted.';
@@ -272,11 +319,74 @@ switch ($action) {
         $apiPayload = [
             'userID' => $userID,
             'currentPassword' => $currentPassword,
-            'newPassword' => $newPassword
+            'newPassword' => $newPassword,
+            'isChangePassword' => true,
         ];
 
-        $passwordApiUrl = API_BASE_URL . '/users/change_password';
-        $response = callApi($passwordApiUrl, 'POST', $apiPayload);
+        $passwordApiUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
+            . "://" . $_SERVER['HTTP_HOST']
+            . $baseAppPath
+            . '/api/user_api.php';
+        $response = callApi($passwordApiUrl, 'PUT', $apiPayload);
+
+        if ($response && isset($response['success']) && $response['success']) {
+            $_SESSION['update_message'] = $response['message'] ?? 'Password changed successfully.';
+            $_SESSION['message_type'] = 'success';
+        } else {
+            $_SESSION['update_message'] = 'Failed to change password: ' . ($response['message'] ?? 'Unknown API error.');
+            $_SESSION['message_type'] = 'danger';
+        }
+        header("Location: " . $redirectUrl . '#profileContent');
+        exit;
+        break;
+
+
+    case 'save_password':
+        if ($requestMethod !== 'POST') {
+            $_SESSION['update_message'] = 'Invalid request method for password change.';
+            $_SESSION['message_type'] = 'danger';
+            header("Location: " . $redirectUrl);
+            exit;
+        }
+
+        $userID = $_POST['userID'] ?? null;
+        $currentPassword = $_POST['currentPassword'] ?? '';
+        $newPassword = $_POST['newPassword'] ?? '';
+        $confirmPassword = $_POST['confirmPassword'] ?? '';
+
+        if (empty($userID) || empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+            $_SESSION['update_message'] = 'All password fields are required.';
+            $_SESSION['message_type'] = 'danger';
+            header("Location: " . $redirectUrl);
+            exit;
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            $_SESSION['update_message'] = 'New password and confirmation password do not match.';
+            $_SESSION['message_type'] = 'danger';
+            header("Location: " . $redirectUrl);
+            exit;
+        }
+
+        if (strlen($newPassword) < 8) {
+            $_SESSION['update_message'] = 'New password must be at least 8 characters long.';
+            $_SESSION['message_type'] = 'danger';
+            header("Location: " . $redirectUrl);
+            exit;
+        }
+
+        $apiPayload = [
+            'userID' => $userID,
+            'currentPassword' => $currentPassword,
+            'newPassword' => $newPassword,
+            'isChangePassword' => true,
+        ];
+
+        $passwordApiUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
+            . "://" . $_SERVER['HTTP_HOST']
+            . $baseAppPath
+            . '/api/user_api.php';
+        $response = callApi($passwordApiUrl, 'PUT', $apiPayload);
 
         if ($response['success']) {
             $_SESSION['update_message'] = $response['message'] ?? 'Password changed successfully.';
@@ -286,7 +396,55 @@ switch ($action) {
         }
         header("Location: " . $redirectUrl . '#profileContent');
         exit;
+        break;
+    case 'load_img_profile':
+        $userId = $_GET['user_id'] ?? null;
+        $imageName = $_GET['image'] ?? null;
 
+        if (!$userId || !$imageName) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Missing user_id or image name.']);
+            exit;
+        }
+        $imageName = basename($imageName); // Security: prevent directory traversal
+        // Path structure: uploads/{userID}/{imageName}
+        $imagePath = UPLOADS_DIR . '/' . $userId . '/' . $imageName;
+
+        if (file_exists($imagePath) && is_readable($imagePath)) {
+            $mimeType = mime_content_type($imagePath);
+            if (!$mimeType) {
+                $extension = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
+                switch ($extension) {
+                    case 'jpeg':
+                    case 'jpg':
+                        $mimeType = 'image/jpeg';
+                        break;
+                    case 'png':
+                        $mimeType = 'image/png';
+                        break;
+                    case 'gif':
+                        $mimeType = 'image/gif';
+                        break;
+                    default:
+                        http_response_code(500);
+                        exit;
+                }
+            }
+            header_remove('Content-Type'); // Remove default JSON header
+            header('Content-Type: ' . $mimeType);
+            header('Content-Length: ' . filesize($imagePath));
+            header('Cache-Control: public, max-age=3600'); // Cache for 1 hour
+            header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 3600) . ' GMT');
+            ob_clean();
+            flush();
+            readfile($imagePath);
+            exit;
+        } else {
+            // Log error: error_log("Image not found: " . $imagePath);
+            http_response_code(404); // Not Found
+            exit;
+        }
+        break;
     default:
         if (!empty($action)) {
             $_SESSION['update_message'] = 'Unknown action requested.';

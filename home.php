@@ -17,7 +17,7 @@ if (count($path_parts) > 1 && $path_parts[1] !== '') {
 $app_root_path_relative = rtrim($app_root_path_relative, '/');
 
 define('APP_BASE_URL', $protocol . '://' . $host . $app_root_path_relative);
-define('CONTROLLER_FILE_PATH', '/controller/c_file_loader.php');
+const CONTROLLER_FILE_PATH = '/controller/c_file_loader.php';
 
 function callApi(string $endpointUrl, string $method = 'GET', array $payload = []): array
 {

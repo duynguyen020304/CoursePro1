@@ -38,10 +38,9 @@ class UserBLL extends Database
 
     public function update_user(UserDTO $user)
     {
-        $sql = "UPDATE `Users` SET FirstName = '{$user->firstName}', LastName='{$user->lastName}', Email = '{$user->email}', Password = '{$user->password}', RoleID = '{$user->roleID}' WHERE UserID = '{$user->userID}'";
+        $sql = "UPDATE `Users` SET `FirstName` = '{$user->firstName}', `LastName`='{$user->lastName}', `Password` = '{$user->password}', `RoleID` = '{$user->roleID}', `ProfileImage` = '{$user->profileImage}' WHERE `UserID` = '{$user->userID}'";
         $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
-        // $this->close();
+        return $result === true;
     }
 
     public function get_user_by_id(string $userID, string $purpose = "get"): ?UserDTO

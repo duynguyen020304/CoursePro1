@@ -3,6 +3,22 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
+$host = $_SERVER['HTTP_HOST'];
+$script_path = $_SERVER['SCRIPT_NAME'];
+
+$path_parts = explode('/', dirname($script_path));
+if (count($path_parts) > 1 && $path_parts[1] !== '') {
+    $app_root_path_relative = implode('/', array_slice($path_parts, 0, count($path_parts)));
+    if ($app_root_path_relative === '/' || $app_root_path_relative === '\\') $app_root_path_relative = '';
+} else {
+    $app_root_path_relative = '';
+}
+$app_root_path_relative = rtrim($app_root_path_relative, '/');
+
+define('APP_BASE_URL', $protocol . '://' . $host . $app_root_path_relative);
+const CONTROLLER_FILE_PATH = '/controller/c_edit_profile.php';
+
 if (!isset($user)) {
     $user = isset($_SESSION['user']) ? (object)$_SESSION['user'] : null;
 
@@ -106,13 +122,10 @@ define('USER_UPLOADS_WEB_PATH', '/uploads/');
                                     <?php
                                     $profileImagePath = 'public/img/avatar-user.png';
                                     if (!empty($user->profileImage) && !empty($user->userID)) {
-                                        $potentialPath = USER_UPLOADS_WEB_PATH . rawurlencode($user->userID) . '/' . rawurlencode($user->profileImage);
-                                        if (filter_var('http://dummy.com' . $potentialPath, FILTER_VALIDATE_URL)) {
-                                            $profileImagePath = $potentialPath;
-                                        }
+                                        $profileImagePath = APP_BASE_URL . CONTROLLER_FILE_PATH . '?action=load_img_profile&user_id=' . urlencode($user->userID) . '&image=' . urlencode($user->profileImage);
                                     }
                                     ?>
-                                    <img src="<?= htmlspecialchars($profileImagePath) ?>" alt="Ảnh đại diện hiện tại" class="profile-image-current mb-2" id="currentProfileImage" onerror="this.onerror=null; this.src='public/img/avatar-user.png';" />
+                                    <img src="<?php echo htmlspecialchars($profileImagePath) ?>" alt="Ảnh đại diện hiện tại" class="profile-image-current mb-2" id="currentProfileImage" onerror="this.onerror=null; this.src='public/img/avatar-user.png';" />
                                 </div>
                                 <label for="profileImageFile" class="form-label">Tải ảnh mới (tùy chọn)</label>
                                 <input class="form-control" type="file" id="profileImageFile" name="profileImageFile" accept="image/jpeg, image/png, image/gif, image/webp" />

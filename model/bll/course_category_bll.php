@@ -16,7 +16,7 @@ class CourseCategoryBLL extends Database
         $sql = "DELETE FROM `CourseCategory` WHERE CourseID = '{$courseID}' AND CategoryID = {$categoryID}";
         $result = $this->execute($sql);
         // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        return $result === true  && $this->getAffectedRows() === 1;
     }
 
     public function get_categories_by_course(string $courseID): array

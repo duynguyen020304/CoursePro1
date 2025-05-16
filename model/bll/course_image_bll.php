@@ -34,7 +34,7 @@ class CourseImageBLL extends Database
                     SortOrder = {$img->sortOrder}
                 WHERE ImageID = '{$img->imageID}'";
         $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        return $result === true;
     }
 
     /**
