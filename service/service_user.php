@@ -37,8 +37,7 @@ class UserService
     {
         if ($role == "admin") {
             return new ServiceResponse(false, "Không cho phép tạo tài khoản có role admin");
-        }
-        else if ($role != "instructor" && $role != "student") {
+        } else if ($role != "instructor" && $role != "student") {
             return new ServiceResponse(false, "Vai trò không có trên hệ thống");
         }
         $userBll = new UserBLL();
@@ -46,8 +45,8 @@ class UserService
         if ($existing) {
             return new ServiceResponse(false, "Email đã được sử dụng");
         }
-        $userID =str_replace('.', '_', uniqid('user', true));
-//        $fullName = trim($firstName . ' ' . $lastName);
+        $userID = str_replace('.', '_', uniqid('user', true));
+        //        $fullName = trim($firstName . ' ' . $lastName);
 
         $dto = new UserDTO($userID, $firstName, $lastName, $email, $password, $role, $profileImage);
         if ($this->userBll->create_user($dto)) {
@@ -59,8 +58,7 @@ class UserService
                 if (!$this->instructorBll->create_instructor($instructorDto)) {
                     return new ServiceResponse(false, "Tạo tài khoản cho giảng viên thất bại");
                 }
-            }
-            else if ($role == "student") {
+            } else if ($role == "student") {
                 $studentDto = new StudentDTO(
                     str_replace('.', '_', uniqid('student', true)),
                     $userID
@@ -112,13 +110,13 @@ class UserService
                 ? password_hash($data['password'], PASSWORD_DEFAULT)
                 : $existing->password;
 
-            $newEmail = $data['email'] ?? $existing->email;
+            $newEmail =  $existing->email;
 
-            $newRole = $data['role'] ?? $existing->roleID;
+            $newRole =  $existing->roleID;
 
             $newFirstName = $data['firstName'] ?? $existing->firstName;
 
-            $newLastName = $data['lasttName'] ?? $existing->lastName;
+            $newLastName = $data['lastName'] ?? $existing->lastName;
 
             $newProfileImage = $data['profileImage'] ?? $existing->profileImage;
 
