@@ -6,19 +6,23 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Lấy các lỗi cụ thể và email đã nhập từ session (do controller gốc thiết lập)
-$session_error_email = $_SESSION['error1'] ?? null;       // Thông báo lỗi cho trường email
+$session_error_email = $_SESSION['error1'] ?? null;        // Thông báo lỗi cho trường email
 $session_error_password = $_SESSION['error2'] ?? null;    // Thông báo lỗi cho trường mật khẩu
+$session_error_confirm_password = $_SESSION['error_confirm_password'] ?? null; // Thông báo lỗi cho trường xác nhận mật khẩu
 $session_error_name = $_SESSION['error3'] ?? null;        // Thông báo lỗi cho trường họ và tên
 // $_SESSION['error4'] là lỗi kết nối API cụ thể, sẽ được hiển thị trong lỗi chung nếu có.
 
 // Lấy giá trị email đã nhập trước đó để điền lại vào form
 $submitted_email_value = $_SESSION['email'] ?? '';
+$submitted_firstname_value = $_SESSION['firstname'] ?? ''; // Giữ lại giá trị tên
+$submitted_lastname_value = $_SESSION['lastname'] ?? '';   // Giữ lại giá trị họ
 
 // Xử lý hiển thị các lỗi chung từ $_SESSION['signup_errors']
 // Loại bỏ các thông báo đã được hiển thị dưới dạng lỗi cụ thể cho từng trường
 $handled_field_errors_messages = [];
 if ($session_error_email) $handled_field_errors_messages[] = $session_error_email;
 if ($session_error_password) $handled_field_errors_messages[] = $session_error_password;
+if ($session_error_confirm_password) $handled_field_errors_messages[] = $session_error_confirm_password;
 if ($session_error_name) $handled_field_errors_messages[] = $session_error_name;
 
 $general_errors_to_display = [];
@@ -35,9 +39,10 @@ if (!empty($all_signup_errors_from_session)) {
 }
 
 // Xóa các biến session lỗi sau khi đã lấy giá trị để chúng không hiển thị lại ở lần tải trang sau
-unset($_SESSION['error1'], $_SESSION['error2'], $_SESSION['error3'], $_SESSION['error4']);
+unset($_SESSION['error1'], $_SESSION['error2'], $_SESSION['error3'], $_SESSION['error4'], $_SESSION['error_confirm_password']);
 unset($_SESSION['signup_errors']);
-// $_SESSION['email'] được controller ghi đè mỗi lần POST nên không cần unset ở đây nếu muốn giữ lại qua nhiều lần thử sai.
+// Các giá trị đã nhập như email, firstname, lastname có thể được giữ lại hoặc xóa tùy theo logic mong muốn
+// unset($_SESSION['email'], $_SESSION['firstname'], $_SESSION['lastname']); // Bỏ comment nếu muốn xóa sau mỗi lần submit
 
 // Include header và head (đảm bảo chúng không có output trước session_start())
 include('template/header.php');
@@ -92,8 +97,16 @@ include('template/head.php');
             </div>
 
             <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+                <?php if ($session_error_confirm_password): ?>
+                    <p class="error-message"><?= htmlspecialchars($session_error_confirm_password) ?></p>
+                <?php endif; ?>
+            </div>
+
+            <div class="form-group">
                 <label for="firstname">First Name</label>
-                <input type="text" id="firstname" name="firstname" required>
+                <input type="text" id="firstname" name="firstname" value="<?= htmlspecialchars($submitted_firstname_value) ?>" required>
                 <?php if ($session_error_name): // Lỗi "Họ và tên không được để trống" sẽ hiển thị ở đây ?>
                     <p class="error-message"><?= htmlspecialchars($session_error_name) ?></p>
                 <?php endif; ?>
@@ -101,7 +114,7 @@ include('template/head.php');
 
             <div class="form-group">
                 <label for="lastname">Last Name</label>
-                <input type="text" id="lastname" name="lastname" required>
+                <input type="text" id="lastname" name="lastname" value="<?= htmlspecialchars($submitted_lastname_value) ?>" required>
                 <?php // Thông báo lỗi tên đã hiển thị ở trên, không cần lặp lại trừ khi muốn tách riêng ?>
             </div>
 
@@ -110,9 +123,11 @@ include('template/head.php');
         <p class="message">Already have an account? <a href="signin.php">Sign in</a></p>
     </div>
 </main>
-<?php if (!empty($form_errors['email'])): ?>
+<?php // Chú ý: Phần hiển thị lỗi form_errors['email'] ở đây có thể không cần thiết nếu đã xử lý ở trên ?>
+<?php /* if (!empty($form_errors['email'])): ?>
     <p class="error-message"><?= htmlspecialchars($form_errors['email']) ?></p>
-<?php endif; ?>
+<?php endif; */ ?>
+
 <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
     <div class="popup-overlay" id="popup" style="display: flex; justify-content: center; align-items: center;"> <?php // Đảm bảo popup hiển thị ?>
         <div class="popup">
