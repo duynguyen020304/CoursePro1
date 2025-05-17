@@ -4,44 +4,58 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// --- Start: Determine API_BASE ---
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
 $host = $_SERVER['HTTP_HOST'];
-$script_path = $_SERVER['SCRIPT_NAME'];
+$script_path = $_SERVER['SCRIPT_NAME']; // e.g., /CoursePro1/admin/upload-video.php or /admin/upload-video.php
 
-$path_parts = explode('/', ltrim($script_path, '/'));
+// Try to find the application root more reliably
 $app_root_path_relative = '';
+$path_segments = explode('/', trim($script_path, '/'));
 
-if (!empty($path_parts) && $path_parts[0] !== '') {
-    $known_app_subdir_markers = ['/admin/', '/api/', '/includes/', '/controller/'];
-    $found_marker = false;
-    foreach ($known_app_subdir_markers as $marker) {
-        $pos = strripos($script_path, $marker);
-        if ($pos !== false) {
-            $path_before_marker = substr($script_path, 0, $pos);
-            $segments_before_marker = explode('/', ltrim($path_before_marker, '/'));
-            if (!empty($segments_before_marker) && $segments_before_marker[0] !== '') {
-                $app_root_path_relative = '/' . $segments_before_marker[0];
-            } else {
-                $app_root_path_relative = '';
+if (!empty($path_segments)) {
+    // Common first directory names for web apps if not in root
+    $potential_app_dirs = ['coursepro1', 'app', 'webapp', 'src']; // Add your project's root folder name if it's in a subfolder of htdocs/www
+
+    // Check if the first segment is a known app directory or if it's directly in admin/api etc.
+    if (in_array(strtolower($path_segments[0]), $potential_app_dirs, true) && count($path_segments) > 1) {
+        $app_root_path_relative = '/' . $path_segments[0];
+    } elseif (count($path_segments) > 0 && !in_array(strtolower($path_segments[0]), ['admin', 'api', 'controller', 'view', 'includes'])) {
+        // If the first segment is not a typical functional subdir, it might be the app root itself
+        $app_root_path_relative = '/' . $path_segments[0];
+    } else {
+        // If script is like /admin/file.php, app root is likely empty (meaning domain root)
+        // Or if it's /CoursePro1/admin/file.php, $app_root_path_relative should be /CoursePro1
+        $path_before_admin_api = $script_path;
+        $markers = ['/admin/', '/api/', '/controller/', '/views/', '/pages/'];
+        foreach($markers as $marker){
+            $pos = strripos($script_path, $marker);
+            if($pos !== false){
+                $path_before_admin_api = substr($script_path, 0, $pos);
+                break;
             }
-            $found_marker = true;
-            break;
         }
-    }
-    if (!$found_marker) {
-        if (count($path_parts) > 0 && $path_parts[0] !== '') {
-            $app_root_path_relative = '/' . $path_parts[0];
+        if ($path_before_admin_api === $script_path && strpos($script_path, '/') === 0 && count($path_segments) > 1) {
+            $app_root_path_relative = '/' . $path_segments[0];
+        } else if ($path_before_admin_api !== $script_path) {
+            $app_root_path_relative = rtrim($path_before_admin_api, '/');
+        } else if (strpos($script_path, '/') !== 0 && count($path_segments) > 1 && !in_array(strtolower($path_segments[0]), ['admin', 'api', 'controller', 'view'])) {
+            $app_root_path_relative = $path_segments[0];
         }
     }
 }
+// Ensure it starts with a slash if not empty, and remove trailing slash
+if (!empty($app_root_path_relative) && $app_root_path_relative[0] !== '/') {
+    $app_root_path_relative = '/' . $app_root_path_relative;
+}
+$app_root_path_relative = rtrim($app_root_path_relative, '/');
 
-if ($app_root_path_relative !== '/' && $app_root_path_relative !== '' && substr($app_root_path_relative, -1) === '/') {
-    $app_root_path_relative = rtrim($app_root_path_relative, '/');
-}
 
 define('API_BASE', $protocol . '://' . $host . $app_root_path_relative . '/api');
+// --- End: Determine API_BASE ---
 
-function callApi(string $endpoint, string $method = 'GET', array $payload = []): array
+
+function callApiForView(string $endpoint, string $method = 'GET', array $payload = []): array
 {
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
@@ -83,43 +97,72 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
     $response = @file_get_contents($url, false, $context);
     $result   = json_decode($response, true);
 
-    $status_code = 500;
+    $status_code = 0;
     if (isset($http_response_header) && is_array($http_response_header) && isset($http_response_header[0])) {
-        preg_match('{HTTP/\S*\s(\d{3})}', $http_response_header[0], $match);
-        if (isset($match[1])) {
-            $status_code = intval($match[1]);
+        if (preg_match('{HTTP/\S*\s(\d{3})}', $http_response_header[0], $match)) {
+            if (isset($match[1])) {
+                $status_code = intval($match[1]);
+            }
         }
+    }
+    if ($status_code === 0 && $response !== false && $response !== '') {
+        $status_code = 200;
     }
 
     if ($response === false) {
         return [
             'success' => false,
-            'message' => 'API request failed. Could not connect or other stream error.',
+            'message' => 'API request failed. Could not connect or other stream error. URL: ' . $url,
             'data' => null,
             'raw_response' => null,
             'http_status_code' => 0
         ];
     }
 
-    if (!is_array($result)) {
+    if ($result === null && $response !== '' && json_last_error() !== JSON_ERROR_NONE) {
         return [
             'success' => false,
-            'message' => 'Invalid API response or failed to decode JSON. Raw response snippet: ' . substr($response, 0, 250),
+            'message' => 'Invalid API response or failed to decode JSON. JSON Error: ' . json_last_error_msg() . '. Raw response snippet: ' . substr($response, 0, 250),
             'data' => null,
             'raw_response' => $response,
             'http_status_code' => $status_code
         ];
     }
 
-    if (!isset($result['success'])) {
-        $result['success'] = ($status_code >= 200 && $status_code < 300);
+    if ($result === null && $response === '') {
+        $isSuccess = ($status_code >= 200 && $status_code < 300);
+        return [
+            'success' => $isSuccess,
+            'message' => $isSuccess ? 'Operation successful with empty response.' : 'Empty response with non-success status code.',
+            'data' => null,
+            'raw_response' => '',
+            'http_status_code' => $status_code
+        ];
     }
-    $result['http_status_code'] = $status_code;
+
+    if (is_array($result)) {
+        if (!isset($result['success'])) {
+            $result['success'] = ($status_code >= 200 && $status_code < 300);
+        }
+        $result['http_status_code'] = $status_code;
+    } else {
+        $isSuccess = ($status_code >= 200 && $status_code < 300);
+        $result = [
+            'success' => $isSuccess,
+            'message' => $isSuccess ? 'Operation successful.' : 'Operation failed.',
+            'data' => $result,
+            'http_status_code' => $status_code,
+            'raw_response' => $response
+        ];
+    }
     return $result;
 }
 
-$courseResp = callApi('course_api.php', 'GET');
+$courseResp = callApiForView('course_api.php', 'GET');
 $courses    = ($courseResp['success'] && isset($courseResp['data']) && is_array($courseResp['data'])) ? $courseResp['data'] : [];
+
+$controller_path_relative = $app_root_path_relative . '/controller/c_video.php';
+$c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
 
 ?>
 <!DOCTYPE html>
@@ -155,549 +198,731 @@ $courses    = ($courseResp['success'] && isset($courseResp['data']) && is_array(
         }
 
         .topic-item .card-header {
-            cursor: move;
+            cursor: pointer;
         }
-
-        .topic-item.existing-topic .card-header {
-            background-color: #e9ecef;
+        .topic-item .card-header .bi-arrows-move {
+            cursor: move;
         }
 
         #global-message {
             margin-top: 15px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            min-width: 300px;
+        }
+        #global-message .alert {
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
         }
 
-        .spinner-container {
+        .spinner-container, .lessons-spinner-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100px;
+            min-height: 70px; /* Adjusted height */
         }
+        .lesson-item.existing-lesson .badge.bg-success {
+            font-size: 0.75em;
+        }
+        .lesson-attachments { padding-left: 1.5rem; margin-top: 0.5rem;}
+        .lesson-attachments li { margin-bottom: 0.25rem; font-size: 0.85em; }
+        .lesson-video-info { font-size: 0.85em; color: #555; margin-top: 0.3rem;}
     </style>
 </head>
 
 <body>
-    <div class="dashboard-container">
-        <?php if (file_exists('template/dashboard.php')) include 'template/dashboard.php'; ?>
-        <div class="main-content">
-            <div class="container-fluid">
-                <div class="form-container">
-                    <h2>Thêm Nội dung Khóa học (Chương & Bài học Video)</h2>
-                    <hr>
-                    <div id="global-message"></div>
+<div class="dashboard-container">
+    <?php if (file_exists('template/dashboard.php')) include 'template/dashboard.php'; ?>
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="form-container">
+                <h2>Thêm Nội dung Khóa học (Chương & Bài học)</h2>
+                <hr>
+                <div id="global-message"></div>
 
-                    <form id="addContentForm" action="../controller/c_video.php" method="POST">
-                        <div class="mb-3">
-                            <label for="course_id" class="form-label"><strong>1. Chọn Khóa học:</strong> <span class="text-danger">*</span></label>
-                            <select id="course_id" name="course_id" class="form-select" required>
-                                <option value="">-- Chọn Khóa học --</option>
-                                <?php if (!empty($courses)): ?>
-                                    <?php foreach ($courses as $course): ?>
-                                        <option value="<?= htmlspecialchars($course['courseID'] ?? '') ?>">
-                                            <?= htmlspecialchars($course['title'] ?? 'N/A') ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <option value="" disabled>Không có khóa học nào</option>
-                                    <?php if (!$courseResp['success']): ?>
-                                        <option value="" disabled>Lỗi: <?= htmlspecialchars($courseResp['message'] ?? 'Không thể tải khóa học') ?></option>
-                                    <?php endif; ?>
+                <form id="addContentForm" action="#" method="POST" onsubmit="return false;"> <div class="mb-3">
+                        <label for="course_id" class="form-label"><strong>1. Chọn Khóa học:</strong> <span class="text-danger">*</span></label>
+                        <select id="course_id" name="course_id" class="form-select" required>
+                            <option value="">-- Chọn Khóa học --</option>
+                            <?php if (!empty($courses)): ?>
+                                <?php foreach ($courses as $course): ?>
+                                    <option value="<?= htmlspecialchars($course['courseID'] ?? '') ?>">
+                                        <?= htmlspecialchars($course['title'] ?? 'N/A') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="" disabled>Không có khóa học nào</option>
+                                <?php if (!$courseResp['success']): ?>
+                                    <option value="" disabled>Lỗi: <?= htmlspecialchars($courseResp['message'] ?? 'Không thể tải khóa học') ?></option>
                                 <?php endif; ?>
-                            </select>
-                        </div>
-
-                        <h4 class="section-title"><i class="bi bi-folder-plus"></i> 2. Xây dựng nội dung khóa học (Chương)</h4>
-                        <div id="chapters-section" style="display: none;"> <button id="btn-add-topic" type="button" class="btn btn-primary mb-3">
-                                <i class="bi bi-plus-lg"></i> Thêm Chương Mới
-                            </button>
-                            <div id="add-topic-form" class="card p-3 mb-4 collapse">
-                                <div class="mb-3">
-                                    <label for="topic-name" class="form-label">Tên Chương</label>
-                                    <input type="text" id="topic-name" class="form-control" placeholder="Ví dụ: Chương 1 - Giới thiệu">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="topic-summary" class="form-label">Mô tả Chương (tùy chọn)</label>
-                                    <textarea id="topic-summary" class="form-control" rows="2" placeholder="Mô tả ngắn..."></textarea>
-                                </div>
-                                <button id="save-topic-locally" type="button" class="btn btn-success">Thêm Chương (Cục bộ)</button>
-                            </div>
-
-                            <div id="topics-list-container">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h5>Danh sách các Chương:</h5>
-                                    <span id="chapter-count" class="badge bg-secondary"></span>
-                                </div>
-                                <div id="topics-list">
-                                    <p class="text-muted">Vui lòng chọn một khóa học để xem hoặc thêm chương.</p>
-                                </div>
-                            </div>
-
-                            <div class="mt-4">
-                                <button type="button" id="saveAllContentButton" class="btn btn-primary">
-                                    <i class="bi bi-save-fill"></i> Lưu Thay Đổi
-                                </button>
-                                <a href="course-management.php" class="btn btn-secondary">
-                                    <i class="bi bi-arrow-left"></i> Quay lại Quản lý khóa học
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="lessonModal" tabindex="-1" aria-labelledby="lessonModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="lessonModalLabel">Thêm Bài học</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="current-topic-id-for-lesson">
-                    <div class="mb-3">
-                        <label for="lesson-title" class="form-label">Tên Bài học <span class="text-danger">*</span></label>
-                        <input type="text" id="lesson-title" class="form-control" placeholder="Ví dụ: Bài 1 - Lời chào">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nội dung/Tóm tắt</label>
-                        <textarea id="lesson-content" class="form-control" rows="4"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Thumbnail (tùy chọn)</label>
-                        <input type="file" id="lesson-image" class="form-control" accept="image/*">
-                    </div>
-                    <div class="mb-3">
-                        <label for="video-source" class="form-label">Nguồn Video</label>
-                        <select id="video-source" class="form-select">
-                            <option value="">Chọn nguồn video</option>
-                            <option value="mp4">HTML5 (mp4)</option>
-                            <option value="youtube">YouTube</option>
+                            <?php endif; ?>
                         </select>
                     </div>
-                    <div id="video-url-group" class="mb-3" style="display:none;">
-                        <label for="video-url" class="form-label">Video URL / Embed Code</label>
-                        <input type="text" id="video-url" class="form-control" placeholder="https://... hoặc mã nhúng">
+
+                    <h4 class="section-title"><i class="bi bi-folder-plus"></i> 2. Xây dựng nội dung khóa học (Chương)</h4>
+                    <div id="chapters-section" style="display: none;"> <button id="btn-add-topic" type="button" class="btn btn-primary mb-3">
+                            <i class="bi bi-plus-lg"></i> Thêm Chương Mới
+                        </button>
+                        <div id="add-topic-form" class="card p-3 mb-4 collapse">
+                            <div class="mb-3">
+                                <label for="topic-name" class="form-label">Tên Chương</label>
+                                <input type="text" id="topic-name" class="form-control" placeholder="Ví dụ: Chương 1 - Giới thiệu">
+                            </div>
+                            <div class="mb-3">
+                                <label for="topic-summary" class="form-label">Mô tả Chương (tùy chọn)</label>
+                                <textarea id="topic-summary" class="form-control" rows="2" placeholder="Mô tả ngắn..."></textarea>
+                            </div>
+                            <button id="save-topic-locally" type="button" class="btn btn-success">Thêm Chương (Vào danh sách)</button>
+                        </div>
+
+                        <div id="topics-list-container">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5>Danh sách các Chương:</h5>
+                                <span id="chapter-count" class="badge bg-secondary"></span>
+                            </div>
+                            <div id="topics-list">
+                                <p class="text-muted">Vui lòng chọn một khóa học để xem hoặc thêm chương.</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="button" id="saveAllContentButton" class="btn btn-primary">
+                                <i class="bi bi-save-fill"></i> Lưu Chương Mới Lên Server
+                            </button>
+                            <a href="course-management.php" class="btn btn-secondary"> <i class="bi bi-arrow-left"></i> Quay lại Quản lý khóa học
+                            </a>
+                        </div>
                     </div>
-                    <div id="video-file-group" class="mb-3" style="display:none;">
-                        <label for="video-file" class="form-label">Tải lên file MP4</label>
-                        <input type="file" id="video-file" class="form-control" accept="video/mp4">
-                    </div>
-                    <label class="form-label">Thời lượng Video</label>
-                    <div class="d-flex gap-2 mb-3">
-                        <input type="number" id="video-hh" class="form-control" placeholder="HH" min="0" value="00">
-                        <input type="number" id="video-mm" class="form-control" placeholder="MM" min="0" max="59" value="00">
-                        <input type="number" id="video-ss" class="form-control" placeholder="SS" min="0" max="59" value="00">
-                    </div>
-                    <div class="mb-3">
-                        <label for="lesson-attachments" class="form-label">Tài liệu đính kèm (pdf, zip, ...)</label>
-                        <input type="file" id="lesson-attachments" class="form-control" multiple accept=".pdf,.zip,.doc,.docx,.ppt,.pptx">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button id="save-lesson-locally" type="button" class="btn btn-primary">Thêm Bài học (Cục bộ)</button>
-                </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="js/jquery-3.7.1.slim.min.js"></script>
-    <script src="js/bootstrap.bundle.min.js"></script>
-    <script>
-        const API_BASE_URL = '<?= API_BASE ?>';
-        const CHAPTER_SAVE_URL = '<?= htmlspecialchars((string)($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? '') . dirname($_SERVER['SCRIPT_NAME']) . '/../controller/c_video.php') ?>';
+<div class="modal fade" id="lessonModal" tabindex="-1" aria-labelledby="lessonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lessonModalLabel">Thêm Bài học</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="current-chapter-id-for-lesson">
+                <div class="mb-3">
+                    <label for="lesson-title" class="form-label">Tên Bài học <span class="text-danger">*</span></label>
+                    <input type="text" id="lesson-title" class="form-control" placeholder="Ví dụ: Bài 1 - Lời chào">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Nội dung/Tóm tắt (tùy chọn)</label>
+                    <textarea id="lesson-content" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="video-source" class="form-label">Nguồn Video <span class="text-danger">*</span></label>
+                    <select id="video-source" class="form-select">
+                        <option value="">-- Chọn nguồn video --</option>
+                        <option value="mp4">Tải lên file MP4/Video</option>
+                        <option value="youtube">YouTube/Vimeo URL</option>
+                    </select>
+                </div>
+                <div id="video-url-group" class="mb-3" style="display:none;">
+                    <label for="video-url" class="form-label">Video URL (VD: YouTube, Vimeo) <span class="text-danger">*</span></label>
+                    <input type="text" id="video-url" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+                <div id="video-file-group" class="mb-3" style="display:none;">
+                    <label for="video-file" class="form-label">Tải lên file Video (mp4, mov, avi, webm) <span class="text-danger">*</span></label>
+                    <input type="file" id="video-file" class="form-control" accept=".mp4,.mov,.avi,.webm,.mkv">
+                </div>
+                <label class="form-label">Thời lượng Video (HH:MM:SS - tùy chọn)</label>
+                <div class="d-flex gap-2 mb-3">
+                    <input type="number" id="video-hh" class="form-control" placeholder="HH" min="0" max="99" value="00" />
+                    <input type="number" id="video-mm" class="form-control" placeholder="MM" min="0" max="59" value="00" />
+                    <input type="number" id="video-ss" class="form-control" placeholder="SS" min="0" max="59" value="00" />
+                </div>
+                <div class="mb-3">
+                    <label for="lesson-attachments" class="form-label">Tài liệu đính kèm (pdf, zip, doc, ...)</label>
+                    <input type="file" id="lesson-attachments" class="form-control" multiple accept=".pdf,.zip,.doc,.docx,.ppt,.pptx,.txt,.xls,.xlsx,.jpg,.jpeg,.png,.gif" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button id="save-lesson-server" type="button" class="btn btn-primary">
+                    <i class="bi bi-cloud-upload"></i> Thêm Bài học (Lưu vào Server)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        $(function() {
-            function showGlobalMessage(message, type = 'info', autoDismissDelay = 0) {
-                const messageId = 'msg-' + Date.now();
-                const alertHtml = `<div id="${messageId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>`;
-                $('#global-message').html(alertHtml);
-                if (autoDismissDelay > 0) {
-                    setTimeout(() => {
-                        $(`#${messageId}`).alert('close');
-                    }, autoDismissDelay);
-                }
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+<script src="js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE_URL = '<?= API_BASE ?>';
+    const C_VIDEO_CONTROLLER_URL = '<?= htmlspecialchars_decode($c_video_controller_url) ?>';
+    const LESSON_API_URL = `${API_BASE_URL}/lesson_api.php`;
+    const VIDEO_API_URL = `${API_BASE_URL}/video_api.php`;
+    const RESOURCE_API_URL = `${API_BASE_URL}/resource_api.php`;
+
+    $(function() {
+        function showGlobalMessage(message, type = 'info', autoDismissDelay = 5000) {
+            const messageId = 'msg-' + Date.now();
+            const alertHtml = `<div id="${messageId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                                    ${message}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>`;
+            $('#global-message').html(alertHtml);
+            if (autoDismissDelay > 0) {
+                setTimeout(() => {
+                    $(`#${messageId}`).alert('close');
+                }, autoDismissDelay);
             }
+        }
 
-            function createTopicCardHtml(topic, isExisting = false) {
-                const topicId = topic.chapterID || 'new-topic-' + Date.now();
-                const title = $('<div>').text(topic.title || 'Chưa có tiêu đề').html();
-                const description = topic.description ? $('<div>').text(topic.description).html() : '';
-                const sortOrder = topic.sortOrder !== undefined ? topic.sortOrder : '';
+        function createTopicCardHtml(topic, isExisting = false) {
+            const topicId = topic.chapterID || 'new-topic-' + Date.now();
+            const title = $('<div>').text(topic.title || 'Chưa có tiêu đề').html();
+            const description = topic.description ? $('<div>').text(topic.description).html() : '';
 
-                const existingClass = isExisting ? 'existing-topic' : '';
-                const chapterIdAttr = isExisting && topic.chapterID ? `data-chapter-id="${topic.chapterID}"` : '';
-                const isExistingAttr = isExisting ? 'data-is-existing="true"' : '';
+            const existingClass = isExisting ? 'existing-topic' : '';
+            const chapterIdAttr = topic.chapterID ? `data-chapter-id="${topic.chapterID}"` : '';
+            const isExistingAttr = isExisting ? 'data-is-existing="true"' : '';
 
-                return `
+            return `
                 <div class="card mb-2 topic-item ${existingClass}" id="${topicId}"
                      data-topic-name="${title}"
                      data-topic-summary="${description}"
-                     data-sort-order="${sortOrder}"
                      ${chapterIdAttr}
                      ${isExistingAttr}>
                   <div class="card-header d-flex justify-content-between align-items-center">
                     <div>
-                        <i class="bi bi-arrows-move me-2" title="Sắp xếp (chức năng chưa hoàn thiện)"></i>
+                        <i class="bi bi-arrows-move me-2" title="Sắp xếp (chưa hoạt động)"></i>
                         <span>${title}</span>
-                        ${isExisting ? '<span class="badge bg-info ms-2">Đã lưu</span>' : '<span class="badge bg-warning ms-2">Chưa lưu</span>'}
+                        ${isExisting ? '<span class="badge bg-success ms-2">Đã lưu</span>' : '<span class="badge bg-warning ms-2">Chưa lưu</span>'}
                     </div>
                     <div>
-                      <button type="button" class="btn btn-sm btn-outline-primary btn-add-lesson" title="Thêm Bài học"><i class="bi bi-plus-circle"></i> Bài học</button>
-                      <button type="button" class="btn btn-sm btn-outline-info btn-add-quiz" title="Thêm Câu hỏi (chưa hoạt động)"><i class="bi bi-patch-question"></i> Câu hỏi</button>
+                      <button type="button" class="btn btn-sm btn-outline-primary btn-add-lesson" title="Thêm Bài học cho chương này"><i class="bi bi-plus-circle"></i> Bài học</button>
                       <button type="button" class="btn btn-sm btn-outline-danger btn-delete-topic" title="Xóa Chương này (cục bộ)"><i class="bi bi-trash"></i></button>
                     </div>
                   </div>
-                  <div class="card-body p-2" style="display: none;"> <p class="card-text small text-muted">${description || 'Không có mô tả.'}</p>
+                  <div class="card-body p-2" style="display: none;">
+                    <p class="card-text small text-muted mb-2">${description || 'Không có mô tả.'}</p>
+                    <h6>Bài học trong chương:</h6>
+                    <ul class="list-group list-group-flush lessons">
+                        <li class="list-group-item no-lessons-yet text-muted small" style="display: none;">Chưa có bài học nào cho chương này hoặc đang tải...</li>
+                    </ul>
                   </div>
-                  <ul class="list-group list-group-flush lessons"></ul>
                 </div>`;
+        }
+
+        function createLessonItemHtml(lesson, videoDataArray, resourcesDataArray) {
+            const lessonTitle = $('<div>').text(lesson.title || 'Bài học không có tiêu đề').html();
+            const lessonId = lesson.lessonID;
+            let videoHtml = '<p class="lesson-video-info text-muted small">Không có video.</p>';
+            if (videoDataArray && videoDataArray.length > 0) {
+                const firstVideo = videoDataArray[0]; // Assuming one video per lesson for now, or display first
+                videoHtml = `<p class="lesson-video-info">
+                                    <i class="bi bi-play-circle-fill me-1"></i>
+                                    <strong>Video:</strong> ${$('<div>').text(firstVideo.title || firstVideo.url).html()}
+                                    ${firstVideo.duration ? ` (${formatDuration(firstVideo.duration)})` : ''}
+                                 </p>`;
             }
 
-            function updateChapterCount() {
-                const count = $('#topics-list .topic-item').length;
-                $('#chapter-count').text(`${count} chương`);
+            let resourcesHtml = '';
+            if (resourcesDataArray && resourcesDataArray.length > 0) {
+                resourcesHtml = '<ul class="lesson-attachments list-unstyled">';
+                resourcesDataArray.forEach(resource => {
+                    resourcesHtml += `<li><i class="bi bi-paperclip me-1"></i>${$('<div>').text(resource.title || resource.resourcePath).html()}</li>`;
+                });
+                resourcesHtml += '</ul>';
+            } else {
+                resourcesHtml = '<p class="small text-muted">Không có tài liệu đính kèm.</p>';
             }
 
-            $('#course_id').on('change', async function() {
-                const courseId = $(this).val();
-                const $topicsList = $('#topics-list');
-                const $chaptersSection = $('#chapters-section');
+            // Determine if lesson is newly saved or fetched (for badge, not fully implemented here yet)
+            const statusBadge = lesson.isNew ? '<span class="badge bg-success ms-2">Đã lưu</span>' : '<span class="badge bg-info ms-2">Đã tải</span>';
 
-                $topicsList.html('');
-                $('#add-topic-form').collapse('hide');
-                $('#topic-name, #topic-summary').val('');
 
-                if (courseId) {
-                    $chaptersSection.show();
-                    $topicsList.html('<div class="spinner-container"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div> <span class="ms-2">Đang tải chương...</span></div>');
-                    showGlobalMessage('Đang tải danh sách chương cho khóa học đã chọn...', 'info');
-
-                    try {
-                        const headers = {
-                            'Accept': 'application/json'
-                        };
-                        <?php if (isset($_SESSION['user']['token'])): ?>
-                        headers['Authorization'] = 'Bearer <?= $_SESSION['user']['token'] ?>';
-                        <?php endif; ?>
-                        const response = await fetch(`${API_BASE_URL}/chapter_api.php?courseID=${courseId}`, {
-                            method: 'GET',
-                            headers: headers
-                        });
-
-                        if (!response.ok) {
-                            const errorData = await response.json().catch(() => ({
-                                message: 'Lỗi không xác định khi tải chương.'
-                            }));
-                            throw new Error(`Lỗi ${response.status}: ${errorData.message || response.statusText}`);
-                        }
-
-                        const result = await response.json();
-
-                        $topicsList.empty();
-                        if (result.success && result.data && result.data.length > 0) {
-                            result.data.forEach(chapter => {
-                                const chapterHtml = createTopicCardHtml(chapter, true);
-                                $topicsList.append(chapterHtml);
-                            });
-                            showGlobalMessage(`Đã tải ${result.data.length} chương thành công.`, 'success', 3000);
-                        } else if (result.success && (!result.data || result.data.length === 0)) {
-                            $topicsList.html('<p class="text-muted">Khóa học này chưa có chương nào. Hãy thêm chương mới.</p>');
-                            showGlobalMessage('Khóa học này chưa có chương nào.', 'info');
-                        } else {
-                            $topicsList.html('<p class="text-danger">Không thể tải chương: ' + (result.message || 'Lỗi không rõ') + '</p>');
-                            showGlobalMessage('Lỗi khi tải chương: ' + (result.message || 'Lỗi không rõ'), 'danger');
-                        }
-                    } catch (error) {
-                        console.error('Lỗi fetch chương:', error);
-                        $topicsList.html(`<p class="text-danger">Lỗi kết nối hoặc xử lý khi tải chương: ${error.message}</p>`);
-                        showGlobalMessage(`Lỗi kết nối: ${error.message}`, 'danger');
-                    }
-                } else {
-                    $chaptersSection.hide();
-                    $topicsList.html('<p class="text-muted">Vui lòng chọn một khóa học để xem hoặc thêm chương.</p>');
-                    showGlobalMessage('Vui lòng chọn một khóa học.', 'info');
-                }
-                updateChapterCount();
-            });
-
-            $('#btn-add-topic').on('click', () => {
-                $('#add-topic-form').collapse('toggle');
-                $('#topic-name').focus();
-            });
-
-            $('#save-topic-locally').on('click', () => {
-                const name = $('#topic-name').val().trim();
-                const summary = $('#topic-summary').val().trim();
-                if (!name) {
-                    showGlobalMessage('Vui lòng nhập tên chương.', 'warning', 3000);
-                    $('#topic-name').focus();
-                    return;
-                }
-                if ($('#topics-list').find('p.text-muted, p.text-danger').length > 0 && $('#topics-list .topic-item').length === 0) {
-                    $('#topics-list').empty();
-                }
-
-                const newTopic = {
-                    title: name,
-                    description: summary
-                };
-                const topicHtml = createTopicCardHtml(newTopic, false);
-                $('#topics-list').append(topicHtml);
-
-                $('#topic-name, #topic-summary').val('');
-                $('#add-topic-form').collapse('hide');
-                showGlobalMessage(`Chương "${name}" đã được thêm vào danh sách (chưa lưu lên server).`, 'info', 4000);
-                updateChapterCount();
-            });
-
-            $('#topics-list').on('click', '.btn-add-lesson', function() {
-                const $topicItem = $(this).closest('.topic-item');
-                const topicId = $topicItem.attr('id');
-                const chapterIdForLesson = $topicItem.data('chapter-id');
-
-                $('#current-topic-id-for-lesson').val(chapterIdForLesson || topicId);
-
-                $('#lessonModalLabel').text('Thêm Bài học cho chương: ' + $topicItem.data('topic-name'));
-                $('#lessonModal').find('input[type="text"], input[type="file"], input[type="number"], textarea, select').val('');
-                $('#video-hh, #video-mm, #video-ss').val('00');
-                $('#video-file-group, #video-url-group').hide();
-                $('#lessonModal').removeData('lessonId');
-                $('#lessonModal').modal('show');
-            });
-
-            $('#topics-list').on('click', '.btn-delete-topic', function() {
-                const $topicItem = $(this).closest('.topic-item');
-                const topicName = $topicItem.data('topic-name');
-                const isExisting = $topicItem.data('is-existing') === true;
-
-                let confirmMessage = `Bạn có chắc chắn muốn xóa chương "${topicName}"?`;
-                if (isExisting) {
-                    confirmMessage += "\nLƯU Ý: Chương này đã được lưu trên server. Việc xóa ở đây chỉ là xóa cục bộ khỏi danh sách hiện tại. Để xóa vĩnh viễn, cần chức năng xóa trên server.";
-                } else {
-                    confirmMessage += "\nThao tác này chỉ xóa cục bộ, chương chưa được lưu lên server.";
-                }
-
-                if (confirm(confirmMessage)) {
-                    $topicItem.remove();
-                    showGlobalMessage(`Chương "${topicName}" đã được xóa khỏi danh sách cục bộ.`, 'info', 3000);
-                    if ($('#topics-list .topic-item').length === 0 && !$('#course_id').val()) {
-                        $('#topics-list').html('<p class="text-muted">Vui lòng chọn một khóa học để xem hoặc thêm chương.</p>');
-                    } else if ($('#topics-list .topic-item').length === 0 && $('#course_id').val()) {
-                        $('#topics-list').html('<p class="text-muted">Khóa học này chưa có chương nào hoặc tất cả đã bị xóa cục bộ. Hãy thêm chương mới.</p>');
-                    }
-                    updateChapterCount();
-                }
-            });
-
-            $('#topics-list').on('click', '.card-header', function(e) {
-                if ($(e.target).is('button, i, input') || $(e.target).closest('button, input').length) {
-                    return;
-                }
-                $(this).siblings('.card-body, .lessons').slideToggle('fast');
-            });
-
-            $('#video-source').on('change', function() {
-                const selectedSource = this.value;
-                $('#video-file-group').toggle(selectedSource === 'mp4');
-                $('#video-url-group').toggle(['youtube'].includes(selectedSource));
-            });
-
-            $('#lessonModal').on('hidden.bs.modal', function() {
-                $(this).find('input[type="text"], input[type="file"], input[type="number"], textarea, select').val('');
-                $('#video-hh, #video-mm, #video-ss').val('00');
-                $('#video-file-group, #video-url-group').hide();
-                $(this).removeData('topicId').removeData('lessonId');
-                $('#current-topic-id-for-lesson').val('');
-            });
-
-            $('#save-lesson-locally').on('click', () => {
-                const modal = $('#lessonModal');
-                const topicIdForLesson = $('#current-topic-id-for-lesson').val();
-                const title = $('#lesson-title').val().trim();
-
-                if (!title) {
-                    alert('Vui lòng nhập tiêu đề bài học.');
-                    $('#lesson-title').focus();
-                    return;
-                }
-                if (!topicIdForLesson) {
-                    alert('Lỗi: Không tìm thấy ID Chương (Topic ID) để thêm bài học. Hãy chắc chắn bạn đã chọn một chương.');
-                    return;
-                }
-
-                const files = $('#lesson-attachments')[0].files;
-                let attachHtml = '';
-                if (files && files.length > 0) {
-                    attachHtml = '<ul class="lesson-attachments mt-2 mb-0 small list-unstyled">';
-                    for (let i = 0; i < files.length; i++) {
-                        attachHtml += `<li><i class="bi bi-paperclip me-1"></i>${$('<div>').text(files[i].name).html()}</li>`;
-                    }
-                    attachHtml += '</ul>';
-                }
-
-                const lessonData = {
-                    title: title,
-                    content: $('#lesson-content').val(),
-                    image: $('#lesson-image').val() ? $('#lesson-image')[0].files[0].name : '',
-                    videoSource: $('#video-source').val(),
-                    videoUrl: $('#video-url').val(),
-                    videoFile: $('#video-file').val() ? $('#video-file')[0].files[0].name : '',
-                    duration: `${$('#video-hh').val() || '00'}:${$('#video-mm').val() || '00'}:${$('#video-ss').val() || '00'}`
-                };
-
-                const uniqueLessonId = 'lesson-' + Date.now();
-                const lessonItemHtml = `
-                <li class="list-group-item d-flex justify-content-between align-items-center lesson-item" id="${uniqueLessonId}"
-                    data-title="${$('<div>').text(title).html()}"
-                    data-content="${$('<div>').text(lessonData.content).html()}"
-                    data-image="${$('<div>').text(lessonData.image).html()}"
-                    data-video-source="${lessonData.videoSource}"
-                    data-video-url="${$('<div>').text(lessonData.videoUrl).html()}"
-                    data-video-file="${$('<div>').text(lessonData.videoFile).html()}"
-                    data-duration="${lessonData.duration}">
+            return `
+                <li class="list-group-item lesson-item existing-lesson" id="${lessonId}" data-lesson-id="${lessonId}">
                   <div>
-                    <i class="bi bi-file-earmark-play me-2"></i>${$('<div>').text(title).html()}
-                    <span class="text-muted small ms-2">(${lessonData.duration})</span>
-                    ${attachHtml}
+                    <i class="bi bi-book-half me-2"></i><strong>${lessonTitle}</strong> ${statusBadge}
+                    ${videoHtml}
+                    ${resourcesHtml}
                   </div>
                   <div>
-                    <button class="btn btn-sm btn-outline-success btn-edit-lesson" title="Sửa Bài học (chưa hoạt động)"><i class="bi bi-pencil-square"></i></button>
-                    <button class="btn btn-sm btn-outline-danger btn-delete-lesson" title="Xóa Bài học (cục bộ)"><i class="bi bi-trash"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary btn-edit-lesson" title="Sửa Bài học (chưa hoạt động)"><i class="bi bi-pencil-square"></i></button>
+                    <button class="btn btn-sm btn-outline-danger btn-delete-lesson-server" title="Xóa Bài học (từ server - chưa hoạt động)"><i class="bi bi-trash"></i></button>
                   </div>
                 </li>`;
+        }
 
-                const $topicElement = $('#' + topicIdForLesson.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&"));
-                if ($topicElement.length) {
-                    $topicElement.find('.lessons').append(lessonItemHtml).closest('.card-body, .lessons').slideDown();
-                    showGlobalMessage(`Bài học "${title}" đã được thêm vào chương (cục bộ).`, 'success', 3000);
-                } else {
-                    showGlobalMessage(`Không tìm thấy chương (ID: ${topicIdForLesson}) để thêm bài học.`);
-                    console.error("Could not find topic element with ID:", topicIdForLesson);
-                    return;
+        function formatDuration(totalSeconds) {
+            if (isNaN(totalSeconds) || totalSeconds === null || totalSeconds === 0) return "00:00";
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            let durationString = "";
+            if (hours > 0) {
+                durationString += `${String(hours).padStart(2, '0')}:`;
+            }
+            durationString += `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            return durationString;
+        }
+
+
+        async function fetchLessonDetailsAndRender(lesson, $lessonsListUl) {
+            if (!lesson || !lesson.lessonID) return;
+
+            const lessonId = lesson.lessonID;
+            const tempLessonItemId = `loading-lesson-${lessonId}`;
+            $lessonsListUl.append(`<li id="${tempLessonItemId}" class="list-group-item text-muted small"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Đang tải chi tiết bài học: ${$('<div>').text(lesson.title).html()}...</li>`);
+
+            try {
+                const headers = { 'Accept': 'application/json' };
+                <?php if (isset($_SESSION['user']['token'])): ?>
+                headers['Authorization'] = 'Bearer <?= $_SESSION['user']['token'] ?>';
+                <?php endif; ?>
+
+                const [videoResponse, resourceResponse] = await Promise.all([
+                    fetch(`${VIDEO_API_URL}?lessonID=${lessonId}`, { headers }),
+                    fetch(`${RESOURCE_API_URL}?lessonID=${lessonId}`, { headers })
+                ]);
+
+                const videoResult = videoResponse.ok ? await videoResponse.json() : { success: false, data: [], message: `Video API Error ${videoResponse.status}` };
+                const resourceResult = resourceResponse.ok ? await resourceResponse.json() : { success: false, data: [], message: `Resource API Error ${resourceResponse.status}`};
+
+                $(`#${tempLessonItemId}`).remove(); // Remove temporary loading item
+
+                const lessonHtml = createLessonItemHtml(lesson, videoResult.data || [], resourceResult.data || []);
+                $lessonsListUl.append(lessonHtml);
+
+            } catch (error) {
+                console.error(`Lỗi tải chi tiết cho bài học ${lessonId}:`, error);
+                $(`#${tempLessonItemId}`).html(`<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Lỗi tải chi tiết cho bài học: ${$('<div>').text(lesson.title).html()}`);
+            }
+        }
+
+        async function fetchAndDisplayLessonsForChapter(chapterId, $chapterItem) {
+            const $lessonsListUl = $chapterItem.find('.lessons');
+            const $noLessonsYetMsg = $lessonsListUl.find('.no-lessons-yet');
+
+            $chapterItem.data('lessons-loading', true);
+            $noLessonsYetMsg.hide(); // Hide initial message
+            $lessonsListUl.html('<div class="lessons-spinner-container"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải bài học...</span></div> <span class="ms-2 text-muted small">Đang tải bài học...</span></div>');
+
+            try {
+                const headers = { 'Accept': 'application/json' };
+                <?php if (isset($_SESSION['user']['token'])): ?>
+                headers['Authorization'] = 'Bearer <?= $_SESSION['user']['token'] ?>';
+                <?php endif; ?>
+
+                const response = await fetch(`${LESSON_API_URL}?chapterID=${chapterId}`, { headers });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Lỗi không xác định khi tải bài học.' }));
+                    throw new Error(`Lỗi ${response.status}: ${errorData.message || response.statusText}`);
                 }
-                modal.modal('hide');
-            });
+                const result = await response.json();
+                $lessonsListUl.empty(); // Clear spinner
 
-            $('#topics-list').on('click', '.btn-delete-lesson', function() {
-                if (confirm('Bạn có chắc chắn muốn xóa bài học này (thao tác cục bộ)?')) {
-                    $(this).closest('.lesson-item').remove();
-                    showGlobalMessage('Bài học đã được xóa cục bộ.', 'info', 3000);
-                }
-            });
-
-            $('#saveAllContentButton').on('click', async function() {
-                const courseId = $('#course_id').val();
-                const $saveButton = $(this);
-                const originalButtonText = $saveButton.html();
-
-                if (!courseId) {
-                    showGlobalMessage('Vui lòng chọn một khóa học trước khi lưu chương.', 'warning', 3000);
-                    return;
-                }
-
-                const $newTopics = $('#topics-list .topic-item:not([data-is-existing="true"])');
-
-                if ($newTopics.length === 0) {
-                    showGlobalMessage('Không có chương mới nào để lưu. Các chương hiện tại đã được lưu hoặc chưa có chương mới được thêm.', 'info', 4000);
-                    return;
-                }
-
-                const topicsToSaveData = [];
-                $newTopics.each(function(topicIndex) {
-                    const $topicEl = $(this);
-                    const topic = {
-                        title: $topicEl.data('topic-name') || $topicEl.find('.card-header > div:first-child > span').text().trim(),
-                        description: $topicEl.data('topic-summary') || '',
-                        sortOrder: $topicEl.data('sort-order') || topicIndex
-                    };
-                    topicsToSaveData.push({
-                        localId: $topicEl.attr('id'),
-                        data: topic
-                    });
-                });
-
-                $saveButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang lưu...');
-                showGlobalMessage(`Bắt đầu lưu ${topicsToSaveData.length} chương mới...`, 'info');
-
-                let allSuccess = true;
-                let successfulSaves = 0;
-                let failedSaves = 0;
-                let resultsSummary = `<strong>Kết quả lưu các chương mới (CourseID: ${courseId}):</strong><ul>`;
-
-                for (const item of topicsToSaveData) {
-                    const payload = {
-                        courseID: courseId,
-                        title: item.data.title,
-                        description: item.data.description,
-                        sortOrder: item.data.sortOrder
-                    };
-
-                    try {
-                        const response = await fetch(CHAPTER_SAVE_URL, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                <?php if (isset($_SESSION['user']['token'])): ?> 'Authorization': 'Bearer <?= $_SESSION['user']['token'] ?>'<?php endif; ?>
-                            },
-                            body: JSON.stringify(payload)
-                        });
-
-                        const result = await response.json();
-
-                        if (response.ok && result.success) {
-                            console.log('Lưu chương thành công:', result);
-                            resultsSummary += `<li class="text-success">Chương "${payload.title}": Lưu thành công. ${result.message || ''}</li>`;
-                            successfulSaves++;
-                            const $savedTopicEl = $('#' + item.localId.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&"));
-                            if (result.data && result.data.chapterID) {
-                                $savedTopicEl.attr('id', result.data.chapterID);
-                                $savedTopicEl.attr('data-chapter-id', result.data.chapterID);
-                            }
-                            $savedTopicEl.attr('data-is-existing', 'true');
-                            $savedTopicEl.addClass('existing-topic');
-                            $savedTopicEl.find('.badge.bg-warning').removeClass('bg-warning').addClass('bg-info').text('Đã lưu');
-
-                        } else {
-                            allSuccess = false;
-                            failedSaves++;
-                            console.error('Lỗi khi lưu chương:', result);
-                            resultsSummary += `<li class="text-danger">Chương "${payload.title}": Lưu thất bại. ${result.message || 'Lỗi không xác định từ server.'} (HTTP Code: ${response.status})</li>`;
-                        }
-                    } catch (error) {
-                        allSuccess = false;
-                        failedSaves++;
-                        console.error('Lỗi network/JS khi gửi dữ liệu chương:', error);
-                        resultsSummary += `<li class="text-danger">Chương "${payload.title}": Lỗi kết nối hoặc xử lý client-side. ${error.message}</li>`;
+                if (result.success && result.data && result.data.length > 0) {
+                    for (const lesson of result.data) {
+                        await fetchLessonDetailsAndRender(lesson, $lessonsListUl); // Wait for each lesson's details
                     }
-                }
-                resultsSummary += '</ul>';
-
-                if (allSuccess && successfulSaves > 0) {
-                    showGlobalMessage(`Tất cả ${successfulSaves} chương mới đã được lưu thành công! <br>` + resultsSummary, 'success');
-                } else if (successfulSaves === 0 && failedSaves === 0) {
-                    showGlobalMessage('Không có chương mới nào được xử lý.', 'info');
+                    $chapterItem.data('lessons-loaded', true);
+                } else if (result.success && (!result.data || result.data.length === 0)) {
+                    $noLessonsYetMsg.text('Chương này chưa có bài học nào.').show();
                 } else {
-                    let finalMessage = `Hoàn tất quá trình lưu. <br>Thành công: ${successfulSaves}. Thất bại: ${failedSaves}.<br>`;
-                    finalMessage += resultsSummary;
-                    showGlobalMessage(finalMessage, failedSaves > 0 ? 'warning' : 'success');
+                    $lessonsListUl.html(`<li class="list-group-item text-danger small">Không thể tải bài học: ${result.message || 'Lỗi không rõ'}</li>`);
                 }
-                $saveButton.prop('disabled', false).html(originalButtonText);
-                updateChapterCount();
-            });
+            } catch (error) {
+                console.error(`Lỗi fetch bài học cho chương ${chapterId}:`, error);
+                $lessonsListUl.html(`<li class="list-group-item text-danger small">Lỗi kết nối hoặc xử lý khi tải bài học: ${error.message}</li>`);
+            } finally {
+                $chapterItem.removeData('lessons-loading');
+                updateNoLessonsMessage(chapterId); // Final check for the message
+            }
+        }
 
-            if (!$('#course_id').val()) {
-                $('#chapters-section').hide();
-                $('#topics-list').html('<p class="text-muted">Vui lòng chọn một khóa học để xem hoặc thêm chương.</p>');
+        function updateNoLessonsMessage(chapterId) {
+            const safeChapterId = String(chapterId).replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&");
+            const $lessonsList = $(`#${safeChapterId} .lessons`);
+            const $noLessonsMsg = $lessonsList.find('.no-lessons-yet');
+            if ($lessonsList.find('.lesson-item').length === 0 && $lessonsList.find('.lessons-spinner-container').length === 0) {
+                if($noLessonsMsg.length === 0){ // if message element doesn't exist, create it
+                    $lessonsList.append('<li class="list-group-item no-lessons-yet text-muted small">Chưa có bài học nào cho chương này.</li>');
+                } else {
+                    $noLessonsMsg.text('Chưa có bài học nào cho chương này.').show();
+                }
+            } else {
+                $noLessonsMsg.hide();
+            }
+        }
+
+        function updateChapterCount() {
+            const count = $('#topics-list .topic-item').length;
+            $('#chapter-count').text(`${count} chương`);
+        }
+
+        $('#course_id').on('change', async function() {
+            const courseId = $(this).val();
+            const $topicsList = $('#topics-list');
+            const $chaptersSection = $('#chapters-section');
+
+            $topicsList.html('');
+            $('#add-topic-form').collapse('hide');
+            $('#topic-name, #topic-summary').val('');
+
+            if (courseId) {
+                $chaptersSection.show();
+                $topicsList.html('<div class="spinner-container"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div> <span class="ms-2">Đang tải chương...</span></div>');
+                showGlobalMessage('Đang tải danh sách chương...', 'info');
+
+                try {
+                    const headers = { 'Accept': 'application/json' };
+                    <?php if (isset($_SESSION['user']['token'])): ?>
+                    headers['Authorization'] = 'Bearer <?= $_SESSION['user']['token'] ?>';
+                    <?php endif; ?>
+
+                    const response = await fetch(`${API_BASE_URL}/chapter_api.php?courseID=${courseId}`, {
+                        method: 'GET',
+                        headers: headers
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ message: 'Lỗi không xác định.' }));
+                        throw new Error(`Lỗi ${response.status}: ${errorData.message || response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    $topicsList.empty();
+
+                    if (result.success && result.data && result.data.length > 0) {
+                        result.data.forEach(chapter => {
+                            const chapterHtml = createTopicCardHtml(chapter, true);
+                            $topicsList.append(chapterHtml);
+                            if(chapter.chapterID) {
+                                updateNoLessonsMessage(chapter.chapterID);
+                            }
+                        });
+                        showGlobalMessage(`Đã tải ${result.data.length} chương.`, 'success', 3000);
+                    } else if (result.success && (!result.data || result.data.length === 0)) {
+                        $topicsList.html('<p class="text-muted">Khóa học này chưa có chương nào. Hãy thêm chương mới.</p>');
+                        showGlobalMessage('Khóa học này chưa có chương.', 'info');
+                    } else {
+                        $topicsList.html('<p class="text-danger">Không thể tải chương: ' + (result.message || 'Lỗi không rõ') + '</p>');
+                        showGlobalMessage('Lỗi khi tải chương: ' + (result.message || 'Lỗi không rõ'), 'danger');
+                    }
+                } catch (error) {
+                    console.error('Lỗi fetch chương:', error);
+                    $topicsList.html(`<p class="text-danger">Lỗi kết nối hoặc xử lý: ${error.message}</p>`);
+                    showGlobalMessage(`Lỗi kết nối: ${error.message}`, 'danger');
+                }
+            } else {
+                $chaptersSection.hide();
+                $topicsList.html('<p class="text-muted">Vui lòng chọn một khóa học để xem hoặc thêm chương.</p>');
+                showGlobalMessage('Vui lòng chọn một khóa học.', 'info');
             }
             updateChapterCount();
         });
-    </script>
-</body>
 
+        $('#btn-add-topic').on('click', () => {
+            $('#add-topic-form').collapse('toggle');
+            $('#topic-name').focus();
+        });
+
+        $('#save-topic-locally').on('click', () => {
+            const name = $('#topic-name').val().trim();
+            const summary = $('#topic-summary').val().trim();
+            if (!name) {
+                showGlobalMessage('Vui lòng nhập tên chương.', 'warning', 3000);
+                $('#topic-name').focus();
+                return;
+            }
+            if ($('#topics-list').find('p.text-muted, p.text-danger').length > 0 && $('#topics-list .topic-item').length === 0) {
+                $('#topics-list').empty();
+            }
+
+            const newTopic = { title: name, description: summary };
+            const topicHtml = createTopicCardHtml(newTopic, false);
+            $('#topics-list').append(topicHtml);
+            const newTopicId = $(topicHtml).attr('id');
+            if(newTopicId){
+                updateNoLessonsMessage(newTopicId);
+            }
+
+            $('#topic-name, #topic-summary').val('');
+            $('#add-topic-form').collapse('hide');
+            showGlobalMessage(`Chương "${name}" đã được thêm vào danh sách (chưa lưu lên server).`, 'info', 4000);
+            updateChapterCount();
+        });
+
+        $('#topics-list').on('click', '.btn-add-lesson', function() {
+            const $topicItem = $(this).closest('.topic-item');
+            const chapterIdForLesson = $topicItem.data('chapter-id') || $topicItem.attr('id');
+
+            if (!chapterIdForLesson) {
+                showGlobalMessage('Không thể xác định ID của chương. Chương có thể cần được lưu trước.', 'warning');
+                return;
+            }
+            if (!$topicItem.data('is-existing') && !$topicItem.data('chapter-id')) {
+                showGlobalMessage('Vui lòng lưu chương này lên server trước khi thêm bài học.', 'warning', 4000);
+                return;
+            }
+
+            $('#current-chapter-id-for-lesson').val(chapterIdForLesson); // Changed from current-topic-id...
+            $('#lessonModalLabel').text('Thêm Bài học cho chương: ' + $topicItem.data('topic-name'));
+
+            $('#lessonModal').find('input[type="text"], input[type="file"], input[type="number"], textarea, select').val('');
+            $('#video-hh, #video-mm, #video-ss').val('00');
+            $('#video-source').val('');
+            $('#video-file-group, #video-url-group').hide();
+            $('#lessonModal').removeData('lessonId');
+
+            $('#lessonModal').modal('show');
+        });
+
+        $('#topics-list').on('click', '.btn-delete-topic', function() {
+            const $topicItem = $(this).closest('.topic-item');
+            const topicName = $topicItem.data('topic-name');
+            if (confirm(`Bạn có chắc chắn muốn xóa chương "${topicName}" khỏi danh sách này (chỉ xóa cục bộ)?`)) {
+                $topicItem.remove();
+                showGlobalMessage(`Chương "${topicName}" đã được xóa cục bộ.`, 'info', 3000);
+                if ($('#topics-list .topic-item').length === 0) {
+                    $('#topics-list').html('<p class="text-muted">Không còn chương nào. Hãy thêm chương mới.</p>');
+                }
+                updateChapterCount();
+            }
+        });
+
+        $('#topics-list').on('click', '.card-header', function(e) {
+            if ($(e.target).is('button, i, input') || $(e.target).closest('button, input').length) {
+                return;
+            }
+            const $chapterItem = $(this).closest('.topic-item');
+            const chapterId = $chapterItem.data('chapter-id'); // Only for existing, server-saved chapters
+
+            $(this).siblings('.card-body').slideToggle('fast', function() {
+                // After slide toggle completes, check if lessons need to be loaded
+                if ($(this).is(':visible') && chapterId &&
+                    $chapterItem.data('lessons-loaded') !== true &&
+                    $chapterItem.data('lessons-loading') !== true) {
+                    fetchAndDisplayLessonsForChapter(chapterId, $chapterItem);
+                }
+            });
+        });
+
+        $('#video-source').on('change', function() {
+            const selectedSource = this.value;
+            $('#video-file-group').toggle(selectedSource === 'mp4');
+            $('#video-url-group').toggle(selectedSource === 'youtube');
+        });
+
+        $('#lessonModal').on('hidden.bs.modal', function() {
+            $(this).find('input[type="text"], input[type="file"], input[type="number"], textarea, select').val('');
+            $('#video-source').val('');
+            $('#video-hh, #video-mm, #video-ss').val('00');
+            $('#video-file-group, #video-url-group').hide();
+            $('#current-chapter-id-for-lesson').val('');
+        });
+
+        $('#save-lesson-server').on('click', async function() {
+            const $saveButton = $(this);
+            const originalButtonText = $saveButton.html();
+
+            const chapterId = $('#current-chapter-id-for-lesson').val(); // This is the ID of the chapter the lesson belongs to
+            const courseId = $('#course_id').val();
+            const lessonTitle = $('#lesson-title').val().trim();
+            // const lessonContent = $('#lesson-content').val().trim(); // If you send content
+
+            const videoSource = $('#video-source').val();
+            const videoUrlInput = $('#video-url').val().trim();
+            const videoFile = $('#video-file')[0].files.length > 0 ? $('#video-file')[0].files[0] : null;
+
+            const resourceFiles = Array.from($('#lesson-attachments')[0].files);
+            const durationHH = $('#video-hh').val() || '00';
+            const durationMM = $('#video-mm').val() || '00';
+            const durationSS = $('#video-ss').val() || '00';
+            const durationForDisplay = `${durationHH}:${durationMM}:${durationSS}`;
+
+
+            let validationError = false;
+            if (!lessonTitle) { showGlobalMessage('Vui lòng nhập tiêu đề bài học.', 'warning'); validationError = true; }
+            if (!videoSource) { showGlobalMessage('Vui lòng chọn nguồn video.', 'warning'); validationError = true; }
+            if (videoSource === 'mp4' && !videoFile) { showGlobalMessage('Vui lòng chọn một file video.', 'warning'); validationError = true; }
+            if (videoSource === 'youtube' && !videoUrlInput) { showGlobalMessage('Vui lòng nhập URL video.', 'warning'); validationError = true; }
+            if (!chapterId) { showGlobalMessage('Lỗi: Không tìm thấy ID Chương.', 'danger'); validationError = true; }
+            if (!courseId) { showGlobalMessage('Lỗi: Không tìm thấy ID Khóa học.', 'danger'); validationError = true; }
+            if (validationError) return;
+
+            $saveButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang lưu...');
+
+            const formData = new FormData();
+            formData.append('action', 'save_lesson_content');
+            formData.append('courseID', courseId);
+            formData.append('chapterID', chapterId); // Send chapterID to backend
+            formData.append('lessonTitle', lessonTitle);
+            formData.append('videoTitle', lessonTitle); // Assuming video title is same as lesson title for now
+            // formData.append('lessonContent', lessonContent); // if API supports lesson content
+
+            if (videoSource === 'mp4' && videoFile) {
+                formData.append('video_file', videoFile, videoFile.name);
+            } else if (videoSource === 'youtube' && videoUrlInput) {
+                formData.append('video_url', videoUrlInput);
+            }
+            // formData.append('duration', totalSeconds); // If API expects total seconds
+
+            resourceFiles.forEach((file) => {
+                formData.append('resource_files[]', file, file.name);
+            });
+
+            try {
+                const response = await fetch(C_VIDEO_CONTROLLER_URL, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', <?php if (isset($_SESSION['user']['token'])): ?> 'Authorization': 'Bearer <?= $_SESSION['user']['token'] ?>' <?php endif; ?> },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showGlobalMessage(`Bài học "${lessonTitle}" đã lưu thành công. ${result.message || ''}`, 'success');
+
+                    // Assuming server returns the newly created lessonID, video details, and resource details
+                    // For example: result.data.newLesson.lessonID, result.data.video, result.data.resources
+                    const newLessonData = {
+                        lessonID: result.data.newLessonID || 'lesson-' + Date.now(), // IMPORTANT: Expecting newLessonID from server
+                        title: lessonTitle,
+                        isNew: true // Flag to differentiate from fetched lessons if needed for styling
+                    };
+                    const videoDetailsArray = result.data.video ? [result.data.video] : []; // video is an object
+                    const resourcesDetailsArray = result.data.resources || []; // resources is an array
+
+                    const lessonItemHtml = createLessonItemHtml(newLessonData, videoDetailsArray, resourcesDetailsArray);
+
+                    const safeChapterId = String(chapterId).replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&");
+                    const $chapterElement = $('#' + safeChapterId);
+
+                    if ($chapterElement.length) {
+                        const $lessonsUl = $chapterElement.find('.lessons');
+                        $lessonsUl.append(lessonItemHtml);
+                        updateNoLessonsMessage(chapterId);
+                        $chapterElement.find('.card-body').slideDown('fast');
+                    }
+                    $('#lessonModal').modal('hide');
+
+                } else {
+                    let errorMessages = result.message || 'Lỗi không xác định từ server.';
+                    if (result.errors && Array.isArray(result.errors)) { errorMessages += "<br>Chi tiết: <ul><li>" + result.errors.join("</li><li>") + "</li></ul>"; }
+                    showGlobalMessage(`Lưu bài học thất bại: ${errorMessages}`, 'danger', 8000);
+                }
+
+            } catch (error) {
+                console.error('Lỗi network/JS khi gửi dữ liệu bài học:', error);
+                showGlobalMessage(`Lỗi kết nối hoặc client-side: ${error.message}`, 'danger', 8000);
+            } finally {
+                $saveButton.prop('disabled', false).html('<i class="bi bi-cloud-upload"></i> Thêm Bài học (Lưu vào Server)');
+            }
+        });
+
+        $('#topics-list').on('click', '.btn-delete-lesson', function() {
+            if (confirm('Bạn có chắc chắn muốn xóa bài học này (chức năng xóa server chưa hoàn thiện, chỉ xóa cục bộ)?')) {
+                const $lessonItem = $(this).closest('.lesson-item');
+                const chapterId = $lessonItem.closest('.topic-item').attr('id');
+                $lessonItem.remove();
+                showGlobalMessage('Bài học đã được xóa cục bộ.', 'info', 3000);
+                if (chapterId) updateNoLessonsMessage(chapterId);
+            }
+        });
+
+        $('#saveAllContentButton').on('click', async function() {
+            const courseId = $('#course_id').val();
+            const $saveButton = $(this);
+            const originalButtonText = $saveButton.html();
+
+            if (!courseId) {
+                showGlobalMessage('Vui lòng chọn một khóa học trước khi lưu chương.', 'warning', 3000);
+                return;
+            }
+
+            const $newTopics = $('#topics-list .topic-item:not([data-is-existing="true"]):not([data-chapter-id])');
+
+            if ($newTopics.length === 0) {
+                showGlobalMessage('Không có chương mới nào (chưa được lưu lên server) để thực hiện.', 'info', 4000);
+                return;
+            }
+
+            const topicsToSaveData = [];
+            $newTopics.each(function(topicIndex) {
+                const $topicEl = $(this);
+                topicsToSaveData.push({
+                    localId: $topicEl.attr('id'),
+                    data: {
+                        title: $topicEl.data('topic-name') || $topicEl.find('.card-header > div:first-child > span').text().trim(),
+                        description: $topicEl.data('topic-summary') || ''
+                    }
+                });
+            });
+
+            $saveButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang lưu chương...');
+            showGlobalMessage(`Bắt đầu lưu ${topicsToSaveData.length} chương mới...`, 'info');
+
+            let successfulSaves = 0, failedSaves = 0;
+            let resultsSummary = `<strong class="mt-2 d-block">Kết quả lưu các chương mới (CourseID: ${courseId}):</strong><ul>`;
+
+            for (const item of topicsToSaveData) {
+                const payload = { courseID: courseId, title: item.data.title, description: item.data.description };
+                try {
+                    const response = await fetch(C_VIDEO_CONTROLLER_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', <?php if (isset($_SESSION['user']['token'])): ?> 'Authorization': 'Bearer <?= $_SESSION['user']['token'] ?>' <?php endif; ?> },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        resultsSummary += `<li class="text-success">Chương "${payload.title}": Lưu thành công. ${result.message || ''}</li>`;
+                        successfulSaves++;
+                        const safeLocalId = String(item.localId).replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&");
+                        const $savedTopicEl = $('#' + safeLocalId);
+
+                        if (result.data && result.data.chapterID) {
+                            $savedTopicEl.attr('id', result.data.chapterID);
+                            $savedTopicEl.attr('data-chapter-id', result.data.chapterID);
+                            if ($('#current-chapter-id-for-lesson').val() === item.localId) { // Update if it was selected for lesson
+                                $('#current-chapter-id-for-lesson').val(result.data.chapterID);
+                            }
+                        }
+                        $savedTopicEl.attr('data-is-existing', 'true').addClass('existing-topic');
+                        $savedTopicEl.find('.badge.bg-warning').removeClass('bg-warning').addClass('bg-success').text('Đã lưu');
+                    } else {
+                        failedSaves++;
+                        resultsSummary += `<li class="text-danger">Chương "${payload.title}": Lưu thất bại. ${result.message || 'Lỗi không xác định.'} (Code: ${response.status})</li>`;
+                    }
+                } catch (error) {
+                    failedSaves++;
+                    resultsSummary += `<li class="text-danger">Chương "${payload.title}": Lỗi kết nối/JS. ${error.message}</li>`;
+                }
+            }
+            resultsSummary += '</ul>';
+
+            if (successfulSaves === 0 && failedSaves === 0) {
+                showGlobalMessage('Không có chương mới nào được xử lý.', 'info');
+            } else if (failedSaves === 0 && successfulSaves > 0) {
+                showGlobalMessage(`Tất cả ${successfulSaves} chương mới đã lưu thành công! <br>` + resultsSummary, 'success', 7000);
+            } else {
+                showGlobalMessage(`Hoàn tất. Thành công: ${successfulSaves}. Thất bại: ${failedSaves}.<br>` + resultsSummary, failedSaves > 0 ? 'warning' : 'success', 10000);
+            }
+            $saveButton.prop('disabled', false).html(originalButtonText);
+            updateChapterCount();
+        });
+
+        if (!$('#course_id').val()) {
+            $('#chapters-section').hide();
+            $('#topics-list').html('<p class="text-muted">Vui lòng chọn một khóa học để xem hoặc thêm chương.</p>');
+        }
+        updateChapterCount();
+    });
+</script>
+</body>
 </html>

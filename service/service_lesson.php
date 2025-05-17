@@ -40,10 +40,15 @@ class LessonService
     }
 
     /** Tạo mới lesson */
-    public function create_lesson(string $courseID, string $chapterID, string $title, ?string $content, int $sortOrder): ServiceResponse
+    public function create_lesson(string $lessonID, string $courseID, string $chapterID, string $title, ?string $content, int $sortOrder): ServiceResponse
     {
-        $lessonID = str_replace('.', '_', uniqid('lesson_', true));
-        $dto = new LessonDTO($lessonID, $courseID, $chapterID, $title, $content, $sortOrder);
+        if ($lessonID == "null") {
+            $newLessonID = str_replace('.', '_', uniqid('lesson_', true));
+        }
+        else {
+            $newLessonID = $lessonID;
+        }
+        $dto = new LessonDTO($newLessonID, $courseID, $chapterID, $title, $content, $sortOrder);
         try {
             $ok = $this->bll->create_lesson($dto);
             if ($ok) {

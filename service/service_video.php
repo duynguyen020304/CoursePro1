@@ -37,10 +37,15 @@ class VideoService
         }
     }
 
-    public function create_video(string $lessonID, string $url, ?string $title, int $sortOrder, ?int $duration = null): ServiceResponse
+    public function create_video(?string $videoID,string $lessonID, string $url, ?string $title, int $sortOrder, int $duration = 0): ServiceResponse
     {
-        $videoID = uniqid('video_', true);
-        $dto = new VideoDTO($videoID, $lessonID, $url, $title, $sortOrder, $duration);
+        if ($videoID == null) {
+            $newVideoID = str_replace('.', '_', uniqid('vid_', true));
+        }
+        else {
+            $newVideoID = $videoID;
+        }
+        $dto = new VideoDTO($newVideoID, $lessonID, $url, $title, $sortOrder, $duration);
         try {
             $ok = $this->bll->create_video($dto);
             if ($ok) {

@@ -64,7 +64,9 @@ switch ($method) {
         }
         $content   = $data['content'] ?? null;
         $sortOrder = isset($data['sortOrder']) ? intval($data['sortOrder']) : 0;
+        $lessonID  = $data['lessonID'] ?? "null";
         $resp = $service->create_lesson(
+            $lessonID,
             $data['courseID'],
             $data['chapterID'],
             $data['title'],

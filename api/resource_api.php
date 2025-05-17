@@ -1,16 +1,51 @@
 <?php
+$secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
 header("Content-Type: application/json");
 require_once __DIR__ . '/../service/service_resource.php';
 require_once __DIR__ . '/../service/service_response.php';
+require __DIR__ . '/../vendor/autoload.php';
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 $method = $_SERVER['REQUEST_METHOD'];
+$authHeader = apache_request_headers();
+$token = null;
+
+if (isset($authHeader['Authorization'])) {
+    if (preg_match('/Bearer\s(\S+)/', $authHeader['Authorization'], $matches)) {
+        $token = $matches[1];
+    }
+}
+
+if (!$token) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Không tìm thấy token xác thực.']);
+    exit;
+}
+
+try {
+    $decoded = JWT::decode($token, new Key($secretKey, 'HS256'));
+} catch (Firebase\JWT\ExpiredException $e) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Token đã hết hạn.']);
+    exit;
+} catch (Firebase\JWT\SignatureInvalidException $e) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Chữ ký token không hợp lệ.']);
+    exit;
+} catch (Exception $e) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Token không hợp lệ hoặc có lỗi xảy ra: ' . $e->getMessage()]);
+    exit;
+}
+
 $service = new ResourceService();
 $response = null;
 
 switch ($method) {
     case 'GET':
-        if (isset($_GET['id'])) {
-            $response = $service->get_resource_by_id($_GET['id']);
+        if (isset($_GET['resourceID'])) {
+            $response = $service->get_resource_by_id($_GET['resourceID']);
         } elseif (isset($_GET['lessonID'])) {
             $response = $service->get_resources_by_lesson($_GET['lessonID']);
         } else {

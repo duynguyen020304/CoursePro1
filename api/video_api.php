@@ -67,8 +67,9 @@ switch ($method) {
         $title     = $data['title'] ?? null;
         $sortOrder = isset($data['sortOrder']) ? intval($data['sortOrder']) : 0;
         // Phần POST:
-        $duration  = isset($data['duration']) ? intval($data['duration']) : null;
-        $resp = $service->create_video($data['lessonID'], $data['url'], $title, $sortOrder, $duration);
+        $duration  = isset($data['duration']) ? intval($data['duration']) : 0;
+        $videoID = $data['videoID'] ?? null;
+        $resp = $service->create_video($videoID,$data['lessonID'], $data['url'], $title, $sortOrder, $duration);
         http_response_code($resp->success ? 201 : 500);
         echo json_encode(['success' => $resp->success, 'message' => $resp->message, 'data' => $resp->data]);
         break;
