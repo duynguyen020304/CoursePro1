@@ -185,7 +185,7 @@ $courses    = ($courseResp['success'] && isset($courseResp['data']) && is_array(
                     <hr>
                     <div id="global-message"></div>
 
-                    <form id="addContentForm" action="../controller/c_video_api.php" method="POST">
+                    <form id="addContentForm" action="../controller/c_video.php" method="POST">
                         <div class="mb-3">
                             <label for="course_id" class="form-label"><strong>1. Chọn Khóa học:</strong> <span class="text-danger">*</span></label>
                             <select id="course_id" name="course_id" class="form-select" required>
@@ -233,7 +233,7 @@ $courses    = ($courseResp['success'] && isset($courseResp['data']) && is_array(
 
                             <div class="mt-4">
                                 <button type="button" id="saveAllContentButton" class="btn btn-primary">
-                                    <i class="bi bi-save-fill"></i> Lưu Chương Mới Lên Server
+                                    <i class="bi bi-save-fill"></i> Lưu Thay Đổi
                                 </button>
                                 <a href="course-management.php" class="btn btn-secondary">
                                     <i class="bi bi-arrow-left"></i> Quay lại Quản lý khóa học
@@ -264,7 +264,7 @@ $courses    = ($courseResp['success'] && isset($courseResp['data']) && is_array(
                         <textarea id="lesson-content" class="form-control" rows="4"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Ảnh đại diện (tùy chọn)</label>
+                        <label class="form-label">Thumbnail (tùy chọn)</label>
                         <input type="file" id="lesson-image" class="form-control" accept="image/*">
                     </div>
                     <div class="mb-3">
@@ -272,10 +272,7 @@ $courses    = ($courseResp['success'] && isset($courseResp['data']) && is_array(
                         <select id="video-source" class="form-select">
                             <option value="">Chọn nguồn video</option>
                             <option value="mp4">HTML5 (mp4)</option>
-                            <option value="external">External URL</option>
                             <option value="youtube">YouTube</option>
-                            <option value="vimeo">Vimeo</option>
-                            <option value="embedded">Embedded</option>
                         </select>
                     </div>
                     <div id="video-url-group" class="mb-3" style="display:none;">
@@ -309,7 +306,7 @@ $courses    = ($courseResp['success'] && isset($courseResp['data']) && is_array(
     <script src="js/bootstrap.bundle.min.js"></script>
     <script>
         const API_BASE_URL = '<?= API_BASE ?>';
-        const CHAPTER_SAVE_URL = '<?= htmlspecialchars((string)($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? '') . dirname($_SERVER['SCRIPT_NAME']) . '/../controller/c_video_api.php') ?>';
+        const CHAPTER_SAVE_URL = '<?= htmlspecialchars((string)($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? '') . dirname($_SERVER['SCRIPT_NAME']) . '/../controller/c_video.php') ?>';
 
         $(function() {
             function showGlobalMessage(message, type = 'info', autoDismissDelay = 0) {
@@ -350,9 +347,9 @@ $courses    = ($courseResp['success'] && isset($courseResp['data']) && is_array(
                         ${isExisting ? '<span class="badge bg-info ms-2">Đã lưu</span>' : '<span class="badge bg-warning ms-2">Chưa lưu</span>'}
                     </div>
                     <div>
-                      <button class="btn btn-sm btn-outline-primary btn-add-lesson" title="Thêm Bài học"><i class="bi bi-plus-circle"></i> Bài học</button>
-                      <button class="btn btn-sm btn-outline-info btn-add-quiz" title="Thêm Câu hỏi (chưa hoạt động)"><i class="bi bi-patch-question"></i> Câu hỏi</button>
-                      <button class="btn btn-sm btn-outline-danger btn-delete-topic" title="Xóa Chương này (cục bộ)"><i class="bi bi-trash"></i></button>
+                      <button type="button" class="btn btn-sm btn-outline-primary btn-add-lesson" title="Thêm Bài học"><i class="bi bi-plus-circle"></i> Bài học</button>
+                      <button type="button" class="btn btn-sm btn-outline-info btn-add-quiz" title="Thêm Câu hỏi (chưa hoạt động)"><i class="bi bi-patch-question"></i> Câu hỏi</button>
+                      <button type="button" class="btn btn-sm btn-outline-danger btn-delete-topic" title="Xóa Chương này (cục bộ)"><i class="bi bi-trash"></i></button>
                     </div>
                   </div>
                   <div class="card-body p-2" style="display: none;"> <p class="card-text small text-muted">${description || 'Không có mô tả.'}</p>
@@ -507,7 +504,7 @@ $courses    = ($courseResp['success'] && isset($courseResp['data']) && is_array(
             $('#video-source').on('change', function() {
                 const selectedSource = this.value;
                 $('#video-file-group').toggle(selectedSource === 'mp4');
-                $('#video-url-group').toggle(['external', 'youtube', 'vimeo', 'embedded'].includes(selectedSource));
+                $('#video-url-group').toggle(['youtube'].includes(selectedSource));
             });
 
             $('#lessonModal').on('hidden.bs.modal', function() {

@@ -37,7 +37,7 @@ class CourseService
 
     public function create_course(string $title, ?string $description, float $price, array $instructorID, array $categoryIDs, string $createdBy): ServiceResponse
     {
-        $courseID = uniqid('course_');
+        $courseID = str_replace('.', '_', uniqid('course_', true));
         // $now = date('Y-m-d H:i:s');
 //        $created_user = $this->userBll->get_user_by_id($createdBy);
         $dto = new CourseDTO($courseID, $title, $description, $price, $createdBy);

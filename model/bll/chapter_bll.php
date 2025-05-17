@@ -6,7 +6,7 @@ class ChapterBLL extends Database
 {
     public function get_all_chapters()
     {
-        $rows = $this->fetchAll("SELECT * FROM `Chapter` ORDER BY SortOrder ASC");
+        $rows = $this->fetchAll("SELECT * FROM `CourseChapter` ORDER BY SortOrder ASC");
         $list = [];
         foreach ($rows as $row) {
             $list[] = new ChapterDTO(
@@ -22,7 +22,7 @@ class ChapterBLL extends Database
 
     public function get_chapter_by_id(string $chapterID)
     {
-        $rows = $this->fetchRow("SELECT * FROM `Chapter` WHERE ChapterID = '{$chapterID}'");
+        $rows = $this->fetchRow("SELECT * FROM `CourseChapter` WHERE ChapterID = '{$chapterID}'");
         if (!$rows) {
             return null;
         }
@@ -41,7 +41,7 @@ class ChapterBLL extends Database
 
     public function get_chapter_by_courseID(string $courseID): array
     {
-        $sql = "SELECT * FROM `Chapter` WHERE `CourseID` = '{$courseID}' ORDER BY SortOrder ASC";
+        $sql = "SELECT * FROM `CourseChapter` WHERE `CourseID` = '{$courseID}' ORDER BY SortOrder ASC";
         $rows = $this->execute($sql);
         $list = [];
         while ($row = $rows->fetch_assoc()) {
@@ -78,7 +78,7 @@ class ChapterBLL extends Database
         $desc = $chapter->description !== null
             ? "'" . $this->conn->real_escape_string($chapter->description) . "'"
             : "NULL";
-        $sql = "INSERT INTO `Chapter` (ChapterID, CourseID, Title, Description, SortOrder)
+        $sql = "INSERT INTO `CourseChapter` (ChapterID, CourseID, Title, Description, SortOrder)
                 VALUES (
                   '{$chapter->chapterID}',
                   '{$chapter->courseID}',
@@ -94,7 +94,7 @@ class ChapterBLL extends Database
         $desc = $chapter->description !== null
             ? "'" . $this->conn->real_escape_string($chapter->description) . "'"
             : "NULL";
-        $sql = "UPDATE `Chapter` SET
+        $sql = "UPDATE `CourseChapter` SET
                     CourseID    = '{$chapter->courseID}',
                     Title       = '{$this->conn->real_escape_string($chapter->title)}',
                     Description = {$desc},
@@ -105,7 +105,7 @@ class ChapterBLL extends Database
 
     public function delete_chapter(string $chapterID)
     {
-        $sql = "DELETE FROM `Chapter` WHERE ChapterID = '{$chapterID}'";
+        $sql = "DELETE FROM `CourseChapter` WHERE ChapterID = '{$chapterID}'";
         return $this->execute($sql) === true;
     }
 }

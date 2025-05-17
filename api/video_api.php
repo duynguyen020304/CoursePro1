@@ -66,7 +66,9 @@ switch ($method) {
         }
         $title     = $data['title'] ?? null;
         $sortOrder = isset($data['sortOrder']) ? intval($data['sortOrder']) : 0;
-        $resp = $service->create_video($data['lessonID'], $data['url'], $title, $sortOrder);
+        // Phần POST:
+        $duration  = isset($data['duration']) ? intval($data['duration']) : null;
+        $resp = $service->create_video($data['lessonID'], $data['url'], $title, $sortOrder, $duration);
         http_response_code($resp->success ? 201 : 500);
         echo json_encode(['success' => $resp->success, 'message' => $resp->message, 'data' => $resp->data]);
         break;
@@ -80,7 +82,9 @@ switch ($method) {
         }
         $title     = $data['title'] ?? null;
         $sortOrder = isset($data['sortOrder']) ? intval($data['sortOrder']) : 0;
-        $resp = $service->update_video($data['videoID'], $data['lessonID'], $data['url'], $title, $sortOrder);
+        // Phần PUT:
+        $duration  = isset($data['duration']) ? intval($data['duration']) : null;
+        $resp = $service->update_video($data['videoID'], $data['lessonID'], $data['url'], $title, $sortOrder, $duration);
         http_response_code($resp->success ? 200 : 500);
         echo json_encode(['success' => $resp->success, 'message' => $resp->message]);
         break;

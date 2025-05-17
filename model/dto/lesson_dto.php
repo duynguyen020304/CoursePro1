@@ -1,8 +1,5 @@
 <?php
 
-use DateTime;
-
-require_once("../database.php");
 class LessonDTO
 {
     public string $lessonID;

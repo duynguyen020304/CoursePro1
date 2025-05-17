@@ -6,7 +6,7 @@ class LessonBLL extends Database
     public function create_lesson(LessonDTO $l)
     {
         $content = $l->content ? "'{$l->content}'" : 'NULL';
-        $sql = "INSERT INTO Lesson (LessonID, CourseID, ChapterID, Title, Content, SortOrder) VALUES ('{$l->lessonID}', '{$l->courseID}', '{$l->chapterID}', '{$l->title}', {$content}, {$l->sortOrder})";
+        $sql = "INSERT INTO CourseLesson (LessonID, CourseID, ChapterID, Title, Content, SortOrder) VALUES ('{$l->lessonID}', '{$l->courseID}', '{$l->chapterID}', '{$l->title}', {$content}, {$l->sortOrder})";
         $result = $this->execute($sql);
         // $this->close();
         return $result === true && $this->getAffectedRows() === 1;
@@ -14,7 +14,7 @@ class LessonBLL extends Database
 
     public function delete_lesson(string $lid)
     {
-        $sql = "DELETE FROM Lesson WHERE LessonID = '{$lid}'";
+        $sql = "DELETE FROM CourseLesson WHERE LessonID = '{$lid}'";
         $result = $this->execute($sql);
         // $this->close();
         return $result === true && $this->getAffectedRows() === 1;
@@ -23,7 +23,7 @@ class LessonBLL extends Database
     public function update_lesson(LessonDTO $l)
     {
         $content = $l->content ? "Content = '{$l->content}'," : '';
-        $sql = "UPDATE Lesson SET Title = '{$l->title}', {$content} SortOrder = {$l->sortOrder} WHERE LessonID = '{$l->lessonID}'";
+        $sql = "UPDATE CourseLesson SET Title = '{$l->title}', {$content} SortOrder = {$l->sortOrder} WHERE LessonID = '{$l->lessonID}'";
         $result = $this->execute($sql);
         // $this->close();
         return $result === true;
@@ -31,7 +31,7 @@ class LessonBLL extends Database
 
     public function get_lesson(string $lid): ?LessonDTO
     {
-        $sql = "SELECT * FROM Lesson WHERE LessonID = '{$lid}'";
+        $sql = "SELECT * FROM CourseLesson WHERE LessonID = '{$lid}'";
         $result = $this->execute($sql);
         $dto = null;
         if ($row = $result->fetch_assoc()) {
@@ -43,7 +43,7 @@ class LessonBLL extends Database
 
     public function get_lessons_by_chapter(string $chapterID): array
     {
-        $sql = "SELECT * FROM Lesson WHERE ChapterID = '{$chapterID}' ORDER BY SortOrder";
+        $sql = "SELECT * FROM CourseLesson WHERE ChapterID = '{$chapterID}' ORDER BY SortOrder";
         $result = $this->execute($sql);
         $lessons = [];
         while ($row = $result->fetch_assoc()) {

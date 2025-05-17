@@ -4,6 +4,7 @@
       "ext-fileinfo": "*",
         "firebase/php-jwt": "^6.11",
       "ext-curl": "*",
-      "ext-mysqli": "*"
+      "ext-mysqli": "*",
+        "php-ffmpeg/php-ffmpeg": "^1.3"
     }
 }

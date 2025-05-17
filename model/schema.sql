@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS CourseCategory (
 
 
 -- 8. Chapter (các chương của mỗi course)
-CREATE TABLE IF NOT EXISTS Chapter (
+CREATE TABLE IF NOT EXISTS CourseChapter (
     ChapterID    VARCHAR(40) PRIMARY KEY,
     CourseID     VARCHAR(40) NOT NULL,
     Title        VARCHAR(255) NOT NULL,
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS Chapter (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 9. Lesson (thuộc về một chương và một course)
-CREATE TABLE IF NOT EXISTS Lesson (
+CREATE TABLE IF NOT EXISTS CourseLesson (
     LessonID    VARCHAR(40) PRIMARY KEY,
     CourseID    VARCHAR(40) NOT NULL,
     ChapterID   VARCHAR(40) NOT NULL,
@@ -216,19 +216,30 @@ CREATE TABLE IF NOT EXISTS Lesson (
     Content     TEXT,
     SortOrder   INT NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (CourseID)  REFERENCES Course(CourseID),
-    FOREIGN KEY (ChapterID) REFERENCES Chapter(ChapterID)
+    FOREIGN KEY (CourseID)  REFERENCES CourseChapter(CourseID),
+    FOREIGN KEY (ChapterID) REFERENCES CourseChapter(ChapterID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 10. Video (thuộc về một lesson)
-CREATE TABLE IF NOT EXISTS Video (
+CREATE TABLE IF NOT EXISTS CourseVideo (
     VideoID    VARCHAR(40) PRIMARY KEY,
     LessonID   VARCHAR(40) NOT NULL,
     Url        VARCHAR(255) NOT NULL,
     Title      VARCHAR(255),
+    Duration   INT NOT NULL DEFAULT 0,
     SortOrder  INT NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (LessonID) REFERENCES Lesson(LessonID)
+    FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS CourseResource (
+    ResourceID    VARCHAR(40) PRIMARY KEY,
+    LessonID   VARCHAR(40) NOT NULL,
+    ResourcePath        VARCHAR(255) NOT NULL,
+    Title      VARCHAR(255),
+    SortOrder  INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 11. CourseImage (hình ảnh minh họa cho course)

@@ -42,7 +42,7 @@ class LessonService
     /** Tạo mới lesson */
     public function create_lesson(string $courseID, string $chapterID, string $title, ?string $content, int $sortOrder): ServiceResponse
     {
-        $lessonID = uniqid('lesson_', true);
+        $lessonID = str_replace('.', '_', uniqid('lesson_', true));
         $dto = new LessonDTO($lessonID, $courseID, $chapterID, $title, $content, $sortOrder);
         try {
             $ok = $this->bll->create_lesson($dto);
