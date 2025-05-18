@@ -17,14 +17,59 @@ class Database
     public function __construct()
     {
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
         try {
-            $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->dbname, $this->databasePort);
+            // Thử kết nối bình thường
+            $this->conn = new mysqli(
+                $this->host,
+                $this->user,
+                $this->pass,
+                $this->dbname,
+                $this->databasePort
+            );
             $this->conn->set_charset($this->charset);
-            // echo "kết nối database thành công";
+
         } catch (mysqli_sql_exception $e) {
-            $this->handleException($e, 'Kết nối database thất bại');
+            // Nếu lỗi do database không tồn tại (code 1049), thì tạo database rồi kết nối lại
+            if ($e->getCode() === 1049) {
+                try {
+                    // Kết nối tạm tới server mà không chỉ định database
+                    $tmp = new mysqli(
+                        $this->host,
+                        $this->user,
+                        $this->pass,
+                        '',
+                        $this->databasePort
+                    );
+                    // Tạo database mới
+                    $tmp->query(
+                        "CREATE DATABASE IF NOT EXISTS `{$this->dbname}` 
+                     CHARACTER SET {$this->charset} 
+                     COLLATE {$this->charset}_unicode_ci"
+                    );
+                    $tmp->close();
+
+                    // Quay lại kết nối chính với database vừa tạo
+                    $this->conn = new mysqli(
+                        $this->host,
+                        $this->user,
+                        $this->pass,
+                        $this->dbname,
+                        $this->databasePort
+                    );
+                    $this->conn->set_charset($this->charset);
+
+                } catch (mysqli_sql_exception $e2) {
+                    // Tạo database cũng thất bại
+                    $this->handleException($e2, 'Tạo database thất bại');
+                }
+            } else {
+                // Lỗi khác khi kết nối
+                $this->handleException($e, 'Kết nối database thất bại');
+            }
         }
     }
+
 
     public function isConnected(): bool
     {
