@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $apiBaseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
     . "://" . $_SERVER['HTTP_HOST']
     . dirname(dirname($_SERVER['SCRIPT_NAME']))
-    . '/api/course_api.php';
+    . '/api/course_api';
 
 $act = '';
 $method = $_SERVER['REQUEST_METHOD'];

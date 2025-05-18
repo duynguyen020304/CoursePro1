@@ -26,19 +26,40 @@ class CourseObjectiveBLL extends Database
         return $result === true && $this->getAffectedRows() === 1;
     }
 
-    public function get_by_id(string $objectiveID): ?CourseObjectiveDTO
+    public function get_by_id(string $objectivetID): array
     {
-        $sql = "SELECT * FROM `CourseObjective` WHERE ObjectiveID = '{$objectiveID}'";
+        $sql = "SELECT * FROM `CourseObjective` WHERE ObjectiveID = '{$objectivetID}'";
         $result = $this->execute($sql);
-        if ($row = $result->fetch_assoc()) {
-            return new CourseObjectiveDTO(
-                $row['ObjectiveID'],
-                $row['CourseID'],
-                $row['Objective']
-            );
+        $objectives=[];
+        if ($result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
+                $objectives[] = new CourseObjectiveDTO(
+                    $row['ObjectiveID'],
+                    $row['CourseID'],
+                    $row['Objective']
+                );
+            }
         }
-        return null;
+        return $objectives;
     }
+
+    public function get_by_course_id(string $courseID): array
+    {
+        $sql = "SELECT * FROM `CourseObjective` WHERE CourseID = '{$courseID}'";
+        $result = $this->execute($sql);
+        $objectives=[];
+        if ($result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
+                $objectives[] = new CourseObjectiveDTO(
+                    $row['ObjectiveID'],
+                    $row['CourseID'],
+                    $row['Objective']
+                );
+            }
+        }
+        return $objectives;
+    }
+
 
     public function get_all_by_course(string $courseID): array
     {

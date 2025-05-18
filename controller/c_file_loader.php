@@ -230,7 +230,6 @@ switch ($act) {
             readfile($imagePath);
             exit;
         } else {
-            // Log error: error_log("Image not found: " . $imagePath);
             http_response_code(404); // Not Found
             exit;
         }

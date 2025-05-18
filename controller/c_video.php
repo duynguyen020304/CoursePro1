@@ -166,7 +166,7 @@ if ($requestMethod === 'POST') {
             $videoFileSize = $videoFile['size'];
             $videoFileExtension = strtolower(pathinfo($originalVideoFileName, PATHINFO_EXTENSION));
 
-            $allowedVideoExtensions = ['mp4', 'mov', 'avi', 'webm', 'mkv'];
+            $allowedVideoExtensions = ['mp4'];
             $maxVideoFileSize = 200 * 1024 * 1024;
 
             if (!in_array($videoFileExtension, $allowedVideoExtensions)) {
