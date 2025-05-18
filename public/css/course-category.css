@@ -1,0 +1,123 @@
+/* Kiểu chữ tùy chỉnh */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa; /* Bootstrap's bg-light color */
+    padding-top: 50px;
+}
+
+/* Màu tím tùy chỉnh */
+:root {
+    --custom-purple: #6f42c1; /* Chọn một màu tím bạn thích */
+    --custom-purple-darker: #5a359a;
+    --custom-purple-rgb: 111, 66, 193;
+    --custom-orange: #fd7e14;
+}
+
+.text-custom-purple {
+    color: var(--custom-purple) !important;
+}
+
+.btn-custom-purple {
+    background-color: var(--custom-purple);
+    border-color: var(--custom-purple);
+    color: #fff;
+}
+
+.btn-custom-purple:hover {
+    background-color: var(--custom-purple-darker);
+    border-color: var(--custom-purple-darker);
+    color: #fff;
+}
+
+/* Tùy chỉnh form input và select */
+.form-check-input:checked {
+    background-color: var(--custom-purple);
+    border-color: var(--custom-purple);
+}
+
+.form-check-input:focus {
+    border-color: var(--custom-purple-darker);
+    box-shadow: 0 0 0 0.25rem rgba(var(--custom-purple-rgb), 0.25);
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--custom-purple-darker);
+    box-shadow: 0 0 0 0.25rem rgba(var(--custom-purple-rgb), 0.25);
+}
+
+/* Tùy chỉnh pagination */
+.pagination .page-item.active .page-link {
+    background-color: var(--custom-purple);
+    border-color: var(--custom-purple);
+    color: #fff; /* Đảm bảo text màu trắng trên nền active */
+}
+.pagination .page-item.active .page-link:hover {
+    color: #fff; /* Giữ màu trắng khi hover trên item active */
+}
+
+.pagination .page-link {
+    color: var(--custom-purple); /* Màu chữ cho các link pagination */
+}
+
+.pagination .page-link:hover {
+    color: var(--custom-purple-darker);
+    background-color: #e9ecef; /* Màu nền khi hover */
+}
+.pagination .page-item.disabled .page-link {
+    color: #6c757d; /* Màu chữ cho item disabled */
+}
+
+
+/* Đảm bảo các biểu tượng sao được hiển thị cùng dòng và có màu */
+.star-rating span {
+    display: inline-block;
+    vertical-align: middle;
+}
+.rating-stars .fa-star, .rating-stars .fa-star-half-alt {
+    color: #ffc107; /* Bootstrap's $warning color */
+}
+.rating-stars .far.fa-star { /* Sao rỗng */
+    color: #adb5bd; /* Màu xám nhạt cho sao rỗng */
+}
+
+
+/* Hiệu ứng hover cho course card */
+.course-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; /* Bootstrap's shadow-lg */
+}
+
+.course-title-link {
+    text-decoration: none;
+    color: #212529; /* Bootstrap's default text color */
+}
+.course-title-link:hover {
+    color: var(--custom-purple);
+}
+
+.rating-value {
+    color: var(--custom-orange);
+}
+
+/* Điều chỉnh layout card cho phù hợp hơn */
+@media (min-width: 992px) { /* lg breakpoint */
+    .course-card .col-lg-4 img {
+        height: 100%; /* Đảm bảo ảnh chiếm toàn bộ chiều cao của card trên màn hình lớn */
+        min-height: 150px; /* Chiều cao tối thiểu cho ảnh */
+    }
+}
+
+/* Đảm bảo sidebar filter có thể cuộn nếu nội dung quá dài */
+#filterSidebar .filters-container {
+    max-height: calc(100vh - 200px); /* Điều chỉnh giá trị này nếu cần */
+    overflow-y: auto;
+}
+
+/* Căn chỉnh price section trong card */
+.price-section {
+    min-width: 120px; /* Đảm bảo có không gian tối thiểu cho giá */
+}
+
