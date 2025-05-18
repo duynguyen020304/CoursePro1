@@ -4,28 +4,21 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// --- Start: Determine API_BASE ---
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
 $host = $_SERVER['HTTP_HOST'];
-$script_path = $_SERVER['SCRIPT_NAME']; // e.g., /CoursePro1/admin/upload-video.php or /admin/upload-video.php
+$script_path = $_SERVER['SCRIPT_NAME'];
 
-// Try to find the application root more reliably
 $app_root_path_relative = '';
 $path_segments = explode('/', trim($script_path, '/'));
 
 if (!empty($path_segments)) {
-    // Common first directory names for web apps if not in root
-    $potential_app_dirs = ['coursepro1', 'app', 'webapp', 'src']; // Add your project's root folder name if it's in a subfolder of htdocs/www
+    $potential_app_dirs = ['coursepro1', 'app', 'webapp', 'src'];
 
-    // Check if the first segment is a known app directory or if it's directly in admin/api etc.
     if (in_array(strtolower($path_segments[0]), $potential_app_dirs, true) && count($path_segments) > 1) {
         $app_root_path_relative = '/' . $path_segments[0];
     } elseif (count($path_segments) > 0 && !in_array(strtolower($path_segments[0]), ['admin', 'api', 'controller', 'view', 'includes'])) {
-        // If the first segment is not a typical functional subdir, it might be the app root itself
         $app_root_path_relative = '/' . $path_segments[0];
     } else {
-        // If script is like /admin/file.php, app root is likely empty (meaning domain root)
-        // Or if it's /CoursePro1/admin/file.php, $app_root_path_relative should be /CoursePro1
         $path_before_admin_api = $script_path;
         $markers = ['/admin/', '/api/', '/controller/', '/views/', '/pages/'];
         foreach($markers as $marker){
@@ -44,16 +37,13 @@ if (!empty($path_segments)) {
         }
     }
 }
-// Ensure it starts with a slash if not empty, and remove trailing slash
+
 if (!empty($app_root_path_relative) && $app_root_path_relative[0] !== '/') {
     $app_root_path_relative = '/' . $app_root_path_relative;
 }
 $app_root_path_relative = rtrim($app_root_path_relative, '/');
 
-
 define('API_BASE', $protocol . '://' . $host . $app_root_path_relative . '/api');
-// --- End: Determine API_BASE ---
-
 
 function callApiForView(string $endpoint, string $method = 'GET', array $payload = []): array
 {
@@ -81,7 +71,7 @@ function callApiForView(string $endpoint, string $method = 'GET', array $payload
             'method'        => $methodUpper,
             'header'        => $headers,
             'ignore_errors' => true,
-            'timeout'       => 30
+            'timeout'       => 5000
         ]
     ];
 
@@ -220,7 +210,7 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 70px; /* Adjusted height */
+            min-height: 70px;
         }
         .lesson-item.existing-lesson .badge.bg-success {
             font-size: 0.75em;
@@ -419,7 +409,7 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
             const lessonId = lesson.lessonID;
             let videoHtml = '<p class="lesson-video-info text-muted small">Không có video.</p>';
             if (videoDataArray && videoDataArray.length > 0) {
-                const firstVideo = videoDataArray[0]; // Assuming one video per lesson for now, or display first
+                const firstVideo = videoDataArray[0];
                 videoHtml = `<p class="lesson-video-info">
                                     <i class="bi bi-play-circle-fill me-1"></i>
                                     <strong>Video:</strong> ${$('<div>').text(firstVideo.title || firstVideo.url).html()}
@@ -438,9 +428,7 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
                 resourcesHtml = '<p class="small text-muted">Không có tài liệu đính kèm.</p>';
             }
 
-            // Determine if lesson is newly saved or fetched (for badge, not fully implemented here yet)
             const statusBadge = lesson.isNew ? '<span class="badge bg-success ms-2">Đã lưu</span>' : '<span class="badge bg-info ms-2">Đã tải</span>';
-
 
             return `
                 <li class="list-group-item lesson-item existing-lesson" id="${lessonId}" data-lesson-id="${lessonId}">
@@ -469,7 +457,6 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
             return durationString;
         }
 
-
         async function fetchLessonDetailsAndRender(lesson, $lessonsListUl) {
             if (!lesson || !lesson.lessonID) return;
 
@@ -491,7 +478,7 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
                 const videoResult = videoResponse.ok ? await videoResponse.json() : { success: false, data: [], message: `Video API Error ${videoResponse.status}` };
                 const resourceResult = resourceResponse.ok ? await resourceResponse.json() : { success: false, data: [], message: `Resource API Error ${resourceResponse.status}`};
 
-                $(`#${tempLessonItemId}`).remove(); // Remove temporary loading item
+                $(`#${tempLessonItemId}`).remove();
 
                 const lessonHtml = createLessonItemHtml(lesson, videoResult.data || [], resourceResult.data || []);
                 $lessonsListUl.append(lessonHtml);
@@ -507,7 +494,7 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
             const $noLessonsYetMsg = $lessonsListUl.find('.no-lessons-yet');
 
             $chapterItem.data('lessons-loading', true);
-            $noLessonsYetMsg.hide(); // Hide initial message
+            $noLessonsYetMsg.hide();
             $lessonsListUl.html('<div class="lessons-spinner-container"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải bài học...</span></div> <span class="ms-2 text-muted small">Đang tải bài học...</span></div>');
 
             try {
@@ -523,11 +510,11 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
                     throw new Error(`Lỗi ${response.status}: ${errorData.message || response.statusText}`);
                 }
                 const result = await response.json();
-                $lessonsListUl.empty(); // Clear spinner
+                $lessonsListUl.empty();
 
                 if (result.success && result.data && result.data.length > 0) {
                     for (const lesson of result.data) {
-                        await fetchLessonDetailsAndRender(lesson, $lessonsListUl); // Wait for each lesson's details
+                        await fetchLessonDetailsAndRender(lesson, $lessonsListUl);
                     }
                     $chapterItem.data('lessons-loaded', true);
                 } else if (result.success && (!result.data || result.data.length === 0)) {
@@ -540,7 +527,7 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
                 $lessonsListUl.html(`<li class="list-group-item text-danger small">Lỗi kết nối hoặc xử lý khi tải bài học: ${error.message}</li>`);
             } finally {
                 $chapterItem.removeData('lessons-loading');
-                updateNoLessonsMessage(chapterId); // Final check for the message
+                updateNoLessonsMessage(chapterId);
             }
         }
 
@@ -549,7 +536,7 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
             const $lessonsList = $(`#${safeChapterId} .lessons`);
             const $noLessonsMsg = $lessonsList.find('.no-lessons-yet');
             if ($lessonsList.find('.lesson-item').length === 0 && $lessonsList.find('.lessons-spinner-container').length === 0) {
-                if($noLessonsMsg.length === 0){ // if message element doesn't exist, create it
+                if($noLessonsMsg.length === 0){
                     $lessonsList.append('<li class="list-group-item no-lessons-yet text-muted small">Chưa có bài học nào cho chương này.</li>');
                 } else {
                     $noLessonsMsg.text('Chưa có bài học nào cho chương này.').show();
@@ -588,6 +575,7 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
                         method: 'GET',
                         headers: headers
                     });
+
 
                     if (!response.ok) {
                         const errorData = await response.json().catch(() => ({ message: 'Lỗi không xác định.' }));
@@ -670,7 +658,7 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
                 return;
             }
 
-            $('#current-chapter-id-for-lesson').val(chapterIdForLesson); // Changed from current-topic-id...
+            $('#current-chapter-id-for-lesson').val(chapterIdForLesson);
             $('#lessonModalLabel').text('Thêm Bài học cho chương: ' + $topicItem.data('topic-name'));
 
             $('#lessonModal').find('input[type="text"], input[type="file"], input[type="number"], textarea, select').val('');
@@ -700,10 +688,9 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
                 return;
             }
             const $chapterItem = $(this).closest('.topic-item');
-            const chapterId = $chapterItem.data('chapter-id'); // Only for existing, server-saved chapters
+            const chapterId = $chapterItem.data('chapter-id');
 
             $(this).siblings('.card-body').slideToggle('fast', function() {
-                // After slide toggle completes, check if lessons need to be loaded
                 if ($(this).is(':visible') && chapterId &&
                     $chapterItem.data('lessons-loaded') !== true &&
                     $chapterItem.data('lessons-loading') !== true) {
@@ -730,10 +717,9 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
             const $saveButton = $(this);
             const originalButtonText = $saveButton.html();
 
-            const chapterId = $('#current-chapter-id-for-lesson').val(); // This is the ID of the chapter the lesson belongs to
+            const chapterId = $('#current-chapter-id-for-lesson').val();
             const courseId = $('#course_id').val();
             const lessonTitle = $('#lesson-title').val().trim();
-            // const lessonContent = $('#lesson-content').val().trim(); // If you send content
 
             const videoSource = $('#video-source').val();
             const videoUrlInput = $('#video-url').val().trim();
@@ -744,7 +730,6 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
             const durationMM = $('#video-mm').val() || '00';
             const durationSS = $('#video-ss').val() || '00';
             const durationForDisplay = `${durationHH}:${durationMM}:${durationSS}`;
-
 
             let validationError = false;
             if (!lessonTitle) { showGlobalMessage('Vui lòng nhập tiêu đề bài học.', 'warning'); validationError = true; }
@@ -760,17 +745,15 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
             const formData = new FormData();
             formData.append('action', 'save_lesson_content');
             formData.append('courseID', courseId);
-            formData.append('chapterID', chapterId); // Send chapterID to backend
+            formData.append('chapterID', chapterId);
             formData.append('lessonTitle', lessonTitle);
-            formData.append('videoTitle', lessonTitle); // Assuming video title is same as lesson title for now
-            // formData.append('lessonContent', lessonContent); // if API supports lesson content
+            formData.append('videoTitle', lessonTitle);
 
             if (videoSource === 'mp4' && videoFile) {
                 formData.append('video_file', videoFile, videoFile.name);
             } else if (videoSource === 'youtube' && videoUrlInput) {
                 formData.append('video_url', videoUrlInput);
             }
-            // formData.append('duration', totalSeconds); // If API expects total seconds
 
             resourceFiles.forEach((file) => {
                 formData.append('resource_files[]', file, file.name);
@@ -788,15 +771,13 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
                 if (response.ok && result.success) {
                     showGlobalMessage(`Bài học "${lessonTitle}" đã lưu thành công. ${result.message || ''}`, 'success');
 
-                    // Assuming server returns the newly created lessonID, video details, and resource details
-                    // For example: result.data.newLesson.lessonID, result.data.video, result.data.resources
                     const newLessonData = {
-                        lessonID: result.data.newLessonID || 'lesson-' + Date.now(), // IMPORTANT: Expecting newLessonID from server
+                        lessonID: result.data.newLessonID || 'lesson-' + Date.now(),
                         title: lessonTitle,
-                        isNew: true // Flag to differentiate from fetched lessons if needed for styling
+                        isNew: true
                     };
-                    const videoDetailsArray = result.data.video ? [result.data.video] : []; // video is an object
-                    const resourcesDetailsArray = result.data.resources || []; // resources is an array
+                    const videoDetailsArray = result.data.video ? [result.data.video] : [];
+                    const resourcesDetailsArray = result.data.resources || [];
 
                     const lessonItemHtml = createLessonItemHtml(newLessonData, videoDetailsArray, resourcesDetailsArray);
 
@@ -889,7 +870,7 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
                         if (result.data && result.data.chapterID) {
                             $savedTopicEl.attr('id', result.data.chapterID);
                             $savedTopicEl.attr('data-chapter-id', result.data.chapterID);
-                            if ($('#current-chapter-id-for-lesson').val() === item.localId) { // Update if it was selected for lesson
+                            if ($('#current-chapter-id-for-lesson').val() === item.localId) {
                                 $('#current-chapter-id-for-lesson').val(result.data.chapterID);
                             }
                         }

@@ -42,7 +42,7 @@ function callApi(string $url, string $requestMethod, array $payload = []): array
             'method' => $methodUpper,
             'header' => $headers,
             'ignore_errors' => true,
-            'timeout' => 15
+            'timeout' => 5000
         ]
     ];
 
