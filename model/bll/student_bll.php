@@ -39,6 +39,18 @@ class StudentBLL extends Database
         return $dto;
     }
 
+    public function get_student_by_user_id(string $stuID): ?StudentDTO
+    {
+        $sql = "SELECT * FROM `Student` WHERE UserID = '{$stuID}'";
+        $result = $this->execute($sql);
+        $dto = null;
+        if ($row = $result->fetch_assoc()) {
+            $dto = new StudentDTO($row['StudentID'], $row['UserID']);
+        }
+        // $this->close();
+        return $dto;
+    }
+
     public function get_all_students(): array
     {
         $sql = "SELECT * FROM `Student`";

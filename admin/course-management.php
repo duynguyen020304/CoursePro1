@@ -5,10 +5,8 @@ if (session_status() == PHP_SESSION_NONE) {
 
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
 $host = $_SERVER['HTTP_HOST'];
-$script_path = $_SERVER['SCRIPT_NAME']; // e.g., /CoursePro1/admin/course-management.php
+$script_path = $_SERVER['SCRIPT_NAME'];
 
-// Determine the application root path relative to the web server's document root.
-// This logic aims to find the base path of the application, e.g., /CoursePro1
 $app_root_path_relative = '';
 $path_parts = explode('/', trim($script_path, '/'));
 
@@ -17,30 +15,18 @@ if (count($path_parts) > 1) {
     if ($admin_pos !== false) {
         $app_root_path_relative = substr($script_path, 0, $admin_pos);
     } else {
-        // Fallback if not in /admin/ - might need adjustment based on actual structure
-        // This attempts to go up two directories if script is like /app/module/script.php
         $app_root_path_relative = dirname(dirname($script_path));
-        // If dirname(dirname()) results in '/' or '\', it means the app is likely at the domain root
-        // or the script is not nested as expected (e.g. /module/script.php at root)
         if ($app_root_path_relative === '/' || $app_root_path_relative === '\\') {
-            // Check if the original script_path was also just one level deep from root like /script.php
-            // If script_path is /foo/bar.php, dirname(dirname()) is /
-            // If script_path is /bar.php, dirname(dirname()) is . on some systems, or / on others.
-            // A more reliable check might be if path_parts[0] is the script itself.
             if (count($path_parts) <= 1 || $path_parts[0] === basename($script_path)) {
-                $app_root_path_relative = ''; // App is at the domain root
+                $app_root_path_relative = '';
             }
-            // If $app_root_path_relative is still '/' it means script is /something/script.php
-            // and app root is /something. This should be fine.
         }
     }
 }
 $app_root_path_relative = rtrim($app_root_path_relative, '/');
 
-
 define('APP_ROOT_URL_BASE', $protocol . '://' . $host . $app_root_path_relative);
-define('API_BASE', APP_ROOT_URL_BASE . '/api'); // Used by PHP callApi
-// APP_BASE_PATH_FOR_IMAGES is kept for potential other uses, but image serving will now use a script.
+define('API_BASE', APP_ROOT_URL_BASE . '/api');
 define('APP_BASE_PATH_FOR_IMAGES', $app_root_path_relative);
 
 function callApi(string $endpoint, string $method = 'GET', array $payload = []): array
@@ -164,7 +150,6 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
 
         .modal-dialog-scrollable .modal-body {
             max-height: calc(100vh - 260px);
-            /* Adjust as needed */
             overflow-y: auto;
         }
 
@@ -379,20 +364,12 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
     </div>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script>
-        // Constants for API and image paths defined by PHP
         const API_BASE_URL = '<?= API_BASE ?>';
-        // APP_IMG_BASE_PATH is no longer used for constructing the primary image src, 
-        // but kept for potential other uses.
         const APP_IMG_BASE_PATH = '<?= APP_BASE_PATH_FOR_IMAGES ?>';
         const USER_TOKEN = '<?= $_SESSION['user']['token'] ?? '' ?>';
-        // IMPORTANT: Define the name of your PHP script that handles image serving.
-        // This script should contain the 'serve_image' case you provided.
-        // Example: 'image_handler.php' or 'api_router.php' if it's a general router.
-        // Ensure this script is placed in your API directory (e.g., /api/image_handler.php)
-        const IMAGE_SERVING_SCRIPT_NAME = 'c_file_loader.php'; // <<< USER: PLEASE VERIFY/UPDATE THIS SCRIPT NAME
+        const IMAGE_SERVING_SCRIPT_NAME = 'c_file_loader.php';
         const PROJECT_BASE = '<?= APP_ROOT_URL_BASE ?>'
 
-        // --- Start Helper Functions ---
         function showAlert(message, type = 'success', duration = 3000) {
             const alertPlaceholder = document.getElementById('alertPlaceholder');
             const wrapper = document.createElement('div');
@@ -465,7 +442,6 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                 };
             }
         }
-        // --- End Helper Functions ---
 
         document.addEventListener('DOMContentLoaded', () => {
             const courseModal = new bootstrap.Modal(document.getElementById('courseModal'));
@@ -533,13 +509,13 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                 objectivesListDiv.innerHTML = '<div class="text-center text-muted p-2">Đang tải...</div>';
                 const response = await fetchApi(`course_objective_api.php?courseID=${courseID}`);
                 objectivesListDiv.innerHTML = '';
-                if (response.success && response.data && Array.isArray(response.data)) { // Ensure data is an array
+                if (response.success && response.data && Array.isArray(response.data)) {
                     if (response.data.length === 0) {
                         objectivesListDiv.innerHTML = '<div class="text-center text-muted p-2">Chưa có mục tiêu nào.</div>';
                     } else {
                         response.data.forEach(obj => renderObjective(obj));
                     }
-                } else if (!response.success || !response.data) { // Handle cases where data might be null or success is false
+                } else if (!response.success || !response.data) {
                     objectivesListDiv.innerHTML = `<div class="text-danger p-2">Lỗi tải mục tiêu: ${response.message || 'Không có dữ liệu hoặc lỗi không xác định.'}</div>`;
                 }
             }
@@ -623,13 +599,13 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                 requirementsListDiv.innerHTML = '<div class="text-center text-muted p-2">Đang tải...</div>';
                 const response = await fetchApi(`course_requirement_api.php?courseID=${courseID}`);
                 requirementsListDiv.innerHTML = '';
-                if (response.success && response.data && Array.isArray(response.data)) { // Ensure data is an array
+                if (response.success && response.data && Array.isArray(response.data)) {
                     if (response.data.length === 0) {
                         requirementsListDiv.innerHTML = '<div class="text-center text-muted p-2">Chưa có yêu cầu nào.</div>';
                     } else {
                         response.data.forEach(req => renderRequirement(req));
                     }
-                } else if (!response.success || !response.data) { // Handle cases where data might be null or success is false
+                } else if (!response.success || !response.data) {
                     requirementsListDiv.innerHTML = `<div class="text-danger p-2">Lỗi tải yêu cầu: ${response.message || 'Không có dữ liệu hoặc lỗi không xác định.'}</div>`;
                 }
             }
@@ -788,18 +764,13 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                         imagePreview.style.display = 'none';
                         imagePreview.removeAttribute('data-existing-url');
 
-                        // Load and display current course image using the new serving script method
                         if (currentCourseID) {
                             const imgResponse = await fetchApi(`course_image_api.php?courseID=${currentCourseID}`);
                             if (imgResponse.success && imgResponse.data && imgResponse.data.length > 0) {
-                                const imagePathFromServer = imgResponse.data[0].imagePath; // e.g., "uploads/course_xxxx/imagename.jpg"
+                                const imagePathFromServer = imgResponse.data[0].imagePath;
                                 if (imagePathFromServer) {
-                                    const imageName = imagePathFromServer.split('/').pop(); // Extracts "imagename.jpg"
-
-                                    // Construct URL to your image serving script
-                                    // USER: Ensure IMAGE_SERVING_SCRIPT_NAME is correctly defined at the top of this <script> block.
+                                    const imageName = imagePathFromServer.split('/').pop();
                                     const imageUrl = `${PROJECT_BASE}/controller/${IMAGE_SERVING_SCRIPT_NAME}?act=serve_image&course_id=${currentCourseID}&image=${encodeURIComponent(imageName)}`;
-
                                     imagePreview.src = imageUrl;
                                     imagePreview.style.display = 'block';
                                     imagePreview.dataset.existingUrl = imageUrl;

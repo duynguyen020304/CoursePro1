@@ -7,9 +7,7 @@ require_once __DIR__ . '/../model/dto/user_dto.php';
 require_once __DIR__ . '/../model/dto/instructor_dto.php';
 require_once __DIR__ . '/../model/dto/student_dto.php';
 require_once __DIR__ . '/../model/bll/student_bll.php';
-require_once __DIR__ . '/../model/bll/role_bll.php';
-require_once __DIR__ . '/../model/dto/role_dto.php';
-require_once __DIR__ . '/service_response.php';  // service_response nằm cùng thư mục
+require_once __DIR__ . '/service_response.php';
 
 class UserService
 {
@@ -33,43 +31,55 @@ class UserService
         return new ServiceResponse(true, 'Đăng nhập thành công', $user);
     }
 
-    public function create_user(string $email, string $password, string $firstName, string $lastName, string $role, ?string $profileImage = null): ServiceResponse
+    public function create_user(string $email, string $password, string $firstName, string $lastName, string $roleID, ?string $profileImage = null): ServiceResponse
     {
-        if ($role == "admin") {
-            return new ServiceResponse(false, "Không cho phép tạo tài khoản có role admin");
-        } else if ($role != "instructor" && $role != "student") {
-            return new ServiceResponse(false, "Vai trò không có trên hệ thống");
+        if ($roleID === "admin") {
+            return new ServiceResponse(false, "Không cho phép tạo tài khoản có vai trò admin qua chức năng này.");
         }
-        $userBll = new UserBLL();
-        $existing = $userBll->get_user_by_email($email);
+        if ($roleID !== "instructor" && $roleID !== "student") {
+        }
+
+        $existing = $this->userBll->get_user_by_email($email);
         if ($existing) {
             return new ServiceResponse(false, "Email đã được sử dụng");
         }
-        $userID = str_replace('.', '_', uniqid('user', true));
-        //        $fullName = trim($firstName . ' ' . $lastName);
 
-        $dto = new UserDTO($userID, $firstName, $lastName, $email, $password, $role, $profileImage);
-        if ($this->userBll->create_user($dto)) {
-            if ($role == "instructor") {
+        $userID = str_replace('.', '_', uniqid('user_', true));
+
+        $dto = new UserDTO($userID, $firstName, $lastName, $email, $password, $roleID, $profileImage);
+        $userCreated = $this->userBll->create_user($dto);
+
+        if ($userCreated) {
+            $roleSpecificSuccess = true;
+            $roleSpecificMessage = "";
+
+            if ($roleID === "instructor") {
                 $instructorDto = new InstructorDTO(
                     str_replace('.', '_', uniqid('instructor_', true)),
                     $userID
                 );
                 if (!$this->instructorBll->create_instructor($instructorDto)) {
-                    return new ServiceResponse(false, "Tạo tài khoản cho giảng viên thất bại");
+                    $roleSpecificSuccess = false;
+                    $roleSpecificMessage = "Tạo người dùng thành công nhưng tạo hồ sơ giảng viên thất bại.";
                 }
-            } else if ($role == "student") {
+            } elseif ($roleID === "student") {
                 $studentDto = new StudentDTO(
-                    str_replace('.', '_', uniqid('student', true)),
+                    str_replace('.', '_', uniqid('student_', true)),
                     $userID
                 );
                 if (!$this->studentBll->create_student($studentDto)) {
-                    return new ServiceResponse(false, "Tạo tài khoản cho học sinh thất bại");
+                    $roleSpecificSuccess = false;
+                    $roleSpecificMessage = "Tạo người dùng thành công nhưng tạo hồ sơ sinh viên thất bại.";
                 }
             }
-            return new ServiceResponse(true, "Tạo tài khoản thành công", $dto);
+
+            if ($roleSpecificSuccess) {
+                return new ServiceResponse(true, "Tạo tài khoản thành công", $dto);
+            } else {
+                return new ServiceResponse(true, $roleSpecificMessage ?: "Tạo người dùng thành công, không có hồ sơ vai trò cụ thể được tạo.", $dto);
+            }
         }
-        return new ServiceResponse(false, "Tạo tài khoản thất bại");
+        return new ServiceResponse(false, "Tạo tài khoản thất bại ở bước lưu người dùng.");
     }
 
     public function get_user_by_id(string $userID): ServiceResponse
@@ -84,6 +94,7 @@ class UserService
             return new ServiceResponse(false, 'Lỗi: ' . $e->getMessage());
         }
     }
+
     public function get_all_users(): ServiceResponse
     {
         try {
@@ -93,101 +104,135 @@ class UserService
             return new ServiceResponse(false, 'Lỗi: ' . $e->getMessage());
         }
     }
-    public function update_user_partial(array $data): ServiceResponse
+
+    public function update_user_partial(array $data, ?string $performingUserRoleID=null): ServiceResponse
     {
         try {
             if (empty($data['userID'])) {
-                return new ServiceResponse(false, 'Thiếu userID');
+                return new ServiceResponse(false, 'Thiếu userID để cập nhật.');
+            }
+            $userIDToUpdate = $data['userID'];
+
+            $existingUser = $this->userBll->get_user_by_id($userIDToUpdate, "update");
+            if (!$existingUser) {
+                return new ServiceResponse(false, 'Người dùng không tồn tại.');
             }
 
-            $existing = $this->userBll->get_user_by_id($data['userID'], "update");
-            if (!$existing) {
-                return new ServiceResponse(false, 'Người dùng không tồn tại');
-            }
+            $currentRoleID = $existingUser->roleID;
+            $newRoleID = $currentRoleID;
 
-            if (isset($data['isChangePassword']) && $data['isChangePassword'] && isset($data['currentPassword']) && isset($data['newPassword'])) {
-                if (!password_verify($data['currentPassword'], $existing->password)) {
-                    return new ServiceResponse(false, 'Đổi mật khẩu thất bại');
+            if (isset($data['roleID'])) {
+                $newRoleID = trim($data['roleID']);
+
+                if ($newRoleID === 'admin' && $performingUserRoleID !== 'admin') {
+                    return new ServiceResponse(false, 'Không có quyền thay đổi vai trò thành Admin.');
                 }
-                $newPassword = isset($data['newPassword'])
-                    ? password_hash($data['newPassword'], PASSWORD_DEFAULT)
-                    : $existing->password;
-
-                $newEmail =  $existing->email;
-
-                $newRole =  $existing->roleID;
-
-                $newFirstName = $existing->firstName;
-
-                $newLastName = $existing->lastName;
-
-                $newProfileImage = $existing->profileImage;
-
-                // Tạo DTO mới với đủ 6 tham số
-                $updated = new UserDTO(
-                    $existing->userID,
-                    $newFirstName,
-                    $newLastName,
-                    $newEmail,
-                    $newPassword,
-                    $newRole,
-                    $newProfileImage
-                );
-                if ($this->userBll->update_user($updated)) {
-                    return new ServiceResponse(true, 'Cập nhật người dùng thành công');
+                if ($currentRoleID === 'admin' && $performingUserRoleID !== 'admin' && $newRoleID !== 'admin') {
+                    return new ServiceResponse(false, 'Không có quyền thay đổi vai trò của Admin.');
                 }
-                return new ServiceResponse(false, 'Cập nhật người dùng thất bại');
-            }
-            else {
-                $newPassword = isset($data['password'])
-                    ? password_hash($data['password'], PASSWORD_DEFAULT)
-                    : $existing->password;
 
-                $newEmail =  $existing->email;
+                if ($newRoleID !== $currentRoleID) {
+                    if ($currentRoleID === 'instructor') {
+                        $instructorProfile = $this->instructorBll->get_instructor_by_user_id($userIDToUpdate);
+                        if ($instructorProfile) {
+                            $this->instructorBll->delete_instructor($instructorProfile->instructorID);
+                        }
+                    } elseif ($currentRoleID === 'student') {
+                        $studentProfile = $this->studentBll->get_student_by_user_id($userIDToUpdate);
+                        if ($studentProfile) {
+                            $this->studentBll->delete_student($studentProfile->studentID);
+                        }
+                    }
 
-                $newRole =  $existing->roleID;
-
-                $newFirstName = $data['firstName'] ?? $existing->firstName;
-
-                $newLastName = $data['lastName'] ?? $existing->lastName;
-
-                $newProfileImage = $data['profileImage'] ?? $existing->profileImage;
-
-                // Tạo DTO mới với đủ 6 tham số
-                $updated = new UserDTO(
-                    $existing->userID,
-                    $newFirstName,
-                    $newLastName,
-                    $newEmail,
-                    $newPassword,
-                    $newRole,
-                    $newProfileImage
-                );
-                if ($this->userBll->update_user($updated)) {
-                    return new ServiceResponse(true, 'Cập nhật người dùng thành công');
+                    if ($newRoleID === 'instructor') {
+                        $existingInstructor = $this->instructorBll->get_instructor_by_user_id($userIDToUpdate);
+                        if (!$existingInstructor) {
+                            $newInstructorID = str_replace('.', '_', uniqid('instructor_', true));
+                            $instructorDto = new InstructorDTO($newInstructorID, $userIDToUpdate);
+                            if (!$this->instructorBll->create_instructor($instructorDto)) {
+                                error_log("Failed to create instructor profile for user {$userIDToUpdate} during role change.");
+                            }
+                        }
+                    } elseif ($newRoleID === 'student') {
+                        $existingStudent = $this->studentBll->get_student_by_user_id($userIDToUpdate);
+                        if (!$existingStudent) {
+                            $newStudentID = str_replace('.', '_', uniqid('student_', true));
+                            $studentDto = new StudentDTO($newStudentID, $userIDToUpdate);
+                            if (!$this->studentBll->create_student($studentDto)) {
+                                error_log("Failed to create student profile for user {$userIDToUpdate} during role change.");
+                            }
+                        }
+                    }
                 }
-                return new ServiceResponse(false, 'Cập nhật người dùng thất bại');
             }
 
+            $newPasswordHash = $existingUser->password;
+            if (isset($data['isChangePassword']) && $data['isChangePassword'] === true) {
+                if (!isset($data['currentPassword'], $data['newPassword'])) {
+                    return new ServiceResponse(false, 'Thiếu mật khẩu hiện tại hoặc mật khẩu mới để thay đổi.');
+                }
+                if (!password_verify($data['currentPassword'], $existingUser->password)) {
+                    return new ServiceResponse(false, 'Mật khẩu hiện tại không đúng.');
+                }
+                if (empty(trim($data['newPassword']))) {
+                    return new ServiceResponse(false, 'Mật khẩu mới không được để trống.');
+                }
+                $newPasswordHash = password_hash($data['newPassword'], PASSWORD_DEFAULT);
+            } elseif (isset($data['password']) && !empty($data['password'])) {
+                $newPasswordHash = password_hash($data['password'], PASSWORD_DEFAULT);
+            }
+
+            $updatedUserDto = new UserDTO(
+                $existingUser->userID,
+                $data['firstName'] ?? $existingUser->firstName,
+                $data['lastName'] ?? $existingUser->lastName,
+                $existingUser->email,
+                $newPasswordHash,
+                $newRoleID,
+                $data['profileImage'] ?? $existingUser->profileImage
+            );
+
+            if ($this->userBll->update_user($updatedUserDto)) {
+                return new ServiceResponse(true, 'Cập nhật người dùng thành công.');
+            }
+            return new ServiceResponse(false, 'Cập nhật thông tin người dùng thất bại ở bước lưu.');
         } catch (Exception $e) {
-            return new ServiceResponse(false, 'Lỗi khi cập nhật: ' . $e->getMessage());
+            error_log("UserService Error in update_user_partial: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
+            return new ServiceResponse(false, 'Lỗi máy chủ khi cập nhật người dùng: ' . $e->getMessage());
         }
     }
 
-    public function delete_user(string $userID): ServiceResponse
+    public function delete_user(string $userID, string $performingUserRoleID): ServiceResponse
     {
         try {
-            $exists = $this->userBll->get_user_by_id($userID);
-            if (!$exists) {
-                return new ServiceResponse(false, 'Người dùng không tồn tại');
+            $userToDelete = $this->userBll->get_user_by_id($userID);
+            if (!$userToDelete) {
+                return new ServiceResponse(false, 'Người dùng không tồn tại.');
+            }
+
+            if ($userToDelete->roleID === 'admin' && $performingUserRoleID !== 'admin') {
+                return new ServiceResponse(false, 'Không có quyền xóa tài khoản Admin.');
+            }
+
+            if ($userToDelete->roleID === 'instructor') {
+                $instructorProfile = $this->instructorBll->get_instructor_by_user_id($userID);
+                if ($instructorProfile) {
+                    $this->instructorBll->delete_instructor($instructorProfile->instructorID);
+                }
+            } elseif ($userToDelete->roleID === 'student') {
+                $studentProfile = $this->studentBll->get_student_by_user_id($userID);
+                if ($studentProfile) {
+                    $this->studentBll->delete_student($studentProfile->studentID);
+                }
             }
 
             if ($this->userBll->delete_user($userID)) {
-                return new ServiceResponse(true, 'Xóa người dùng thành công');
+                return new ServiceResponse(true, 'Xóa người dùng thành công.');
             }
-            return new ServiceResponse(true, 'Xóa người dùng thất bại');
+            return new ServiceResponse(false, 'Xóa người dùng thất bại ở bước lưu.');
         } catch (Exception $e) {
-            return new ServiceResponse(false, 'Lỗi khi xóa: ' . $e->getMessage());
+            error_log("UserService Error in delete_user: " . $e->getMessage());
+            return new ServiceResponse(false, 'Lỗi máy chủ khi xóa người dùng: ' . $e->getMessage());
         }
     }
 }
