@@ -9,7 +9,11 @@ require_once __DIR__ . '/../model/bll/user_bll.php';
 require_once __DIR__ . '/../model/bll/instructor_bll.php';
 require_once __DIR__ . '/../model/bll/category_bll.php';
 require_once __DIR__ . '/../model/bll/course_image_bll.php';
+require_once __DIR__ . '/../model/bll/course_requirement_bll.php';
+require_once __DIR__ . '/../model/bll/course_objective_bll.php';
 require_once __DIR__ . '/../model/dto/course_category_dto.php';
+require_once __DIR__ . '/../model/dto/course_objective_dto.php';
+require_once __DIR__ . '/../model/dto/course_requirement_dto.php';
 require_once __DIR__ . '/service_response.php';
 
 
@@ -21,6 +25,8 @@ class CourseService
     private InstructorBLL $instructorBll;
     private CourseInstructorBLL $courseInstructorBll;
     private CourseImageBLL $courseImageBll;
+    private CourseRequirementBLL $courseRequirementBll;
+    private CourseObjectiveBLL $courseObjectiveBll;
     private UserBLL $userBll;
 
     public function __construct()
@@ -33,13 +39,15 @@ class CourseService
         $this->courseInstructorBll = new CourseInstructorBLL();
         $this->courseImageBll = new CourseImageBLL();
         $this->userBll = new UserBLL();
+        $this->courseRequirementBll = new CourseRequirementBLL();
+        $this->courseObjectiveBll = new CourseObjectiveBLL();
     }
 
     public function create_course(string $title, ?string $description, float $price, array $instructorID, array $categoryIDs, string $createdBy): ServiceResponse
     {
         $courseID = str_replace('.', '_', uniqid('course_', true));
         // $now = date('Y-m-d H:i:s');
-//        $created_user = $this->userBll->get_user_by_id($createdBy);
+        //        $created_user = $this->userBll->get_user_by_id($createdBy);
         $dto = new CourseDTO($courseID, $title, $description, $price, $createdBy);
         try {
             if ($this->courseBll->create_course($dto)) {
@@ -133,6 +141,8 @@ class CourseService
                 $instructor_dtos_for_course = $this->courseInstructorBll->get_by_course($course->courseID);
                 $course_categories = $this->courseCategoryBll->get_categories_by_course($course->courseID);
                 $course_images = $this->courseImageBll->get_images_by_course($course->courseID);
+                $course_requirements = $this->courseRequirementBll->get_by_course_id($course->courseID);
+                $course_objectives = $this->courseObjectiveBll->get_by_course_id($course->courseID);
                 $instructors_info = [];
                 if (!empty($instructor_dtos_for_course)) {
                     foreach ($instructor_dtos_for_course as $instructor_dto) {
@@ -142,6 +152,7 @@ class CourseService
                             'instructorID' => $instructor_dto->instructorID,
                             'firstName' => $instructor_user->firstName,
                             'lastName' => $instructor_user->lastName,
+                            'biography' => $instructor->biography,
                         ];
                     }
                 }
@@ -160,7 +171,23 @@ class CourseService
                         'imagePath' => $course_image->imagePath
                     ];
                 }
-                
+
+                $tmp_course_requirements = [];
+                foreach ($course_requirements as $course_requirement) {
+                    $tmp_course_requirements[] = [
+                        "requirementID" => $course_requirement->requirementID,
+                        "requirement" => $course_requirement->requirement,
+                    ];
+                }
+
+                $tmp_course_objectives = [];
+                foreach ($course_objectives as $course_objective) {
+                    $tmp_course_objectives[] = [
+                        "objectiveID" => $course_objective->objectiveID,
+                        "objective" => $course_objective->objective,
+                    ];
+                }
+
                 $list_course_with_instructors_details[] = [
                     'courseID' => $course->courseID,
                     'title' => $course->title,
@@ -169,7 +196,9 @@ class CourseService
                     'createdBy' => $course->createdBy,
                     'instructors' => $instructors_info,
                     'categories' => $tmp_course_categories,
-                    'images' => $tmp_course_images
+                    'images' => $tmp_course_images,
+                    'requirements' => $tmp_course_requirements,
+                    'objectives' => $tmp_course_objectives,
                 ];
             }
             return new ServiceResponse(true, 'Lấy danh sách thành công', $list_course_with_instructors_details);
@@ -214,11 +243,89 @@ class CourseService
             $course = $this->courseBll->get_course($courseID);
 
             if ($course) {
-                return new ServiceResponse(true, 'Tìm thấy khóa học', $course);
+                // Lấy thông tin chi tiết cho khóa học
+                $instructor_dtos_for_course = $this->courseInstructorBll->get_by_course($course->courseID);
+                $course_categories = $this->courseCategoryBll->get_categories_by_course($course->courseID);
+                $course_images = $this->courseImageBll->get_images_by_course($course->courseID);
+                $course_requirements = $this->courseRequirementBll->get_by_course_id($course->courseID);
+                $course_objectives = $this->courseObjectiveBll->get_by_course_id($course->courseID);
+
+                $instructors_info = [];
+                if (!empty($instructor_dtos_for_course)) {
+                    foreach ($instructor_dtos_for_course as $instructor_dto) {
+                        $instructor = $this->instructorBll->get_instructor($instructor_dto->instructorID);
+                        // Kiểm tra xem $instructor và $instructor->userID có tồn tại không
+                        if ($instructor && isset($instructor->userID)) {
+                            $instructor_user = $this->userBll->get_user_by_id($instructor->userID);
+                            // Kiểm tra xem $instructor_user có tồn tại không
+                            if ($instructor_user) {
+                                $instructors_info[] = [
+                                    'instructorID' => $instructor_dto->instructorID,
+                                    'firstName' => $instructor_user->firstName,
+                                    'lastName' => $instructor_user->lastName,
+                                    'biography' => $instructor->biography,
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                $tmp_course_categories = [];
+                foreach ($course_categories as $course_category) {
+                    $category = $this->categoryBll->get_category($course_category->categoryID);
+                    // Kiểm tra xem $category có tồn tại không
+                    if ($category) {
+                        $tmp_course_categories[] = [
+                            'categoryID' => $course_category->categoryID,
+                            'categoryName' => $category->name,
+                        ];
+                    }
+                }
+
+                $tmp_course_images = [];
+                foreach ($course_images as $course_image) {
+                    $tmp_course_images[] = [
+                        'imageID' => $course_image->imageID,
+                        'imagePath' => $course_image->imagePath
+                    ];
+                }
+
+                $tmp_course_requirements = [];
+                foreach ($course_requirements as $course_requirement) {
+                    $tmp_course_requirements[] = [
+                        "requirementID" => $course_requirement->requirementID,
+                        "requirement" => $course_requirement->requirement,
+                    ];
+                }
+
+                $tmp_course_objectives = [];
+                foreach ($course_objectives as $course_objective) {
+                    $tmp_course_objectives[] = [
+                        "objectiveID" => $course_objective->objectiveID,
+                        "objective" => $course_objective->objective,
+                    ];
+                }
+
+                $course_details = [
+                    'courseID' => $course->courseID,
+                    'title' => $course->title,
+                    'description' => $course->description,
+                    'price' => $course->price,
+                    'createdBy' => $course->createdBy,
+                    'instructors' => $instructors_info,
+                    'categories' => $tmp_course_categories,
+                    'images' => $tmp_course_images,
+                    'requirements' => $tmp_course_requirements,
+                    'objectives' => $tmp_course_objectives,
+                ];
+
+                return new ServiceResponse(true, 'Tìm thấy khóa học', $course_details);
             } else {
                 return new ServiceResponse(false, 'Không tìm thấy khóa học với ID đã cung cấp');
             }
         } catch (Exception $e) {
+            // Cân nhắc log lỗi chi tiết hơn ở đây cho mục đích gỡ lỗi
+            // error_log('Lỗi khi lấy thông tin khóa học: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             return new ServiceResponse(false, 'Lỗi khi lấy thông tin khóa học: ' . $e->getMessage());
         }
     }

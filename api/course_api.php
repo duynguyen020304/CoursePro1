@@ -9,8 +9,9 @@ use Firebase\JWT\Key;
 header("Content-Type: application/json");
 $authHeader = apache_request_headers();
 $token = null;
-$isGetAllCourse = $_GET['isGetAllCourse'] ?? null;
-if (!isset($isGetAllCourse) && !$isGetAllCourse == true) {
+
+
+if ($_SERVER['REQUEST_METHOD'] !== "GET") {
     if (isset($authHeader['Authorization'])) {
         if (preg_match('/Bearer\s(\S+)/', $authHeader['Authorization'], $matches)) {
             $token = $matches[1];
@@ -45,14 +46,52 @@ $service = new CourseService();
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
-        $response = $service->get_all_courses();
-        http_response_code($response->success ? 200 : 500);
-        echo json_encode([
-            'success' => $response->success,
-            'message' => $response->message,
-            'data'    => $response->data
-        ]);
-        break;
+        $isGetAllCourseParam = $_GET['isGetAllCourse'] ?? null;
+        $courseIDParam = $_GET['courseID'] ?? null;
+
+        // Ưu tiên 1: Nếu isGetAllCourse được đặt thành true (ví dụ: ?isGetAllCourse=true hoặc ?isGetAllCourse=1)
+        if ($isGetAllCourseParam !== null && filter_var($isGetAllCourseParam, FILTER_VALIDATE_BOOLEAN)) {
+            $response = $service->get_all_courses();
+            http_response_code($response->success ? 200 : 500); // Giữ nguyên 500 nếu service báo lỗi
+            echo json_encode([
+                'success' => $response->success,
+                'message' => $response->message,
+                'data'    => $response->data
+            ]);
+            exit; // Kết thúc script sau khi xử lý
+        }
+        // Ưu tiên 2: Nếu courseID được cung cấp
+        elseif ($courseIDParam !== null) {
+            // Kiểm tra xem courseID có rỗng không (ví dụ: ?courseID=)
+            if (empty($courseIDParam)) {
+                http_response_code(400); // Bad Request
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'courseID parameter cannot be empty when provided.',
+                    'data'    => null
+                ]);
+                exit;
+            }
+
+            $response = $service->get_course_by_id($courseIDParam);
+            http_response_code($response->success ? 200 : 500); // Giữ nguyên 500 nếu service báo lỗi
+            echo json_encode([
+                'success' => $response->success,
+                'message' => $response->message,
+                'data'    => $response->data
+            ]);
+            exit; // Kết thúc script sau khi xử lý
+        }
+        // Trường hợp không có tham số hợp lệ nào được cung cấp
+        else {
+            http_response_code(400); // Bad Request
+            echo json_encode([
+                'success' => false,
+                'message' => 'Invalid or missing parameters. Please provide "isGetAllCourse=true" or a "courseID".',
+                'data'    => null
+            ]);
+            exit; // Kết thúc script
+        }
 
     case 'POST':
         $data = json_decode(file_get_contents("php://input"), true);

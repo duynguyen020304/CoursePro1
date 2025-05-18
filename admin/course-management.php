@@ -159,7 +159,7 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
 }
 
 // Fetch initial data
-$courseResp = callApi('course_api.php', 'GET');
+$courseResp = callApi('course_api.php?isGetAllCourse=true', 'GET');
 $courses    = $courseResp['success'] ? ($courseResp['data'] ?? []) : [];
 
 $catResp   = callApi('category_api.php', 'GET');

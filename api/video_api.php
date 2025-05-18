@@ -84,7 +84,7 @@ switch ($method) {
         $title     = $data['title'] ?? null;
         $sortOrder = isset($data['sortOrder']) ? intval($data['sortOrder']) : 0;
         // Phần PUT:
-        $duration  = isset($data['duration']) ? intval($data['duration']) : null;
+        $duration  = isset($data['duration']) ? intval($data['duration']) : 0;
         $resp = $service->update_video($data['videoID'], $data['lessonID'], $data['url'], $title, $sortOrder, $duration);
         http_response_code($resp->success ? 200 : 500);
         echo json_encode(['success' => $resp->success, 'message' => $resp->message]);

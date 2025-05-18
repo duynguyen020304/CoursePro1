@@ -25,18 +25,38 @@ class CourseRequirementBLL extends Database
         return $result === true && $this->getAffectedRows() === 1;
     }
 
-    public function get_by_id(string $requirementID): ?CourseRequirementDTO
+    public function get_by_id(string $requirementID): array
     {
         $sql = "SELECT * FROM `CourseRequirement` WHERE RequirementID = '{$requirementID}'";
         $result = $this->execute($sql);
-        if ($row = $result->fetch_assoc()) {
-            return new CourseRequirementDTO(
-                $row['RequirementID'],
-                $row['CourseID'],
-                $row['Requirement']
-            );
+        $requirements=[];
+        if ($result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
+                $requirements[] = new CourseRequirementDTO(
+                    $row['RequirementID'],
+                    $row['CourseID'],
+                    $row['Requirement']
+                );
+            }
         }
-        return null;
+        return $requirements;
+    }
+
+    public function get_by_course_id(string $CourseID): array
+    {
+        $sql = "SELECT * FROM `CourseRequirement` WHERE CourseID = '{$CourseID}'";
+        $result = $this->execute($sql);
+        $requirements=[];
+        if ($result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
+                $requirements[] = new CourseRequirementDTO(
+                    $row['RequirementID'],
+                    $row['CourseID'],
+                    $row['Requirement']
+                );
+            }
+        }
+        return $requirements;
     }
 
     public function get_all_by_course(string $courseID): array

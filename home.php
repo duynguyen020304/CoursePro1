@@ -257,14 +257,14 @@ include('template/head.php'); // Giữ nguyên head của bạn
                             <div class="food-items course-card" data-aos="fade-up" data-aos-duration="1000">
                                 <div class="food-item">
                                     <img src="<?php echo htmlspecialchars($courseImageUrl); ?>" alt="<?php echo htmlspecialchars($course['title']); ?>" onerror="this.onerror=null;this.src='<?php echo $defaultCourseImage; ?>';">
-                                    <a href="course-detail.php?id=<?php echo htmlspecialchars($course['courseID']); ?>"><?php echo htmlspecialchars($course['title']); ?></a>
+                                    <a href="course-detail.php?course_id=<?php echo htmlspecialchars($course['courseID']); ?>"><?php echo htmlspecialchars($course['title']); ?></a>
                                 </div>
                                 <div class="course-instructor">
                                     <p><i class="fa fa-user"></i> <?php echo $instructorNames; ?></p>
                                 </div>
                                 <div class="food-price course-price-cta">
                                     <p><?php echo number_format($course['price'] ?? 0, 0, ',', '.'); ?> VNĐ</p>
-                                    <a href="course-detail.php?id=<?php echo htmlspecialchars($course['courseID']); ?>" class="btn btn-sm btn-outline-warning">Xem Chi Tiết</a>
+                                    <a href="course-detail.php?course_id=<?php echo htmlspecialchars($course['courseID']); ?>" class="btn btn-sm btn-outline-warning">Xem Chi Tiết</a>
                                 </div>
                             </div>
                         </div>
