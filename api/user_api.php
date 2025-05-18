@@ -3,6 +3,7 @@ $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
 require __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../service/service_user.php';
 require_once __DIR__ . '/../model/dto/user_dto.php';
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
@@ -10,11 +11,14 @@ header("Content-Type: application/json");
 $method = $_SERVER['REQUEST_METHOD'];
 $authHeader = apache_request_headers();
 $token = null;
+$decode = null;
 
-if ($method !== 'POST') {
+if ($method !== 'GET') {
     if (isset($authHeader['Authorization'])) {
         if (preg_match('/Bearer\s(\S+)/', $authHeader['Authorization'], $matches)) {
+//            $header = $authHeader['Authorization'];
             $token = $matches[1];
+            $decode = JWT::decode($token, new Key($secretKey, 'HS256'));
         }
     }
     if (!$token) {
@@ -84,6 +88,40 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
         break;
 
+    case 'POST':
+        $data = json_decode(file_get_contents("php://input"), true);
+        if ($decode !== null && $decode->data->roleID !== "admin") {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Không đủ quyền đủ xóa']);
+            exit;
+        }
+        if (
+            !isset($data['email']) ||
+            !isset($data['password']) ||
+            !isset($data['firstName']) ||
+            !isset($data['lastName']) ||
+            !isset($data['role'])
+        ) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Thiếu thông tin đăng ký']);
+            exit;
+        }
+        if (!isset($data['profileImage'])) {
+            $data['profileImage'] = null;
+        }
+        $registerResult = $service->create_user(
+            $data['email'],
+            $data['password'],
+            $data['firstName'],
+            $data['lastName'],
+            $data['role'],
+            $data['profileImage']
+        );
+        http_response_code($registerResult->success ? 200 : 500);
+        echo json_encode(['success' => $registerResult->success, 'message' => $registerResult->message]);
+        break;
+
+
     case 'PUT':
         $data = json_decode(file_get_contents("php://input"), true);
         if (!isset($data['userID'])) {
@@ -91,8 +129,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
             echo json_encode(['success' => false, 'message' => 'Thiếu userID']);
             exit;
         }
-
-        $response = $service->update_user_partial($data);
+        if (isset($data['password']) && $decode !== null && $decode->data->roleID !== "admin") {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Không đủ quyền đủ chỉnh sửa']);
+            exit;
+        }
+        $response = $service->update_user_partial($data, $decode->data->userID);
         http_response_code($response->success ? 200 : 500);
         echo json_encode(['success' => $response->success, 'message' => $response->message]);
         break;
@@ -104,8 +146,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
             echo json_encode(['success' => false, 'message' => 'Thiếu userID để xóa']);
             exit;
         }
-
-        $response = $service->delete_user($data['userID']);
+        if ($decode !== null && $decode->data->roleID !== "admin") {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Không đủ quyền đủ xóa']);
+            exit;
+        }
+        $response = $service->delete_user($data['userID'], $decode->data->userID);
         http_response_code($response->success ? 200 : 500);
         echo json_encode(['success' => $response->success, 'message' => $response->message]);
         break;

@@ -1,11 +1,10 @@
 <?php
-// File: service/service_instructor.php
-
 require_once __DIR__ . '/../model/bll/instructor_bll.php';
 require_once __DIR__ . '/../model/dto/instructor_dto.php';
 require_once __DIR__ . '/../model/bll/user_bll.php';
 require_once __DIR__ . '/../model/dto/user_dto.php';
-require_once __DIR__ . '/service_response.php';
+require_once __DIR__ . '/../service_response.php';
+
 class InstructorService
 {
     private InstructorBLL $bll;
@@ -17,15 +16,6 @@ class InstructorService
         $this->userBLL = new UserBLL();
     }
 
-    /**
-     * Tạo mới giảng viên
-     *
-     * @param string $instructorID
-     * @param string $userID
-     * @param string|null $biography
-     * @param string|null $profileImage
-     * @return ServiceResponse
-     */
     public function create_instructor(string $instructorID, string $userID, ?string $biography): ServiceResponse
     {
         $dto = new InstructorDTO($instructorID, $userID, $biography);
@@ -36,15 +26,8 @@ class InstructorService
         return new ServiceResponse(false, 'Tạo giảng viên thất bại');
     }
 
-    /**
-     * Lấy giảng viên theo ID
-     *
-     * @param string $instructorID
-     * @return ServiceResponse
-     */
     public function get_instructor(string $instructorID): ServiceResponse
     {
-        echo "Đang ở service";
         $instructorDto = $this->bll->get_instructor($instructorID);
 
         if (!$instructorDto) {
@@ -71,7 +54,6 @@ class InstructorService
             $combinedData['profileImage'] = $userDto->profileImage;
             $combinedData['instructorID'] = $instructorDto->instructorID;
             $combinedData['biography']    = $instructorDto->biography;
-            
 
             return new ServiceResponse(true, 'Lấy thông tin giảng viên thành công', $combinedData);
         } catch (Exception $e) {
@@ -79,11 +61,42 @@ class InstructorService
         }
     }
 
-    /**
-     * Lấy danh sách giảng viên
-     *
-     * @return ServiceResponse
-     */
+    public function get_instructor_by_user_id(string $userID): ServiceResponse
+    {
+        $instructorDto = $this->bll->get_instructor_by_user_id($userID);
+
+        if (!$instructorDto) {
+            return new ServiceResponse(false, 'Giảng viên không tồn tại');
+        }
+
+        if (empty($instructorDto->userID)) {
+            return new ServiceResponse(false, 'Dữ liệu giảng viên không hợp lệ (Thiếu UserID)');
+        }
+
+        $userDto = $this->userBLL->get_user_by_id($instructorDto->userID);
+
+        if (!$userDto) {
+            return new ServiceResponse(false, 'Không tìm thấy thông tin người dùng liên kết với giảng viên');
+        }
+
+        try {
+            $combinedData = [];
+            $combinedData['userID'] = $userDto->userID;
+            $combinedData['firstName']   = $userDto->firstName;
+            $combinedData['lastName'] = $userDto->lastName;
+            $combinedData['email']  = $userDto->email;
+            $combinedData['roleID'] = $userDto->roleID;
+            $combinedData['profileImage'] = $userDto->profileImage;
+            $combinedData['instructorID'] = $instructorDto->instructorID;
+            $combinedData['biography']    = $instructorDto->biography;
+
+            return new ServiceResponse(true, 'Lấy thông tin giảng viên thành công', $combinedData);
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Đã xảy ra lỗi không mong muốn khi xử lý dữ liệu.');
+        }
+    }
+
+
     public function get_all_instructors(): ServiceResponse
     {
         $list_instructor = $this->bll->get_all_instructors();
@@ -139,15 +152,6 @@ class InstructorService
         return new ServiceResponse(true, 'Lấy danh sách giảng viên thành công', $combined_list);
     }
 
-    /**
-     * Cập nhật giảng viên
-     *
-     * @param string $instructorID
-     * @param string $userID
-     * @param string|null $biography
-     * @param string|null $profileImage
-     * @return ServiceResponse
-     */
     public function update_instructor(string $instructorID, string $userID, ?string $biography, ?string $profileImage): ServiceResponse
     {
         $dto = new InstructorDTO($instructorID, $userID, $biography, $profileImage);
@@ -158,12 +162,6 @@ class InstructorService
         return new ServiceResponse(false, 'Cập nhật giảng viên thất bại');
     }
 
-    /**
-     * Xóa giảng viên
-     *
-     * @param string $instructorID
-     * @return ServiceResponse
-     */
     public function delete_instructor(string $instructorID): ServiceResponse
     {
         $ok = $this->bll->delete_instructor($instructorID);

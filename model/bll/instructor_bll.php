@@ -23,8 +23,7 @@ class InstructorBLL extends Database
     public function update_instructor(InstructorDTO $inst)
     {
         $bio = $inst->biography ? "Biography = '{$inst->biography}'," : '';
-        $img = $inst->profileImage ? "ProfileImage = '{$inst->profileImage}'," : '';
-        $sql = "UPDATE `Instructor` SET {$bio} {$img} UserID = '{$inst->userID}' WHERE InstructorID = '{$inst->instructorID}'";
+        $sql = "UPDATE `Instructor` SET {$bio} UserID = '{$inst->userID}' WHERE InstructorID = '{$inst->instructorID}'";
         $result = $this->execute($sql);
         // $this->close();
         return $result === true;
@@ -42,6 +41,16 @@ class InstructorBLL extends Database
         return $dto;
     }
 
+    public function get_instructor_by_user_id(string $userID): ?InstructorDTO {
+        $sql = "SELECT * FROM `Instructor` WHERE UserID = '{$userID}'";
+        $result = $this->execute($sql);
+        $dto = null;
+        if ($row = $result->fetch_assoc()) {
+            $dto = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography']);
+        }
+        // $this->close();
+        return $dto;
+    }
     public function get_all_instructors(): array
     {
         $sql = "SELECT * FROM `Instructor`";
