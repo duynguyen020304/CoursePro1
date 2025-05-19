@@ -166,7 +166,7 @@ $newOrdersToday = 0;  // Thay thế bằng số liệu thật
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="card-title text-primary mb-1">Tổng số Khóa học</h6>
-                                <p class="card-text text-primary mb-0"><?= htmlspecialchars($totalCourses) ?></p>
+                                <p class="card-text text-primary mb-0">10</p>
                             </div>
                             <i class="bi bi-journal-bookmark-fill text-primary"></i>
                         </div>
@@ -177,7 +177,7 @@ $newOrdersToday = 0;  // Thay thế bằng số liệu thật
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="card-title text-success mb-1">Tổng số Người dùng</h6>
-                                <p class="card-text text-success mb-0"><?= htmlspecialchars($totalUsers) ?></p>
+                                <p class="card-text text-success mb-0">15</p>
                             </div>
                             <i class="bi bi-people-fill text-success"></i>
                         </div>
@@ -188,7 +188,7 @@ $newOrdersToday = 0;  // Thay thế bằng số liệu thật
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="card-title text-warning mb-1">Doanh thu tháng này</h6>
-                                <p class="card-text text-warning mb-0"><?= number_format($totalRevenueMonth, 0, ',', '.') ?> ₫</p>
+                                <p class="card-text text-warning mb-0">1340000 ₫</p>
                             </div>
                             <i class="bi bi-cash-coin text-warning"></i>
                         </div>
@@ -199,7 +199,7 @@ $newOrdersToday = 0;  // Thay thế bằng số liệu thật
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="card-title text-info mb-1">Đơn hàng mới (hôm nay)</h6>
-                                <p class="card-text text-info mb-0"><?= htmlspecialchars($newOrdersToday) ?></p>
+                                <p class="card-text text-info mb-0">5</p>
                             </div>
                              <i class="bi bi-cart-check-fill text-info"></i>
                         </div>
@@ -240,21 +240,14 @@ $newOrdersToday = 0;  // Thay thế bằng số liệu thật
                                 <i class="bi bi-person-plus-fill text-primary fs-4 me-3"></i>
                                 <div>
                                     <h6 class="mb-0">Người dùng mới đăng ký</h6>
-                                    <small class="text-muted">user_abc@email.com vừa tham gia.</small>
+                                    <small class="text-muted">thavannh@email.com vừa tham gia.</small>
                                 </div>
                             </div>
                             <div class="d-flex align-items-start mb-3">
                                 <i class="bi bi-receipt text-success fs-4 me-3"></i>
                                 <div>
                                     <h6 class="mb-0">Đơn hàng mới</h6>
-                                    <small class="text-muted">Khóa học "Lập trình XYZ" vừa được mua.</small>
-                                </div>
-                            </div>
-                             <div class="d-flex align-items-start">
-                                <i class="bi bi-chat-left-text-fill text-info fs-4 me-3"></i>
-                                <div>
-                                    <h6 class="mb-0">Bình luận mới cần duyệt</h6>
-                                    <small class="text-muted">Có bình luận mới trong khóa học "ABC".</small>
+                                    <small class="text-muted">Khóa học "Lập trình PHP" vừa được mua.</small>
                                 </div>
                             </div>
                             <div class="text-end mt-3">

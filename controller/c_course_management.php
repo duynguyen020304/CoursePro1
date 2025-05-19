@@ -266,7 +266,7 @@ switch ($act) {
                             'imageID' => $imageID,
                             'imagePath' => $imageFileName
                         ]);
-                        if ($courseImageResp && isset($courseImageResp['success']) && $courseImageResp['success']) {
+                        if ($courseImageResp && isset($courseImageResp['success']) && !$courseImageResp['success']) {
                             $uploadErrors[] = "Lỗi hệ thống: Không thể lưu file vào CSDL.";
                         }
                     } else {

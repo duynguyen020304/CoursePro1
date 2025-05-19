@@ -1,5 +1,6 @@
 <?php
 $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 require_once __DIR__ . '/../service/service_order.php';
 require __DIR__ . '/../vendor/autoload.php';
 use Firebase\JWT\JWT;
@@ -62,7 +63,7 @@ switch ($method) {
         $data = json_decode(file_get_contents('php://input'), true);
 
         // Kiểm tra các trường bắt buộc
-        if (empty($data['userID']) || empty($data['orderDate']) || !isset($data['totalAmount'])) {
+        if (empty($data['userID']) || !isset($data['totalAmount'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu: userID, orderDate, totalAmount']);
             exit;
@@ -75,9 +76,7 @@ switch ($method) {
         try {
             $dt = new DateTime($data['orderDate']);
         } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Định dạng orderDate không hợp lệ']);
-            exit;
+            $dt = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
         }
 
         // Tạo đơn hàng

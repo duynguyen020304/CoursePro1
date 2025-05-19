@@ -168,9 +168,11 @@ class CourseService
                         $instructor_user = $this->userBll->get_user_by_id($instructor->userID);
                         $instructors_info[] = [
                             'instructorID' => $instructor_dto->instructorID,
+                            'userID' => $instructor_user->userID,
                             'firstName' => $instructor_user->firstName,
                             'lastName' => $instructor_user->lastName,
                             'biography' => $instructor->biography,
+                            'profileImage' => $instructor_user->profileImage,
                         ];
                     }
                 }
@@ -327,9 +329,11 @@ class CourseService
                         if ($instructor_user) { // Kiểm tra xem người dùng của giảng viên có tồn tại không
                             $instructors_info[] = [
                                 'instructorID' => $instructor_dto->instructorID,
+                                'userID' => $instructor_user->userID,
                                 'firstName' => $instructor_user->firstName,
                                 'lastName' => $instructor_user->lastName,
                                 'biography' => $instructor->biography,
+                                'profileImage' => $instructor_user->profileImage,
                                 // Bạn có thể thêm các trường khác của giảng viên ở đây nếu cần
                             ];
                         }

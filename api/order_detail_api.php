@@ -3,7 +3,8 @@
 $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
 require_once __DIR__ . '/../service/service_order_detail.php';
 require __DIR__ . '/../vendor/autoload.php';
-
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 header('Content-Type: application/json');
 $authHeader = apache_request_headers();
 $token = null;

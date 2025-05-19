@@ -1,7 +1,45 @@
 <?php
+$secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
 require_once __DIR__ . '/../service/service_cart.php';
+require __DIR__ . '/../vendor/autoload.php';
 
-header('Content-Type: application/json');
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
+header("Content-Type: application/json");
+$authHeader = apache_request_headers();
+$token = null;
+$decode = null;
+
+
+if (isset($authHeader['Authorization'])) {
+    if (preg_match('/Bearer\s(\S+)/', $authHeader['Authorization'], $matches)) {
+        $token = $matches[1];
+        $decode = JWT::decode($token, new Key($secretKey, 'HS256'));
+    }
+}
+
+if (!$token) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Không tìm thấy token xác thực.']);
+    exit;
+}
+
+try {
+    $decoded = JWT::decode($token, new Key($secretKey, 'HS256'));
+} catch (Firebase\JWT\ExpiredException $e) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Token đã hết hạn.']);
+    exit;
+} catch (Firebase\JWT\SignatureInvalidException $e) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Chữ ký token không hợp lệ.']);
+    exit;
+} catch (Exception $e) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Token không hợp lệ hoặc có lỗi xảy ra: ' . $e->getMessage()]);
+    exit;
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 $service = new CartService();
@@ -10,14 +48,16 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 switch ($method) {
     case 'GET':
-        if (isset($_GET['userID'])) {
-            $userID = $_GET['userID'];
-            $cart = $service->getCartByUser($userID);
-            echo json_encode($cart ?? []);
-        } else {
-            http_response_code(400);
-            echo json_encode(['error' => 'Missing userID']);
+        $cart = $service->getCartByUser($decode->data->userID);
+        if (!$cart) {
+            $create_card = $service->createCart($decode->data->userID);
+            if ($create_card['success']) {
+                echo json_encode(["sucesss" => $create_card['successs'], "cartID" => $create_card['cartID']]);
+                exit;
+            }
         }
+        echo json_encode(["sucesss" => true, "cartID" => $cart->cartID]);
+        exit;
         break;
 
     case 'POST':

@@ -160,7 +160,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <?php foreach ($certificates as $cert): ?>
                     <div class="col">
                         <div class="card h-100 certificate-card shadow-sm">
-                            <img src="<?= htmlspecialchars($cert['CertificateImage']) ?>" class="card-img-top" alt="Ảnh chứng chỉ <?= htmlspecialchars($cert['CourseName']) ?>">
+                            <img src="public/img/certificate.jpg" class="card-img-top" alt="Ảnh chứng chỉ <?= htmlspecialchars($cert['CourseName']) ?>">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title mb-2"><?= htmlspecialchars($cert['CourseName']) ?></h5>
                                 <p class="card-text text-muted mb-3">
