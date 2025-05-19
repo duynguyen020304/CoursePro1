@@ -1,6 +1,7 @@
 /* General resets and container */
   .course-hero-bg {
-    background-color: #1a1a1a;
+    background-color: #000000;
+    /*padding: 40px 0;*/
     padding-top: 100px;
     color: #eee;
   }

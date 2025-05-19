@@ -36,14 +36,11 @@ if (!$found_marker) {
         $app_root_path_relative = '';
     } elseif ($app_root_path_relative === '\\') { // Dành cho Windows
         $app_root_path_relative = '';
-    }
-    elseif ($app_root_path_relative === '.' && ltrim($script_path, '/') !== basename($script_path) ) {
+    } elseif ($app_root_path_relative === '.' && ltrim($script_path, '/') !== basename($script_path)) {
         $app_root_path_relative = '';
     } elseif ($app_root_path_relative === '.') {
         $app_root_path_relative = '';
     }
-
-
 }
 
 if ($app_root_path_relative !== '/' && $app_root_path_relative !== '' && substr($app_root_path_relative, -1) === '/') {
@@ -136,18 +133,21 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
 
 $course_data = null;
 $error_message = null;
-$course_id = $_GET['course_id'] ?? null;
+// Sử dụng course_id từ GET parameter, không phải course_id_param nữa để nhất quán
+$course_id_get_param = $_GET['courseID'] ?? $_GET['course_id'] ?? null;
+
 
 // URL cơ sở cho controller tải file
 $file_loader_base_url = $app_root_path_relative . '/controller/c_file_loader.php';
 
-function format_price($price) {
+function format_price($price)
+{
     if (!is_numeric($price)) return 'N/A';
     return '₫' . number_format($price, 0, ',', '.');
 }
 
-if ($course_id) {
-    $api_response = callApi('course_api.php', 'GET', ['courseID' => $course_id]);
+if ($course_id_get_param) {
+    $api_response = callApi('course_api.php', 'GET', ['courseID' => $course_id_get_param]);
 
     if (isset($api_response['success']) && $api_response['success'] && isset($api_response['data'])) {
         $raw_data = $api_response['data'];
@@ -158,7 +158,7 @@ if ($course_id) {
             } elseif (isset($raw_data[0]['courseID'])) {
                 $found_course = null;
                 foreach ($raw_data as $c) {
-                    if (isset($c['courseID']) && $c['courseID'] == $course_id) {
+                    if (isset($c['courseID']) && $c['courseID'] == $course_id_get_param) {
                         $found_course = $c;
                         break;
                     }
@@ -166,7 +166,7 @@ if ($course_id) {
                 if ($found_course) {
                     $course_data = $found_course;
                 } else {
-                    $error_message = 'Không tìm thấy khóa học với ID (' . htmlspecialchars($course_id) . ') trong dữ liệu trả về.';
+                    $error_message = 'Không tìm thấy khóa học với ID (' . htmlspecialchars($course_id_get_param) . ') trong dữ liệu trả về.';
                 }
             } else {
                 $error_message = 'Dữ liệu khóa học nhận được không hợp lệ hoặc có cấu trúc không đúng.';
@@ -177,7 +177,6 @@ if ($course_id) {
         if (!$course_data && !$error_message) {
             $error_message = 'Không thể xử lý dữ liệu khóa học từ API.';
         }
-
     } else {
         $error_message = $api_response['message'] ?? 'Không thể tải dữ liệu khóa học hoặc khóa học không tồn tại.';
         if (isset($api_response['http_status_code']) && $api_response['http_status_code'] !== 200) {
@@ -194,6 +193,268 @@ $app_root_url_for_paths = htmlspecialchars($app_root_path_relative);
 <?php include('template/head.php'); ?>
 <?php include('template/header.php'); ?>
 <link href="<?php echo $app_root_url_for_paths; ?>/public/css/course-detail.css" rel="stylesheet">
+<style>
+    /* --- BEGIN CSS KHẮC PHỤC TRÀN & CẢI TIỆN BỐ CỤC --- */
+    .course-hero-container {
+        max-width: 960px;
+        margin: 0 auto;
+        display: flex;
+        gap: 20px;
+        /* Giảm khoảng cách để tiết kiệm không gian */
+        flex-wrap: wrap;
+        /* Cho phép wrap trên màn hình nhỏ */
+    }
+
+    .course-hero-main {
+        flex: 1 1 580px;
+        /* Có thể co giãn, cơ sở 580px */
+        min-width: 300px;
+        /* Không thu nhỏ hơn 300px */
+        /* max-width: 100%; Đã được xử lý bởi flex */
+    }
+
+    .course-aside {
+        flex: 0 0 300px;
+        /* Không co giãn, kích thước cố định 300px */
+        /* width: 300px; */
+    }
+
+    /* Đảm bảo từ dài tự xuống dòng */
+    .course-hero-title,
+    .course-section-title,
+    /* Áp dụng cho cả tiêu đề section bên dưới */
+    .lesson-title-area span,
+    .course-meta-author,
+    /* Cho tên giảng viên dài */
+    .course-breadcrumbs a {
+        /* Cho breadcrumbs */
+        word-break: break-word;
+        overflow-wrap: break-word;
+        -webkit-hyphens: auto;
+        -ms-hyphens: auto;
+        hyphens: auto;
+    }
+
+    /* --- END CSS KHẮC PHỤC TRÀN --- */
+
+
+    /* --- BEGIN CSS CHO HIỂN THỊ BÀI HỌC MỚI --- */
+    .course-lecture-list {
+        /* Reset padding cho ul cha của các lesson-entry */
+        padding-left: 0;
+        list-style-type: none;
+        /* Đảm bảo không có bullet points mặc định */
+    }
+
+    .lesson-entry {
+        border-bottom: 1px solid #e8e8e8;
+        /* Đường kẻ phân cách nhẹ nhàng hơn */
+        padding: 12px 0;
+    }
+
+    .lesson-entry:last-child {
+        border-bottom: none;
+    }
+
+    .lesson-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        cursor: default;
+        /* Hoặc pointer nếu toàn bộ header có thể click để mở rộng */
+    }
+
+    .lesson-title-area {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        /* Khoảng cách giữa icon và tiêu đề */
+        flex-grow: 1;
+        min-width: 0;
+        /* Quan trọng cho text ellipsis trong flex child */
+    }
+
+    .lesson-title-area span {
+        font-weight: 500;
+        color: #2d2f31;
+        /* Màu chữ tiêu đề bài học */
+        font-size: 15px;
+        /* Kích thước chữ tiêu đề */
+        line-height: 1.4;
+        white-space: normal;
+        /* Cho phép tiêu đề dài xuống dòng */
+    }
+
+    .lesson-icon-svg {
+        width: 20px;
+        /* Kích thước icon */
+        height: 20px;
+        fill: #5624d0;
+        flex-shrink: 0;
+    }
+
+    .lesson-actions-area {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        /* Khoảng cách giữa các nút/thông tin meta */
+        flex-shrink: 0;
+        margin-left: 10px;
+        /* Khoảng cách với tiêu đề */
+    }
+
+    .btn-lesson-resources {
+        background-color: transparent;
+        border: 1px solid #5624d0;
+        color: #5624d0;
+        padding: 5px 12px;
+        /* Kích thước nút */
+        border-radius: 4px;
+        font-size: 13px;
+        /* Cỡ chữ nút */
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .btn-lesson-resources:hover {
+        background-color: #5624d0;
+        color: #fff;
+    }
+
+    .btn-lesson-resources.active {
+        /* Style khi nút active (details đang mở) */
+        background-color: #5624d0;
+        color: #fff;
+    }
+
+
+    .lesson-preview-link {
+        /* Nếu bạn muốn thêm link xem thử */
+        font-size: 13px;
+        color: #007791;
+        /* Màu khác cho xem thử */
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .lesson-preview-link:hover {
+        text-decoration: underline;
+    }
+
+    .lesson-duration-badge {
+        font-size: 13px;
+        color: #505759;
+        /* Màu chữ thời lượng */
+        background-color: #f7f7f7;
+        /* Nền nhẹ cho thời lượng */
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+
+    .lesson-content-details {
+        padding-left: 30px;
+        /* Thụt lề cho nội dung (icon width + gap) */
+        margin-top: 12px;
+        background-color: #fbfbfb;
+        /* Nền rất nhẹ để phân biệt */
+        border-radius: 4px;
+        padding: 12px;
+        border: 1px solid #efefef;
+        /* display: none; Sẽ được JS điều khiển */
+    }
+
+    .resource-list-collapsible,
+    .video-list-collapsible {
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: 8px;
+    }
+
+    .resource-list-collapsible:first-child,
+    .video-list-collapsible:first-child {
+        margin-top: 0;
+    }
+
+    .resource-list-collapsible li,
+    .video-list-collapsible li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+        /* Khoảng cách giữa các item */
+        font-size: 14px;
+        color: #333;
+    }
+
+    .resource-list-collapsible li svg,
+    .video-list-collapsible li svg {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+        /* Icon sẽ theo màu chữ */
+        flex-shrink: 0;
+    }
+
+    .resource-list-collapsible li a,
+    .video-list-collapsible li a {
+        color: #0056d2;
+        /* Màu link chuẩn */
+        text-decoration: none;
+        flex-grow: 1;
+        /* Cho phép link chiếm không gian */
+        word-break: break-all;
+        /* Ngắt link dài nếu cần */
+    }
+
+    .resource-list-collapsible li a:hover,
+    .video-list-collapsible li a:hover {
+        text-decoration: underline;
+    }
+
+    .video-item-duration {
+        /* Nếu có thời lượng cho từng video */
+        font-size: 0.85em;
+        color: #777;
+        margin-left: auto;
+        /* Đẩy sang phải */
+        padding-left: 10px;
+    }
+
+
+    .sub-list-title {
+        display: block;
+        font-weight: 600;
+        /* In đậm hơn */
+        font-size: 14px;
+        /* Cỡ chữ cho tiêu đề phụ */
+        color: #1c1d1f;
+        /* Màu chữ đậm hơn */
+        margin-bottom: 8px;
+        margin-top: 10px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #e0e0e0;
+        /* Đường kẻ nhẹ dưới tiêu đề phụ */
+    }
+
+    .sub-list-title:first-child {
+        margin-top: 0;
+    }
+
+    /* --- END CSS CHO HIỂN THỊ BÀI HỌC MỚI --- */
+
+    /* CSS cũ của bạn cho chapter-description và các thành phần khác vẫn giữ nguyên */
+    .chapter-description {
+        font-size: 0.9em;
+        color: #555;
+        margin-bottom: 10px;
+        padding-left: 0;
+        /* Bỏ padding-left cũ nếu không cần thiết với cấu trúc mới */
+        line-height: 1.5;
+    }
+</style>
 
 <?php if ($error_message): ?>
     <div class="course-hero-bg">
@@ -226,8 +487,8 @@ $app_root_url_for_paths = htmlspecialchars($app_root_path_relative);
                         <span class="course-stars" aria-hidden="true">
                             <?php for ($i = 0; $i < 5; $i++): ?>
                                 <svg viewBox="0 0 20 20" width="14" height="14" fill="#f7b500" aria-hidden="true">
-                                <path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"></path>
-                            </svg>
+                                    <path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"></path>
+                                </svg>
                             <?php endfor; ?>
                         </span>
                     </span>
@@ -280,38 +541,137 @@ $app_root_url_for_paths = htmlspecialchars($app_root_path_relative);
                         <h2 id="content-title" class="course-content-title">Nội dung khóa học</h2>
                         <a class="course-content-expand" href="#" role="button" aria-expanded="false" aria-controls="course-content-accordion">Mở rộng tất cả</a>
                     </div>
-                    <?php if (!empty($course_data['objectives']) && is_array($course_data['objectives'])): ?>
-                        <div class="course-content-meta" aria-live="polite" aria-atomic="true">
-                            <?php echo count($course_data['objectives']); ?> chủ đề chính </div>
-                        <div class="course-content-accordion" id="course-content-accordion">
-                            <?php foreach ($course_data['objectives'] as $index => $objective_item): ?>
+                    <?php
+                    $total_chapters = 0;
+                    $total_lessons = 0;
+                    if (!empty($course_data['chapters']) && is_array($course_data['chapters'])) {
+                        $total_chapters = count($course_data['chapters']);
+                        foreach ($course_data['chapters'] as $chapter) {
+                            if (!empty($chapter['chapterLessons']) && is_array($chapter['chapterLessons'])) {
+                                $total_lessons += count($chapter['chapterLessons']);
+                            }
+                        }
+                    }
+                    ?>
+                    <div class="course-content-meta" aria-live="polite" aria-atomic="true">
+                        <?php echo $total_chapters; ?> chương • <?php echo $total_lessons; ?> bài học
+                    </div>
+                    <div class="course-content-accordion" id="course-content-accordion">
+                        <?php if (!empty($course_data['chapters']) && is_array($course_data['chapters'])): ?>
+                            <?php foreach ($course_data['chapters'] as $chapter_index => $chapter): ?>
                                 <div class="course-section">
-                                    <button class="course-section-toggle" aria-expanded="<?php echo $index === 0 ? 'true' : 'false'; ?>" aria-controls="section-obj-<?php echo $index; ?>-content" id="section-obj-<?php echo $index; ?>-toggle" onclick="toggleSyllabusSection(this)">
-                                        <span class="course-section-title"><?php echo htmlspecialchars($objective_item['objective'] ?? 'Chủ đề'); ?></span>
-                                        <span class="course-section-info">1 mục</span>
+                                    <button class="course-section-toggle" aria-expanded="<?php echo $chapter_index === 0 ? 'true' : 'false'; ?>" aria-controls="chapter-<?php echo $chapter_index; ?>-content" id="chapter-<?php echo $chapter_index; ?>-toggle" onclick="toggleSyllabusSection(this)">
+                                        <span class="course-section-title"><?php echo htmlspecialchars($chapter['chapterTitle'] ?? 'Chương không có tiêu đề'); ?></span>
+                                        <span class="course-section-info">
+                                            <?php echo (!empty($chapter['chapterLessons']) && is_array($chapter['chapterLessons'])) ? count($chapter['chapterLessons']) : 0; ?> bài học
+                                        </span>
                                     </button>
-                                    <div class="course-section-content <?php echo $index === 0 ? 'open' : ''; ?>" id="section-obj-<?php echo $index; ?>-content" role="region" aria-labelledby="section-obj-<?php echo $index; ?>-toggle">
+                                    <div class="course-section-content <?php echo $chapter_index === 0 ? 'open' : ''; ?>" id="chapter-<?php echo $chapter_index; ?>-content" role="region" aria-labelledby="chapter-<?php echo $chapter_index; ?>-toggle">
+                                        <?php if (!empty($chapter['chapterDescription'])): ?>
+                                            <p class="chapter-description"><?php echo htmlspecialchars($chapter['chapterDescription']); ?></p>
+                                        <?php endif; ?>
                                         <ul class="course-lecture-list">
-                                            <li>
-                                                <svg width="18" height="18" fill="none" stroke="#1c1d1f" stroke-width="2" aria-hidden="true"> <rect x="2.5" y="4" width="13" height="10" rx="2" /> </svg>
-                                                <?php echo htmlspecialchars($objective_item['objective'] ?? 'Chi tiết đang cập nhật'); ?>
-                                            </li>
+                                            <?php if (!empty($chapter['chapterLessons']) && is_array($chapter['chapterLessons'])): ?>
+                                                <?php foreach ($chapter['chapterLessons'] as $lesson_index => $lesson): ?>
+                                                    <li class="lesson-entry">
+                                                        <div class="lesson-header">
+                                                            <div class="lesson-title-area">
+                                                                <svg class="lesson-icon-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-.84-11.312a.75.75 0 011.062.002l3.5 3.25a.75.75 0 010 1.12l-3.5 3.25a.75.75 0 11-1.062-1.122L11.878 10 9.16 7.812a.75.75 0 01-.002-1.122z" clip-rule="evenodd" />
+                                                                </svg>
+                                                                <span><?php echo htmlspecialchars($lesson['lessonTitle'] ?? 'Bài học không có tiêu đề'); ?></span>
+                                                            </div>
+                                                            <div class="lesson-actions-area">
+                                                                <?php if (!empty($lesson['lessonResources']) || !empty($lesson['lessonVideos'])): // Hiển thị nút nếu có tài liệu HOẶC video 
+                                                                ?>
+                                                                    <button type="button" class="btn-lesson-resources" onclick="toggleLessonDetails(this, 'lesson-details-<?php echo $chapter_index . '-' . $lesson_index; ?>')">
+                                                                        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px; vertical-align: middle;">
+                                                                            <path d="M5.5 16.5A1.5 1.5 0 014 15V5a1.5 1.5 0 011.5-1.5h5A1.5 1.5 0 0112 5v2.5a.75.75 0 001.5 0V5a3 3 0 00-3-3h-5A3 3 0 002.5 5v10a3 3 0 003 3h5a3 3 0 003-3V12.5a.75.75 0 00-1.5 0V15a1.5 1.5 0 01-1.5 1.5h-5z"></path>
+                                                                            <path d="M18.25 9.043a.75.75 0 00-1.06 0l-4.5 4.5a.75.75 0 001.06 1.06l4.5-4.5a.75.75 0 000-1.06z"></path>
+                                                                            <path d="M13.75 13.543a.75.75 0 001.06 0l4.5-4.5a.75.75 0 00-1.06-1.06l-4.5 4.5a.75.75 0 000 1.06z"></path>
+                                                                        </svg>
+                                                                        Tài liệu
+                                                                    </button>
+                                                                <?php endif; ?>
+                                                                <?php
+                                                                // Placeholder cho thời lượng, bạn cần lấy từ API nếu có
+                                                                $lesson_duration_placeholder = "00:00";
+                                                                if (isset($lesson['lessonVideos'][0]['videoTitle'])) { // Giả sử video đầu tiên có thể cho thời lượng
+                                                                    // Đây chỉ là ví dụ, API thực tế cần cung cấp trường duration
+                                                                    $title_length = strlen($lesson['lessonVideos'][0]['videoTitle']);
+                                                                    $minutes = $title_length % 15 + 1; // Thời lượng giả dựa trên độ dài tiêu đề
+                                                                    $seconds = ($title_length * 3) % 60;
+                                                                    $lesson_duration_placeholder = sprintf("%02d:%02d", $minutes, $seconds);
+                                                                }
+                                                                ?>
+                                                                <span class="lesson-duration-badge"><?php echo $lesson_duration_placeholder; ?></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="lesson-content-details" id="lesson-details-<?php echo $chapter_index . '-' . $lesson_index; ?>" style="display: none;">
+                                                            <?php if (!empty($lesson['lessonResources']) && is_array($lesson['lessonResources'])): ?>
+                                                                <ul class="resource-list-collapsible">
+                                                                    <span class="sub-list-title">Tài liệu đính kèm:</span>
+                                                                    <?php foreach ($lesson['lessonResources'] as $resource): ?>
+                                                                        <li>
+                                                                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                                                                <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
+                                                                            </svg>
+                                                                            <a href="<?php echo htmlspecialchars($file_loader_base_url . "?act=serve_course_resource&resource_id=" . urlencode($resource['resourceID'] ?? '') . "&filename=" . urlencode($resource['resourcePath'] ?? '')); ?>" target="_blank">
+                                                                                <?php echo htmlspecialchars($resource['resourceTitle'] ?? 'Tài liệu'); ?>
+                                                                            </a>
+                                                                        </li>
+                                                                    <?php endforeach; ?>
+                                                                </ul>
+                                                            <?php endif; ?>
+
+                                                            <?php if (!empty($lesson['lessonVideos']) && is_array($lesson['lessonVideos'])): ?>
+                                                                <ul class="video-list-collapsible">
+                                                                    <span class="sub-list-title">Video bài giảng:</span>
+                                                                    <?php foreach ($lesson['lessonVideos'] as $video): ?>
+                                                                        <li>
+                                                                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                                                                <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z" />
+                                                                            </svg>
+                                                                            <?php
+                                                                            $video_url = $video['videoURL'] ?? '#';
+                                                                            $video_target = '_blank';
+                                                                            if ($video_url !== '#' && !(substr($video_url, 0, 7) === 'http://' || substr($video_url, 0, 8) === 'https://')) {
+                                                                                $video_url = htmlspecialchars($file_loader_base_url . "?act=serve_course_video&video_id=" . urlencode($video['videoID'] ?? '') . "&filename=" . urlencode($video['videoURL'] ?? ''));
+                                                                            } else {
+                                                                                $video_url = htmlspecialchars($video_url);
+                                                                            }
+                                                                            ?>
+                                                                            <a href="<?php echo $video_url; ?>" target="<?php echo $video_target; ?>">
+                                                                                <?php echo htmlspecialchars($video['videoTitle'] ?? 'Video'); ?>
+                                                                            </a>
+                                                                        </li>
+                                                                    <?php endforeach; ?>
+                                                                </ul>
+                                                            <?php endif; ?>
+                                                            <?php if (empty($lesson['lessonResources']) && empty($lesson['lessonVideos'])): ?>
+                                                                <p style="font-style: italic; color: #777; font-size: 13px;">Không có tài liệu hoặc video cho bài học này.</p>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <li style="font-style: italic; color: #777; padding: 10px 0;">Không có bài học nào trong chương này.</li>
+                                            <?php endif; ?>
                                         </ul>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
-                        </div>
-                    <?php else: ?>
-                        <div class="course-content-meta" aria-live="polite" aria-atomic="true">Thông tin đang cập nhật</div>
-                        <p style="padding: 15px 0;">Nội dung chi tiết của khóa học đang được cập nhật.</p>
-                    <?php endif; ?>
+                        <?php else: ?>
+                            <p style="padding: 15px 0;">Nội dung chi tiết của khóa học đang được cập nhật.</p>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
 
             <aside class="course-aside" aria-label="Tùy chọn mua khóa học và thông tin chi tiết">
                 <div class="course-aside-imgbox">
                     <?php
-                    $course_image_display_url = "https://placehold.co/600x400/EFEFEF/AAAAAA?text=Course+Image"; // Ảnh mặc định
+                    $course_image_display_url = "https://placehold.co/600x400/EFEFEF/AAAAAA?text=Course+Image";
                     if (!empty($course_data['images']) && is_array($course_data['images']) && isset($course_data['images'][0]['imagePath']) && !empty($course_data['courseID'])) {
                         $image_filename = basename($course_data['images'][0]['imagePath']);
                         if (!empty($image_filename)) {
@@ -332,24 +692,38 @@ $app_root_url_for_paths = htmlspecialchars($app_root_path_relative);
                 <button class="course-btn course-btn-cart" type="button">Thêm vào giỏ hàng</button>
                 <button class="course-btn course-btn-buy" type="button">Mua ngay</button>
                 <div class="course-guarantee">Bảo đảm hoàn tiền trong 30 ngày</div>
-                <ul class="course-feature-list"> <li>
-                        <svg width="18" height="18" fill="none" stroke="#5624d0" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="12" height="10" rx="2" /><path d="M3 8h12" /></svg>
+                <ul class="course-feature-list">
+                    <li>
+                        <svg width="18" height="18" fill="none" stroke="#5624d0" stroke-width="2" aria-hidden="true">
+                            <rect x="3" y="4" width="12" height="10" rx="2" />
+                            <path d="M3 8h12" />
+                        </svg>
                         Video theo yêu cầu
                     </li>
                     <li>
-                        <svg width="18" height="18" fill="none" stroke="#5624d0" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="12" height="10" rx="2" /><path d="M3 8h12" /></svg>
+                        <svg width="18" height="18" fill="none" stroke="#5624d0" stroke-width="2" aria-hidden="true">
+                            <rect x="3" y="4" width="12" height="10" rx="2" />
+                            <path d="M3 8h12" />
+                        </svg>
                         Tài nguyên có thể tải xuống
                     </li>
                     <li>
-                        <svg width="18" height="18" fill="none" stroke="#5624d0" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="14" height="14" rx="3" /></svg>
+                        <svg width="18" height="18" fill="none" stroke="#5624d0" stroke-width="2" aria-hidden="true">
+                            <rect x="2" y="2" width="14" height="14" rx="3" />
+                        </svg>
                         Truy cập trên thiết bị di động và TV
                     </li>
                     <li>
-                        <svg width="18" height="18" fill="none" stroke="#5624d0" stroke-width="2" aria-hidden="true"><rect x="4" y="2" width="10" height="14" rx="2" /></svg>
+                        <svg width="18" height="18" fill="none" stroke="#5624d0" stroke-width="2" aria-hidden="true">
+                            <rect x="4" y="2" width="10" height="14" rx="2" />
+                        </svg>
                         Truy cập trọn đời
                     </li>
                     <li>
-                        <svg width="18" height="18" fill="none" stroke="#5624d0" stroke-width="2" aria-hidden="true"><circle cx="9" cy="9" r="7" /><path d="M9 5v4l3 3" /></svg>
+                        <svg width="18" height="18" fill="none" stroke="#5624d0" stroke-width="2" aria-hidden="true">
+                            <circle cx="9" cy="9" r="7" />
+                            <path d="M9 5v4l3 3" />
+                        </svg>
                         Chứng nhận hoàn thành
                     </li>
                 </ul>
@@ -408,10 +782,8 @@ $app_root_url_for_paths = htmlspecialchars($app_root_path_relative);
                 <?php if (!empty($course_data['instructors']) && is_array($course_data['instructors'])): ?>
                     <?php foreach ($course_data['instructors'] as $instructor): ?>
                         <?php
-                        $instructor_avatar_url = "https://placehold.co/100x100/EFEFEF/AAAAAA?text=Avatar"; // Ảnh mặc định
-                        // Giả sử giảng viên có trường 'avatarFilename' hoặc bạn có một tên file mặc định
-                        // Nếu API của bạn trả về tên file avatar cho giảng viên, hãy thay thế 'default_avatar.png'
-                        $instructor_image_filename = $instructor['avatarFilename'] ?? 'default_avatar.png'; // Thay thế nếu có trường cụ thể
+                        $instructor_avatar_url = "https://placehold.co/100x100/EFEFEF/AAAAAA?text=Avatar";
+                        $instructor_image_filename = $instructor['avatarFilename'] ?? 'default_avatar.png';
                         if (!empty($instructor['instructorID']) && !empty($instructor_image_filename)) {
                             $instructor_avatar_url = htmlspecialchars($file_loader_base_url . "?act=serve_user_image&user_id=" . urlencode($instructor['instructorID']) . "&image=" . urlencode($instructor_image_filename));
                         }
@@ -420,12 +792,21 @@ $app_root_url_for_paths = htmlspecialchars($app_root_path_relative);
                             <a href="#" class="course-instructor-name"><?php echo htmlspecialchars(($instructor['firstName'] ?? '') . ' ' . ($instructor['lastName'] ?? 'N/A')); ?></a>
                             <div class="course-instructor-profile">
                                 <div class="course-instructor-avt">
-                                    <img src="<?php echo $instructor_avatar_url; ?>" alt="Ảnh đại diện <?php echo htmlspecialchars(($instructor['firstName'] ?? '') . ' ' . ($instructor['lastName'] ?? '')); ?>" onerror="this.onerror=null;this.src='https://placehold.co/100x100/EFEFEF/AAAAAA?text=No+Image';S" />
+                                    <img src="<?php echo $instructor_avatar_url; ?>" alt="Ảnh đại diện <?php echo htmlspecialchars(($instructor['firstName'] ?? '') . ' ' . ($instructor['lastName'] ?? '')); ?>" onerror="this.onerror=null;this.src='https://placehold.co/100x100/EFEFEF/AAAAAA?text=No+Image';" />
                                 </div>
-                                <div class="course-instructor-meta"> <div><span class="inst-star" aria-label="Đánh giá giảng viên 4.6 sao">★ 4.6</span> Đánh giá giảng viên</div>
-                                    <div><svg width="16" height="16" fill="none" stroke="#6a6f73" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="7" /></svg> 1,263,843 nhận xét</div>
-                                    <div><svg width="16" height="16" fill="none" stroke="#6a6f73" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="7" /><path d="M4 14l8-8" /></svg> 4,237,490 học viên</div>
-                                    <div><svg width="16" height="16" fill="none" stroke="#6a6f73" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="7" /><path d="M8 4v8" /></svg> 87 khóa học</div>
+                                <div class="course-instructor-meta">
+                                    <div><span class="inst-star" aria-label="Đánh giá giảng viên 4.6 sao">★ 4.6</span> Đánh giá giảng viên</div>
+                                    <div><svg width="16" height="16" fill="none" stroke="#6a6f73" stroke-width="1.5" aria-hidden="true">
+                                            <circle cx="8" cy="8" r="7" />
+                                        </svg> 1,263,843 nhận xét</div>
+                                    <div><svg width="16" height="16" fill="none" stroke="#6a6f73" stroke-width="1.5" aria-hidden="true">
+                                            <circle cx="8" cy="8" r="7" />
+                                            <path d="M4 14l8-8" />
+                                        </svg> 4,237,490 học viên</div>
+                                    <div><svg width="16" height="16" fill="none" stroke="#6a6f73" stroke-width="1.5" aria-hidden="true">
+                                            <circle cx="8" cy="8" r="7" />
+                                            <path d="M8 4v8" />
+                                        </svg> 87 khóa học</div>
                                 </div>
                             </div>
                             <div class="course-instructor-bio">
@@ -450,6 +831,7 @@ $app_root_url_for_paths = htmlspecialchars($app_root_path_relative);
 <?php endif; ?>
 
 <script>
+    // Hàm JS để mở/đóng section của syllabus (giữ nguyên)
     function toggleSyllabusSection(button) {
         const contentId = button.getAttribute('aria-controls');
         const content = document.getElementById(contentId);
@@ -459,17 +841,32 @@ $app_root_url_for_paths = htmlspecialchars($app_root_path_relative);
         content.classList.toggle('open');
     }
 
+    // Hàm JS mới để mở/đóng chi tiết bài học (tài liệu, video)
+    function toggleLessonDetails(button, contentId) {
+        const content = document.getElementById(contentId);
+        if (content) {
+            const isCurrentlyOpen = content.style.display === 'block';
+            content.style.display = isCurrentlyOpen ? 'none' : 'block';
+            button.classList.toggle('active', !isCurrentlyOpen); // Thêm/xóa class 'active' cho nút
+        }
+    }
+
+
     const expandAllButton = document.querySelector('.course-content-expand');
     if (expandAllButton) {
         expandAllButton.addEventListener('click', function(event) {
             event.preventDefault();
-            const sections = document.querySelectorAll('.course-content-accordion .course-section-toggle');
-            const isCurrentlyExpanding = this.textContent.includes('Mở rộng');
+            const syllabusSections = document.querySelectorAll('.course-content-accordion .course-section-toggle');
+            const lessonDetailButtons = document.querySelectorAll('.btn-lesson-resources');
 
-            sections.forEach(button => {
+            const isCurrentlyExpanding = this.textContent.includes('Mở rộng');
+            this.textContent = isCurrentlyExpanding ? 'Thu gọn tất cả' : 'Mở rộng tất cả';
+            this.setAttribute('aria-expanded', isCurrentlyExpanding ? 'true' : 'false');
+
+            // Mở/đóng các chương
+            syllabusSections.forEach(button => {
                 const contentId = button.getAttribute('aria-controls');
                 const content = document.getElementById(contentId);
-
                 button.setAttribute('aria-expanded', isCurrentlyExpanding ? 'true' : 'false');
                 if (isCurrentlyExpanding) {
                     content.classList.add('open');
@@ -477,8 +874,20 @@ $app_root_url_for_paths = htmlspecialchars($app_root_path_relative);
                     content.classList.remove('open');
                 }
             });
-            this.textContent = isCurrentlyExpanding ? 'Thu gọn tất cả' : 'Mở rộng tất cả';
-            this.setAttribute('aria-expanded', isCurrentlyExpanding ? 'true' : 'false');
+
+            // Mở/đóng chi tiết tất cả các bài học (nếu muốn)
+            // Hiện tại, nút "Mở rộng tất cả" chỉ tác động đến chương.
+            // Nếu muốn nó cũng mở tất cả chi tiết bài học, thêm logic tương tự cho lessonDetailButtons
+            /*
+            lessonDetailButtons.forEach(button => {
+                const lessonContentId = button.getAttribute('onclick').match(/'([^']+)'/)[1]; // Trích xuất ID từ onclick
+                const lessonContent = document.getElementById(lessonContentId);
+                if (lessonContent) {
+                    lessonContent.style.display = isCurrentlyExpanding ? 'block' : 'none';
+                    button.classList.toggle('active', isCurrentlyExpanding);
+                }
+            });
+            */
         });
     }
 </script>
