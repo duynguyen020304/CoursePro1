@@ -167,7 +167,8 @@ include('template/head.php'); // Giữ nguyên head của bạn
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<link href="public/css/swiper-bundle.min.css" rel="stylesheet"> <link rel="stylesheet" href="public/css/home.css"> 
+<link href="public/css/swiper-bundle.min.css" rel="stylesheet"> 
+<link rel="stylesheet" href="public/css/home.css"> 
 <style>
     /* Style cho .big-img::before từ giao diện mới */
     .big-img::before {
@@ -210,8 +211,8 @@ include('template/head.php'); // Giữ nguyên head của bạn
             </div>
             <div class="about-item" data-aos="fade-left" data-aos-duration="1500">
                 <div class="about-item-img">
-                    <span>Chất lượng hàng đầu</span>
-                    <img src="media/about-us-khoa-hoc.jpg" alt="Về chúng tôi"> </div>
+                    <img src="media/about-us-khoa-hoc.jpg" alt="Về chúng tôi"> 
+                </div>
             </div>
         </div>
     </div>
@@ -339,8 +340,8 @@ include('template/head.php'); // Giữ nguyên head của bạn
                         // Giả sử 'title' hoặc 'specialization' không có sẵn, dùng một phần biography hoặc placeholder
                         $instructorTitle = (!empty($instructor['specialization']) ? htmlspecialchars($instructor['specialization']) : 'Chuyên gia');
                         if (empty($instructor['specialization']) && !empty($instructor['biography']) && strtoupper($instructor['biography']) !== 'NULL') {
-                             // Lấy một phần ngắn của biography làm title nếu muốn, ví dụ:
-                             // $instructorTitle = htmlspecialchars(mb_substr($instructor['biography'], 0, 30) . '...');
+                            // Lấy một phần ngắn của biography làm title nếu muốn, ví dụ:
+                            // $instructorTitle = htmlspecialchars(mb_substr($instructor['biography'], 0, 30) . '...');
                         }
                         ?>
                         <div class="swiper-slide">
@@ -416,7 +417,8 @@ include('template/head.php'); // Giữ nguyên head của bạn
 </section>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>AOS.init();</script>
-<script src="public/js/swiper-bundle.min.js"></script> <script>
+<script src="public/js/swiper-bundle.min.js"></script> 
+<script>
     // JavaScript cho menu di động và sticky navigation (từ code mới)
     const menuBar = document.querySelector(".menu-bar"); // Cần class này trong header.php của bạn
     const menuItems = document.querySelector(".menu-items"); // Cần class này trong header.php của bạn
@@ -458,7 +460,7 @@ include('template/head.php'); // Giữ nguyên head của bạn
         initSwiperIfPresent('.featured-courses-slider', {
             slidesPerView: 3,
             spaceBetween: 30,
-            loop: false,
+            loop: false, // Set to false if you don't have enough slides for a continuous loop
             navigation: {
                 nextEl: '.featured-courses-slider .swiper-button-next',
                 prevEl: '.featured-courses-slider .swiper-button-prev',
@@ -475,7 +477,7 @@ include('template/head.php'); // Giữ nguyên head của bạn
         initSwiperIfPresent('.instructors-slider', {
             slidesPerView: 3,
             spaceBetween: 30,
-            loop: false,
+            loop: false, // Set to false if you don't have enough slides
             navigation: {
                 nextEl: '.instructors-slider .swiper-button-next',
                 prevEl: '.instructors-slider .swiper-button-prev',
@@ -492,7 +494,7 @@ include('template/head.php'); // Giữ nguyên head của bạn
         initSwiperIfPresent('.testimonials-slider', {
             slidesPerView: 3,
             spaceBetween: 30,
-            loop: false,
+            loop: false, // Set to false if you don't have enough slides
             navigation: {
                 nextEl: '.testimonials-slider .swiper-button-next',
                 prevEl: '.testimonials-slider .swiper-button-prev',

@@ -257,7 +257,6 @@ $app_root_url_for_paths = htmlspecialchars($app_root_path_relative);
                     </svg>
                     <span>Cập nhật lần cuối 5/2020</span>
                 </div>
-
                 <div class="course-learn-card" role="region" aria-labelledby="learn-title">
                     <h2 id="learn-title" class="course-learn-title">Bạn sẽ học được gì</h2>
                     <?php if (!empty($course_data['objectives']) && is_array($course_data['objectives'])): ?>

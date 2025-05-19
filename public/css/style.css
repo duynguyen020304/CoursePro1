@@ -392,7 +392,171 @@
     }
 }
 
-/* Đoạn CSS cho CATEGORY DROPDOWN TREE UDEMY STYLE đã được hợp nhất vào phần .category-dropdown-menu ở trên */
-/* Bạn có thể xóa đoạn comment này và các style trùng lặp bên dưới nó nếu đã kiểm tra kỹ */
+/* === CSS CHO FOOTER (site-footer) === */
+.site-footer {
+    background-color: #1c1d1f !important; /* Màu nền tối hơn, ví dụ #1c1d1f hoặc #212529 */
+    color: #e0e0e0; /* Màu chữ chính cho footer */
+    font-family: 'Inter', sans-serif; /* Sử dụng font Inter nếu có */
+}
 
-/* END CATEGORY DROPDOWN TREE */
+.site-footer .footer-heading {
+    font-size: 1rem; /* Kích thước tiêu đề cột */
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: #ffffff; /* Màu trắng cho tiêu đề */
+    margin-bottom: 1.25rem; /* Tăng khoảng cách dưới tiêu đề */
+}
+
+.site-footer .footer-description-text,
+.site-footer .footer-address-text {
+    color: #b0b0b0; /* Màu chữ mô tả/địa chỉ nhạt hơn */
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.7;
+}
+
+.site-footer .footer-contact-info {
+    font-size: 0.875rem;
+}
+
+.site-footer .footer-contact-link {
+    color: #b0b0b0;
+    text-decoration: none;
+    transition: color 0.25s ease-in-out;
+    display: inline-block; /* Cho phép margin bottom nếu cần */
+    margin-bottom: 0.3rem; /* Khoảng cách nhỏ giữa các link contact */
+}
+
+.site-footer .footer-contact-link:hover {
+    color: #ffffff !important; /* Quan trọng để ghi đè text-white của Bootstrap */
+}
+
+.site-footer .footer-contact-link i {
+    color: #868e96; /* Màu icon liên hệ */
+    transition: color 0.25s ease-in-out;
+    font-size: 0.9em; /* Kích thước icon nhỏ hơn một chút so với text */
+    margin-right: 0.6rem; /* Tăng khoảng cách icon và text */
+}
+
+.site-footer .footer-contact-link:hover i {
+    color: #ffffff;
+}
+
+.site-footer .footer-links li {
+    margin-bottom: 0.75rem; /* Khoảng cách giữa các mục link */
+}
+
+.site-footer .footer-links li a {
+    color: #b0b0b0;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.25s ease-in-out, padding-left 0.25s ease-in-out;
+    display: flex; /* Sử dụng flex để căn icon và text */
+    align-items: center;
+}
+
+.site-footer .footer-links li a:hover {
+    color: #ffffff;
+    padding-left: 8px; /* Hiệu ứng thụt lề khi hover */
+}
+
+.site-footer .footer-links li a i {
+    width: 22px; /* Đảm bảo icon có không gian cố định */
+    color: #868e96; /* Màu icon */
+    margin-right: 0.6rem; /* Khoảng cách icon và text */
+    transition: color 0.25s ease-in-out;
+    font-size: 0.9em;
+}
+
+.site-footer .footer-links li a:hover i {
+    color: #ffffff;
+}
+
+.site-footer .social-icons .social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;  /* Tăng kích thước vùng chạm */
+    height: 40px; /* Tăng kích thước vùng chạm */
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.08); /* Nền mờ hơn */
+    color: #e0e0e0;
+    text-decoration: none;
+    font-size: 1.1rem; /* Kích thước icon */
+    transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out, transform 0.2s ease;
+    margin-right: 0.5rem; /* Khoảng cách giữa các icon */
+}
+.site-footer .social-icons .social-icon:last-child {
+    margin-right: 0;
+}
+
+.site-footer .social-icons .social-icon:hover {
+    background-color: #ffffff;
+    color: #1c1d1f; /* Màu icon tối khi nền trắng */
+    transform: scale(1.1); /* Hiệu ứng phóng to nhẹ */
+}
+
+.site-footer .footer-divider {
+    border-top-color: rgba(255, 255, 255, 0.1) !important; /* Đường kẻ ngang */
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.site-footer .footer-copyright-text,
+.site-footer .footer-credits-text {
+    font-size: 0.8125rem; /* 13px, nhỏ hơn một chút */
+    color: #a0a0a0;
+}
+
+.site-footer .footer-credits-text a {
+    color: #c0c0c0; /* Màu link credit */
+    text-decoration: none;
+    font-weight: 500; /* Không quá đậm */
+    transition: color 0.25s ease-in-out;
+}
+
+.site-footer .footer-credits-text a:hover {
+    color: #ffffff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) { /* lg breakpoint */
+    .site-footer .footer-heading {
+        margin-top: 1.5rem; /* Tăng khoảng cách trên cho tiêu đề cột khi stack */
+    }
+    .site-footer .footer-col:first-child .footer-heading {
+        margin-top: 0; /* Không cần margin-top cho cột đầu tiên */
+    }
+    .site-footer .col-lg-4.col-md-12.footer-col { /* Cột giới thiệu */
+         margin-bottom: 1.5rem !important;
+    }
+}
+
+@media (max-width: 767.98px) { /* md breakpoint */
+    .site-footer .footer-bottom-row .text-md-start,
+    .site-footer .footer-bottom-row .text-md-end {
+        text-align: center !important;
+    }
+    .site-footer .footer-bottom-row .text-md-end {
+        margin-top: 0.75rem; /* Khoảng cách cho dòng credit trên mobile */
+    }
+
+    .site-footer .footer-contact-link {
+        display: block; /* Cho mỗi link liên hệ xuống dòng riêng trên mobile */
+        margin-bottom: 0.75rem;
+    }
+    .site-footer .footer-contact-link:last-child {
+        margin-bottom: 0;
+    }
+    .site-footer .social-icons {
+        text-align: center; /* Căn giữa icon social trên mobile */
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Thêm font Inter nếu bạn muốn sử dụng */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body { /* Áp dụng font Inter cho cả trang hoặc chỉ cho footer nếu muốn */
+    font-family: 'Inter', sans-serif;
+}
+
