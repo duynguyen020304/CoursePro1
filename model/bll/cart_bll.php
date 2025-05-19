@@ -17,23 +17,18 @@ class CartBLL extends Database
         $sql = "SELECT * FROM Cart WHERE UserID = '{$userID}'";
         $result = $this->execute($sql);
 
-        // Kiểm tra kết quả truy vấn
         if (!$result || !($result instanceof mysqli_result)) {
-            error_log("Lỗi truy vấn Cart: $sql");
             return null;
         }
-
         $dto = null;
         if ($row = $result->fetch_assoc()) {
             $dto = new CartDTO($row['CartID'], $row['UserID']);
         }
-
         return $dto;
     }
 
     public function delete_cart(string $cartID): bool
     {
-        // Escape dữ liệu để tránh SQL Injection (có thể đã xử lý ở Database::execute)
         $escapedID = $this->conn->real_escape_string($cartID);
         $sql = "DELETE FROM Cart WHERE CartID = '{$escapedID}'";
 

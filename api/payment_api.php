@@ -1,6 +1,7 @@
 <?php
 // File: api/payment_api.php
 $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 require_once __DIR__ . '/../service/service_payment.php';
 require __DIR__ . '/../vendor/autoload.php';
 use Firebase\JWT\JWT;
@@ -43,7 +44,7 @@ $service = new PaymentService();
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
-        if (!isset($data['orderID'], $data['paymentDate'], $data['amount'])) {
+        if (!isset($data['orderID'], $data['amount'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu bắt buộc: orderID, paymentDate hoặc amount']);
             exit;
@@ -52,9 +53,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         try {
             $paymentDate = new DateTime($data['paymentDate']);
         } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Định dạng paymentDate không hợp lệ']);
-            exit;
+            $paymentDate = new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
         }
         $method = $data['paymentMethod'] ?? null;
         $status = $data['paymentStatus'] ?? null;

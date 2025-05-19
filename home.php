@@ -211,7 +211,7 @@ include('template/head.php'); // Giữ nguyên head của bạn
             </div>
             <div class="about-item" data-aos="fade-left" data-aos-duration="1500">
                 <div class="about-item-img">
-                    <img src="media/about-us-khoa-hoc.jpg" alt="Về chúng tôi"> 
+                    <img src="public/img/about_us.png" alt="Về chúng tôi"> 
                 </div>
             </div>
         </div>
@@ -383,7 +383,7 @@ include('template/head.php'); // Giữ nguyên head của bạn
                 $testimonials_data = [
                     ['name' => 'Nguyễn Văn A', 'course' => 'Lập trình Web', 'image' => 'media/avatar1.png', 'text' => '"Khóa học về lập trình web thực sự giúp tôi cải thiện kỹ năng lập trình và có cơ hội xin việc tốt hơn. Giảng viên nhiệt tình, nội dung chi tiết."'],
                     ['name' => 'Trần Thị B', 'course' => 'Marketing Online', 'image' => 'media/avatar2.png', 'text' => '"Khóa học marketing online rất hữu ích, tôi đã áp dụng vào công việc và thấy rõ hiệu quả. Cảm ơn nền tảng đã cung cấp khóa học chất lượng!"'],
-                    ['name' => 'Lê Văn C', 'course' => 'Thiết kế Đồ họa', 'image' => 'media/avatar3.png', 'text' => '"Giảng viên rất nhiệt tình, dễ hiểu, giúp tôi nắm bắt được các kỹ năng thiết kế đồ họa một cách nhanh chóng. Rất hài lòng!"'],
+                    ['name' => 'Lê Văn C', 'course' => 'Thiết kế Đồ họa', 'image' => 'media/avatar3.png', 'text' => '"Giảng viên rất nhiệt tình, dễ hiểu, giúp tôi nắm bắt được các kỹ năng thiết kế đồ họa một cách nhanh chóng. Rất hài lòng! Sẽ giới thiệu người thân"'],
                 ];
                 foreach ($testimonials_data as $testimonial) {
                 ?>
