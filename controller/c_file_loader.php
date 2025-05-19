@@ -106,6 +106,110 @@ function callApi(string $url, string $requestMethod, array $payload = []): array
 
     return $decodedResponse;
 }
+// Define project root and uploads directory.
+if (!defined('PROJECT_ROOT')) {
+    define('PROJECT_ROOT', dirname(__DIR__));
+}
+if (!defined('UPLOADS_DIR')) {
+    define('UPLOADS_DIR', PROJECT_ROOT . '/uploads');
+}
+
+// Hàm trợ giúp để phục vụ tệp an toàn
+function serve_file(string $filePath, string $requestedFilename): void
+{
+    if (file_exists($filePath) && is_readable($filePath)) {
+        $mimeType = mime_content_type($filePath);
+        if (!$mimeType) { // Fallback nếu mime_content_type không hoạt động
+            $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+            switch ($extension) {
+                case 'jpeg':
+                case 'jpg':
+                    $mimeType = 'image/jpeg';
+                    break;
+                case 'png':
+                    $mimeType = 'image/png';
+                    break;
+                case 'gif':
+                    $mimeType = 'image/gif';
+                    break;
+                case 'pdf':
+                    $mimeType = 'application/pdf';
+                    break;
+                case 'mp4':
+                    $mimeType = 'video/mp4';
+                    break;
+                case 'webm':
+                    $mimeType = 'video/webm';
+                    break;
+                case 'ogg':
+                    $mimeType = 'video/ogg';
+                    break;
+                // Thêm các loại tệp khác nếu cần
+                default:
+                    http_response_code(500);
+                    error_log("FileLoader: Unsupported file type or cannot determine MIME type for: " . $filePath);
+                    exit;
+            }
+        }
+        header_remove('Content-Type'); // Xóa header JSON mặc định (nếu có từ switch trước)
+        header('Content-Type: ' . $mimeType);
+        header('Content-Length: ' . filesize($filePath));
+        header('Cache-Control: public, max-age=86400'); // Cache 1 ngày
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 86400) . ' GMT');
+        // Cho phép streaming cho video/audio
+        if (strpos($mimeType, 'video/') === 0 || strpos($mimeType, 'audio/') === 0) {
+            header('Accept-Ranges: bytes');
+            // Xử lý partial content nếu client yêu cầu (cần thiết cho tua video)
+            if (isset($_SERVER['HTTP_RANGE'])) {
+                $size = filesize($filePath);
+                $length = $size;
+                $start = 0;
+                $end = $size - 1;
+
+                header("HTTP/1.1 206 Partial Content");
+
+                $range = $_SERVER['HTTP_RANGE'];
+                if (preg_match('/bytes=\h*(\d+)-(\d*)[\D.*]?/i', $range, $matches)) {
+                    $start = intval($matches[1]);
+                    if (!empty($matches[2])) {
+                        $end = intval($matches[2]);
+                    }
+                }
+
+                header("Content-Range: bytes $start-$end/$size");
+                header("Content-Length: " . ($end - $start + 1));
+
+                $f = fopen($filePath, 'rb');
+                fseek($f, $start);
+                $buffer = 1024 * 8; // 8KB buffer
+                while (!feof($f) && ($p = ftell($f)) <= $end) {
+                    if ($p + $buffer > $end) {
+                        $buffer = $end - $p + 1;
+                    }
+                    set_time_limit(0); // Ngăn script timeout khi stream file lớn
+                    echo fread($f, $buffer);
+                    flush(); // Gửi buffer ra client
+                }
+                fclose($f);
+                exit;
+            }
+        } else {
+            // Cho phép tải xuống với tên gốc cho các loại tệp khác (ví dụ PDF)
+            header('Content-Disposition: inline; filename="' . basename($requestedFilename) . '"');
+        }
+
+        ob_clean();
+        flush();
+        readfile($filePath);
+        exit;
+    } else {
+        error_log("FileLoader: File not found or not readable: " . $filePath);
+        http_response_code(404); // Not Found
+        // Không echo JSON ở đây vì header Content-Type đã bị xóa hoặc thay đổi
+        exit;
+    }
+}
+
 
 $act = '';
 $requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -233,6 +337,39 @@ switch ($act) {
             http_response_code(404); // Not Found
             exit;
         }
+        break;
+    case 'serve_course_video':
+        header('Content-Type: application/json'); // Cho các lỗi JSON tiềm ẩn
+        $courseId = $_GET['course_id'] ?? null;
+        $chapterId = $_GET['chapter_id'] ?? null; // Cần chapterID để xây dựng đường dẫn
+        $videoFilename = $_GET['filename'] ?? null; // Tên file video
+
+        if (!$courseId || !$chapterId || !$videoFilename) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Missing course_id, chapter_id, or video filename.']);
+            exit;
+        }
+        $videoFilename = basename($videoFilename);
+        // Đường dẫn theo cấu trúc: uploads/{courseID}/{chapterID}/videos/{videoFilename}
+        $videoPath = UPLOADS_DIR . '/' . $courseId . '/' . $chapterId . '/videos/' . $videoFilename;
+        serve_file($videoPath, $videoFilename);
+        break;
+
+    case 'serve_course_resource':
+        header('Content-Type: application/json');
+        $courseId = $_GET['course_id'] ?? null;
+        $chapterId = $_GET['chapter_id'] ?? null; // Cần chapterID
+        $resourceFilename = $_GET['filename'] ?? null; // Tên file tài liệu
+
+        if (!$courseId || !$chapterId || !$resourceFilename) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Missing course_id, chapter_id, or resource filename.']);
+            exit;
+        }
+        $resourceFilename = basename($resourceFilename);
+        // Đường dẫn theo cấu trúc: uploads/{courseID}/{chapterID}/resources/{resourceFilename}
+        $resourcePath = UPLOADS_DIR . '/' . $courseId . '/' . $chapterId . '/resources/' . $resourceFilename;
+        serve_file($resourcePath, $resourceFilename);
         break;
 
     default:
