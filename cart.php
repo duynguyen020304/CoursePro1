@@ -114,7 +114,7 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
 
 <!-- Giỏ hàng -->
 <section class="cart-section py-5">
-    <div class="container">
+    <div class="container" style="padding-top: 100px;">
         <h2 class="text-center mb-4">Các Khóa Học Trong Giỏ Hàng</h2>
         <div class="row">
             <div class="col-md-8">
