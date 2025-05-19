@@ -148,7 +148,7 @@ function callApiForView(string $endpoint, string $method = 'GET', array $payload
     return $result;
 }
 
-$courseResp = callApiForView('course_api.php', 'GET');
+$courseResp = callApiForView('course_api.php?isGetAllCourse=true', 'GET');
 $courses    = ($courseResp['success'] && isset($courseResp['data']) && is_array($courseResp['data'])) ? $courseResp['data'] : [];
 
 $controller_path_relative = $app_root_path_relative . '/controller/c_video.php';
