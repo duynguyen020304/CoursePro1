@@ -4,74 +4,110 @@ require_once __DIR__ . '/../dto/course_image_dto.php';
 
 class CourseImageBLL extends Database
 {
-    /**
-     * Thêm ảnh cho khóa học
-     *
-     * @param CourseImageDTO $img
-     * @return bool
-     */
     public function create_image(CourseImageDTO $img): bool
     {
-        $caption = $img->caption ? "{$img->caption}" : 'NULL';
-        $sql = "INSERT INTO CourseImage (ImageID, CourseID, ImagePath, Caption, SortOrder) VALUES ('{$img->imageID}', '{$img->courseID}', '{$img->imagePath}', '{$caption}', {$img->sortOrder})";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "INSERT INTO COURSEIMAGE (ImageID, CourseID, ImagePath, Caption, SortOrder) 
+                VALUES (:imageID, :courseID, :imagePath, :caption, :sortOrder)";
+
+        $bindParams = [
+            ':imageID'    => $img->imageID,
+            ':courseID'   => $img->courseID,
+            ':imagePath'  => $img->imagePath,
+            ':caption'    => $img->caption,
+            ':sortOrder'  => $img->sortOrder ?? 0,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    /**
-     * Cập nhật ảnh của khóa học
-     *
-     * @param CourseImageDTO $img
-     * @return bool
-     */
     public function update_image(CourseImageDTO $img): bool
     {
-        $caption = $img->caption ? "'{$img->caption}'" : 'NULL';
-        $sql = "UPDATE CourseImage
-                SET CourseID = '{$img->courseID}',
-                    ImagePath = '{$img->imagePath}',
-                    Caption   = {$caption},
-                    SortOrder = {$img->sortOrder}
-                WHERE ImageID = '{$img->imageID}'";
-        $result = $this->execute($sql);
-        return $result === true;
+        $sql = "UPDATE COURSEIMAGE
+                SET CourseID = :courseID,
+                    ImagePath = :imagePath,
+                    Caption   = :caption,
+                    SortOrder = :sortOrder
+                WHERE ImageID = :imageID_where";
+
+        $bindParams = [
+            ':courseID'   => $img->courseID,
+            ':imagePath'  => $img->imagePath,
+            ':caption'    => $img->caption,
+            ':sortOrder'  => $img->sortOrder ?? 0,
+            ':imageID_where' => $img->imageID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
     }
 
-    /**
-     * Xóa ảnh theo ID
-     *
-     * @param string $imageID
-     * @return bool
-     */
     public function delete_image(string $imageID, string $courseID): bool
     {
-        $sql = "DELETE FROM CourseImage WHERE ImageID = '{$imageID}' AND CourseID = '{$courseID}'";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "DELETE FROM COURSEIMAGE WHERE ImageID = :imageID AND CourseID = :courseID";
+
+        $bindParams = [
+            ':imageID'  => $imageID,
+            ':courseID' => $courseID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    /**
-     * Lấy danh sách ảnh theo khóa học
-     *
-     * @param string $courseID
-     * @return CourseImageDTO[]
-     */
-    public function get_images_by_course(string $courseID): array
+    public function get_image_by_id(string $imageID): ?CourseImageDTO
     {
-        $sql = "SELECT * FROM CourseImage WHERE CourseID = '{$courseID}' ORDER BY SortOrder";
-        $result = $this->execute($sql);
-        $images = [];
-        if ($result instanceof mysqli_result) {
-            while ($row = $result->fetch_assoc()) {
-                $images[] = new CourseImageDTO(
-                    $row['ImageID'],
-                    $row['CourseID'],
-                    $row['ImagePath'],
-                    $row['Caption'],
-                    (int)$row['SortOrder']
+        $sql = "SELECT ImageID, CourseID, ImagePath, Caption, SortOrder, created_at 
+                FROM COURSEIMAGE 
+                WHERE ImageID = :imageID_param";
+        $bindParams = [':imageID_param' => $imageID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        $dto = null;
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new CourseImageDTO(
+                    $row['IMAGEID'],
+                    $row['COURSEID'],
+                    $row['IMAGEPATH'],
+                    $row['CAPTION'],
+                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
+                    $row['CREATED_AT'] ?? null
                 );
             }
+            @oci_free_statement($stid);
+        }
+        return $dto;
+    }
+
+
+    public function get_images_by_course(string $courseID): array
+    {
+        $sql = "SELECT ImageID, CourseID, ImagePath, Caption, SortOrder, created_at 
+                FROM COURSEIMAGE 
+                WHERE CourseID = :courseID_param 
+                ORDER BY SortOrder ASC";
+
+        $bindParams = [':courseID_param' => $courseID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        $images = [];
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $images[] = new CourseImageDTO(
+                    $row['IMAGEID'],
+                    $row['COURSEID'],
+                    $row['IMAGEPATH'],
+                    $row['CAPTION'],
+                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
         return $images;
     }
 }
+?>

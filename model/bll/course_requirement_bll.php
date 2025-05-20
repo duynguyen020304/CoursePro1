@@ -6,71 +6,100 @@ class CourseRequirementBLL extends Database
 {
     public function create(CourseRequirementDTO $req): bool
     {
-        $sql = "INSERT INTO `CourseRequirement`(RequirementID, CourseID, Requirement) VALUES ('{$req->requirementID}','{$req->courseID}', '{$req->requirement}')";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "INSERT INTO COURSEREQUIREMENT (RequirementID, CourseID, Requirement) 
+                VALUES (:requirementID, :courseID, :requirement)";
+
+        $bindParams = [
+            ':requirementID' => $req->requirementID,
+            ':courseID'      => $req->courseID,
+            ':requirement'   => $req->requirement,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
     public function update(CourseRequirementDTO $req): bool
     {
-        $sql = "UPDATE `CourseRequirement` SET Requirement = '{$req->requirement}' WHERE RequirementID = '{$req->requirementID}'";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "UPDATE COURSEREQUIREMENT SET Requirement = :requirement 
+                WHERE RequirementID = :requirementID_where AND CourseID = :courseID_where";
+
+        $bindParams = [
+            ':requirement'        => $req->requirement,
+            ':requirementID_where' => $req->requirementID,
+            ':courseID_where'     => $req->courseID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
     }
 
-    public function delete(string $requirementID): bool
+    public function delete(string $courseID, string $requirementID): bool
     {
-        $sql = "DELETE FROM `CourseRequirement` WHERE RequirementID = '{$requirementID}'";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "DELETE FROM COURSEREQUIREMENT 
+                WHERE RequirementID = :requirementID AND CourseID = :courseID";
+
+        $bindParams = [
+            ':requirementID' => $requirementID,
+            ':courseID'      => $courseID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function get_by_id(string $requirementID): array
+    public function get_requirement_by_ids(string $courseID, string $requirementID): ?CourseRequirementDTO
     {
-        $sql = "SELECT * FROM `CourseRequirement` WHERE RequirementID = '{$requirementID}'";
-        $result = $this->execute($sql);
-        $requirements=[];
-        if ($result instanceof mysqli_result) {
-            while ($row = $result->fetch_assoc()) {
-                $requirements[] = new CourseRequirementDTO(
-                    $row['RequirementID'],
-                    $row['CourseID'],
-                    $row['Requirement']
+        $sql = "SELECT RequirementID, CourseID, Requirement, created_at 
+                FROM COURSEREQUIREMENT 
+                WHERE RequirementID = :requirementID_param AND CourseID = :courseID_param";
+
+        $bindParams = [
+            ':requirementID_param' => $requirementID,
+            ':courseID_param'      => $courseID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        $dto = null;
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new CourseRequirementDTO(
+                    $row['REQUIREMENTID'],
+                    $row['COURSEID'],
+                    $row['REQUIREMENT'],
+                    $row['CREATED_AT'] ?? null
                 );
             }
+            @oci_free_statement($stid);
         }
-        return $requirements;
+        return $dto;
     }
 
-    public function get_by_course_id(string $CourseID): array
+    public function get_requirements_by_course_id(string $courseID): array
     {
-        $sql = "SELECT * FROM `CourseRequirement` WHERE CourseID = '{$CourseID}'";
-        $result = $this->execute($sql);
-        $requirements=[];
-        if ($result instanceof mysqli_result) {
-            while ($row = $result->fetch_assoc()) {
+        $sql = "SELECT RequirementID, CourseID, Requirement, created_at 
+                FROM COURSEREQUIREMENT 
+                WHERE CourseID = :courseID_param 
+                ORDER BY RequirementID ASC";
+
+        $bindParams = [':courseID_param' => $courseID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        $requirements = [];
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $requirements[] = new CourseRequirementDTO(
-                    $row['RequirementID'],
-                    $row['CourseID'],
-                    $row['Requirement']
+                    $row['REQUIREMENTID'],
+                    $row['COURSEID'],
+                    $row['REQUIREMENT'],
+                    $row['CREATED_AT'] ?? null
                 );
             }
+            @oci_free_statement($stid);
         }
         return $requirements;
-    }
-
-    public function get_all_by_course(string $courseID): array
-    {
-        $sql = "SELECT * FROM `CourseRequirement` WHERE CourseID = '{$courseID}'";
-        $result = $this->execute($sql);
-        $objs = [];
-        while ($row = $result->fetch_assoc()) {
-            $objs[] = new CourseRequirementDTO(
-                $row['RequirementID'],
-                $row['CourseID'],
-                $row['Requirement']
-            );
-        }
-        return $objs;
     }
 }
+?>

@@ -4,91 +4,107 @@ require_once __DIR__ . '/../dto/order_detail_dto.php';
 
 class OrderDetailBLL extends Database
 {
-    /**
-     * Thêm chi tiết đơn hàng
-     *
-     * @param OrderDetailDTO $detail
-     * @return bool
-     */
     public function add_detail(OrderDetailDTO $detail): bool
     {
-        // Lấy giá trị từ OrderDetailDTO
-        $orderID = $detail->orderID;
-        $courseID = $detail->courseID;
-        $price = is_numeric($detail->price) ? (float)$detail->price : 0;  // Đảm bảo giá trị price hợp lệ
+        $sql = "INSERT INTO ORDERDETAIL (OrderID, CourseID, Price) 
+                VALUES (:orderID, :courseID, :price)";
 
-        // Tạo câu lệnh SQL
-        $sql = "INSERT INTO OrderDetail (OrderID, CourseID, Price) 
-            VALUES ('{$orderID}', '{$courseID}', {$price})";
+        $bindParams = [
+            ':orderID'  => $detail->orderID,
+            ':courseID' => $detail->courseID,
+            ':price'    => is_numeric($detail->price) ? (float)$detail->price : 0,
+        ];
 
-        // Thực thi câu lệnh SQL
-        $result = $this->execute($sql);
-
-        // Kiểm tra kết quả thực thi
-        return $result === true && $this->getAffectedRows() === 1;
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    /**
-     * Lấy danh sách chi tiết cho một đơn hàng
-     *
-     * @param string $orderID
-     * @return OrderDetailDTO[]
-     */
     public function get_details_by_order(string $orderID): array
     {
-        $sql = "SELECT * FROM OrderDetail WHERE OrderID = '{$orderID}'";
-        $result = $this->execute($sql);
+        $sql = "SELECT OrderID, CourseID, Price, created_at 
+                FROM ORDERDETAIL 
+                WHERE OrderID = :orderID_param 
+                ORDER BY CourseID";
+
+        $bindParams = [':orderID_param' => $orderID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
         $details = [];
-        if ($result instanceof mysqli_result) {
-            while ($row = $result->fetch_assoc()) {
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $details[] = new OrderDetailDTO(
-                    $row['OrderID'],
-                    $row['CourseID'],
-                    (float)$row['Price']
+                    $row['ORDERID'],
+                    $row['COURSEID'],
+                    isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
+                    $row['CREATED_AT'] ?? null
                 );
             }
+            oci_free_statement($stid);
         }
         return $details;
     }
 
-    /**
-     * Cập nhật chi tiết đơn hàng
-     *
-     * @param OrderDetailDTO $detail
-     * @return bool
-     */
     public function update_detail(OrderDetailDTO $detail): bool
     {
-        // Kiểm tra giá trị Price
-        if (!is_numeric($detail->price) || $detail->price <= 0) {
-            return false;  // Trả về false nếu price không hợp lệ
+        if (!is_numeric($detail->price) || (float)$detail->price < 0) {
+            error_log("Invalid price for update_detail: OrderID {$detail->orderID}, CourseID {$detail->courseID}, Price {$detail->price}");
+            return false;
         }
 
-        $sql = "UPDATE OrderDetail SET Price = {$detail->price}
-            WHERE OrderID = '{$detail->orderID}' AND CourseID = '{$detail->courseID}'";
+        $sql = "UPDATE ORDERDETAIL SET Price = :price
+                WHERE OrderID = :orderID_where AND CourseID = :courseID_where";
 
-        $result = $this->execute($sql);
-        return $result === true;
+        $bindParams = [
+            ':price'          => (float)$detail->price,
+            ':orderID_where'  => $detail->orderID,
+            ':courseID_where' => $detail->courseID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
     }
 
-    /**
-     * Xóa chi tiết đơn hàng
-     *
-     * @param string $orderID
-     * @param string $courseID
-     * @return bool
-     */
+    public function get_detail(string $orderID, string $courseID): ?OrderDetailDTO
+    {
+        $sql = "SELECT OrderID, CourseID, Price, created_at 
+                FROM ORDERDETAIL 
+                WHERE OrderID = :orderID_param AND CourseID = :courseID_param";
+        $bindParams = [
+            ':orderID_param' => $orderID,
+            ':courseID_param' => $courseID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        $dto = null;
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new OrderDetailDTO(
+                    $row['ORDERID'],
+                    $row['COURSEID'],
+                    isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            oci_free_statement($stid);
+        }
+        return $dto;
+    }
+
+
     public function delete_detail(string $orderID, string $courseID): bool
     {
-        // Kiểm tra xem bản ghi có tồn tại không
-        $sql_check = "SELECT * FROM OrderDetail WHERE OrderID = '{$orderID}' AND CourseID = '{$courseID}'";
-        $check_result = $this->execute($sql_check);
-        if ($check_result->num_rows === 0) {
-            return false;  // Trả về false nếu không có bản ghi nào
-        }
+        $sql = "DELETE FROM ORDERDETAIL 
+                WHERE OrderID = :orderID AND CourseID = :courseID";
 
-        $sql = "DELETE FROM OrderDetail WHERE OrderID = '{$orderID}' AND CourseID = '{$courseID}'";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $bindParams = [
+            ':orderID'  => $orderID,
+            ':courseID' => $courseID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 }
+?>

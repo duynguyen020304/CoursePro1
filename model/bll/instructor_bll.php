@@ -1,67 +1,139 @@
 <?php
 require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../dto/instructor_dto.php';
+
 class InstructorBLL extends Database
 {
-    public function create_instructor(InstructorDTO $inst)
+    public function create_instructor(InstructorDTO $inst): bool
     {
-        $bio = $inst->biography ? "'{$inst->biography}'" : 'NULL';
-        $sql = "INSERT INTO `Instructor` (InstructorID, UserID, Biography) VALUES ('{$inst->instructorID}', '{$inst->userID}', '{$bio}')";
-        $result = $this->execute($sql);
-        // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "INSERT INTO INSTRUCTOR (InstructorID, UserID, Biography) 
+                VALUES (:instructorID, :userID, :biography)";
+
+        $bindParams = [
+            ':instructorID' => $inst->instructorID,
+            ':userID'       => $inst->userID,
+            ':biography'    => ['value' => $inst->biography, 'type' => OCI_B_CLOB],
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function delete_instructor(string $instID)
+    public function delete_instructor(string $instructorID): bool
     {
-        $sql = "DELETE FROM `Instructor` WHERE InstructorID = '{$instID}'";
-        $result = $this->execute($sql);
-        // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "DELETE FROM INSTRUCTOR WHERE InstructorID = :instructorID";
+        $bindParams = [':instructorID' => $instructorID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function update_instructor(InstructorDTO $inst)
+    public function update_instructor(InstructorDTO $inst): bool
     {
-        $bio = $inst->biography ? "Biography = '{$inst->biography}'," : '';
-        $sql = "UPDATE `Instructor` SET {$bio} UserID = '{$inst->userID}' WHERE InstructorID = '{$inst->instructorID}'";
-        $result = $this->execute($sql);
-        // $this->close();
-        return $result === true;
+        $sql = "UPDATE INSTRUCTOR SET 
+                UserID = :userID, 
+                Biography = :biography 
+                WHERE InstructorID = :instructorID_where";
+
+        $bindParams = [
+            ':userID'       => $inst->userID,
+            ':biography'    => ['value' => $inst->biography, 'type' => OCI_B_CLOB],
+            ':instructorID_where' => $inst->instructorID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
     }
 
-    public function get_instructor(string $instID): ?InstructorDTO
+    public function get_instructor(string $instructorID): ?InstructorDTO
     {
-        $sql = "SELECT * FROM `Instructor` WHERE InstructorID = '{$instID}'";
-        $result = $this->execute($sql);
+        $sql = "SELECT InstructorID, UserID, Biography, created_at 
+                FROM INSTRUCTOR 
+                WHERE InstructorID = :instructorID_param";
+        $bindParams = [':instructorID_param' => $instructorID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
         $dto = null;
-        if ($row = $result->fetch_assoc()) {
-            $dto = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography']);
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $biography = null;
+                if (is_object($row['BIOGRAPHY']) && method_exists($row['BIOGRAPHY'], 'read')) {
+                    $biography = $row['BIOGRAPHY']->read($row['BIOGRAPHY']->size());
+                } elseif (isset($row['BIOGRAPHY'])) {
+                    $biography = $row['BIOGRAPHY'];
+                }
+
+                $dto = new InstructorDTO(
+                    $row['INSTRUCTORID'],
+                    $row['USERID'],
+                    $biography,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
-        // $this->close();
         return $dto;
     }
 
-    public function get_instructor_by_user_id(string $userID): ?InstructorDTO {
-        $sql = "SELECT * FROM `Instructor` WHERE UserID = '{$userID}'";
-        $result = $this->execute($sql);
+    public function get_instructor_by_user_id(string $userID): ?InstructorDTO
+    {
+        $sql = "SELECT InstructorID, UserID, Biography, created_at 
+                FROM INSTRUCTOR 
+                WHERE UserID = :userID_param";
+        $bindParams = [':userID_param' => $userID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
         $dto = null;
-        if ($row = $result->fetch_assoc()) {
-            $dto = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography']);
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $biography = null;
+                if (is_object($row['BIOGRAPHY']) && method_exists($row['BIOGRAPHY'], 'read')) {
+                    $biography = $row['BIOGRAPHY']->read($row['BIOGRAPHY']->size());
+                } elseif (isset($row['BIOGRAPHY'])) {
+                    $biography = $row['BIOGRAPHY'];
+                }
+
+                $dto = new InstructorDTO(
+                    $row['INSTRUCTORID'],
+                    $row['USERID'],
+                    $biography,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
-        // $this->close();
         return $dto;
     }
+
     public function get_all_instructors(): array
     {
-        $sql = "SELECT * FROM `Instructor`";
-        $result = $this->execute($sql);
+        $sql = "SELECT InstructorID, UserID, Biography, created_at 
+                FROM INSTRUCTOR ORDER BY InstructorID ASC";
+
+        $stid = $this->executePrepared($sql);
         $list = [];
-        while ($row = $result->fetch_assoc()) {
-            $list[] = new InstructorDTO($row['InstructorID'], $row['UserID'], $row['Biography']);
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $biography = null;
+                if (is_object($row['BIOGRAPHY']) && method_exists($row['BIOGRAPHY'], 'read')) {
+                    $biography = $row['BIOGRAPHY']->read($row['BIOGRAPHY']->size());
+                } elseif (isset($row['BIOGRAPHY'])) {
+                    $biography = $row['BIOGRAPHY'];
+                }
+
+                $list[] = new InstructorDTO(
+                    $row['INSTRUCTORID'],
+                    $row['USERID'],
+                    $biography,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
-        // $this->close();
         return $list;
     }
-  
-
 }
+?>
