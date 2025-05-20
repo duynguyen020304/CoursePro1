@@ -28,28 +28,32 @@ class UserInitializer
                 'password' => 'Instructor@123',
                 'firstName' => 'Nguyen',
                 'lastName' => 'Tuan',
-                'role' => 'instructor'
+                'role' => 'instructor',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'instructor2@example.com',
                 'password' => 'Instructor@123',
                 'firstName' => 'Tran',
                 'lastName' => 'Mai',
-                'role' => 'instructor'
+                'role' => 'instructor',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'instructor3@example.com',
                 'password' => 'Instructor@123',
                 'firstName' => 'Le',
                 'lastName' => 'Thanh',
-                'role' => 'instructor'
+                'role' => 'instructor',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'instructor4@example.com',
                 'password' => 'Instructor@123',
                 'firstName' => 'Pham',
                 'lastName' => 'Huong',
-                'role' => 'instructor'
+                'role' => 'instructor',
+                'profileImage' => 'default'
             ]
         ];
 
@@ -60,70 +64,80 @@ class UserInitializer
                 'password' => 'Student@123',
                 'firstName' => 'Hoang',
                 'lastName' => 'Minh',
-                'role' => 'student'
+                'role' => 'student',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'student2@example.com',
                 'password' => 'Student@123',
                 'firstName' => 'Phan',
                 'lastName' => 'Anh',
-                'role' => 'student'
+                'role' => 'student',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'student3@example.com',
                 'password' => 'Student@123',
                 'firstName' => 'Do',
                 'lastName' => 'Linh',
-                'role' => 'student'
+                'role' => 'student',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'student4@example.com',
                 'password' => 'Student@123',
                 'firstName' => 'Vu',
                 'lastName' => 'Trang',
-                'role' => 'student'
+                'role' => 'student',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'student5@example.com',
                 'password' => 'Student@123',
                 'firstName' => 'Bui',
                 'lastName' => 'Hai',
-                'role' => 'student'
+                'role' => 'student',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'student6@example.com',
                 'password' => 'Student@123',
                 'firstName' => 'Ngo',
                 'lastName' => 'Thu',
-                'role' => 'student'
+                'role' => 'student',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'student7@example.com',
                 'password' => 'Student@123',
                 'firstName' => 'Dao',
                 'lastName' => 'Long',
-                'role' => 'student'
+                'role' => 'student',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'student8@example.com',
                 'password' => 'Student@123',
                 'firstName' => 'Duong',
                 'lastName' => 'Lan',
-                'role' => 'student'
+                'role' => 'student',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'student9@example.com',
                 'password' => 'Student@123',
                 'firstName' => 'Dang',
                 'lastName' => 'Quang',
-                'role' => 'student'
+                'role' => 'student',
+                'profileImage' => 'default'
             ],
             [
                 'email' => 'student10@example.com',
                 'password' => 'Student@123',
                 'firstName' => 'Dinh',
                 'lastName' => 'Ha',
-                'role' => 'student'
+                'role' => 'student',
+                'profileImage' => 'default'
             ]
         ];
 
@@ -135,7 +149,8 @@ class UserInitializer
                 $instructor['password'],
                 $instructor['firstName'],
                 $instructor['lastName'],
-                $instructor['role']
+                $instructor['role'],
+                $instructor['profileImage']
             );
             
             if ($response->success) {
@@ -153,7 +168,8 @@ class UserInitializer
                 $student['password'],
                 $student['firstName'],
                 $student['lastName'],
-                $student['role']
+                $student['role'],
+                $student['profileImage']
             );
             
             if ($response->success) {
