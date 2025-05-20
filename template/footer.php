@@ -1,7 +1,8 @@
-
 <footer class="site-footer bg-dark text-white mt-5 pt-5 pb-4">
   <div class="container">
-    <div class="row gy-4"> <div class="col-lg-4 col-md-12 mb-4 mb-lg-0 footer-col"> <h5 class="text-uppercase mb-4 footer-heading">Course Online</h5>
+    <div class="row gy-4">
+      <div class="col-lg-4 col-md-12 mb-4 mb-lg-0 footer-col">
+        <h5 class="text-uppercase mb-4 footer-heading">Course Online</h5>
         <p class="small footer-description-text">
           Nền tảng học tập trực tuyến hiện đại, cung cấp các khóa học đa dạng và chất lượng, giúp bạn phát triển kỹ năng và kiến thức mọi lúc, mọi nơi.
         </p>
@@ -31,7 +32,8 @@
           <li><a href="terms.php"><i class="fas fa-file-contract me-2"></i>Điều khoản</a></li>
           <li><a href="privacy.php"><i class="fas fa-shield-alt me-2"></i>Bảo mật</a></li>
           <li><a href="sitemap.php"><i class="fas fa-sitemap me-2"></i>Sơ đồ trang</a></li>
-          <li><a href="blog.php"><i class="fas fa-blog me-2"></i>Blog</a></li> </ul>
+          <li><a href="blog.php"><i class="fas fa-blog me-2"></i>Blog</a></li>
+        </ul>
       </div>
 
       <div class="col-lg-3 col-md-4 footer-col">
@@ -43,7 +45,7 @@
           <a href="https://linkedin.com/yourcompany" target="_blank" title="LinkedIn" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
         </div>
         <p class="small footer-address-text">
-          <i class="fas fa-map-marker-alt me-2"></i>123 Đường ABC, Phường X, Quận Y, TP. Z
+          <i class="fas fa-map-marker-alt me-2"></i>280 An Dương Vương, Phường 4, Quận 5, TP. HCM
         </p>
       </div>
     </div>
@@ -55,7 +57,7 @@
         <p class="small mb-0 footer-copyright-text">&copy; <span id="currentYear"></span> CourseOnline. All rights reserved.</p>
       </div>
       <div class="col-md-6 text-center text-md-end">
-        <p class="small mb-0 footer-credits-text">Thiết kế bởi <a href="https://yourweborcompany.com" target="_blank" class="text-white fw-bold">Tên Bạn/Công Ty</a></p>
+        <p class="small mb-0 footer-credits-text">Thiết kế bởi <a href="https://yourweborcompany.com" target="_blank" class="text-white fw-bold">Nguyễn Anh Hùng/Công Ty Ecourse</a></p>
       </div>
     </div>
   </div>

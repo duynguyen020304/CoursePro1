@@ -1,346 +1,331 @@
-SET FOREIGN_KEY_CHECKS = 0;
-
--- 1. Role
-CREATE TABLE IF NOT EXISTS Role (
-    RoleID      VARCHAR(20) PRIMARY KEY,
-    RoleName    VARCHAR(50) NOT NULL UNIQUE,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-INSERT INTO Role (RoleID, RoleName) VALUES ('student', 'Học sinh')
-    ON DUPLICATE KEY UPDATE RoleName = RoleName;
-
-INSERT INTO Role (RoleID, RoleName) VALUES ('instructor', 'Giảng viên')
-    ON DUPLICATE KEY UPDATE RoleName = RoleName;
-
-INSERT INTO Role (RoleID, RoleName) VALUES ('admin', 'Quản trị viên')
-    ON DUPLICATE KEY UPDATE RoleName = RoleName;
-
--- 2. Users
-CREATE TABLE IF NOT EXISTS Users (
-    UserID   VARCHAR(40) PRIMARY KEY,
-    FirstName     VARCHAR(100) NOT NULL,
-    LastName VARCHAR(100) NOT NULL,
-    Email    VARCHAR(100) NOT NULL UNIQUE,
-    Password VARCHAR(255) NOT NULL,
-    RoleID   VARCHAR(36) NOT NULL,
-    ProfileImage  VARCHAR(255),
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (RoleID) REFERENCES Role(RoleID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 3. Instructor
-CREATE TABLE IF NOT EXISTS Instructor (
-    InstructorID  VARCHAR(40) PRIMARY KEY,
-    UserID        VARCHAR(40) NOT NULL UNIQUE,
-    Biography     TEXT,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 4. Student
-CREATE TABLE IF NOT EXISTS Student (
-    StudentID       VARCHAR(40) PRIMARY KEY,
-    UserID          VARCHAR(40) NOT NULL UNIQUE,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 5. Category
-CREATE TABLE  categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    parent_id INT DEFAULT NULL,  -- NULL nếu là danh mục gốc
-    sort_order INT DEFAULT 0,    -- (Tùy chọn) để sắp xếp
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE -- (Tùy chọn) Tự động xóa con khi xóa cha
+CREATE TABLE Role (
+                      RoleID      VARCHAR2(20 CHAR) CONSTRAINT pk_role PRIMARY KEY,
+                      RoleName    VARCHAR2(50 CHAR) CONSTRAINT uq_role_rolename UNIQUE NOT NULL,
+                      created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
 );
--- Insert root categories
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (1, 'Phát triển', NULL, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (33, 'Kinh doanh', NULL, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (41, 'CNTT & Phần mềm', NULL, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (49, 'Thiết kế', NULL, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (56, 'Marketing', NULL, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (63, 'Phát triển cá nhân', NULL, 6);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (69, 'Âm nhạc', NULL, 7);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (73, 'Sức khỏe & Thể hình', NULL, 8);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (78, 'Giảng dạy & Học thuật', NULL, 9);
 
--- Insert sub-categories for Phát triển (ID: 1)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (2, 'Lập trình Web', 1, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (14, 'Lập trình Mobile', 1, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (20, 'Lập trình Game', 1, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (24, 'Phát triển phần mềm', 1, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (30, 'Lập trình nhúng / IoT', 1, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (31, 'Blockchain', 1, 6);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (32, 'No-Code Development', 1, 7);
+MERGE INTO Role tgt
+USING (SELECT 'student' AS RoleID, 'Học sinh' AS RoleName FROM dual) src
+ON (tgt.RoleID = src.RoleID)
+WHEN MATCHED THEN
+    UPDATE SET tgt.RoleName = src.RoleName
+WHEN NOT MATCHED THEN
+    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, SYSTIMESTAMP);
 
--- Insert sub-categories for Lập trình Web (ID: 2)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (3, 'HTML & CSS', 2, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (4, 'JavaScript', 2, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (5, 'ReactJS', 2, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (6, 'VueJS', 2, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (7, 'Angular', 2, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (8, 'PHP', 2, 6);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (9, 'Laravel', 2, 7);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (10, 'ASP.NET', 2, 8);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (11, 'Django', 2, 9);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (12, 'NodeJS', 2, 10);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (13, 'Web APIs', 2, 11);
+MERGE INTO Role tgt
+USING (SELECT 'instructor' AS RoleID, 'Giảng viên' AS RoleName FROM dual) src
+ON (tgt.RoleID = src.RoleID)
+WHEN MATCHED THEN
+    UPDATE SET tgt.RoleName = src.RoleName
+WHEN NOT MATCHED THEN
+    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, SYSTIMESTAMP);
 
--- Insert sub-categories for Lập trình Mobile (ID: 14)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (15, 'Android Development', 14, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (16, 'iOS Development', 14, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (17, 'React Native', 14, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (18, 'Flutter', 14, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (19, 'Xamarin', 14, 5);
+MERGE INTO Role tgt
+USING (SELECT 'admin' AS RoleID, 'Quản trị viên' AS RoleName FROM dual) src
+ON (tgt.RoleID = src.RoleID)
+WHEN MATCHED THEN
+    UPDATE SET tgt.RoleName = src.RoleName
+WHEN NOT MATCHED THEN
+    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, SYSTIMESTAMP);
 
--- Insert sub-categories for Lập trình Game (ID: 20)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (21, 'Unity', 20, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (22, 'Unreal Engine', 20, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (23, 'Godot', 20, 3);
+CREATE TABLE Users (
+                       UserID       VARCHAR2(40 CHAR) CONSTRAINT pk_users PRIMARY KEY,
+                       FirstName    VARCHAR2(100 CHAR) NOT NULL,
+                       LastName     VARCHAR2(100 CHAR) NOT NULL,
+                       Email        VARCHAR2(100 CHAR) CONSTRAINT uq_users_email UNIQUE NOT NULL,
+                       Password     VARCHAR2(255 CHAR) NOT NULL,
+                       RoleID       VARCHAR2(20 CHAR) NOT NULL,
+                       ProfileImage VARCHAR2(255 CHAR),
+                       created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                       CONSTRAINT fk_users_role FOREIGN KEY (RoleID) REFERENCES Role(RoleID)
+);
 
--- Insert sub-categories for Phát triển phần mềm (ID: 24)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (25, 'Python', 24, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (26, 'Java', 24, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (27, 'C++', 24, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (28, 'C#', 24, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (29, 'Rust', 24, 5);
+CREATE TABLE Instructor (
+                            InstructorID VARCHAR2(40 CHAR) CONSTRAINT pk_instructor PRIMARY KEY,
+                            UserID       VARCHAR2(40 CHAR) CONSTRAINT uq_instructor_userid UNIQUE NOT NULL,
+                            Biography    CLOB,
+                            created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                            CONSTRAINT fk_instructor_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
 
--- Insert sub-categories for Kinh doanh (ID: 33)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (34, 'Quản trị kinh doanh', 33, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (35, 'Doanh nghiệp khởi nghiệp', 33, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (36, 'Quản lý dự án', 33, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (37, 'Agile & Scrum', 33, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (38, 'Tài chính & Kế toán', 33, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (39, 'Phân tích kinh doanh (Business Analytics)', 33, 6);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (40, 'Nhân sự (HR)', 33, 7);
+CREATE TABLE Student (
+                         StudentID  VARCHAR2(40 CHAR) CONSTRAINT pk_student PRIMARY KEY,
+                         UserID     VARCHAR2(40 CHAR) CONSTRAINT uq_student_userid UNIQUE NOT NULL,
+                         created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                         CONSTRAINT fk_student_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
 
--- Insert sub-categories for CNTT & Phần mềm (ID: 41)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (42, 'Mạng máy tính & Bảo mật', 41, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (43, 'Ethical Hacking', 41, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (44, 'Khoa học dữ liệu (Data Science)', 41, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (45, 'Trí tuệ nhân tạo (AI)', 41, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (46, 'Hệ điều hành (Linux, Windows Server)', 41, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (47, 'DevOps', 41, 6);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (48, 'Kiểm thử phần mềm (Software Testing)', 41, 7);
+CREATE TABLE categories (
+                            id          NUMBER GENERATED BY DEFAULT AS IDENTITY CONSTRAINT pk_categories PRIMARY KEY,
+                            name        VARCHAR2(255 CHAR) NOT NULL,
+                            parent_id   NUMBER DEFAULT NULL,
+                            sort_order  NUMBER DEFAULT 0,
+                            created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                            CONSTRAINT fk_categories_parent FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED
+);
 
--- Insert sub-categories for Thiết kế (ID: 49)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (50, 'Thiết kế Web', 49, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (51, 'Thiết kế UI/UX', 49, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (52, 'Adobe Photoshop', 49, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (53, 'Illustrator', 49, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (54, 'Thiết kế đồ họa 2D/3D', 49, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (55, 'Thiết kế sản phẩm', 49, 6);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (1, 'Phát triển', NULL, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (33, 'Kinh doanh', NULL, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (41, 'CNTT & Phần mềm', NULL, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (49, 'Thiết kế', NULL, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (56, 'Marketing', NULL, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (63, 'Phát triển cá nhân', NULL, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (69, 'Âm nhạc', NULL, 7, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (73, 'Sức khỏe & Thể hình', NULL, 8, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (78, 'Giảng dạy & Học thuật', NULL, 9, SYSTIMESTAMP);
 
--- Insert sub-categories for Marketing (ID: 56)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (57, 'Digital Marketing', 56, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (58, 'SEO', 56, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (59, 'Google Ads / Facebook Ads', 56, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (60, 'Content Marketing', 56, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (61, 'Email Marketing', 56, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (62, 'Affiliate Marketing', 56, 6);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (2, 'Lập trình Web', 1, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (14, 'Lập trình Mobile', 1, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (20, 'Lập trình Game', 1, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (24, 'Phát triển phần mềm', 1, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (30, 'Lập trình nhúng / IoT', 1, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (31, 'Blockchain', 1, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (32, 'No-Code Development', 1, 7, SYSTIMESTAMP);
 
--- Insert sub-categories for Phát triển cá nhân (ID: 63)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (64, 'Kỹ năng giao tiếp', 63, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (65, 'Lãnh đạo', 63, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (66, 'Quản lý thời gian', 63, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (67, 'Tư duy phản biện', 63, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (68, 'Đọc nhanh & Ghi nhớ', 63, 5);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (3, 'HTML & CSS', 2, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (4, 'JavaScript', 2, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (5, 'ReactJS', 2, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (6, 'VueJS', 2, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (7, 'Angular', 2, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (8, 'PHP', 2, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (9, 'Laravel', 2, 7, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (10, 'ASP.NET', 2, 8, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (11, 'Django', 2, 9, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (12, 'NodeJS', 2, 10, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (13, 'Web APIs', 2, 11, SYSTIMESTAMP);
 
--- Insert sub-categories for Âm nhạc (ID: 69)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (70, 'Nhạc cụ (Piano, Guitar, v.v.)', 69, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (71, 'Sản xuất âm nhạc', 69, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (72, 'DJ & Âm thanh điện tử', 69, 3);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (15, 'Android Development', 14, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (16, 'iOS Development', 14, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (17, 'React Native', 14, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (18, 'Flutter', 14, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (19, 'Xamarin', 14, 5, SYSTIMESTAMP);
 
--- Insert sub-categories for Sức khỏe & Thể hình (ID: 73)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (74, 'Yoga', 73, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (75, 'Thiền', 73, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (76, 'Dinh dưỡng', 73, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (77, 'Tập luyện thể hình', 73, 4);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (21, 'Unity', 20, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (22, 'Unreal Engine', 20, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (23, 'Godot', 20, 3, SYSTIMESTAMP);
 
--- Insert sub-categories for Giảng dạy & Học thuật (ID: 78)
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (79, 'Toán học', 78, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (80, 'Vật lý', 78, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (81, 'Lập trình cho trẻ em', 78, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (82, 'Khoa học máy tính', 78, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (83, 'IELTS, TOEIC, TOEFL', 78, 5);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (25, 'Python', 24, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (26, 'Java', 24, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (27, 'C++', 24, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (28, 'C#', 24, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (29, 'Rust', 24, 5, SYSTIMESTAMP);
 
--- 6. Course
-CREATE TABLE IF NOT EXISTS Course (
-    CourseID    VARCHAR(40) PRIMARY KEY,
-    Title       VARCHAR(255) NOT NULL,
-    Description TEXT,
-    Price       DECIMAL(10,2) NOT NULL,
-    CreatedBy   VARCHAR(40) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (34, 'Quản trị kinh doanh', 33, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (35, 'Doanh nghiệp khởi nghiệp', 33, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (36, 'Quản lý dự án', 33, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (37, 'Agile & Scrum', 33, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (38, 'Tài chính & Kế toán', 33, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (39, 'Phân tích kinh doanh (Business Analytics)', 33, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (40, 'Nhân sự (HR)', 33, 7, SYSTIMESTAMP);
 
-CREATE TABLE IF NOT EXISTS CourseInstructor (
-    CourseID      VARCHAR(40),
-    InstructorID  VARCHAR(40),
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (CourseID, InstructorID), 
-    FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
-    FOREIGN KEY (InstructorID) REFERENCES Instructor(InstructorID) ON DELETE CASCADE 
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (42, 'Mạng máy tính & Bảo mật', 41, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (43, 'Ethical Hacking', 41, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (44, 'Khoa học dữ liệu (Data Science)', 41, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (45, 'Trí tuệ nhân tạo (AI)', 41, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (46, 'Hệ điều hành (Linux, Windows Server)', 41, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (47, 'DevOps', 41, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (48, 'Kiểm thử phần mềm (Software Testing)', 41, 7, SYSTIMESTAMP);
 
--- 7. CourseCategory (liên kết nhiều-nhiều)
-CREATE TABLE IF NOT EXISTS CourseCategory (
-    CourseID   VARCHAR(40) NOT NULL,
-    CategoryID INT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (CourseID, CategoryID),
-    FOREIGN KEY (CourseID)   REFERENCES Course(CourseID),
-    FOREIGN KEY (CategoryID) REFERENCES categories(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (50, 'Thiết kế Web', 49, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (51, 'Thiết kế UI/UX', 49, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (52, 'Adobe Photoshop', 49, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (53, 'Illustrator', 49, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (54, 'Thiết kế đồ họa 2D/3D', 49, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (55, 'Thiết kế sản phẩm', 49, 6, SYSTIMESTAMP);
 
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (57, 'Digital Marketing', 56, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (58, 'SEO', 56, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (59, 'Google Ads / Facebook Ads', 56, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (60, 'Content Marketing', 56, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (61, 'Email Marketing', 56, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (62, 'Affiliate Marketing', 56, 6, SYSTIMESTAMP);
 
--- 8. Chapter (các chương của mỗi course)
-CREATE TABLE IF NOT EXISTS CourseChapter (
-    ChapterID    VARCHAR(40) PRIMARY KEY,
-    CourseID     VARCHAR(40) NOT NULL,
-    Title        VARCHAR(255) NOT NULL,
-    Description  TEXT,
-    SortOrder    INT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (64, 'Kỹ năng giao tiếp', 63, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (65, 'Lãnh đạo', 63, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (66, 'Quản lý thời gian', 63, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (67, 'Tư duy phản biện', 63, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (68, 'Đọc nhanh & Ghi nhớ', 63, 5, SYSTIMESTAMP);
 
--- 9. Lesson (thuộc về một chương và một course)
-CREATE TABLE IF NOT EXISTS CourseLesson (
-    LessonID    VARCHAR(40) PRIMARY KEY,
-    CourseID    VARCHAR(40) NOT NULL,
-    ChapterID   VARCHAR(40) NOT NULL,
-    Title       VARCHAR(255) NOT NULL,
-    Content     TEXT,
-    SortOrder   INT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (CourseID)  REFERENCES CourseChapter(CourseID),
-    FOREIGN KEY (ChapterID) REFERENCES CourseChapter(ChapterID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (70, 'Nhạc cụ (Piano, Guitar, v.v.)', 69, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (71, 'Sản xuất âm nhạc', 69, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (72, 'DJ & Âm thanh điện tử', 69, 3, SYSTIMESTAMP);
 
--- 10. Video (thuộc về một lesson)
-CREATE TABLE IF NOT EXISTS CourseVideo (
-    VideoID    VARCHAR(40) PRIMARY KEY,
-    LessonID   VARCHAR(40) NOT NULL,
-    Url        VARCHAR(255) NOT NULL,
-    Title      VARCHAR(255),
-    Duration   INT NOT NULL DEFAULT 0,
-    SortOrder  INT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (74, 'Yoga', 73, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (75, 'Thiền', 73, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (76, 'Dinh dưỡng', 73, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (77, 'Tập luyện thể hình', 73, 4, SYSTIMESTAMP);
 
-CREATE TABLE IF NOT EXISTS CourseResource (
-    ResourceID    VARCHAR(40) PRIMARY KEY,
-    LessonID   VARCHAR(40) NOT NULL,
-    ResourcePath        VARCHAR(255) NOT NULL,
-    Title      VARCHAR(255),
-    SortOrder  INT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (79, 'Toán học', 78, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (80, 'Vật lý', 78, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (81, 'Lập trình cho trẻ em', 78, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (82, 'Khoa học máy tính', 78, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (83, 'IELTS, TOEIC, TOEFL', 78, 5, SYSTIMESTAMP);
 
--- 11. CourseImage (hình ảnh minh họa cho course)
-CREATE TABLE IF NOT EXISTS CourseImage (
-    ImageID    VARCHAR(40) PRIMARY KEY,
-    CourseID   VARCHAR(40) NOT NULL,
-    ImagePath  VARCHAR(255) NOT NULL,
-    Caption    VARCHAR(255),
-    SortOrder  INT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE Course (
+                        CourseID    VARCHAR2(40 CHAR) CONSTRAINT pk_course PRIMARY KEY,
+                        Title       VARCHAR2(255 CHAR) NOT NULL,
+                        Description CLOB,
+                        Price       NUMBER(10,2) NOT NULL,
+                        CreatedBy   VARCHAR2(40 CHAR) NOT NULL,
+                        created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
+);
 
-CREATE TABLE IF NOT EXISTS CourseObjective (
-    ObjectiveID VARCHAR(40) NOT NULL,
-    CourseID VARCHAR(40) NOT NULL,
-    Objective VARCHAR(255) NOT NULL,
-    FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE CourseInstructor (
+                                  CourseID     VARCHAR2(40 CHAR),
+                                  InstructorID VARCHAR2(40 CHAR),
+                                  created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                  CONSTRAINT pk_courseinstructor PRIMARY KEY (CourseID, InstructorID),
+                                  CONSTRAINT fk_ci_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
+                                  CONSTRAINT fk_ci_instructor FOREIGN KEY (InstructorID) REFERENCES Instructor(InstructorID) ON DELETE CASCADE
+);
 
-CREATE TABLE IF NOT EXISTS CourseRequirement (
-    RequirementID VARCHAR(40) NOT NULL,
-    CourseID VARCHAR(40) NOT NULL,
-    Requirement VARCHAR(255) NOT NULL,
-    FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE CourseCategory (
+                                CourseID   VARCHAR2(40 CHAR) NOT NULL,
+                                CategoryID NUMBER NOT NULL,
+                                created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                CONSTRAINT pk_coursecategory PRIMARY KEY (CourseID, CategoryID),
+                                CONSTRAINT fk_cc_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
+                                CONSTRAINT fk_cc_category FOREIGN KEY (CategoryID) REFERENCES categories(id) ON DELETE CASCADE
+);
 
--- 12. Cart (giỏ hàng của user)
-CREATE TABLE IF NOT EXISTS Cart (
-    CartID VARCHAR(40) PRIMARY KEY,
-    UserID VARCHAR(40) NOT NULL UNIQUE,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE CourseChapter (
+                               ChapterID   VARCHAR2(40 CHAR) CONSTRAINT pk_coursechapter PRIMARY KEY,
+                               CourseID    VARCHAR2(40 CHAR) NOT NULL,
+                               Title       VARCHAR2(255 CHAR) NOT NULL,
+                               Description CLOB,
+                               SortOrder   NUMBER DEFAULT 0 NOT NULL,
+                               created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                               CONSTRAINT fk_chapter_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
+);
 
--- 13. CartItem (item trong cart)
-CREATE TABLE IF NOT EXISTS CartItem (
-    CartItemID VARCHAR(40) PRIMARY KEY,
-    CartID     VARCHAR(40) NOT NULL,
-    CourseID   VARCHAR(40) NOT NULL,
-    Quantity   INT NOT NULL CHECK (Quantity > 0),
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (CartID)   REFERENCES Cart(CartID),
-    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE CourseLesson (
+                              LessonID    VARCHAR2(40 CHAR) CONSTRAINT pk_courselesson PRIMARY KEY,
+                              CourseID    VARCHAR2(40 CHAR) NOT NULL,
+                              ChapterID   VARCHAR2(40 CHAR) NOT NULL,
+                              Title       VARCHAR2(255 CHAR) NOT NULL,
+                              Content     CLOB,
+                              SortOrder   NUMBER DEFAULT 0 NOT NULL,
+                              created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                              CONSTRAINT fk_lesson_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
+                              CONSTRAINT fk_lesson_chapter FOREIGN KEY (ChapterID) REFERENCES CourseChapter(ChapterID) ON DELETE CASCADE
+);
 
--- 14. Orders
-CREATE TABLE IF NOT EXISTS Orders (
-    OrderID     VARCHAR(40) PRIMARY KEY,
-    UserID      VARCHAR(40) NOT NULL,
-    OrderDate   DATETIME DEFAULT CURRENT_TIMESTAMP,
-    TotalAmount DECIMAL(10,2) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE CourseVideo (
+                             VideoID    VARCHAR2(40 CHAR) CONSTRAINT pk_coursevideo PRIMARY KEY,
+                             LessonID   VARCHAR2(40 CHAR) NOT NULL,
+                             Url        VARCHAR2(255 CHAR) NOT NULL,
+                             Title      VARCHAR2(255 CHAR),
+                             Duration   NUMBER DEFAULT 0 NOT NULL,
+                             SortOrder  NUMBER DEFAULT 0 NOT NULL,
+                             created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                             CONSTRAINT fk_video_lesson FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID) ON DELETE CASCADE
+);
 
--- 15. OrderDetail (chi tiết từng course trong order)
-CREATE TABLE IF NOT EXISTS OrderDetail (
-    OrderID  VARCHAR(40) NOT NULL,
-    CourseID VARCHAR(40) NOT NULL,
-    Price    DECIMAL(10,2) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (OrderID, CourseID),
-    FOREIGN KEY (OrderID)  REFERENCES Orders(OrderID),
-    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE CourseResource (
+                                ResourceID   VARCHAR2(40 CHAR) CONSTRAINT pk_courseresource PRIMARY KEY,
+                                LessonID     VARCHAR2(40 CHAR) NOT NULL,
+                                ResourcePath VARCHAR2(255 CHAR) NOT NULL,
+                                Title        VARCHAR2(255 CHAR),
+                                SortOrder    NUMBER DEFAULT 0 NOT NULL,
+                                created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                CONSTRAINT fk_resource_lesson FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID) ON DELETE CASCADE
+);
 
--- 16. Review
-CREATE TABLE IF NOT EXISTS Review (
-    ReviewID VARCHAR(40) PRIMARY KEY,
-    UserID   VARCHAR(40) NOT NULL,
-    CourseID VARCHAR(40) NOT NULL,
-    Rating   INT NOT NULL CHECK (Rating BETWEEN 1 AND 5),
-    Comment  TEXT,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID)   REFERENCES Users(UserID),
-    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE CourseImage (
+                             ImageID    VARCHAR2(40 CHAR) CONSTRAINT pk_courseimage PRIMARY KEY,
+                             CourseID   VARCHAR2(40 CHAR) NOT NULL,
+                             ImagePath  VARCHAR2(255 CHAR) NOT NULL,
+                             Caption    VARCHAR2(255 CHAR),
+                             SortOrder  NUMBER DEFAULT 0 NOT NULL,
+                             created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                             CONSTRAINT fk_image_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
+);
 
--- 17. Payment
-CREATE TABLE IF NOT EXISTS Payment (
-    PaymentID      VARCHAR(40) PRIMARY KEY,
-    OrderID        VARCHAR(40) NOT NULL,
-    PaymentDate    DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PaymentMethod  VARCHAR(50),
-    PaymentStatus  VARCHAR(50),
-    Amount         DECIMAL(10,2) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE CourseObjective (
+                                 ObjectiveID VARCHAR2(40 CHAR) NOT NULL,
+                                 CourseID    VARCHAR2(40 CHAR) NOT NULL,
+                                 Objective   VARCHAR2(255 CHAR) NOT NULL,
+                                 created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                 CONSTRAINT pk_courseobjective PRIMARY KEY (CourseID, ObjectiveID),
+                                 CONSTRAINT fk_objective_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
+);
 
-SET FOREIGN_KEY_CHECKS = 1;
+CREATE TABLE CourseRequirement (
+                                   RequirementID VARCHAR2(40 CHAR) NOT NULL,
+                                   CourseID      VARCHAR2(40 CHAR) NOT NULL,
+                                   Requirement   VARCHAR2(255 CHAR) NOT NULL,
+                                   created_at    TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                   CONSTRAINT pk_courserequirement PRIMARY KEY (CourseID, RequirementID),
+                                   CONSTRAINT fk_requirement_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
+);
 
-CREATE TABLE IF NOT EXISTS password_resets (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(100) NOT NULL,
-    token VARCHAR(255) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE Cart (
+                      CartID     VARCHAR2(40 CHAR) CONSTRAINT pk_cart PRIMARY KEY,
+                      UserID     VARCHAR2(40 CHAR) CONSTRAINT uq_cart_userid UNIQUE NOT NULL,
+                      created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                      CONSTRAINT fk_cart_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
 
-ALTER TABLE password_resets
-MODIFY created_at TIMESTAMP NOT NULL
-DEFAULT CURRENT_TIMESTAMP;
+CREATE TABLE CartItem (
+                          CartItemID VARCHAR2(40 CHAR) CONSTRAINT pk_cartitem PRIMARY KEY,
+                          CartID     VARCHAR2(40 CHAR) NOT NULL,
+                          CourseID   VARCHAR2(40 CHAR) NOT NULL,
+                          Quantity   NUMBER NOT NULL,
+                          created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                          CONSTRAINT fk_cartitem_cart FOREIGN KEY (CartID) REFERENCES Cart(CartID) ON DELETE CASCADE,
+                          CONSTRAINT fk_cartitem_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
+                          CONSTRAINT ck_cartitem_quantity CHECK (Quantity > 0)
+);
+
+CREATE TABLE Orders (
+                        OrderID     VARCHAR2(40 CHAR) CONSTRAINT pk_orders PRIMARY KEY,
+                        UserID      VARCHAR2(40 CHAR) NOT NULL,
+                        OrderDate   TIMESTAMP DEFAULT SYSTIMESTAMP,
+                        TotalAmount NUMBER(10,2) NOT NULL,
+                        created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                        CONSTRAINT fk_orders_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE SET NULL
+);
+
+CREATE TABLE OrderDetail (
+                             OrderID  VARCHAR2(40 CHAR) NOT NULL,
+                             CourseID VARCHAR2(40 CHAR) NOT NULL,
+                             Price    NUMBER(10,2) NOT NULL,
+                             created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                             CONSTRAINT pk_orderdetail PRIMARY KEY (OrderID, CourseID),
+                             CONSTRAINT fk_detail_orders FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,
+                             CONSTRAINT fk_detail_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+);
+
+CREATE TABLE Review (
+                        ReviewID   VARCHAR2(40 CHAR) CONSTRAINT pk_review PRIMARY KEY,
+                        UserID     VARCHAR2(40 CHAR) NOT NULL,
+                        CourseID   VARCHAR2(40 CHAR) NOT NULL,
+                        Rating     NUMBER NOT NULL,
+                        ReviewText CLOB, -- Đã đổi từ Comment sang Review_Text
+                        created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                        CONSTRAINT fk_review_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+                        CONSTRAINT fk_review_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
+                        CONSTRAINT ck_review_rating CHECK (Rating BETWEEN 1 AND 5)
+);
+
+CREATE TABLE Payment (
+                         PaymentID     VARCHAR2(40 CHAR) CONSTRAINT pk_payment PRIMARY KEY,
+                         OrderID       VARCHAR2(40 CHAR) NOT NULL,
+                         PaymentDate   TIMESTAMP DEFAULT SYSTIMESTAMP,
+                         PaymentMethod VARCHAR2(50 CHAR),
+                         PaymentStatus VARCHAR2(50 CHAR),
+                         Amount        NUMBER(10,2) NOT NULL,
+                         created_at    TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                         CONSTRAINT fk_payment_orders FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
+);
+
+CREATE TABLE password_resets (
+                                 id         NUMBER GENERATED BY DEFAULT AS IDENTITY CONSTRAINT pk_password_resets PRIMARY KEY,
+                                 email      VARCHAR2(100 CHAR) NOT NULL,
+                                 token      VARCHAR2(255 CHAR) NOT NULL,
+                                 created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
+);
+
+CREATE INDEX idx_password_resets_email ON password_resets(email);
+
+COMMIT;
