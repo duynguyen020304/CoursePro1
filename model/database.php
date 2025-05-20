@@ -3,77 +3,61 @@
 class Database
 {
     private string $host   = 'localhost';
-    private string $user   = 'root';
-    private string $pass   = '';
-    private string $dbname = 'ecourse';
-    private string $charset = 'utf8mb4';
+    private string $user   = 'duy_admin';
+    private string $pass   = 'duyadmin';
+    private string $dbService = 'QUANLYKHOAHOC';
+    private string $charset = 'AL32UTF8';
+    private int $databasePort = 1521;
 
-    protected ?mysqli $conn = null;
+    protected mixed $conn = null;
     private ?string $lastError = null;
     private ?string $lastQuery = null;
     private int $affectedRows = 0;
-    private int $databasePort = 3306;
+    protected bool $inTransaction = false;
 
-    public function __construct()
-    {
-        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+    public function __construct(
+        string $host = '',
+        string $user = '',
+        string $pass = '',
+        string $dbService = '',
+        int $port = 0,
+        string $charset = ''
+    ) {
+        $this->host = !empty($host) ? $host : $this->host;
+        $this->user = !empty($user) ? $user : $this->user;
+        $this->pass = !empty($pass) ? $pass : $this->pass;
+        $this->dbService = !empty($dbService) ? $dbService : $this->dbService;
+        $this->databasePort = $port ?: $this->databasePort;
+        $this->charset = !empty($charset) ? $charset : $this->charset;
+
+        $connection_string = $this->host;
+        if (strpos($this->host, ':/') === false && strpos($this->host, '=') === false) {
+            $connection_string = "//{$this->host}:{$this->databasePort}/{$this->dbService}";
+        }
 
         try {
-            // Thử kết nối bình thường
-            $this->conn = new mysqli(
-                $this->host,
+            $this->conn = @oci_connect(
                 $this->user,
                 $this->pass,
-                $this->dbname,
-                $this->databasePort
+                $connection_string,
+                $this->charset
             );
-            $this->conn->set_charset($this->charset);
 
-        } catch (mysqli_sql_exception $e) {
-            // Nếu lỗi do database không tồn tại (code 1049), thì tạo database rồi kết nối lại
-            if ($e->getCode() === 1049) {
-                try {
-                    // Kết nối tạm tới server mà không chỉ định database
-                    $tmp = new mysqli(
-                        $this->host,
-                        $this->user,
-                        $this->pass,
-                        '',
-                        $this->databasePort
-                    );
-                    // Tạo database mới
-                    $tmp->query(
-                        "CREATE DATABASE IF NOT EXISTS `{$this->dbname}` 
-                     CHARACTER SET {$this->charset} 
-                     COLLATE {$this->charset}_unicode_ci"
-                    );
-                    $tmp->close();
-
-                    // Quay lại kết nối chính với database vừa tạo
-                    $this->conn = new mysqli(
-                        $this->host,
-                        $this->user,
-                        $this->pass,
-                        $this->dbname,
-                        $this->databasePort
-                    );
-                    $this->conn->set_charset($this->charset);
-
-                } catch (mysqli_sql_exception $e2) {
-                    // Tạo database cũng thất bại
-                    $this->handleException($e2, 'Tạo database thất bại');
-                }
-            } else {
-                // Lỗi khác khi kết nối
-                $this->handleException($e, 'Kết nối database thất bại');
+            if (!$this->conn) {
+                $error = oci_error();
+                $this->handleOracleError($error, "Oracle Connection Failed. User: '{$this->user}', String: '{$connection_string}'");
             }
+        } catch (Exception $e) {
+            $this->lastError = $e->getMessage();
+            $msg = "[DB-OCI8] Connection Exception: {$this->lastError}";
+            error_log($msg);
+            $this->conn = null;
         }
     }
 
-
     public function isConnected(): bool
     {
-        return $this->conn !== null;
+        return $this->conn !== null && $this->conn !== false;
     }
 
     public function getLastError(): ?string
@@ -91,95 +75,188 @@ class Database
         return $this->affectedRows;
     }
 
-    public function execute(string $sql): bool|mysqli_result|null
+    public function execute(string $sql): mixed
     {
         if (!$this->isConnected()) {
-            $this->lastError = 'Not connected to database';
-            return null;
+            $this->lastError = 'Not connected to Oracle database';
+            return false;
         }
 
         $this->lastQuery = $sql;
         $this->affectedRows = 0;
 
-        try {
-            $result = $this->conn->query($sql);
-
-            // Nếu là dạng SELECT thì trả về result object
-            if ($result instanceof mysqli_result) {
-                return $result;
-            }
-
-            // Nếu là dạng INSERT / UPDATE / DELETE thì lưu affectedRows và trả true
-            $this->affectedRows = $this->conn->affected_rows;
-            return true;
-        } catch (mysqli_sql_exception $e) {
-            $this->handleException($e, 'Query failed');
-            return false;  // Dùng false thay vì null để phân biệt lỗi truy vấn rõ ràng
+        $stid = @oci_parse($this->conn, $sql);
+        if (!$stid) {
+            $error = oci_error($this->conn);
+            $this->handleOracleError($error, 'OCI Parse failed');
+            return false;
         }
+
+        $execute_mode = OCI_DEFAULT;
+        $is_tcl = preg_match('/^\s*(COMMIT|ROLLBACK)/i', $sql);
+        $is_select = preg_match('/^\s*SELECT/i', $sql);
+
+        if ($this->inTransaction && !$is_tcl) {
+            $execute_mode = OCI_NO_AUTO_COMMIT;
+        } elseif (!$is_select && !$is_tcl) {
+            $execute_mode = OCI_COMMIT_ON_SUCCESS;
+        }
+
+        if (!@oci_execute($stid, $execute_mode)) {
+            $error = oci_error($stid);
+            $this->handleOracleError($error, 'OCI Execute failed');
+            @oci_free_statement($stid);
+            return false;
+        }
+
+        if (preg_match('/^\s*(INSERT|UPDATE|DELETE|MERGE)/i', $sql)) {
+            $this->affectedRows = @oci_num_rows($stid);
+        }
+
+        return $stid;
     }
 
-    public function fetchAll(string $sql, int $mode = MYSQLI_ASSOC): array
+    public function fetchAll(string $sql, int $mode = OCI_ASSOC): array
     {
-        $result = $this->execute($sql);
-        return $result ? $result->fetch_all($mode) : [];
+        $stid = $this->execute($sql);
+        if (!$stid || !is_resource($stid)) {
+            if (is_resource($stid)) @oci_free_statement($stid);
+            return [];
+        }
+
+        $rows = [];
+        while (($row = @oci_fetch_array($stid, $mode + OCI_RETURN_NULLS)) !== false) {
+            $rows[] = $row;
+        }
+
+        @oci_free_statement($stid);
+        return $rows;
     }
 
-    public function fetchRow(string $sql, int $mode = MYSQLI_ASSOC): ?array
+    public function fetchRow(string $sql, int $mode = OCI_ASSOC): ?array
     {
-        $result = $this->execute($sql);
-        return $result ? $result->fetch_array($mode) : null;
+        $stid = $this->execute($sql);
+        if (!$stid || !is_resource($stid)) {
+            if (is_resource($stid)) @oci_free_statement($stid);
+            return null;
+        }
+
+        $row = @oci_fetch_array($stid, $mode + OCI_RETURN_NULLS);
+        @oci_free_statement($stid);
+
+        return $row === false ? null : $row;
     }
 
-    public function runScript(string $sql): bool
+    public function runScript(string $sqlScript): bool
     {
         if (!$this->isConnected()) {
+            $this->lastError = 'Not connected to Oracle database for script execution';
             return false;
         }
-        $this->lastQuery = $sql;
+        $this->lastQuery = $sqlScript;
 
-        try {
-            $this->conn->multi_query($sql);
-            do {
-                if ($res = $this->conn->store_result()) {
-                    $res->free();
-                }
-            } while ($this->conn->more_results() && $this->conn->next_result());
-            return true;
-        } catch (mysqli_sql_exception $e) {
-            $this->handleException($e, 'Multi-query failed');
-            return false;
+        $sqlScript = str_replace("\r\n", "\n", $sqlScript);
+        $sqlScript = preg_replace('/--.*$/m', '', $sqlScript);
+        $sqlScript = preg_replace('/\/\*.*?\*\//s', '', $sqlScript);
+
+        $statements = explode(';', $sqlScript);
+        $all_successful = true;
+
+        $this->begin();
+
+        foreach ($statements as $statement_idx => $statement) {
+            $trimmed_statement = trim($statement);
+            if (empty($trimmed_statement)) {
+                continue;
+            }
+
+            $stid = @oci_parse($this->conn, $trimmed_statement);
+            if (!$stid) {
+                $error = oci_error($this->conn);
+                $this->handleOracleError($error, "OCI Parse failed for script statement #{$statement_idx}: " . substr($trimmed_statement, 0, 100));
+                $all_successful = false;
+                break;
+            }
+
+            $is_ddl = preg_match('/^\s*(CREATE|ALTER|DROP|TRUNCATE)/i', $trimmed_statement);
+            $is_tcl = preg_match('/^\s*(COMMIT|ROLLBACK)/i', $trimmed_statement);
+
+            $execute_mode = OCI_NO_AUTO_COMMIT;
+            if ($is_ddl || $is_tcl) {
+                $execute_mode = OCI_DEFAULT;
+            }
+
+            if (!@oci_execute($stid, $execute_mode)) {
+                $error = oci_error($stid);
+                $this->handleOracleError($error, "OCI Execute failed for script statement #{$statement_idx}: " . substr($trimmed_statement, 0, 100));
+                $all_successful = false;
+                @oci_free_statement($stid);
+                break;
+            }
+            @oci_free_statement($stid);
         }
+
+        if ($all_successful) {
+            $this->commit();
+        } else {
+            $this->rollback();
+        }
+
+        return $all_successful;
     }
 
     public function begin(): bool
     {
-        return $this->isConnected() && $this->conn->begin_transaction();
+        if (!$this->isConnected()) return false;
+        $this->inTransaction = true;
+        return true;
     }
 
     public function commit(): bool
     {
-        return $this->isConnected() && $this->conn->commit();
+        if (!$this->isConnected()) return false;
+        $result = @oci_commit($this->conn);
+        if (!$result) {
+            $this->handleOracleError(oci_error($this->conn), 'OCI Commit failed');
+        }
+        $this->inTransaction = false;
+        return $result;
     }
 
     public function rollback(): bool
     {
-        return $this->isConnected() && $this->conn->rollback();
+        if (!$this->isConnected()) return false;
+        $result = @oci_rollback($this->conn);
+        if (!$result) {
+            $this->handleOracleError(oci_error($this->conn), 'OCI Rollback failed');
+        }
+        $this->inTransaction = false;
+        return $result;
     }
 
     public function close(): void
     {
         if ($this->conn) {
-            $this->conn->close();
+            @oci_close($this->conn);
             $this->conn = null;
         }
     }
 
-    private function handleException(mysqli_sql_exception $e, string $context = ''): void
+    private function handleOracleError($error, string $context = ''): void
     {
-        $this->lastError = $e->getMessage();
-        $msg = "[DB] {$context}: {$this->lastError}";
+        if ($error && isset($error['message'])) {
+            $this->lastError = "Code: {$error['code']} - Message: " . trim($error['message']);
+            if (isset($error['sqltext']) && !empty($error['sqltext'])) {
+                $this->lastError .= " (SQL Text: " . substr(trim($error['sqltext']), 0, 200) . "...)";
+            }
+            if (isset($error['offset'])) {
+                $this->lastError .= " (Offset: {$error['offset']})";
+            }
+        } else {
+            $this->lastError = "An unknown Oracle error occurred or no active connection for error reporting.";
+        }
+        $msg = "[DB-OCI8] {$context}: {$this->lastError}";
         error_log($msg);
-//        echo "<script>console.error('{$context}');</script>";
     }
 
     public function __destruct()
