@@ -4,35 +4,76 @@ require_once __DIR__ . '/../dto/cart_dto.php';
 
 class CartBLL extends Database
 {
-    public function create_cart(CartDTO $cart)
+    public function create_cart(CartDTO $cart): bool
     {
-        $sql = "INSERT INTO Cart (CartID, UserID) VALUES ('{$cart->cartID}', '{$cart->userID}')";
-        $result = $this->execute($sql);
-        // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "INSERT INTO CART (CartID, UserID) 
+                VALUES (:cartID, :userID)";
+
+        $bindParams = [
+            ':cartID' => $cart->cartID,
+            ':userID' => $cart->userID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
     public function get_cart_by_user(string $userID): ?CartDTO
     {
-        $sql = "SELECT * FROM Cart WHERE UserID = '{$userID}'";
-        $result = $this->execute($sql);
+        $sql = "SELECT CartID, UserID, created_at 
+                FROM CART 
+                WHERE UserID = :userID_param";
 
-        if (!$result || !($result instanceof mysqli_result)) {
-            return null;
-        }
+        $bindParams = [':userID_param' => $userID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
         $dto = null;
-        if ($row = $result->fetch_assoc()) {
-            $dto = new CartDTO($row['CartID'], $row['UserID']);
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new CartDTO(
+                    $row['CARTID'],
+                    $row['USERID'],
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
         return $dto;
     }
 
+    public function get_cart_by_id(string $cartID): ?CartDTO
+    {
+        $sql = "SELECT CartID, UserID, created_at 
+                FROM CART 
+                WHERE CartID = :cartID_param";
+
+        $bindParams = [':cartID_param' => $cartID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        $dto = null;
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new CartDTO(
+                    $row['CARTID'],
+                    $row['USERID'],
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
+        }
+        return $dto;
+    }
+
+
     public function delete_cart(string $cartID): bool
     {
-        $escapedID = $this->conn->real_escape_string($cartID);
-        $sql = "DELETE FROM Cart WHERE CartID = '{$escapedID}'";
+        $sql = "DELETE FROM CART WHERE CartID = :cartID";
+        $bindParams = [':cartID' => $cartID];
 
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 }
+?>

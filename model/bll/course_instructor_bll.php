@@ -6,39 +6,101 @@ require_once __DIR__ . '/../dto/course_instructor_dto.php';
 
 class CourseInstructorBLL extends Database
 {
-    public function get_by_course($courseID)
+    public function get_by_course(string $courseID): array
     {
-        $sql = "SELECT * FROM CourseInstructor WHERE CourseID = '{$courseID}'";
-        $result = $this->execute($sql);
+        $sql = "SELECT CourseID, InstructorID, created_at 
+                FROM COURSEINSTRUCTOR 
+                WHERE CourseID = :courseID_param 
+                ORDER BY InstructorID ASC";
 
+        $bindParams = [':courseID_param' => $courseID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
         $list = [];
-        while ($row = $result->fetch_assoc()) {
-            $list[] = new CourseInstructorDTO($row['CourseID'], $row['InstructorID']);
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $list[] = new CourseInstructorDTO(
+                    $row['COURSEID'],
+                    $row['INSTRUCTORID'],
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
         return $list;
     }
 
-    public function add($courseID, $instructorID)
+    public function add(string $courseID, string $instructorID): bool
     {
-        $sql = "INSERT INTO CourseInstructor (CourseID, InstructorID)
-                VALUES ('{$courseID}', '{$instructorID}')";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "INSERT INTO COURSEINSTRUCTOR (CourseID, InstructorID)
+                VALUES (:courseID, :instructorID)";
+
+        $bindParams = [
+            ':courseID'     => $courseID,
+            ':instructorID' => $instructorID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function update($oldCourseID, $oldInstructorID, $newCourseID, $newInstructorID)
+    public function update(string $oldCourseID, string $oldInstructorID, string $newCourseID, string $newInstructorID): bool
     {
-        $sql = "UPDATE CourseInstructor
-                SET CourseID = '{$newCourseID}', InstructorID = '{$newInstructorID}'
-                WHERE CourseID = '{$oldCourseID}' AND InstructorID = '{$oldInstructorID}'";
-        return $this->execute($sql) !== false;
+        $sql = "UPDATE COURSEINSTRUCTOR
+                SET CourseID = :newCourseID, InstructorID = :newInstructorID
+                WHERE CourseID = :oldCourseID_where AND InstructorID = :oldInstructorID_where";
+
+        $bindParams = [
+            ':newCourseID'           => $newCourseID,
+            ':newInstructorID'       => $newInstructorID,
+            ':oldCourseID_where'     => $oldCourseID,
+            ':oldInstructorID_where' => $oldInstructorID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
     }
 
-    public function delete($courseID, $instructorID)
+    public function delete(string $courseID, string $instructorID): bool
     {
-        $sql = "DELETE FROM CourseInstructor
-                WHERE CourseID = '{$courseID}' AND InstructorID = '{$instructorID}'";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "DELETE FROM COURSEINSTRUCTOR
+                WHERE CourseID = :courseID AND InstructorID = :instructorID";
+
+        $bindParams = [
+            ':courseID'     => $courseID,
+            ':instructorID' => $instructorID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
+    }
+
+    public function get_assignment(string $courseID, string $instructorID): ?CourseInstructorDTO
+    {
+        $sql = "SELECT CourseID, InstructorID, created_at 
+                FROM COURSEINSTRUCTOR 
+                WHERE CourseID = :courseID_param AND InstructorID = :instructorID_param";
+
+        $bindParams = [
+            ':courseID_param' => $courseID,
+            ':instructorID_param' => $instructorID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        $dto = null;
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new CourseInstructorDTO(
+                    $row['COURSEID'],
+                    $row['INSTRUCTORID'],
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
+        }
+        return $dto;
     }
 }
+?>

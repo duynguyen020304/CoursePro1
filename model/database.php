@@ -115,6 +115,97 @@ class Database
 
         return $stid;
     }
+    public function executePrepared(string $sql, array $bindParams = []): mixed
+    {
+        if (!$this->isConnected()) {
+            $this->lastError = 'Not connected to Oracle database';
+            error_log('[DB-OCI8] executePrepared: Not connected.');
+            return false;
+        }
+
+        $this->lastQuery = $sql;
+        $this->affectedRows = 0;
+
+        $stid = @oci_parse($this->conn, $sql);
+        if (!$stid) {
+            $error = oci_error($this->conn);
+            $this->handleOracleError($error, 'OCI Parse failed for prepared statement');
+            return false;
+        }
+
+        $lob_descriptors = [];
+
+        foreach ($bindParams as $key => $value) {
+            $paramType = SQLT_CHR;
+            $paramValue = $value;
+            $paramMaxLength = -1;
+            $bindKey = (strpos($key, ':') !== 0) ? ':' . $key : $key;
+
+            if (is_array($value) && isset($value['type'])) {
+                $paramValue = $value['value'];
+                if ($value['type'] === OCI_B_CLOB) {
+                    $lob = @oci_new_descriptor($this->conn, OCI_D_LOB);
+                    if ($lob) {
+                        if ($paramValue !== null) {
+                            $lob->writeTemporary($paramValue, OCI_TEMP_CLOB);
+                        }
+                        $paramValue = $lob;
+                        $lob_descriptors[] = $lob;
+                    } else {
+                        $this->handleOracleError(oci_error($this->conn), "Failed to create LOB descriptor for {$bindKey}");
+                        foreach ($lob_descriptors as $ld) { @$ld->free(); }
+                        @oci_free_statement($stid);
+                        return false;
+                    }
+                    $paramType = OCI_B_CLOB;
+                }
+            } elseif (is_int($value)) {
+                // Optional: handle explicit integer binding if needed
+            } elseif (is_null($value)) {
+                // PHP null binds as SQL NULL
+            }
+
+            if (!@oci_bind_by_name($stid, $bindKey, $paramValue, $paramMaxLength, $paramType)) {
+                $error = oci_error($stid);
+                $this->handleOracleError($error, "OCI Bind failed for parameter {$bindKey}");
+                foreach ($lob_descriptors as $ld) { @$ld->free(); }
+                @oci_free_statement($stid);
+                return false;
+            }
+        }
+
+        $execute_mode = OCI_DEFAULT;
+        $is_tcl = preg_match('/^\s*(COMMIT|ROLLBACK)/i', $sql);
+        $is_select = preg_match('/^\s*SELECT/i', $sql);
+
+        if ($this->inTransaction && !$is_tcl) {
+            $execute_mode = OCI_NO_AUTO_COMMIT;
+        } elseif (!$is_select && !$is_tcl) {
+            $execute_mode = OCI_COMMIT_ON_SUCCESS;
+        }
+
+        if (!@oci_execute($stid, $execute_mode)) {
+            $error = oci_error($stid);
+            $this->handleOracleError($error, "OCI Execute failed for prepared statement. SQL: " . substr($sql,0,200) . "...");
+            foreach ($lob_descriptors as $ld) { @$ld->free(); }
+            @oci_free_statement($stid);
+            return false;
+        }
+
+        if (preg_match('/^\s*(INSERT|UPDATE|DELETE|MERGE)/i', $sql)) {
+            $this->affectedRows = @oci_num_rows($stid);
+        }
+
+        foreach ($lob_descriptors as $ld) {
+            @$ld->free();
+        }
+
+        if (!$is_select) {
+            // Optionally free statement here if not needed further
+        }
+
+        return $stid;
+    }
 
     public function fetchAll(string $sql, int $mode = OCI_ASSOC): array
     {

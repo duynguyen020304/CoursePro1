@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../dto/resource_dto.php';
 
@@ -7,89 +6,119 @@ class ResourceBLL extends Database
 {
     public function create_resource(ResourceDTO $resource): bool
     {
-        $title = $resource->title !== null ? "'" . $this->conn->real_escape_string($resource->title) . "'" : "NULL";
-        $sql = "INSERT INTO `CourseResource` (ResourceID, LessonID, ResourcePath, Title, SortOrder)
-                VALUES (
-                    '{$resource->resourceID}',
-                    '{$resource->lessonID}',
-                    '{$resource->resourcePath}',
-                    {$title},
-                    {$resource->sortOrder}
-                )";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "INSERT INTO COURSERESOURCE (ResourceID, LessonID, ResourcePath, Title, SortOrder)
+                VALUES (:resourceID, :lessonID, :resourcePath, :title, :sortOrder)";
+        $bindParams = [
+            ':resourceID'   => $resource->resourceID,
+            ':lessonID'     => $resource->lessonID,
+            ':resourcePath' => $resource->resourcePath,
+            ':title'        => $resource->title,
+            ':sortOrder'    => $resource->sortOrder ?? 0,
+        ];
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
     public function get_resource_by_id(string $resourceID): ?ResourceDTO
     {
-        $sql = "SELECT * FROM `CourseResource` WHERE ResourceID = '{$resourceID}'";
-        $result = $this->execute($sql);
-        if ($result && $row = $result->fetch_assoc()) {
-            return new ResourceDTO(
-                $row['ResourceID'],
-                $row['LessonID'],
-                $row['ResourcePath'],
-                $row['Title'],
-                (int)$row['SortOrder'],
-                $row['created_at']
-            );
+        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder, created_at 
+                FROM COURSERESOURCE 
+                WHERE ResourceID = :resourceID_param";
+        $bindParams = [':resourceID_param' => $resourceID];
+        $stid = $this->executePrepared($sql, $bindParams);
+        $dto = null;
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new ResourceDTO(
+                    $row['RESOURCEID'],
+                    $row['LESSONID'],
+                    $row['RESOURCEPATH'],
+                    $row['TITLE'],
+                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
-        return null;
+        return $dto;
     }
 
     public function get_resources_by_lesson(string $lessonID): array
     {
-        $sql = "SELECT * FROM `CourseResource` WHERE LessonID = '{$lessonID}' ORDER BY SortOrder ASC";
-        $result = $this->execute($sql);
+        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder, created_at 
+                FROM COURSERESOURCE 
+                WHERE LessonID = :lessonID_param 
+                ORDER BY SortOrder ASC";
+        $bindParams = [':lessonID_param' => $lessonID];
+        $stid = $this->executePrepared($sql, $bindParams);
         $resources = [];
-        while ($row = $result->fetch_assoc()) {
-            $resources[] = new ResourceDTO(
-                $row['ResourceID'],
-                $row['LessonID'],
-                $row['ResourcePath'],
-                $row['Title'],
-                (int)$row['SortOrder'],
-                $row['created_at']
-            );
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $resources[] = new ResourceDTO(
+                    $row['RESOURCEID'],
+                    $row['LESSONID'],
+                    $row['RESOURCEPATH'],
+                    $row['TITLE'],
+                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
         return $resources;
     }
 
     public function get_all_resources(): array
     {
-        $sql = "SELECT * FROM `CourseResource` ORDER BY SortOrder ASC";
-        $result = $this->execute($sql);
+        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder, created_at 
+                FROM COURSERESOURCE 
+                ORDER BY SortOrder ASC";
+        $stid = $this->executePrepared($sql);
         $resources = [];
-        while ($row = $result->fetch_assoc()) {
-            $resources[] = new ResourceDTO(
-                $row['ResourceID'],
-                $row['LessonID'],
-                $row['ResourcePath'],
-                $row['Title'],
-                (int)$row['SortOrder'],
-                $row['created_at']
-            );
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $resources[] = new ResourceDTO(
+                    $row['RESOURCEID'],
+                    $row['LESSONID'],
+                    $row['RESOURCEPATH'],
+                    $row['TITLE'],
+                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
         return $resources;
     }
 
     public function update_resource(ResourceDTO $resource): bool
     {
-        $title = $resource->title !== null ? "'" . $this->conn->real_escape_string($resource->title) . "'" : "NULL";
-        $sql = "UPDATE `CourseResource` SET
-                    LessonID = '{$resource->lessonID}',
-                    ResourcePath = '{$resource->resourcePath}',
-                    Title = {$title},
-                    SortOrder = {$resource->sortOrder}
-                WHERE ResourceID = '{$resource->resourceID}'";
-        $result = $this->execute($sql);
-        return $result === true;
+        $sql = "UPDATE COURSERESOURCE SET
+                    LessonID = :lessonID,
+                    ResourcePath = :resourcePath,
+                    Title = :title,
+                    SortOrder = :sortOrder
+                WHERE ResourceID = :resourceID_where";
+        $bindParams = [
+            ':lessonID'       => $resource->lessonID,
+            ':resourcePath'   => $resource->resourcePath,
+            ':title'          => $resource->title,
+            ':sortOrder'      => $resource->sortOrder ?? 0,
+            ':resourceID_where' => $resource->resourceID,
+        ];
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
     }
 
     public function delete_resource(string $resourceID): bool
     {
-        $sql = "DELETE FROM `CourseResource` WHERE ResourceID = '{$resourceID}'";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "DELETE FROM COURSERESOURCE WHERE ResourceID = :resourceID";
+        $bindParams = [':resourceID' => $resourceID];
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 }
+?>

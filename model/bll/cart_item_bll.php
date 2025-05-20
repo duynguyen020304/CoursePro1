@@ -1,48 +1,112 @@
 <?php
 require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../dto/cart_item_dto.php';
+
 class CartItemBLL extends Database
 {
-    public function create_item(CartItemDTO $item)
+    public function create_item(CartItemDTO $item): bool
     {
-        $sql = "INSERT INTO CartItem (CartItemID, CartID, CourseID, Quantity) VALUES ('{$item->cartItemID}', '{$item->cartID}', '{$item->courseID}', {$item->quantity})";
-        $result = $this->execute($sql);
-        // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "INSERT INTO CARTITEM (CartItemID, CartID, CourseID, Quantity) 
+                VALUES (:cartItemID, :cartID, :courseID, :quantity)";
+
+        $bindParams = [
+            ':cartItemID' => $item->cartItemID,
+            ':cartID'     => $item->cartID,
+            ':courseID'   => $item->courseID,
+            ':quantity'   => isset($item->quantity) ? (int)$item->quantity : 1,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
     public function get_items_by_cart(string $cartID): array
     {
-        $sql = "SELECT * FROM CartItem WHERE CartID = '{$cartID}'";
-        $result = $this->execute($sql);
+        $sql = "SELECT CartItemID, CartID, CourseID, Quantity, created_at 
+                FROM CARTITEM 
+                WHERE CartID = :cartID_param 
+                ORDER BY CourseID ASC";
+
+        $bindParams = [':cartID_param' => $cartID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
         $items = [];
-        while ($row = $result->fetch_assoc()) {
-            $items[] = new CartItemDTO($row['CartItemID'], $row['CartID'], $row['CourseID'], (int)$row['Quantity']);
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $items[] = new CartItemDTO(
+                    $row['CARTITEMID'],
+                    $row['CARTID'],
+                    $row['COURSEID'],
+                    isset($row['QUANTITY']) ? (int)$row['QUANTITY'] : 0,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
-        // $this->close();
         return $items;
     }
 
-    public function delete_item(string $cartItemID)
+    public function delete_item(string $cartItemID): bool
     {
-        $sql = "DELETE FROM CartItem WHERE CartItemID = '{$cartItemID}'";
-        $result = $this->execute($sql);
-        // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "DELETE FROM CARTITEM WHERE CartItemID = :cartItemID";
+        $bindParams = [':cartItemID' => $cartItemID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function clear_cart(string $cartID)
+    public function get_item_by_id(string $cartItemID): ?CartItemDTO
     {
-        $sql = "SELECT COUNT(*) FROM CartItem WHERE CartID = '{$cartID}'";
-        $result = $this->execute($sql);
-        $count = $result->fetch_assoc()['COUNT(*)'];
+        $sql = "SELECT CartItemID, CartID, CourseID, Quantity, created_at 
+                FROM CARTITEM 
+                WHERE CartItemID = :cartItemID_param";
+        $bindParams = [':cartItemID_param' => $cartItemID];
 
-        if ($count == 0) {
-            return false; // Không có item trong giỏ hàng
+        $stid = $this->executePrepared($sql, $bindParams);
+        $dto = null;
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new CartItemDTO(
+                    $row['CARTITEMID'],
+                    $row['CARTID'],
+                    $row['COURSEID'],
+                    isset($row['QUANTITY']) ? (int)$row['QUANTITY'] : 0,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
+        }
+        return $dto;
+    }
+
+    public function update_item_quantity(string $cartItemID, int $quantity): bool
+    {
+        if ($quantity <= 0) {
+            return $this->delete_item($cartItemID);
         }
 
-        $sql = "DELETE FROM CartItem WHERE CartID = '{$cartID}'";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() > 0;
+        $sql = "UPDATE CARTITEM SET Quantity = :quantity 
+                WHERE CartItemID = :cartItemID_where";
+
+        $bindParams = [
+            ':quantity'        => $quantity,
+            ':cartItemID_where' => $cartItemID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
+    }
+
+
+    public function clear_cart(string $cartID): bool
+    {
+        $sql = "DELETE FROM CARTITEM WHERE CartID = :cartID";
+        $bindParams = [':cartID' => $cartID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
     }
 }
+?>

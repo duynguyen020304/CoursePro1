@@ -4,108 +4,149 @@ require_once __DIR__ . '/../dto/chapter_dto.php';
 
 class ChapterBLL extends Database
 {
-    public function get_all_chapters()
+    public function create_chapter(ChapterDTO $chapter): bool
     {
-        $rows = $this->fetchAll("SELECT * FROM `CourseChapter` ORDER BY SortOrder ASC");
+        $sql = "INSERT INTO COURSECHAPTER (ChapterID, CourseID, Title, Description, SortOrder)
+                VALUES (:chapterID, :courseID, :title, :description, :sortOrder)";
+
+        $bindParams = [
+            ':chapterID'   => $chapter->chapterID,
+            ':courseID'    => $chapter->courseID,
+            ':title'       => $chapter->title,
+            ':description' => ['value' => $chapter->description, 'type' => OCI_B_CLOB],
+            ':sortOrder'   => $chapter->sortOrder ?? 0,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
+    }
+
+    public function update_chapter(ChapterDTO $chapter): bool
+    {
+        $sql = "UPDATE COURSECHAPTER SET
+                    CourseID    = :courseID,
+                    Title       = :title,
+                    Description = :description,
+                    SortOrder   = :sortOrder
+                WHERE ChapterID = :chapterID_where";
+
+        $bindParams = [
+            ':courseID'    => $chapter->courseID,
+            ':title'       => $chapter->title,
+            ':description' => ['value' => $chapter->description, 'type' => OCI_B_CLOB],
+            ':sortOrder'   => $chapter->sortOrder ?? 0,
+            ':chapterID_where' => $chapter->chapterID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
+    }
+
+    public function delete_chapter(string $chapterID): bool
+    {
+        $sql = "DELETE FROM COURSECHAPTER WHERE ChapterID = :chapterID";
+        $bindParams = [':chapterID' => $chapterID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
+    }
+
+    public function get_all_chapters(): array
+    {
+        $sql = "SELECT ChapterID, CourseID, Title, Description, SortOrder, created_at 
+                FROM COURSECHAPTER 
+                ORDER BY SortOrder ASC, Title ASC";
+
+        $stid = $this->executePrepared($sql);
         $list = [];
-        foreach ($rows as $row) {
-            $list[] = new ChapterDTO(
-                $row['ChapterID'],
-                $row['CourseID'],
-                $row['Title'],
-                $row['Description'],
-                (int)$row['SortOrder']
-            );
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $description = null;
+                if (is_object($row['DESCRIPTION']) && method_exists($row['DESCRIPTION'], 'read')) {
+                    $description = $row['DESCRIPTION']->read($row['DESCRIPTION']->size());
+                } elseif (isset($row['DESCRIPTION'])) {
+                    $description = $row['DESCRIPTION'];
+                }
+                $list[] = new ChapterDTO(
+                    $row['CHAPTERID'],
+                    $row['COURSEID'],
+                    $row['TITLE'],
+                    $description,
+                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
         return $list;
     }
 
-    public function get_chapter_by_id(string $chapterID)
+
+    public function get_chapter_by_id(string $chapterID): ?ChapterDTO
     {
-        $rows = $this->fetchRow("SELECT * FROM `CourseChapter` WHERE ChapterID = '{$chapterID}'");
-        if (!$rows) {
-            return null;
+        $sql = "SELECT ChapterID, CourseID, Title, Description, SortOrder, created_at 
+                FROM COURSECHAPTER 
+                WHERE ChapterID = :chapterID_param";
+        $bindParams = [':chapterID_param' => $chapterID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        $dto = null;
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $description = null;
+                if (is_object($row['DESCRIPTION']) && method_exists($row['DESCRIPTION'], 'read')) {
+                    $description = $row['DESCRIPTION']->read($row['DESCRIPTION']->size());
+                } elseif (isset($row['DESCRIPTION'])) {
+                    $description = $row['DESCRIPTION'];
+                }
+                $dto = new ChapterDTO(
+                    $row['CHAPTERID'],
+                    $row['COURSEID'],
+                    $row['TITLE'],
+                    $description,
+                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
+        return $dto;
+    }
+
+    public function get_chapters_by_courseID(string $courseID): array
+    {
+        $sql = "SELECT ChapterID, CourseID, Title, Description, SortOrder, created_at 
+                FROM COURSECHAPTER 
+                WHERE CourseID = :courseID_param 
+                ORDER BY SortOrder ASC";
+
+        $bindParams = [':courseID_param' => $courseID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
         $list = [];
-        foreach ($rows as $row) {
-            $list[] = new ChapterDTO(
-                $row['ChapterID'],
-                $row['CourseID'],
-                $row['Title'],
-                $row['Description'],
-                (int)$row['SortOrder']
-            );
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $description = null;
+                if (is_object($row['DESCRIPTION']) && method_exists($row['DESCRIPTION'], 'read')) {
+                    $description = $row['DESCRIPTION']->read($row['DESCRIPTION']->size());
+                } elseif (isset($row['DESCRIPTION'])) {
+                    $description = $row['DESCRIPTION'];
+                }
+                $list[] = new ChapterDTO(
+                    $row['CHAPTERID'],
+                    $row['COURSEID'],
+                    $row['TITLE'],
+                    $description,
+                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
         return $list;
-    }
-
-    public function get_chapter_by_courseID(string $courseID): array
-    {
-        $sql = "SELECT * FROM `CourseChapter` WHERE `CourseID` = '{$courseID}' ORDER BY SortOrder ASC";
-        $rows = $this->execute($sql);
-        $list = [];
-        while ($row = $rows->fetch_assoc()) {
-            $list[] = new ChapterDTO(
-                $row['ChapterID'],
-                $row['CourseID'],
-                $row['Title'],
-                $row['Description'],
-                (int)$row['SortOrder']
-            );
-        }
-        return $list;
-    }
-
-//    public function get_all_categories(): array
-//    {
-//        $sql = "SELECT * FROM categories ORDER BY sort_order ASC, name ASC";
-//        $result = $this->execute($sql);
-//        $list = [];
-//        while ($row = $result->fetch_assoc()) {
-//            $list[] = new CategoryDTO(
-//                (int)$row['id'],
-//                $row['name'],
-//                isset($row['parent_id']) ? (int)$row['parent_id'] : null,
-//                (int)$row['sort_order']
-//            );
-//        }
-//        // $this->close();
-//        return $list;
-//    }
-
-    public function create_chapter(ChapterDTO $chapter)
-    {
-        $desc = $chapter->description !== null
-            ? "'" . $this->conn->real_escape_string($chapter->description) . "'"
-            : "NULL";
-        $sql = "INSERT INTO `CourseChapter` (ChapterID, CourseID, Title, Description, SortOrder)
-                VALUES (
-                  '{$chapter->chapterID}',
-                  '{$chapter->courseID}',
-                  '{$this->conn->real_escape_string($chapter->title)}',
-                  {$desc},
-                  {$chapter->sortOrder}
-                )";
-        return $this->execute($sql) === true;
-    }
-
-    public function update_chapter(ChapterDTO $chapter)
-    {
-        $desc = $chapter->description !== null
-            ? "'" . $this->conn->real_escape_string($chapter->description) . "'"
-            : "NULL";
-        $sql = "UPDATE `CourseChapter` SET
-                    CourseID    = '{$chapter->courseID}',
-                    Title       = '{$this->conn->real_escape_string($chapter->title)}',
-                    Description = {$desc},
-                    SortOrder   = {$chapter->sortOrder}
-                WHERE ChapterID = '{$chapter->chapterID}'";
-        return $this->execute($sql) === true;
-    }
-
-    public function delete_chapter(string $chapterID)
-    {
-        $sql = "DELETE FROM `CourseChapter` WHERE ChapterID = '{$chapterID}'";
-        return $this->execute($sql) === true;
     }
 }
+?>

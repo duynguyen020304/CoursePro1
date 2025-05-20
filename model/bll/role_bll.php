@@ -1,53 +1,80 @@
 <?php
 require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../dto/role_dto.php';
+
 class RoleBLL extends Database
 {
-    public function create_role(RoleDTO $role)
+    public function create_role(RoleDTO $role): bool
     {
-        $sql = "INSERT INTO `Role` (RoleID, RoleName) VALUES ('{$role->roleID}', '{$role->roleName}')";
-        $result = $this->execute($sql);
-        // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "INSERT INTO ROLE (RoleID, RoleName) 
+                VALUES (:roleID, :roleName)";
+        $bindParams = [
+            ':roleID'   => $role->roleID,
+            ':roleName' => $role->roleName,
+        ];
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function delete_role(string $roleID)
+    public function delete_role(string $roleID): bool
     {
-        $sql = "DELETE FROM `Role` WHERE RoleID = '{$roleID}'";
-        $result = $this->execute($sql);
-        // $this->close();
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "DELETE FROM ROLE WHERE RoleID = :roleID";
+        $bindParams = [':roleID' => $roleID];
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function update_role(RoleDTO $role)
+    public function update_role(RoleDTO $role): bool
     {
-        $sql = "UPDATE `Role` SET RoleName = '{$role->roleName}' WHERE RoleID = '{$role->roleID}'";
-        $result = $this->execute($sql);
-        // $this->close();
-        return $result === true;
+        $sql = "UPDATE ROLE SET RoleName = :roleName WHERE RoleID = :roleID_where";
+        $bindParams = [
+            ':roleName'    => $role->roleName,
+            ':roleID_where' => $role->roleID,
+        ];
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
     }
 
     public function get_role(string $roleID): ?RoleDTO
     {
-        $sql = "SELECT * FROM `Role` WHERE RoleID = '{$roleID}'";
-        $result = $this->execute($sql);
+        $sql = "SELECT RoleID, RoleName, created_at 
+                FROM ROLE 
+                WHERE RoleID = :roleID_param";
+        $bindParams = [':roleID_param' => $roleID];
+        $stid = $this->executePrepared($sql, $bindParams);
         $dto = null;
-        if ($row = $result->fetch_assoc()) {
-            $dto = new RoleDTO($row['RoleID'], $row['RoleName']);
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new RoleDTO(
+                    $row['ROLEID'],
+                    $row['ROLENAME'],
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
-        // $this->close();
         return $dto;
     }
 
     public function get_all_roles(): array
     {
-        $sql = "SELECT * FROM `Role`";
-        $result = $this->execute($sql);
+        $sql = "SELECT RoleID, RoleName, created_at 
+                FROM ROLE ORDER BY RoleID";
+        $stid = $this->executePrepared($sql);
         $roles = [];
-        while ($row = $result->fetch_assoc()) {
-            $roles[] = new RoleDTO($row['RoleID'], $row['RoleName']);
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $roles[] = new RoleDTO(
+                    $row['ROLEID'],
+                    $row['ROLENAME'],
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
         }
-        // $this->close();
         return $roles;
     }
 }
+?>

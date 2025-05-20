@@ -6,73 +6,100 @@ class CourseObjectiveBLL extends Database
 {
     public function create(CourseObjectiveDTO $obj): bool
     {
-        $sql = "INSERT INTO `CourseObjective` (ObjectiveID ,CourseID, Objective) VALUES ('{$obj->objectiveID}','{$obj->courseID}', '{$obj->objective}')";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "INSERT INTO COURSEOBJECTIVE (ObjectiveID, CourseID, Objective) 
+                VALUES (:objectiveID, :courseID, :objective)";
+
+        $bindParams = [
+            ':objectiveID' => $obj->objectiveID,
+            ':courseID'    => $obj->courseID,
+            ':objective'   => $obj->objective,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
     public function update(CourseObjectiveDTO $obj): bool
     {
+        $sql = "UPDATE COURSEOBJECTIVE SET Objective = :objective 
+                WHERE ObjectiveID = :objectiveID_where AND CourseID = :courseID_where";
 
-        $sql = "UPDATE `CourseObjective` SET Objective = '{$obj->objective}' WHERE ObjectiveID = '{$obj->objectiveID}'";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $bindParams = [
+            ':objective'         => $obj->objective,
+            ':objectiveID_where' => $obj->objectiveID,
+            ':courseID_where'    => $obj->courseID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
     }
 
-    public function delete(string $objectiveID): bool
+    public function delete(string $courseID, string $objectiveID): bool
     {
-        $sql = "DELETE FROM `CourseObjective` WHERE ObjectiveID = '{$objectiveID}'";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "DELETE FROM COURSEOBJECTIVE 
+                WHERE ObjectiveID = :objectiveID AND CourseID = :courseID";
+
+        $bindParams = [
+            ':objectiveID' => $objectiveID,
+            ':courseID'    => $courseID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function get_by_id(string $objectivetID): array
+    public function get_objective_by_ids(string $courseID, string $objectiveID): ?CourseObjectiveDTO
     {
-        $sql = "SELECT * FROM `CourseObjective` WHERE ObjectiveID = '{$objectivetID}'";
-        $result = $this->execute($sql);
-        $objectives=[];
-        if ($result instanceof mysqli_result) {
-            while ($row = $result->fetch_assoc()) {
-                $objectives[] = new CourseObjectiveDTO(
-                    $row['ObjectiveID'],
-                    $row['CourseID'],
-                    $row['Objective']
+        $sql = "SELECT ObjectiveID, CourseID, Objective, created_at 
+                FROM COURSEOBJECTIVE 
+                WHERE ObjectiveID = :objectiveID_param AND CourseID = :courseID_param";
+
+        $bindParams = [
+            ':objectiveID_param' => $objectiveID,
+            ':courseID_param'    => $courseID,
+        ];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        $dto = null;
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new CourseObjectiveDTO(
+                    $row['OBJECTIVEID'],
+                    $row['COURSEID'],
+                    $row['OBJECTIVE'],
+                    $row['CREATED_AT'] ?? null
                 );
             }
+            @oci_free_statement($stid);
         }
-        return $objectives;
+        return $dto;
     }
 
-    public function get_by_course_id(string $courseID): array
+    public function get_objectives_by_course_id(string $courseID): array
     {
-        $sql = "SELECT * FROM `CourseObjective` WHERE CourseID = '{$courseID}'";
-        $result = $this->execute($sql);
-        $objectives=[];
-        if ($result instanceof mysqli_result) {
-            while ($row = $result->fetch_assoc()) {
+        $sql = "SELECT ObjectiveID, CourseID, Objective, created_at 
+                FROM COURSEOBJECTIVE 
+                WHERE CourseID = :courseID_param 
+                ORDER BY ObjectiveID ASC";
+
+        $bindParams = [':courseID_param' => $courseID];
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        $objectives = [];
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $objectives[] = new CourseObjectiveDTO(
-                    $row['ObjectiveID'],
-                    $row['CourseID'],
-                    $row['Objective']
+                    $row['OBJECTIVEID'],
+                    $row['COURSEID'],
+                    $row['OBJECTIVE'],
+                    $row['CREATED_AT'] ?? null
                 );
             }
+            @oci_free_statement($stid);
         }
         return $objectives;
-    }
-
-
-    public function get_all_by_course(string $courseID): array
-    {
-        $sql = "SELECT * FROM `CourseObjective` WHERE CourseID = '{$courseID}'";
-        $result = $this->execute($sql);
-        $objs = [];
-        while ($row = $result->fetch_assoc()) {
-            $objs[] = new CourseObjectiveDTO(
-                $row['ObjectiveID'],
-                $row['CourseID'],
-                $row['Objective']
-            );
-        }
-        return $objs;
     }
 }
+?>

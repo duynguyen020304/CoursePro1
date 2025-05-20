@@ -7,88 +7,192 @@ class UserBLL extends Database
     public function create_user(UserDTO $user): bool
     {
         $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
-        $sql = "INSERT INTO `Users` (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage)
-            VALUES ('{$user->userID}', '{$user->firstName}', '{$user->lastName}', '{$user->email}', '{$hashedPassword}', '{$user->roleID}', '{$user->profileImage}')";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "INSERT INTO USERS (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage)
+                VALUES (:userID, :firstName, :lastName, :email, :password, :roleID, :profileImage)";
+        $bindParams = [
+            ':userID'       => $user->userID,
+            ':firstName'    => $user->firstName,
+            ':lastName'     => $user->lastName,
+            ':email'        => $user->email,
+            ':password'     => $hashedPassword,
+            ':roleID'       => $user->roleID,
+            ':profileImage' => $user->profileImage,
+        ];
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
     public function authenticate(string $email, string $password): ?UserDTO
     {
-        $sql = "SELECT * FROM `Users` WHERE Email = '{$email}'";
-        $result = $this->execute($sql);
+        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, created_at 
+                FROM USERS 
+                WHERE Email = :email";
+        $bindParams = [':email' => $email];
+        $stid = $this->executePrepared($sql, $bindParams);
         $dto = null;
 
-        if ($row = $result->fetch_assoc()) {
-            if (password_verify($password, $row['Password'])) {
-                $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage']);
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                if (password_verify($password, $row['PASSWORD'])) {
+                    $dto = new UserDTO(
+                        $row['USERID'],
+                        $row['FIRSTNAME'],
+                        $row['LASTNAME'],
+                        $row['EMAIL'],
+                        "",
+                        $row['ROLEID'],
+                        $row['PROFILEIMAGE'],
+                        $row['CREATED_AT'] ?? null
+                    );
+                }
             }
+            @oci_free_statement($stid);
         }
-        // $this->close();
         return $dto;
     }
 
-    public function delete_user(string $userID)
+    public function delete_user(string $userID): bool
     {
-        $sql = "DELETE FROM `Users` WHERE UserID = '{$userID}'";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
-        // $this->close();
+        $sql = "DELETE FROM USERS WHERE UserID = :userID";
+        $bindParams = [':userID' => $userID];
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function update_user(UserDTO $user)
+    public function update_user(UserDTO $user): bool
     {
-        $sql = "UPDATE `Users` SET `FirstName` = '{$user->firstName}', `LastName`='{$user->lastName}', `Password` = '{$user->password}', `RoleID` = '{$user->roleID}', `ProfileImage` = '{$user->profileImage}' WHERE `UserID` = '{$user->userID}'";
-        $result = $this->execute($sql);
-        return $result === true;
+        $setClauses = [];
+        $bindParams = [];
+
+        if ($user->firstName !== null) {
+            $setClauses[] = "FirstName = :firstName";
+            $bindParams[':firstName'] = $user->firstName;
+        }
+        if ($user->lastName !== null) {
+            $setClauses[] = "LastName = :lastName";
+            $bindParams[':lastName'] = $user->lastName;
+        }
+        if (!empty($user->password)) {
+            $setClauses[] = "Password = :password";
+            $bindParams[':password'] = password_hash($user->password, PASSWORD_DEFAULT);
+        }
+        if ($user->roleID !== null) {
+            $setClauses[] = "RoleID = :roleID";
+            $bindParams[':roleID'] = $user->roleID;
+        }
+        $setClauses[] = "ProfileImage = :profileImage";
+        $bindParams[':profileImage'] = $user->profileImage;
+
+        if (empty($setClauses)) {
+            return true;
+        }
+
+        $sql = "UPDATE USERS SET " . implode(', ', $setClauses) . " WHERE UserID = :userID";
+        $bindParams[':userID'] = $user->userID;
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
     }
 
     public function get_user_by_id(string $userID, string $purpose = "get"): ?UserDTO
     {
-        $sql = "SELECT * FROM `Users` WHERE UserID = '{$userID}'";
-        $result = $this->execute($sql);
-        if ($purpose == "get") {
-            if ($result instanceof mysqli_result && $result->num_rows > 0) {
-                if ($row = $result->fetch_assoc()) {
-                    $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
-                }
-            }
-        }
-        else if ($purpose == "update") {
-            if ($result instanceof mysqli_result && $result->num_rows > 0) {
-                if ($row = $result->fetch_assoc()) {
-                    $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], $row['Password'], $row['RoleID'], $row['ProfileImage'], $row['created_at']);
-                }
-            }
-        }
+        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, created_at 
+                FROM USERS WHERE UserID = :userID";
+        $bindParams = [':userID' => $userID];
+        $stid = $this->executePrepared($sql, $bindParams);
+        $dto = null;
 
-        // $this->close();
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $passwordForDTO = "";
+                if ($purpose === "update" || $purpose === "internal_check") {
+                    $passwordForDTO = $row['PASSWORD'];
+                }
+                $dto = new UserDTO(
+                    $row['USERID'],
+                    $row['FIRSTNAME'],
+                    $row['LASTNAME'],
+                    $row['EMAIL'],
+                    $passwordForDTO,
+                    $row['ROLEID'],
+                    $row['PROFILEIMAGE'],
+                    $row['CREATED_AT'] ?? null
+                );
+            }
+            @oci_free_statement($stid);
+        }
         return $dto;
     }
 
     public function get_user_by_email(string $email): ?UserDTO
     {
-        $sql = "SELECT UserID, FirstName, LastName, Email, RoleID, created_at FROM `Users` WHERE Email = '{$email}'";
-        $result = $this->execute($sql);
+        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, created_at 
+                FROM USERS WHERE Email = :email";
+        $bindParams = [':email' => $email];
+        $stid = $this->executePrepared($sql, $bindParams);
         $dto = null;
-        if ($result instanceof mysqli_result && $result->num_rows > 0) {
-            if ($row = $result->fetch_assoc()) {
-                $dto = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new UserDTO(
+                    $row['USERID'],
+                    $row['FIRSTNAME'],
+                    $row['LASTNAME'],
+                    $row['EMAIL'],
+                    "",
+                    $row['ROLEID'],
+                    $row['PROFILEIMAGE'],
+                    $row['CREATED_AT'] ?? null
+                );
             }
+            @oci_free_statement($stid);
         }
         return $dto;
     }
 
     public function get_all_users(): array
     {
-        $sql = "SELECT * FROM `Users`";
-        $result = $this->execute($sql);
+        $sql = "SELECT UserID, FirstName, LastName, Email, RoleID, ProfileImage, created_at FROM USERS";
+        $stid = $this->executePrepared($sql);
         $users = [];
-        if ($result instanceof mysqli_result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $users[] = new UserDTO($row['UserID'], $row['FirstName'], $row['LastName'], $row['Email'], "", $row['RoleID'], $row['ProfileImage'], $row['created_at']);
+
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $users[] = new UserDTO(
+                    $row['USERID'],
+                    $row['FIRSTNAME'],
+                    $row['LASTNAME'],
+                    $row['EMAIL'],
+                    "",
+                    $row['ROLEID'],
+                    $row['PROFILEIMAGE'],
+                    $row['CREATED_AT'] ?? null
+                );
             }
+            @oci_free_statement($stid);
         }
         return $users;
     }
+
+    public function email_exists(string $email, ?string $excludeUserID = null): bool
+    {
+        $sql = "SELECT COUNT(UserID) AS EMAIL_COUNT FROM USERS WHERE Email = :email";
+        $bindParams = [':email' => $email];
+
+        if ($excludeUserID !== null) {
+            $sql .= " AND UserID != :excludeUserID";
+            $bindParams[':excludeUserID'] = $excludeUserID;
+        }
+
+        $stid = $this->executePrepared($sql, $bindParams);
+        if ($stid) {
+            $row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS);
+            @oci_free_statement($stid);
+            if ($row && isset($row['EMAIL_COUNT'])) {
+                return (int)$row['EMAIL_COUNT'] > 0;
+            }
+        }
+        return false;
+    }
 }
+?>

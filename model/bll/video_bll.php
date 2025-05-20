@@ -1,64 +1,106 @@
 <?php
 require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../dto/video_dto.php';
+
 class VideoBLL extends Database
 {
-    public function create_video(VideoDTO $v)
+    public function create_video(VideoDTO $v): bool
     {
-        $title = $v->title ? "'{$v->title}'" : 'NULL';
-        $duration = $v->duration !== null ? intval($v->duration) : 0;
-        $sql = "INSERT INTO CourseVideo (VideoID, LessonID, Url, Title, Duration, SortOrder) VALUES ('{$v->videoID}', '{$v->lessonID}', '{$v->url}', {$title},  {$duration}, {$v->sortOrder})";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "INSERT INTO CourseVideo (VideoID, LessonID, Url, Title, Duration, SortOrder) 
+                VALUES (:videoID, :lessonID, :url, :title, :duration, :sortOrder)";
+        $bindParams = [
+            ':videoID'   => $v->videoID,
+            ':lessonID'  => $v->lessonID,
+            ':url'       => $v->url,
+            ':title'     => $v->title,
+            ':duration'  => $v->duration ?? 0,
+            ':sortOrder' => $v->sortOrder,
+        ];
+        $stid = $this->executePrepared($sql, $bindParams);
+        $success = ($stid !== false);
+        if ($success) {
+        }
+        return $success && $this->getAffectedRows() === 1;
     }
 
-    public function delete_video(string $vid)
+    public function delete_video(string $vid): bool
     {
-        $sql = "DELETE FROM CourseVideo WHERE VideoID = '{$vid}'";
-        $result = $this->execute($sql);
-        return $result === true && $this->getAffectedRows() === 1;
+        $sql = "DELETE FROM CourseVideo WHERE VideoID = :videoID";
+        $bindParams = [':videoID' => $vid];
+        $stid = $this->executePrepared($sql, $bindParams);
+        $success = ($stid !== false);
+        return $success && $this->getAffectedRows() === 1;
     }
 
-    public function update_video(VideoDTO $v)
+    public function update_video(VideoDTO $v): bool
     {
-        $title = $v->title ? "Title = '{$v->title}'," : '';
-        $duration = $v->duration !== null ? "Duration = {$v->duration}," : '';
-        $sql = "UPDATE CourseVideo SET LessonID = '{$v->lessonID}', Url = '{$v->url}', {$title} {$duration} SortOrder = {$v->sortOrder} WHERE VideoID = '{$v->videoID}'";
-        $result = $this->execute($sql);
-        return $result === true;
+        $setClauses = [];
+        $bindParams = [];
+        $setClauses[] = "LessonID = :lessonID";
+        $bindParams[':lessonID'] = $v->lessonID;
+        $setClauses[] = "Url = :url";
+        $bindParams[':url'] = $v->url;
+        $setClauses[] = "SortOrder = :sortOrder";
+        $bindParams[':sortOrder'] = $v->sortOrder;
+        $setClauses[] = "Title = :title";
+        $bindParams[':title'] = $v->title;
+        $setClauses[] = "Duration = :duration";
+        $bindParams[':duration'] = $v->duration ?? 0;
+        $bindParams[':videoID_where'] = $v->videoID;
+        if (empty($setClauses)) {
+            return true;
+        }
+        $sql = "UPDATE CourseVideo SET " . implode(', ', $setClauses) . " WHERE VideoID = :videoID_where";
+        $stid = $this->executePrepared($sql, $bindParams);
+        return ($stid !== false);
     }
 
     public function get_video(string $videoID): ?VideoDTO
     {
-        $sql = "SELECT * FROM CourseVideo WHERE VideoID = '{$videoID}'";
-        $result = $this->execute($sql);
-        if ($row = $result->fetch_assoc()) {
-            return new VideoDTO(
-                $row['VideoID'],
-                $row['LessonID'],
-                $row['Url'],
-                $row['Title'],
-                (int)$row['SortOrder'],
-                isset($row['Duration']) ? (int)$row['Duration'] : null
-            );
+        $sql = "SELECT VideoID, LessonID, Url, Title, SortOrder, Duration 
+                FROM CourseVideo 
+                WHERE VideoID = :videoID_param";
+        $bindParams = [':videoID_param' => $videoID];
+        $stid = $this->executePrepared($sql, $bindParams);
+        if ($stid) {
+            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $video = new VideoDTO(
+                    $row['VIDEOID'],
+                    $row['LESSONID'],
+                    $row['URL'],
+                    $row['TITLE'],
+                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
+                    isset($row['DURATION']) ? (int)$row['DURATION'] : null
+                );
+                @oci_free_statement($stid);
+                return $video;
+            }
+            @oci_free_statement($stid);
         }
         return null;
     }
 
     public function get_videos_by_lesson(string $lessonID): array
     {
-        $sql = "SELECT * FROM CourseVideo WHERE LessonID = '{$lessonID}' ORDER BY SortOrder";
-        $result = $this->execute($sql);
+        $sql = "SELECT VideoID, LessonID, Url, Title, SortOrder, Duration 
+                FROM CourseVideo 
+                WHERE LessonID = :lessonID_param 
+                ORDER BY SortOrder";
+        $bindParams = [':lessonID_param' => $lessonID];
+        $stid = $this->executePrepared($sql, $bindParams);
         $videos = [];
-        while ($row = $result->fetch_assoc()) {
-            $videos[] = new VideoDTO(
-                $row['VideoID'],
-                $row['LessonID'],
-                $row['Url'],
-                $row['Title'],
-                (int)$row['SortOrder'],
-                isset($row['Duration']) ? (int)$row['Duration'] : null
-            );
+        if ($stid) {
+            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $videos[] = new VideoDTO(
+                    $row['VIDEOID'],
+                    $row['LESSONID'],
+                    $row['URL'],
+                    $row['TITLE'],
+                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
+                    isset($row['DURATION']) ? (int)$row['DURATION'] : null
+                );
+            }
+            @oci_free_statement($stid);
         }
         return $videos;
     }
