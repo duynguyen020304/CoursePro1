@@ -31,7 +31,7 @@ class UserService
         return new ServiceResponse(true, 'Đăng nhập thành công', $user);
     }
 
-    public function create_user(string $email, string $password, string $firstName, string $lastName, string $roleID, ?string $profileImage = null): ServiceResponse
+    public function create_user(string $email, string $password, string $firstName, string $lastName, string $roleID, ?string $biography="NOT_SET", ?string $profileImage = null): ServiceResponse
     {
         if ($roleID === "admin") {
             return new ServiceResponse(false, "Không cho phép tạo tài khoản có vai trò admin qua chức năng này.");
@@ -54,9 +54,11 @@ class UserService
             $roleSpecificMessage = "";
 
             if ($roleID === "instructor") {
+
                 $instructorDto = new InstructorDTO(
                     str_replace('.', '_', uniqid('instructor_', true)),
-                    $userID
+                    $userID,
+                    $biography
                 );
                 if (!$this->instructorBll->create_instructor($instructorDto)) {
                     $roleSpecificSuccess = false;

@@ -12,7 +12,7 @@ class InstructorBLL extends Database
         $bindParams = [
             ':instructorID' => $inst->instructorID,
             ':userID'       => $inst->userID,
-            ':biography'    => ['value' => $inst->biography, 'type' => OCI_B_CLOB],
+            ':biography'    => $inst->biography,
         ];
 
         $stid = $this->executePrepared($sql, $bindParams);

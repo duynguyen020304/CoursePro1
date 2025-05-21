@@ -2,15 +2,14 @@
 
 class Database
 {
-    // Default Oracle connection parameters - CHANGE THESE to your actual Oracle settings
-    private string $host   = 'localhost';        // Oracle host, or TNS alias, or Easy Connect string part
-    private string $user   = 'your_oracle_user'; // Your Oracle username
-    private string $pass   = 'your_oracle_password'; // Your Oracle password
-    private string $dbService = 'XE';            // Oracle Service Name or SID (e.g., 'XE', 'ORCLPDB1')
-    private string $charset = 'AL32UTF8';        // Client character set for OCI8 connection
-    private int $databasePort = 1521;           // Default Oracle listener port
+    private string $host = 'localhost';
+    private string $user = 'duy_admin';
+    private string $pass = 'duyadmin';
+    private string $dbService = 'QUANLYKHOAHOC';
+    private string $charset = 'AL32UTF8';
+    private int $databasePort = 1521;
 
-    protected mixed $conn = null; // OCI8 Connection resource
+    protected mixed $conn = null;
     private ?string $lastError = null;
     private ?string $lastQuery = null;
     private int $affectedRows = 0;
@@ -76,16 +75,6 @@ class Database
         return $this->affectedRows;
     }
 
-    /**
-     * Executes a prepared SQL statement with bind variables.
-     *
-     * @param string $sql The SQL query string with placeholders (e.g., :name).
-     * @param array $bindParams An associative array of bind parameters (e.g., [':name' => $value]).
-     * The key is the placeholder name (should start with a colon, e.g., ':id').
-     * The value is the value to bind.
-     * For CLOBs, pass an array ['value' => $clob_data, 'type' => OCI_B_CLOB].
-     * @return mixed The OCI8 statement handle on success (for SELECT or DML), false on failure.
-     */
     public function executePrepared(string $sql, array $bindParams = []): mixed
     {
         if (!$this->isConnected()) {
@@ -105,11 +94,8 @@ class Database
         }
 
         $lob_descriptors = [];
-        // This array will hold the actual values/LOB descriptors to be bound.
-        // Keys will be the placeholder names (e.g., ':userID').
         $final_bind_values_map = [];
 
-        // First pass: prepare all values, especially LOBs, and store them in $final_bind_values_map
         foreach ($bindParams as $key => $original_value) {
             $placeholder_name = (strpos($key, ':') !== 0) ? ':' . $key : $key;
 
@@ -119,49 +105,36 @@ class Database
                     $lob = @oci_new_descriptor($this->conn, OCI_D_LOB);
                     if ($lob) {
                         if ($lob_data !== null) {
-                            if (!$lob->writeTemporary((string)$lob_data, OCI_TEMP_CLOB)) { // Ensure $lob_data is string
+                            if (!$lob->writeTemporary((string)$lob_data, OCI_TEMP_CLOB)) {
                                 $this->handleOracleError(oci_error($lob), "Failed to write temporary LOB for {$placeholder_name}");
-                                foreach ($lob_descriptors as $ld) { @$ld->free(); } // Free any already created LOBs
+                                foreach ($lob_descriptors as $ld) { @$ld->free(); }
                                 @oci_free_statement($stid);
                                 return false;
                             }
                         }
-                        $final_bind_values_map[$placeholder_name] = $lob; // Store the LOB descriptor
-                        $lob_descriptors[] = $lob; // Keep track to free all LOBs at the end
+                        $final_bind_values_map[$placeholder_name] = $lob;
+                        $lob_descriptors[] = $lob;
                     } else {
                         $this->handleOracleError(oci_error($this->conn), "Failed to create LOB descriptor for {$placeholder_name}");
-                        // No need to free $lob_descriptors here as they are freed globally later or on statement free
                         @oci_free_statement($stid);
                         return false;
                     }
                 }
-                // Add handling for other special array types (e.g., OCI_B_BLOB) here if needed
-                // else { $final_bind_values_map[$placeholder_name] = $original_value; } // Or decide how to handle unexpected arrays
             } else {
-                // For scalar values (string, int, null, float, bool)
                 $final_bind_values_map[$placeholder_name] = $original_value;
             }
         }
 
-        // Second pass: bind the prepared values from $final_bind_values_map
-        // Iterate over $final_bind_values_map using its keys (which are placeholder names)
-        // and bind its values by reference.
-        foreach ($final_bind_values_map as $placeholder_name => &$value_to_bind) { // IMPORTANT: Use reference for $value_to_bind
-            $paramType = SQLT_CHR; // Default type for strings, numbers, dates (Oracle converts)
-            $paramMaxLength = -1;  // OCI8 handles length for SQLT_CHR
+        foreach ($final_bind_values_map as $placeholder_name => &$value_to_bind) {
+            $paramType = SQLT_CHR;
+            $paramMaxLength = -1;
 
             if (is_object($value_to_bind) && $value_to_bind instanceof OCILob) {
-                $paramType = OCI_B_CLOB; // Or OCI_B_BLOB if you support it based on LOB type
-            } elseif (is_int($value_to_bind)) {
-                // SQLT_CHR is generally fine. For very large integers, consider SQLT_INT or specific numeric types.
-            } elseif (is_null($value_to_bind)) {
-                // oci_bind_by_name with SQLT_CHR handles PHP null correctly.
+                $paramType = OCI_B_CLOB;
             } elseif (is_bool($value_to_bind)) {
-                $value_to_bind = (int)$value_to_bind; // Convert boolean to 0 or 1 for DB
+                $value_to_bind = (int)$value_to_bind;
             }
-            // Add other type checks if necessary (e.g., for floats)
 
-            // $placeholder_name is already correctly formatted (e.g., ':userID')
             if (!@oci_bind_by_name($stid, $placeholder_name, $value_to_bind, $paramMaxLength, $paramType)) {
                 $error = oci_error($stid);
                 $logValue = is_object($value_to_bind) ? get_class($value_to_bind) : (is_array($value_to_bind) ? 'Array' : $value_to_bind);
@@ -171,7 +144,7 @@ class Database
                 return false;
             }
         }
-        unset($value_to_bind); // Crucial: break the reference from the last loop iteration
+        unset($value_to_bind);
 
 
         $execute_mode = OCI_DEFAULT;
@@ -196,9 +169,6 @@ class Database
             $this->affectedRows = @oci_num_rows($stid);
         }
 
-        // Free LOB descriptors after execution
-        // oci_free_statement should also free temporary LOBs associated with the statement,
-        // but explicit freeing is safer for descriptors we allocated.
         foreach ($lob_descriptors as $ld) {
             @$ld->free();
         }
@@ -206,13 +176,7 @@ class Database
         return $stid;
     }
 
-    // ... (fetchAll, fetchRow, runScript, begin, commit, rollback, close, handleOracleError, __destruct methods remain as before) ...
-    // ... Ensure these methods (fetchAll, fetchRow, runScript) are using the simple execute() if they are for
-    // non-prepared SQL, or adapt them if they should also use prepared statements.
-    // Based on previous context, execute() is for simple, non-parameterized queries or when user handles escaping.
-    // For BLLs, we should be using executePrepared.
-
-    public function execute(string $sql): mixed // This is the simplified execute, kept for compatibility or specific uses
+    public function execute(string $sql): mixed
     {
         if (!$this->isConnected()) {
             $this->lastError = 'Not connected to Oracle database';
@@ -251,17 +215,16 @@ class Database
 
         if ($is_dml) {
             $this->affectedRows = @oci_num_rows($stid);
-            @oci_free_statement($stid); // Free DML statement handle after getting affected rows
-            return true; // Return true for successful DML
+            @oci_free_statement($stid);
+            return true;
         }
 
-        return $stid; // Return statement handle for SELECTs or other successful statements
+        return $stid;
     }
 
 
     public function fetchAll(string $sql, int $mode = OCI_ASSOC): array
     {
-        // This method uses the simple execute(). If it needs to handle prepared statements, it should be adapted.
         $stid = $this->execute($sql);
         if (!$stid || !is_resource($stid)) {
             if (is_resource($stid)) @oci_free_statement($stid);
@@ -281,7 +244,6 @@ class Database
 
     public function fetchRow(string $sql, int $mode = OCI_ASSOC): ?array
     {
-        // This method uses the simple execute().
         $stid = $this->execute($sql);
         if (!$stid || !is_resource($stid)) {
             if (is_resource($stid)) @oci_free_statement($stid);
@@ -300,7 +262,7 @@ class Database
     {
         if (!$this->isConnected()) {
             $this->lastError = 'Not connected to Oracle database for script execution';
-            return false; // Changed from null to false for consistency with other method failures
+            return false;
         }
         $this->lastQuery = $sqlScript;
 
@@ -364,7 +326,7 @@ class Database
     {
         if ($this->conn) {
             if ($this->inTransaction) {
-                @oci_rollback($this->conn); // Rollback any pending transaction on close
+                @oci_rollback($this->conn);
                 $this->inTransaction = false;
             }
             @oci_close($this->conn);
@@ -385,7 +347,7 @@ class Database
         } elseif ($this->conn === null || $this->conn === false) {
             $this->lastError = "Oracle connection is not active or failed.";
         } else {
-            $conn_error = @oci_error($this->conn); // Try to get error from connection
+            $conn_error = @oci_error($this->conn);
             if ($conn_error && isset($conn_error['message'])) {
                 $this->lastError = "Code: {$conn_error['code']} - Message: " . trim($conn_error['message']);
             } else {
@@ -401,4 +363,3 @@ class Database
         $this->close();
     }
 }
-?>

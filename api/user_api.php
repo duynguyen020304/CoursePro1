@@ -109,12 +109,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
         if (!isset($data['profileImage'])) {
             $data['profileImage'] = null;
         }
+        $biography = $data['biography'] ?? "NOT_SET";
         $registerResult = $service->create_user(
             $data['email'],
             $data['password'],
             $data['firstName'],
             $data['lastName'],
             $data['role'],
+            $biography,
             $data['profileImage']
         );
         http_response_code($registerResult->success ? 200 : 500);
