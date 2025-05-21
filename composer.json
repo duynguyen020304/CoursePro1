@@ -1,11 +1,7 @@
 {
     "require": {
         "phpmailer/phpmailer": "^6.10",
-      "ext-fileinfo": "*",
         "firebase/php-jwt": "^6.11",
-      "ext-curl": "*",
-      "ext-mysqli": "*",
-        "php-ffmpeg/php-ffmpeg": "^1.3",
-      "ext-oci8": "*"
+        "php-ffmpeg/php-ffmpeg": "^1.3"
     }
 }
