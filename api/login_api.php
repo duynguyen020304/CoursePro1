@@ -43,12 +43,17 @@ if (isset($data['isSignup']) && $data['isSignup'] === true) {
     if (!isset($data['profileImage'])) {
         $data['profileImage'] = null;
     }
+    $biography = "NOT_SET";
+    if (isset($data['biography'])) {
+        $biography = $data['biography'];
+    }
     $registerResult = $service->create_user(
         $data['email'],
         $data['password'],
         $data['firstname'],
         $data['lastname'],
         $data['role'],
+        $biography,
         $data['profileImage']
     );
 
