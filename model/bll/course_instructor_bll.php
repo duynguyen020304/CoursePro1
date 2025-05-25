@@ -8,7 +8,7 @@ class CourseInstructorBLL extends Database
 {
     public function get_by_course(string $courseID): array
     {
-        $sql = "SELECT CourseID, InstructorID, created_at 
+        $sql = "SELECT CourseID, InstructorID, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
                 FROM COURSEINSTRUCTOR 
                 WHERE CourseID = :courseID_param 
                 ORDER BY InstructorID ASC";
@@ -23,7 +23,7 @@ class CourseInstructorBLL extends Database
                 $list[] = new CourseInstructorDTO(
                     $row['COURSEID'],
                     $row['INSTRUCTORID'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -78,7 +78,7 @@ class CourseInstructorBLL extends Database
 
     public function get_assignment(string $courseID, string $instructorID): ?CourseInstructorDTO
     {
-        $sql = "SELECT CourseID, InstructorID, created_at 
+        $sql = "SELECT CourseID, InstructorID, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
                 FROM COURSEINSTRUCTOR 
                 WHERE CourseID = :courseID_param AND InstructorID = :instructorID_param";
 
@@ -95,7 +95,7 @@ class CourseInstructorBLL extends Database
                 $dto = new CourseInstructorDTO(
                     $row['COURSEID'],
                     $row['INSTRUCTORID'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -103,4 +103,3 @@ class CourseInstructorBLL extends Database
         return $dto;
     }
 }
-?>

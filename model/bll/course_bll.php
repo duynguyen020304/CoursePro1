@@ -53,7 +53,9 @@ class CourseBLL extends Database
 
     public function get_course(string $courseID): ?CourseDTO
     {
-        $sql = "SELECT CourseID, Title, Description, Price, CreatedBy, created_at 
+        // Thêm TO_CHAR cho CREATED_AT
+        $sql = "SELECT CourseID, Title, Description, Price, CreatedBy, 
+                       TO_CHAR(CREATED_AT, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED 
                 FROM COURSE 
                 WHERE CourseID = :courseID_param";
         $bindParams = [':courseID_param' => $courseID];
@@ -76,7 +78,7 @@ class CourseBLL extends Database
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
                     $row['CREATEDBY'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
             @oci_free_statement($stid);
@@ -86,7 +88,9 @@ class CourseBLL extends Database
 
     public function get_all_courses(): array
     {
-        $sql = "SELECT CourseID, Title, Description, Price, CreatedBy, created_at 
+        // Thêm TO_CHAR cho created_at
+        $sql = "SELECT CourseID, Title, Description, Price, CreatedBy, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED 
                 FROM COURSE 
                 ORDER BY Title ASC";
 
@@ -108,7 +112,8 @@ class CourseBLL extends Database
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
                     $row['CREATEDBY'],
-                    $row['CREATED_AT'] ?? null
+                    // Sử dụng tên alias đã định dạng
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
             @oci_free_statement($stid);
@@ -116,4 +121,3 @@ class CourseBLL extends Database
         return $list;
     }
 }
-?>

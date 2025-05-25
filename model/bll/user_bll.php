@@ -7,6 +7,8 @@ class UserBLL extends Database
     public function create_user(UserDTO $user): bool
     {
         $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
+        // Lưu ý: Oracle thường tự động quản lý created_at qua trigger hoặc default value.
+        // Nếu không, bạn có thể thêm CURRENT_TIMESTAMP vào câu INSERT
         $sql = "INSERT INTO USERS (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage)
                 VALUES (:userID, :firstName, :lastName, :email, :password, :roleID, :profileImage)";
         $bindParams = [
@@ -24,7 +26,9 @@ class UserBLL extends Database
 
     public function authenticate(string $email, string $password): ?UserDTO
     {
-        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, created_at 
+        // Thêm TO_CHAR cho created_at
+        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted 
                 FROM USERS 
                 WHERE Email = :email";
         $bindParams = [':email' => $email];
@@ -42,7 +46,8 @@ class UserBLL extends Database
                         "",
                         $row['ROLEID'],
                         $row['PROFILEIMAGE'],
-                        $row['CREATED_AT'] ?? null
+                        // Sử dụng tên alias đã định dạng
+                        $row['CREATED_AT_FORMATTED'] ?? null
                     );
                 }
             }
@@ -96,7 +101,9 @@ class UserBLL extends Database
 
     public function get_user_by_id(string $userID, string $purpose = "get"): ?UserDTO
     {
-        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, created_at 
+        // Thêm TO_CHAR cho created_at
+        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted 
                 FROM USERS WHERE UserID = :userID";
         $bindParams = [':userID' => $userID];
         $stid = $this->executePrepared($sql, $bindParams);
@@ -116,7 +123,8 @@ class UserBLL extends Database
                     $passwordForDTO,
                     $row['ROLEID'],
                     $row['PROFILEIMAGE'],
-                    $row['CREATED_AT'] ?? null
+                    // Sử dụng tên alias đã định dạng
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
             @oci_free_statement($stid);
@@ -126,7 +134,9 @@ class UserBLL extends Database
 
     public function get_user_by_email(string $email): ?UserDTO
     {
-        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, created_at 
+        // Thêm TO_CHAR cho created_at
+        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted 
                 FROM USERS WHERE Email = :email";
         $bindParams = [':email' => $email];
         $stid = $this->executePrepared($sql, $bindParams);
@@ -142,7 +152,8 @@ class UserBLL extends Database
                     "",
                     $row['ROLEID'],
                     $row['PROFILEIMAGE'],
-                    $row['CREATED_AT'] ?? null
+                    // Sử dụng tên alias đã định dạng
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
             @oci_free_statement($stid);
@@ -152,7 +163,10 @@ class UserBLL extends Database
 
     public function get_all_users(): array
     {
-        $sql = "SELECT UserID, FirstName, LastName, Email, RoleID, ProfileImage, created_at FROM USERS";
+        // Thêm TO_CHAR cho created_at
+        $sql = "SELECT UserID, FirstName, LastName, Email, RoleID, ProfileImage, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted 
+                FROM USERS";
         $stid = $this->executePrepared($sql);
         $users = [];
 
@@ -166,7 +180,8 @@ class UserBLL extends Database
                     "",
                     $row['ROLEID'],
                     $row['PROFILEIMAGE'],
-                    $row['CREATED_AT'] ?? null
+                    // Sử dụng tên alias đã định dạng
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
             @oci_free_statement($stid);

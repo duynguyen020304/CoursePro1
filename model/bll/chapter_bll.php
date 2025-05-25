@@ -13,7 +13,7 @@ class ChapterBLL extends Database
             ':chapterID'   => $chapter->chapterID,
             ':courseID'    => $chapter->courseID,
             ':title'       => $chapter->title,
-            ':description' => ['value' => $chapter->description, 'type' => OCI_B_CLOB],
+            ':description' => $chapter->description,
             ':sortOrder'   => $chapter->sortOrder ?? 0,
         ];
 
@@ -33,7 +33,7 @@ class ChapterBLL extends Database
         $bindParams = [
             ':courseID'    => $chapter->courseID,
             ':title'       => $chapter->title,
-            ':description' => ['value' => $chapter->description, 'type' => OCI_B_CLOB],
+            ':description' => $chapter->description,
             ':sortOrder'   => $chapter->sortOrder ?? 0,
             ':chapterID_where' => $chapter->chapterID,
         ];
@@ -53,7 +53,8 @@ class ChapterBLL extends Database
 
     public function get_all_chapters(): array
     {
-        $sql = "SELECT ChapterID, CourseID, Title, Description, SortOrder, created_at 
+        $sql = "SELECT ChapterID, CourseID, Title, Description, SortOrder, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED 
                 FROM COURSECHAPTER 
                 ORDER BY SortOrder ASC, Title ASC";
 
@@ -74,7 +75,7 @@ class ChapterBLL extends Database
                     $row['TITLE'],
                     $description,
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
             @oci_free_statement($stid);
@@ -85,7 +86,8 @@ class ChapterBLL extends Database
 
     public function get_chapter_by_id(string $chapterID): ?ChapterDTO
     {
-        $sql = "SELECT ChapterID, CourseID, Title, Description, SortOrder, created_at 
+        $sql = "SELECT ChapterID, CourseID, Title, Description, SortOrder, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED 
                 FROM COURSECHAPTER 
                 WHERE ChapterID = :chapterID_param";
         $bindParams = [':chapterID_param' => $chapterID];
@@ -107,7 +109,7 @@ class ChapterBLL extends Database
                     $row['TITLE'],
                     $description,
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
             @oci_free_statement($stid);
@@ -117,7 +119,8 @@ class ChapterBLL extends Database
 
     public function get_chapters_by_courseID(string $courseID): array
     {
-        $sql = "SELECT ChapterID, CourseID, Title, Description, SortOrder, created_at 
+        $sql = "SELECT ChapterID, CourseID, Title, Description, SortOrder, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED 
                 FROM COURSECHAPTER 
                 WHERE CourseID = :courseID_param 
                 ORDER BY SortOrder ASC";
@@ -141,7 +144,7 @@ class ChapterBLL extends Database
                     $row['TITLE'],
                     $description,
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
             @oci_free_statement($stid);
@@ -149,4 +152,3 @@ class ChapterBLL extends Database
         return $list;
     }
 }
-?>

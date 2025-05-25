@@ -62,13 +62,10 @@ class CourseService
     public function create_course(string $title, ?string $description, float $price, array $instructorID, array $categoryIDs, string $createdBy): ServiceResponse
     {
         $courseID = str_replace('.', '_', uniqid('course_', true));
-        // $now = date('Y-m-d H:i:s');
-        //        $created_user = $this->userBll->get_user_by_id($createdBy);
         $dto = new CourseDTO($courseID, $title, $description, $price, $createdBy);
         try {
             if ($this->courseBll->create_course($dto)) {
                 foreach ($categoryIDs as $catID) {
-                    // Chuyển CategoryID thành chuỗi
                     $catID = (string) $catID;
                     $cc = new CourseCategoryDTO($courseID, $catID);
                     if (!$this->courseCategoryBll->link_course_category($cc)) {
@@ -157,9 +154,9 @@ class CourseService
                 $instructor_dtos_for_course = $this->courseInstructorBll->get_by_course($course->courseID);
                 $course_categories = $this->courseCategoryBll->get_categories_by_course($course->courseID);
                 $course_images = $this->courseImageBll->get_images_by_course($course->courseID);
-                $course_requirements = $this->courseRequirementBll->get_by_course_id($course->courseID);
-                $course_objectives = $this->courseObjectiveBll->get_by_course_id($course->courseID);
-                $course_chapters = $this->chapterBll->get_chapter_by_courseID($course->courseID);
+                $course_requirements = $this->courseRequirementBll->get_requirements_by_course_id($course->courseID);
+                $course_objectives = $this->courseObjectiveBll->get_objectives_by_course_id($course->courseID);
+                $course_chapters = $this->chapterBll->get_chapters_by_courseID($course->courseID);
 
                 $instructors_info = [];
                 if (!empty($instructor_dtos_for_course)) {
@@ -281,13 +278,11 @@ class CourseService
     public function delete_course(string $courseID): ServiceResponse
     {
         try {
-            // Kiểm tra khóa học có tồn tại không
             $course = $this->courseBll->get_course($courseID);
             if (!$course) {
                 return new ServiceResponse(false, 'Khóa học không tồn tại');
             }
 
-            // Xóa toàn bộ liên kết với danh mục
             $categories = $this->courseCategoryBll->get_categories_by_course($courseID);
             $existing_course_instructor = $this->courseInstructorBll->get_by_course($courseID);
             foreach ($categories as $cat) {
@@ -300,7 +295,6 @@ class CourseService
                     return new ServiceResponse(false, "Gỡ liên kết khóa học, giảng viên");
                 }
             }
-            // Xóa khóa học
             if ($this->courseBll->delete_course($courseID)) {
                 return new ServiceResponse(true, 'Xóa khóa học thành công');
             }
@@ -318,15 +312,14 @@ class CourseService
                 return new ServiceResponse(false, 'Không tìm thấy khóa học');
             }
 
-            // Lấy thông tin chi tiết giảng viên
             $instructor_dtos_for_course = $this->courseInstructorBll->get_by_course($course->courseID);
             $instructors_info = [];
             if (!empty($instructor_dtos_for_course)) {
                 foreach ($instructor_dtos_for_course as $instructor_dto) {
                     $instructor = $this->instructorBll->get_instructor($instructor_dto->instructorID);
-                    if ($instructor) { // Kiểm tra xem giảng viên có tồn tại không
+                    if ($instructor) {
                         $instructor_user = $this->userBll->get_user_by_id($instructor->userID);
-                        if ($instructor_user) { // Kiểm tra xem người dùng của giảng viên có tồn tại không
+                        if ($instructor_user) {
                             $instructors_info[] = [
                                 'instructorID' => $instructor_dto->instructorID,
                                 'userID' => $instructor_user->userID,
@@ -334,20 +327,18 @@ class CourseService
                                 'lastName' => $instructor_user->lastName,
                                 'biography' => $instructor->biography,
                                 'profileImage' => $instructor_user->profileImage,
-                                // Bạn có thể thêm các trường khác của giảng viên ở đây nếu cần
                             ];
                         }
                     }
                 }
             }
 
-            // Lấy danh mục khóa học
             $course_categories = $this->courseCategoryBll->get_categories_by_course($course->courseID);
             $tmp_course_categories = [];
             if (!empty($course_categories)) {
                 foreach ($course_categories as $course_category) {
                     $category = $this->categoryBll->get_category($course_category->categoryID);
-                    if ($category) { // Kiểm tra xem danh mục có tồn tại không
+                    if ($category) {
                         $tmp_course_categories[] = [
                             'categoryID' => $course_category->categoryID,
                             'categoryName' => $category->name,
@@ -356,7 +347,6 @@ class CourseService
                 }
             }
 
-            // Lấy hình ảnh khóa học
             $course_images = $this->courseImageBll->get_images_by_course($course->courseID);
             $tmp_course_images = [];
             if (!empty($course_images)) {
@@ -364,13 +354,11 @@ class CourseService
                     $tmp_course_images[] = [
                         'imageID' => $course_image->imageID,
                         'imagePath' => $course_image->imagePath
-                        // Bạn có thể thêm các trường khác của hình ảnh ở đây nếu cần
                     ];
                 }
             }
 
-            // Lấy yêu cầu khóa học
-            $course_requirements = $this->courseRequirementBll->get_by_course_id($course->courseID);
+            $course_requirements = $this->courseRequirementBll->get_requirements_by_course_id($course->courseID);
             $tmp_course_requirements = [];
             if (!empty($course_requirements)) {
                 foreach ($course_requirements as $course_requirement) {
@@ -381,8 +369,7 @@ class CourseService
                 }
             }
 
-            // Lấy mục tiêu khóa học
-            $course_objectives = $this->courseObjectiveBll->get_by_course_id($course->courseID);
+            $course_objectives = $this->courseObjectiveBll->get_objectives_by_course_id($course->courseID);
             $tmp_course_objectives = [];
             if (!empty($course_objectives)) {
                 foreach ($course_objectives as $course_objective) {
@@ -393,8 +380,7 @@ class CourseService
                 }
             }
 
-            // Lấy các chương, bài học, tài nguyên và video
-            $course_chapters = $this->chapterBll->get_chapter_by_courseID($course->courseID);
+            $course_chapters = $this->chapterBll->get_chapters_by_courseID($course->courseID);
             $tmp_course_chapters_lessons_resources_videos = [];
             if (!empty($course_chapters)) {
                 foreach ($course_chapters as $course_chapter) {
@@ -430,7 +416,6 @@ class CourseService
                             "lessonContent" => $course_lesson->content,
                             "lessonResources" => $tmp_lesson_resources,
                             "lessonVideos" => $tmp_lesson_videos,
-                            // Bạn có thể thêm các trường khác của bài học ở đây nếu cần
                         ];
                     }
                     $tmp_course_chapters_lessons_resources_videos[] = [
@@ -438,7 +423,6 @@ class CourseService
                         "chapterTitle" => $course_chapter->title,
                         "chapterDescription" => $course_chapter->description,
                         "chapterLessons" => $tmp_chapter_lessons_resources_video
-                        // Bạn có thể thêm các trường khác của chương ở đây nếu cần
                     ];
                 }
             }
@@ -449,7 +433,6 @@ class CourseService
                 'description' => $course->description,
                 'price' => $course->price,
                 'createdBy' => $course->createdBy,
-                // Thêm các trường khác của khóa học ở đây nếu cần (ví dụ: level, language, ...)
                 'instructors' => $instructors_info,
                 'categories' => $tmp_course_categories,
                 'images' => $tmp_course_images,
@@ -460,22 +443,7 @@ class CourseService
 
             return new ServiceResponse(true, 'Lấy thông tin khóa học thành công', $course_details);
         } catch (Exception $e) {
-            // Log lỗi ở đây nếu cần thiết (ví dụ: error_log($e->getMessage());)
             return new ServiceResponse(false, 'Lỗi khi lấy thông tin khóa học: ' . $e->getMessage());
         }
-    }
-    public function save_course_image(string $courseID, string $imagePath)
-    {
-        require_once __DIR__ . '/../model/bll/course_image_bll.php';
-        require_once __DIR__ . '/../model/dto/course_image_dto.php';
-
-        $imageBLL = new CourseImageBLL();
-        $imageID = uniqid('img_');
-        $dto = new CourseImageDTO($imageID, $courseID, $imagePath, null, 0);
-        $result = $imageBLL->create_image($dto);
-        if (!$result) {
-            return new ServiceResponse(false, 'Lỗi khi lưu ảnh khóa học');
-        }
-        return new ServiceResponse(true, 'Lưu ảnh thành công');
     }
 }

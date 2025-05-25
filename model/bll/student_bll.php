@@ -6,7 +6,7 @@ class StudentBLL extends Database
 {
     public function create_student(StudentDTO $stu): bool
     {
-        $sql = "INSERT INTO STUDENT (StudentID, UserID) 
+        $sql = "INSERT INTO STUDENT (StudentID, UserID)
                 VALUES (:studentID, :userID)";
         $bindParams = [
             ':studentID' => $stu->studentID,
@@ -37,8 +37,8 @@ class StudentBLL extends Database
 
     public function get_student(string $studentID): ?StudentDTO
     {
-        $sql = "SELECT StudentID, UserID, created_at 
-                FROM STUDENT 
+        $sql = "SELECT StudentID, UserID, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM STUDENT
                 WHERE StudentID = :studentID_param";
         $bindParams = [':studentID_param' => $studentID];
         $stid = $this->executePrepared($sql, $bindParams);
@@ -49,7 +49,7 @@ class StudentBLL extends Database
                 $dto = new StudentDTO(
                     $row['STUDENTID'],
                     $row['USERID'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
             @oci_free_statement($stid);
@@ -59,8 +59,8 @@ class StudentBLL extends Database
 
     public function get_student_by_user_id(string $userID): ?StudentDTO
     {
-        $sql = "SELECT StudentID, UserID, created_at 
-                FROM STUDENT 
+        $sql = "SELECT StudentID, UserID, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM STUDENT
                 WHERE UserID = :userID_param";
         $bindParams = [':userID_param' => $userID];
         $stid = $this->executePrepared($sql, $bindParams);
@@ -71,7 +71,7 @@ class StudentBLL extends Database
                 $dto = new StudentDTO(
                     $row['STUDENTID'],
                     $row['USERID'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
             @oci_free_statement($stid);
@@ -81,7 +81,7 @@ class StudentBLL extends Database
 
     public function get_all_students(): array
     {
-        $sql = "SELECT StudentID, UserID, created_at FROM STUDENT";
+        $sql = "SELECT StudentID, UserID, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted FROM STUDENT";
         $stid = $this->executePrepared($sql);
         $list = [];
 
@@ -90,7 +90,7 @@ class StudentBLL extends Database
                 $list[] = new StudentDTO(
                     $row['STUDENTID'],
                     $row['USERID'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
             @oci_free_statement($stid);
@@ -98,4 +98,3 @@ class StudentBLL extends Database
         return $list;
     }
 }
-?>

@@ -6,7 +6,7 @@ class CourseRequirementBLL extends Database
 {
     public function create(CourseRequirementDTO $req): bool
     {
-        $sql = "INSERT INTO COURSEREQUIREMENT (RequirementID, CourseID, Requirement) 
+        $sql = "INSERT INTO COURSEREQUIREMENT (RequirementID, CourseID, Requirement)
                 VALUES (:requirementID, :courseID, :requirement)";
 
         $bindParams = [
@@ -21,7 +21,7 @@ class CourseRequirementBLL extends Database
 
     public function update(CourseRequirementDTO $req): bool
     {
-        $sql = "UPDATE COURSEREQUIREMENT SET Requirement = :requirement 
+        $sql = "UPDATE COURSEREQUIREMENT SET Requirement = :requirement
                 WHERE RequirementID = :requirementID_where AND CourseID = :courseID_where";
 
         $bindParams = [
@@ -36,7 +36,7 @@ class CourseRequirementBLL extends Database
 
     public function delete(string $courseID, string $requirementID): bool
     {
-        $sql = "DELETE FROM COURSEREQUIREMENT 
+        $sql = "DELETE FROM COURSEREQUIREMENT
                 WHERE RequirementID = :requirementID AND CourseID = :courseID";
 
         $bindParams = [
@@ -50,8 +50,9 @@ class CourseRequirementBLL extends Database
 
     public function get_requirement_by_ids(string $courseID, string $requirementID): ?CourseRequirementDTO
     {
-        $sql = "SELECT RequirementID, CourseID, Requirement, created_at 
-                FROM COURSEREQUIREMENT 
+        $sql = "SELECT RequirementID, CourseID, Requirement,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM COURSEREQUIREMENT
                 WHERE RequirementID = :requirementID_param AND CourseID = :courseID_param";
 
         $bindParams = [
@@ -68,7 +69,7 @@ class CourseRequirementBLL extends Database
                     $row['REQUIREMENTID'],
                     $row['COURSEID'],
                     $row['REQUIREMENT'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -78,9 +79,10 @@ class CourseRequirementBLL extends Database
 
     public function get_requirements_by_course_id(string $courseID): array
     {
-        $sql = "SELECT RequirementID, CourseID, Requirement, created_at 
-                FROM COURSEREQUIREMENT 
-                WHERE CourseID = :courseID_param 
+        $sql = "SELECT RequirementID, CourseID, Requirement,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM COURSEREQUIREMENT
+                WHERE CourseID = :courseID_param
                 ORDER BY RequirementID ASC";
 
         $bindParams = [':courseID_param' => $courseID];
@@ -94,7 +96,7 @@ class CourseRequirementBLL extends Database
                     $row['REQUIREMENTID'],
                     $row['COURSEID'],
                     $row['REQUIREMENT'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -102,4 +104,3 @@ class CourseRequirementBLL extends Database
         return $requirements;
     }
 }
-?>

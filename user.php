@@ -274,11 +274,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 $avatarText = ($firstNameInitial && $lastNameInitial) ? strtoupper($firstNameInitial . $lastNameInitial) : '??';
                             }
                             ?>
-                            <img src="<?= $profileImagePath ?>" alt="Avatar" class="profile-avatar mb-2" onerror="this.onerror=null;this.src='<?php echo APP_ROOT_PATH_RELATIVE_USER; ?>/public/images/default_avatar.png';" />
+                            <img src="<?= $profileImagePath ?>" alt="Avatar" class="profile-avatar mb-2" onerror="this.onerror=null;this.src='public/img/avatar-user.png'" />
 
                             <h5 class="card-title">
                                 Chào <?php echo htmlspecialchars(($user_profile_data['firstName'] ?? '') . " " . ($user_profile_data['lastName'] ?? 'Người dùng')); ?>!
-                                S </h5>
+                                </h5>
                             <p class="card-text text-muted mb-1">
                                 Email: <?php echo htmlspecialchars($user_profile_data['email'] ?? 'N/A'); ?>
                             </p>

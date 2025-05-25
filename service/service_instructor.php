@@ -54,6 +54,7 @@ class InstructorService
             $combinedData['profileImage'] = $userDto->profileImage;
             $combinedData['instructorID'] = $instructorDto->instructorID;
             $combinedData['biography']    = $instructorDto->biography;
+            $combinedData['created_at'] = $userDto->created_at;
 
             return new ServiceResponse(true, 'Lấy thông tin giảng viên thành công', $combinedData);
         } catch (Exception $e) {
@@ -89,6 +90,7 @@ class InstructorService
             $combinedData['profileImage'] = $userDto->profileImage;
             $combinedData['instructorID'] = $instructorDto->instructorID;
             $combinedData['biography']    = $instructorDto->biography;
+            $combinedData['created_at'] = $userDto->created_at;
 
             return new ServiceResponse(true, 'Lấy thông tin giảng viên thành công', $combinedData);
         } catch (Exception $e) {
@@ -142,6 +144,7 @@ class InstructorService
                     'instructorID' => $instructorDto->instructorID,
                     'biography'    => $instructorDto->biography,
                     'profileImage' => $userDto->profileImage,
+                    'created_at'    => $userDto->created_at,
                 ];
                 $combined_list[] = $combinedData;
             } else {

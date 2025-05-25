@@ -21,8 +21,9 @@ class ResourceBLL extends Database
 
     public function get_resource_by_id(string $resourceID): ?ResourceDTO
     {
-        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder, created_at 
-                FROM COURSERESOURCE 
+        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM COURSERESOURCE
                 WHERE ResourceID = :resourceID_param";
         $bindParams = [':resourceID_param' => $resourceID];
         $stid = $this->executePrepared($sql, $bindParams);
@@ -36,7 +37,7 @@ class ResourceBLL extends Database
                     $row['RESOURCEPATH'],
                     $row['TITLE'],
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -46,9 +47,10 @@ class ResourceBLL extends Database
 
     public function get_resources_by_lesson(string $lessonID): array
     {
-        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder, created_at 
-                FROM COURSERESOURCE 
-                WHERE LessonID = :lessonID_param 
+        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM COURSERESOURCE
+                WHERE LessonID = :lessonID_param
                 ORDER BY SortOrder ASC";
         $bindParams = [':lessonID_param' => $lessonID];
         $stid = $this->executePrepared($sql, $bindParams);
@@ -62,7 +64,7 @@ class ResourceBLL extends Database
                     $row['RESOURCEPATH'],
                     $row['TITLE'],
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -72,8 +74,9 @@ class ResourceBLL extends Database
 
     public function get_all_resources(): array
     {
-        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder, created_at 
-                FROM COURSERESOURCE 
+        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM COURSERESOURCE
                 ORDER BY SortOrder ASC";
         $stid = $this->executePrepared($sql);
         $resources = [];
@@ -86,7 +89,7 @@ class ResourceBLL extends Database
                     $row['RESOURCEPATH'],
                     $row['TITLE'],
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -121,4 +124,3 @@ class ResourceBLL extends Database
         return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 }
-?>

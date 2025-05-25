@@ -6,7 +6,7 @@ class CourseObjectiveBLL extends Database
 {
     public function create(CourseObjectiveDTO $obj): bool
     {
-        $sql = "INSERT INTO COURSEOBJECTIVE (ObjectiveID, CourseID, Objective) 
+        $sql = "INSERT INTO COURSEOBJECTIVE (ObjectiveID, CourseID, Objective)
                 VALUES (:objectiveID, :courseID, :objective)";
 
         $bindParams = [
@@ -21,7 +21,7 @@ class CourseObjectiveBLL extends Database
 
     public function update(CourseObjectiveDTO $obj): bool
     {
-        $sql = "UPDATE COURSEOBJECTIVE SET Objective = :objective 
+        $sql = "UPDATE COURSEOBJECTIVE SET Objective = :objective
                 WHERE ObjectiveID = :objectiveID_where AND CourseID = :courseID_where";
 
         $bindParams = [
@@ -36,7 +36,7 @@ class CourseObjectiveBLL extends Database
 
     public function delete(string $courseID, string $objectiveID): bool
     {
-        $sql = "DELETE FROM COURSEOBJECTIVE 
+        $sql = "DELETE FROM COURSEOBJECTIVE
                 WHERE ObjectiveID = :objectiveID AND CourseID = :courseID";
 
         $bindParams = [
@@ -50,8 +50,9 @@ class CourseObjectiveBLL extends Database
 
     public function get_objective_by_ids(string $courseID, string $objectiveID): ?CourseObjectiveDTO
     {
-        $sql = "SELECT ObjectiveID, CourseID, Objective, created_at 
-                FROM COURSEOBJECTIVE 
+        $sql = "SELECT ObjectiveID, CourseID, Objective,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM COURSEOBJECTIVE
                 WHERE ObjectiveID = :objectiveID_param AND CourseID = :courseID_param";
 
         $bindParams = [
@@ -68,7 +69,7 @@ class CourseObjectiveBLL extends Database
                     $row['OBJECTIVEID'],
                     $row['COURSEID'],
                     $row['OBJECTIVE'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -78,9 +79,10 @@ class CourseObjectiveBLL extends Database
 
     public function get_objectives_by_course_id(string $courseID): array
     {
-        $sql = "SELECT ObjectiveID, CourseID, Objective, created_at 
-                FROM COURSEOBJECTIVE 
-                WHERE CourseID = :courseID_param 
+        $sql = "SELECT ObjectiveID, CourseID, Objective,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM COURSEOBJECTIVE
+                WHERE CourseID = :courseID_param
                 ORDER BY ObjectiveID ASC";
 
         $bindParams = [':courseID_param' => $courseID];
@@ -94,7 +96,7 @@ class CourseObjectiveBLL extends Database
                     $row['OBJECTIVEID'],
                     $row['COURSEID'],
                     $row['OBJECTIVE'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -102,4 +104,3 @@ class CourseObjectiveBLL extends Database
         return $objectives;
     }
 }
-?>
