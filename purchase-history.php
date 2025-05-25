@@ -3,7 +3,6 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// --- Logic để xác định $app_root_path_relative và API_BASE ---
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
 $host = $_SERVER['HTTP_HOST'];
 $script_path = $_SERVER['SCRIPT_NAME'];
@@ -50,9 +49,7 @@ if (!defined('API_BASE_HEADER')) {
 } else {
     define('API_BASE_PURCHASE', API_BASE_HEADER);
 }
-// --- Kết thúc logic xác định đường dẫn ---
 
-// --- Hàm callApi ---
 if (!function_exists('callApi')) {
     function callApi(string $endpoint, string $method = 'GET', array $payload = []): array {
         $url = API_BASE_PURCHASE . '/' . ltrim($endpoint, '/');
@@ -99,18 +96,14 @@ if (!function_exists('callApi')) {
         return $result;
     }
 }
-// --- Kết thúc hàm callApi ---
 
-// --- Hàm định dạng giá ---
 if (!function_exists('format_purchase_price')) {
     function format_purchase_price($price) {
         if (!is_numeric($price)) return 'N/A';
         return number_format($price, 0, ',', '.') . ' VNĐ';
     }
 }
-// --- Kết thúc hàm định dạng giá ---
 
-// --- Lấy dữ liệu lịch sử mua hàng ---
 $purchase_records = [];
 $fetch_error_message = null;
 $loggedInUserID = $_SESSION['user']['userID'] ?? null;
@@ -119,14 +112,12 @@ $user_name = $_SESSION['user']['firstName'] ?? 'Người dùng';
 if (!$loggedInUserID) {
     $fetch_error_message = "Bạn cần đăng nhập để xem lịch sử mua hàng.";
 } else {
-    // 1. Get orders by userID
     $orders_response = callApi('order_api.php', 'GET', ['userID' => $loggedInUserID]);
 
     if (isset($orders_response['success']) && $orders_response['success'] && !empty($orders_response['data'])) {
         $orders = $orders_response['data'];
         foreach ($orders as $order) {
             if (isset($order['orderID'])) {
-                // 2. Get payment info for this order
                 $payment_info = null;
                 $payment_response = callApi('payment_api.php', 'GET', ['orderID' => $order['orderID']]);
                 if (isset($payment_response['success']) && $payment_response['success'] && !empty($payment_response['data'])) {
@@ -135,18 +126,14 @@ if (!$loggedInUserID) {
                     error_log("PurchaseHistory: No payment info for orderID " . $order['orderID'] . ". Msg: " . ($payment_response['message'] ?? 'Unknown'));
                 }
 
-                $purchase_date_to_use = $order['orderDate']; // Mặc định là orderDate
+                $purchase_date_to_use = $order['orderDate'];
                 if ($payment_info && isset($payment_info['paymentDate'])) {
-                    // API payment_api.php trả về paymentDate là một object có trường 'date'
                     if (isset($payment_info['paymentDate']['date'])) {
                         try {
                             $dt = new DateTime($payment_info['paymentDate']['date']);
-                            // Bạn có thể muốn chỉ lấy ngày tháng hoặc cả giờ phút
-                            // $purchase_date_to_use = $dt->format('Y-m-d H:i:s');
                             $purchase_date_to_use = $dt->format('Y-m-d H:i:s');
                         } catch (Exception $e) {
                             error_log("PurchaseHistory: Invalid paymentDate format for orderID " . $order['orderID'] . ". Value: " . print_r($payment_info['paymentDate'], true));
-                            // Giữ nguyên $order['orderDate'] nếu paymentDate không hợp lệ
                         }
                     }
                 }
@@ -165,7 +152,6 @@ if (!$loggedInUserID) {
             $fetch_error_message = "Không tìm thấy thông tin chi tiết cho các đơn hàng của bạn.";
         }
     } elseif (isset($orders_response['success']) && $orders_response['success'] && empty($orders_response['data'])) {
-        // Không có đơn hàng nào, sẽ hiển thị thông báo "chưa có lịch sử"
     } else {
         $fetch_error_message = "Không thể tải lịch sử mua hàng. " . ($orders_response['message'] ?? 'Lỗi không xác định.');
     }
@@ -176,7 +162,6 @@ if (!empty($purchase_records)) {
         return strtotime($b['purchaseDate']) - strtotime($a['purchaseDate']);
     });
 }
-// --- Kết thúc lấy dữ liệu ---
 
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
@@ -243,18 +228,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                     <td>
                                         <?php
                                         try {
-                                            // Giả sử $item['purchaseDate'] đã là chuỗi Y-m-d H:i:s hoặc tương tự
                                             $date = new DateTime($item['purchaseDate']);
                                             echo $date->format('d/m/Y H:i');
                                         } catch (Exception $e) {
-                                            echo htmlspecialchars($item['purchaseDate']); // Hiển thị nguyên gốc nếu không parse được
+                                            echo htmlspecialchars($item['purchaseDate']);
                                         }
                                         ?>
                                     </td>
                                     <td class="text-end"><?php echo format_purchase_price($item['totalAmount']); ?></td>
                                     <td class="text-center">
                                         <?php
-                                        $statusClass = 'secondary'; // Default
+                                        $statusClass = 'secondary';
                                         if (strtolower($item['paymentStatus']) === 'completed') $statusClass = 'success';
                                         else if (strtolower($item['paymentStatus']) === 'pending') $statusClass = 'warning';
                                         else if (strtolower($item['paymentStatus']) === 'failed') $statusClass = 'danger';
