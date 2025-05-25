@@ -26,7 +26,7 @@ switch ($method) {
             (int)($input['sortOrder'] ?? 0)
         );
         http_response_code($response->success ? 201 : 500);
-        echo json_encode(['success' => $response->success, 'message' => $response->message]);
+        echo json_encode(['success' => $response->success, 'message' => $response->message, 'data' => $response->data]);
         if ($response)
             break;
 
