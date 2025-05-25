@@ -6,7 +6,7 @@ class OrderDetailBLL extends Database
 {
     public function add_detail(OrderDetailDTO $detail): bool
     {
-        $sql = "INSERT INTO ORDERDETAIL (OrderID, CourseID, Price) 
+        $sql = "INSERT INTO ORDERDETAIL (OrderID, CourseID, Price)
                 VALUES (:orderID, :courseID, :price)";
 
         $bindParams = [
@@ -21,9 +21,9 @@ class OrderDetailBLL extends Database
 
     public function get_details_by_order(string $orderID): array
     {
-        $sql = "SELECT OrderID, CourseID, Price, created_at 
-                FROM ORDERDETAIL 
-                WHERE OrderID = :orderID_param 
+        $sql = "SELECT OrderID, CourseID, Price, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM ORDERDETAIL
+                WHERE OrderID = :orderID_param
                 ORDER BY CourseID";
 
         $bindParams = [':orderID_param' => $orderID];
@@ -37,7 +37,7 @@ class OrderDetailBLL extends Database
                     $row['ORDERID'],
                     $row['COURSEID'],
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             oci_free_statement($stid);
@@ -67,8 +67,8 @@ class OrderDetailBLL extends Database
 
     public function get_detail(string $orderID, string $courseID): ?OrderDetailDTO
     {
-        $sql = "SELECT OrderID, CourseID, Price, created_at 
-                FROM ORDERDETAIL 
+        $sql = "SELECT OrderID, CourseID, Price, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM ORDERDETAIL
                 WHERE OrderID = :orderID_param AND CourseID = :courseID_param";
         $bindParams = [
             ':orderID_param' => $orderID,
@@ -84,7 +84,7 @@ class OrderDetailBLL extends Database
                     $row['ORDERID'],
                     $row['COURSEID'],
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             oci_free_statement($stid);
@@ -95,7 +95,7 @@ class OrderDetailBLL extends Database
 
     public function delete_detail(string $orderID, string $courseID): bool
     {
-        $sql = "DELETE FROM ORDERDETAIL 
+        $sql = "DELETE FROM ORDERDETAIL
                 WHERE OrderID = :orderID AND CourseID = :courseID";
 
         $bindParams = [
@@ -107,4 +107,3 @@ class OrderDetailBLL extends Database
         return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 }
-?>

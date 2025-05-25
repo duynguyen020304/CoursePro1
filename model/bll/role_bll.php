@@ -6,7 +6,7 @@ class RoleBLL extends Database
 {
     public function create_role(RoleDTO $role): bool
     {
-        $sql = "INSERT INTO ROLE (RoleID, RoleName) 
+        $sql = "INSERT INTO ROLE (RoleID, RoleName)
                 VALUES (:roleID, :roleName)";
         $bindParams = [
             ':roleID'   => $role->roleID,
@@ -37,8 +37,8 @@ class RoleBLL extends Database
 
     public function get_role(string $roleID): ?RoleDTO
     {
-        $sql = "SELECT RoleID, RoleName, created_at 
-                FROM ROLE 
+        $sql = "SELECT RoleID, RoleName, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM ROLE
                 WHERE RoleID = :roleID_param";
         $bindParams = [':roleID_param' => $roleID];
         $stid = $this->executePrepared($sql, $bindParams);
@@ -49,7 +49,7 @@ class RoleBLL extends Database
                 $dto = new RoleDTO(
                     $row['ROLEID'],
                     $row['ROLENAME'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -59,7 +59,7 @@ class RoleBLL extends Database
 
     public function get_all_roles(): array
     {
-        $sql = "SELECT RoleID, RoleName, created_at 
+        $sql = "SELECT RoleID, RoleName, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
                 FROM ROLE ORDER BY RoleID";
         $stid = $this->executePrepared($sql);
         $roles = [];
@@ -69,7 +69,7 @@ class RoleBLL extends Database
                 $roles[] = new RoleDTO(
                     $row['ROLEID'],
                     $row['ROLENAME'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -77,4 +77,3 @@ class RoleBLL extends Database
         return $roles;
     }
 }
-?>

@@ -8,8 +8,9 @@ class PaymentDTO
     public ?string $paymentMethod;
     public ?string $paymentStatus;
     public float $amount;
+    public ?string $created_at;
 
-    public function __construct(string $paymentID, string $orderID, DateTime $paymentDate, ?string $paymentMethod, ?string $paymentStatus, float $amount)
+    public function __construct(string $paymentID, string $orderID, DateTime $paymentDate, ?string $paymentMethod, ?string $paymentStatus, float $amount, ?string $created_at=null)
     {
         $this->paymentID      = $paymentID;
         $this->orderID        = $orderID;
@@ -17,5 +18,6 @@ class PaymentDTO
         $this->paymentMethod  = $paymentMethod;
         $this->paymentStatus  = $paymentStatus;
         $this->amount         = $amount;
+        $this->created_at     = $created_at;
     }
 }

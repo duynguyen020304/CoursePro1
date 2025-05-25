@@ -6,7 +6,7 @@ class CartItemBLL extends Database
 {
     public function create_item(CartItemDTO $item): bool
     {
-        $sql = "INSERT INTO CARTITEM (CartItemID, CartID, CourseID, Quantity) 
+        $sql = "INSERT INTO CARTITEM (CartItemID, CartID, CourseID, Quantity)
                 VALUES (:cartItemID, :cartID, :courseID, :quantity)";
 
         $bindParams = [
@@ -22,9 +22,10 @@ class CartItemBLL extends Database
 
     public function get_items_by_cart(string $cartID): array
     {
-        $sql = "SELECT CartItemID, CartID, CourseID, Quantity, created_at 
-                FROM CARTITEM 
-                WHERE CartID = :cartID_param 
+        $sql = "SELECT CartItemID, CartID, CourseID, Quantity, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM CARTITEM
+                WHERE CartID = :cartID_param
                 ORDER BY CourseID ASC";
 
         $bindParams = [':cartID_param' => $cartID];
@@ -39,7 +40,7 @@ class CartItemBLL extends Database
                     $row['CARTID'],
                     $row['COURSEID'],
                     isset($row['QUANTITY']) ? (int)$row['QUANTITY'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -58,8 +59,9 @@ class CartItemBLL extends Database
 
     public function get_item_by_id(string $cartItemID): ?CartItemDTO
     {
-        $sql = "SELECT CartItemID, CartID, CourseID, Quantity, created_at 
-                FROM CARTITEM 
+        $sql = "SELECT CartItemID, CartID, CourseID, Quantity, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM CARTITEM
                 WHERE CartItemID = :cartItemID_param";
         $bindParams = [':cartItemID_param' => $cartItemID];
 
@@ -73,7 +75,7 @@ class CartItemBLL extends Database
                     $row['CARTID'],
                     $row['COURSEID'],
                     isset($row['QUANTITY']) ? (int)$row['QUANTITY'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -87,7 +89,7 @@ class CartItemBLL extends Database
             return $this->delete_item($cartItemID);
         }
 
-        $sql = "UPDATE CARTITEM SET Quantity = :quantity 
+        $sql = "UPDATE CARTITEM SET Quantity = :quantity
                 WHERE CartItemID = :cartItemID_where";
 
         $bindParams = [

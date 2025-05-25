@@ -6,7 +6,7 @@ class CourseImageBLL extends Database
 {
     public function create_image(CourseImageDTO $img): bool
     {
-        $sql = "INSERT INTO COURSEIMAGE (ImageID, CourseID, ImagePath, Caption, SortOrder) 
+        $sql = "INSERT INTO COURSEIMAGE (ImageID, CourseID, ImagePath, Caption, SortOrder)
                 VALUES (:imageID, :courseID, :imagePath, :caption, :sortOrder)";
 
         $bindParams = [
@@ -57,8 +57,9 @@ class CourseImageBLL extends Database
 
     public function get_image_by_id(string $imageID): ?CourseImageDTO
     {
-        $sql = "SELECT ImageID, CourseID, ImagePath, Caption, SortOrder, created_at 
-                FROM COURSEIMAGE 
+        $sql = "SELECT ImageID, CourseID, ImagePath, Caption, SortOrder,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM COURSEIMAGE
                 WHERE ImageID = :imageID_param";
         $bindParams = [':imageID_param' => $imageID];
 
@@ -73,7 +74,7 @@ class CourseImageBLL extends Database
                     $row['IMAGEPATH'],
                     $row['CAPTION'],
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -84,9 +85,10 @@ class CourseImageBLL extends Database
 
     public function get_images_by_course(string $courseID): array
     {
-        $sql = "SELECT ImageID, CourseID, ImagePath, Caption, SortOrder, created_at 
-                FROM COURSEIMAGE 
-                WHERE CourseID = :courseID_param 
+        $sql = "SELECT ImageID, CourseID, ImagePath, Caption, SortOrder,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM COURSEIMAGE
+                WHERE CourseID = :courseID_param
                 ORDER BY SortOrder ASC";
 
         $bindParams = [':courseID_param' => $courseID];
@@ -102,7 +104,7 @@ class CourseImageBLL extends Database
                     $row['IMAGEPATH'],
                     $row['CAPTION'],
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -110,4 +112,3 @@ class CourseImageBLL extends Database
         return $images;
     }
 }
-?>

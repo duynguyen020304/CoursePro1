@@ -47,7 +47,8 @@ class CategoryBLL extends Database
 
     public function get_category(int $id): ?CategoryDTO
     {
-        $sql = "SELECT ID, Name, Parent_ID, Sort_Order, created_at 
+        $sql = "SELECT ID, Name, Parent_ID, Sort_Order, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
                 FROM CATEGORIES 
                 WHERE ID = :id_param";
         $bindParams = [':id_param' => $id];
@@ -62,7 +63,7 @@ class CategoryBLL extends Database
                     $row['NAME'],
                     isset($row['PARENT_ID']) ? (int)$row['PARENT_ID'] : null,
                     isset($row['SORT_ORDER']) ? (int)$row['SORT_ORDER'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -72,7 +73,8 @@ class CategoryBLL extends Database
 
     public function get_all_categories(): array
     {
-        $sql = "SELECT ID, Name, Parent_ID, Sort_Order, created_at 
+        $sql = "SELECT ID, Name, Parent_ID, Sort_Order, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
                 FROM CATEGORIES 
                 ORDER BY Sort_Order ASC, Name ASC";
 
@@ -86,7 +88,7 @@ class CategoryBLL extends Database
                     $row['NAME'],
                     isset($row['PARENT_ID']) ? (int)$row['PARENT_ID'] : null,
                     isset($row['SORT_ORDER']) ? (int)$row['SORT_ORDER'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -112,7 +114,7 @@ class CategoryBLL extends Database
                 $all_by_id[$parentID]['children'][] = &$node;
             }
         }
-        unset($node);
+        unset($node); // Break the reference to the last element
 
         return $tree;
     }

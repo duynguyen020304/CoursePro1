@@ -6,7 +6,7 @@ class InstructorBLL extends Database
 {
     public function create_instructor(InstructorDTO $inst): bool
     {
-        $sql = "INSERT INTO INSTRUCTOR (InstructorID, UserID, Biography) 
+        $sql = "INSERT INTO INSTRUCTOR (InstructorID, UserID, Biography)
                 VALUES (:instructorID, :userID, :biography)";
 
         $bindParams = [
@@ -30,9 +30,9 @@ class InstructorBLL extends Database
 
     public function update_instructor(InstructorDTO $inst): bool
     {
-        $sql = "UPDATE INSTRUCTOR SET 
-                UserID = :userID, 
-                Biography = :biography 
+        $sql = "UPDATE INSTRUCTOR SET
+                UserID = :userID,
+                Biography = :biography
                 WHERE InstructorID = :instructorID_where";
 
         $bindParams = [
@@ -47,8 +47,9 @@ class InstructorBLL extends Database
 
     public function get_instructor(string $instructorID): ?InstructorDTO
     {
-        $sql = "SELECT InstructorID, UserID, Biography, created_at 
-                FROM INSTRUCTOR 
+        $sql = "SELECT InstructorID, UserID, Biography,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM INSTRUCTOR
                 WHERE InstructorID = :instructorID_param";
         $bindParams = [':instructorID_param' => $instructorID];
 
@@ -68,7 +69,7 @@ class InstructorBLL extends Database
                     $row['INSTRUCTORID'],
                     $row['USERID'],
                     $biography,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -78,8 +79,9 @@ class InstructorBLL extends Database
 
     public function get_instructor_by_user_id(string $userID): ?InstructorDTO
     {
-        $sql = "SELECT InstructorID, UserID, Biography, created_at 
-                FROM INSTRUCTOR 
+        $sql = "SELECT InstructorID, UserID, Biography,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM INSTRUCTOR
                 WHERE UserID = :userID_param";
         $bindParams = [':userID_param' => $userID];
 
@@ -99,7 +101,7 @@ class InstructorBLL extends Database
                     $row['INSTRUCTORID'],
                     $row['USERID'],
                     $biography,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -109,7 +111,8 @@ class InstructorBLL extends Database
 
     public function get_all_instructors(): array
     {
-        $sql = "SELECT InstructorID, UserID, Biography, created_at 
+        $sql = "SELECT InstructorID, UserID, Biography,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
                 FROM INSTRUCTOR ORDER BY InstructorID ASC";
 
         $stid = $this->executePrepared($sql);
@@ -128,7 +131,7 @@ class InstructorBLL extends Database
                     $row['INSTRUCTORID'],
                     $row['USERID'],
                     $biography,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -136,4 +139,3 @@ class InstructorBLL extends Database
         return $list;
     }
 }
-?>

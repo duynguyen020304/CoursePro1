@@ -6,7 +6,7 @@ class CourseCategoryBLL extends Database
 {
     public function link_course_category(CourseCategoryDTO $cc): bool
     {
-        $sql = "INSERT INTO COURSECATEGORY (CourseID, CategoryID) 
+        $sql = "INSERT INTO COURSECATEGORY (CourseID, CategoryID)
                 VALUES (:courseID, :categoryID)";
 
         $bindParams = [
@@ -20,7 +20,7 @@ class CourseCategoryBLL extends Database
 
     public function unlink_course_category(string $courseID, $categoryID): bool
     {
-        $sql = "DELETE FROM COURSECATEGORY 
+        $sql = "DELETE FROM COURSECATEGORY
                 WHERE CourseID = :courseID AND CategoryID = :categoryID";
 
         $bindParams = [
@@ -34,9 +34,10 @@ class CourseCategoryBLL extends Database
 
     public function get_categories_by_course(string $courseID): array
     {
-        $sql = "SELECT CourseID, CategoryID, created_at 
-                FROM COURSECATEGORY 
-                WHERE CourseID = :courseID_param 
+        // Format created_at using TO_CHAR
+        $sql = "SELECT CourseID, CategoryID, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM COURSECATEGORY
+                WHERE CourseID = :courseID_param
                 ORDER BY CategoryID ASC";
 
         $bindParams = [':courseID_param' => $courseID];
@@ -49,7 +50,7 @@ class CourseCategoryBLL extends Database
                 $list[] = new CourseCategoryDTO(
                     $row['COURSEID'],
                     isset($row['CATEGORYID']) ? (int)$row['CATEGORYID'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -59,9 +60,10 @@ class CourseCategoryBLL extends Database
 
     public function get_courses_by_category($categoryID): array
     {
-        $sql = "SELECT CourseID, CategoryID, created_at 
-                FROM COURSECATEGORY 
-                WHERE CategoryID = :categoryID_param 
+        // Format created_at using TO_CHAR
+        $sql = "SELECT CourseID, CategoryID, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM COURSECATEGORY
+                WHERE CategoryID = :categoryID_param
                 ORDER BY CourseID ASC";
 
         $bindParams = [':categoryID_param' => (int)$categoryID];
@@ -74,7 +76,7 @@ class CourseCategoryBLL extends Database
                 $list[] = new CourseCategoryDTO(
                     $row['COURSEID'],
                     isset($row['CATEGORYID']) ? (int)$row['CATEGORYID'] : 0,
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -84,8 +86,8 @@ class CourseCategoryBLL extends Database
 
     public function link_exists(string $courseID, $categoryID): bool
     {
-        $sql = "SELECT COUNT(*) AS LINK_COUNT 
-                FROM COURSECATEGORY 
+        $sql = "SELECT COUNT(*) AS LINK_COUNT
+                FROM COURSECATEGORY
                 WHERE CourseID = :courseID AND CategoryID = :categoryID";
         $bindParams = [
             ':courseID'   => $courseID,
@@ -103,4 +105,3 @@ class CourseCategoryBLL extends Database
         return false;
     }
 }
-?>

@@ -21,11 +21,11 @@ class ReviewBLL extends Database
 
     public function update_review(ReviewDTO $r): bool
     {
-        $sql = "UPDATE REVIEW SET 
-                UserID = :userID, 
-                CourseID = :courseID, 
-                Rating   = :rating, 
-                REVIEW_TEXT  = :review_text 
+        $sql = "UPDATE REVIEW SET
+                UserID = :userID,
+                CourseID = :courseID,
+                Rating   = :rating,
+                REVIEW_TEXT  = :review_text
                 WHERE ReviewID = :reviewID_where";
         $bindParams = [
             ':userID'     => $r->userID,
@@ -48,9 +48,10 @@ class ReviewBLL extends Database
 
     public function get_reviews_by_course(string $courseID): array
     {
-        $sql = "SELECT ReviewID, UserID, CourseID, Rating, REVIEW_TEXT, created_at 
-                FROM REVIEW 
-                WHERE CourseID = :courseID_param 
+        $sql = "SELECT ReviewID, UserID, CourseID, Rating, REVIEW_TEXT,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM REVIEW
+                WHERE CourseID = :courseID_param
                 ORDER BY created_at DESC";
         $bindParams = [':courseID_param' => $courseID];
         $stid = $this->executePrepared($sql, $bindParams);
@@ -64,7 +65,7 @@ class ReviewBLL extends Database
                     $row['COURSEID'],
                     isset($row['RATING']) ? (int)$row['RATING'] : 0,
                     $row['REVIEW_TEXT'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -74,8 +75,9 @@ class ReviewBLL extends Database
 
     public function get_review_by_id(string $reviewID): ?ReviewDTO
     {
-        $sql = "SELECT ReviewID, UserID, CourseID, Rating, REVIEW_TEXT, created_at 
-                FROM REVIEW 
+        $sql = "SELECT ReviewID, UserID, CourseID, Rating, REVIEW_TEXT,
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM REVIEW
                 WHERE ReviewID = :reviewID_param";
         $bindParams = [':reviewID_param' => $reviewID];
         $stid = $this->executePrepared($sql, $bindParams);
@@ -89,7 +91,7 @@ class ReviewBLL extends Database
                     $row['COURSEID'],
                     isset($row['RATING']) ? (int)$row['RATING'] : 0,
                     $row['REVIEW_TEXT'],
-                    $row['CREATED_AT'] ?? null
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);
@@ -97,4 +99,3 @@ class ReviewBLL extends Database
         return $dto;
     }
 }
-?>

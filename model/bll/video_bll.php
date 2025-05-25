@@ -6,7 +6,7 @@ class VideoBLL extends Database
 {
     public function create_video(VideoDTO $v): bool
     {
-        $sql = "INSERT INTO CourseVideo (VideoID, LessonID, Url, Title, Duration, SortOrder) 
+        $sql = "INSERT INTO CourseVideo (VideoID, LessonID, Url, Title, Duration, SortOrder)
                 VALUES (:videoID, :lessonID, :url, :title, :duration, :sortOrder)";
         $bindParams = [
             ':videoID'   => $v->videoID,
@@ -19,6 +19,7 @@ class VideoBLL extends Database
         $stid = $this->executePrepared($sql, $bindParams);
         $success = ($stid !== false);
         if ($success) {
+            // No action needed here, affected rows check is below
         }
         return $success && $this->getAffectedRows() === 1;
     }
@@ -57,8 +58,9 @@ class VideoBLL extends Database
 
     public function get_video(string $videoID): ?VideoDTO
     {
-        $sql = "SELECT VideoID, LessonID, Url, Title, SortOrder, Duration 
-                FROM CourseVideo 
+        $sql = "SELECT VideoID, LessonID, Url, Title, SortOrder, Duration, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM CourseVideo
                 WHERE VideoID = :videoID_param";
         $bindParams = [':videoID_param' => $videoID];
         $stid = $this->executePrepared($sql, $bindParams);
@@ -70,7 +72,8 @@ class VideoBLL extends Database
                     $row['URL'],
                     $row['TITLE'],
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    isset($row['DURATION']) ? (int)$row['DURATION'] : null
+                    isset($row['DURATION']) ? (int)$row['DURATION'] : null,
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
                 @oci_free_statement($stid);
                 return $video;
@@ -82,9 +85,10 @@ class VideoBLL extends Database
 
     public function get_videos_by_lesson(string $lessonID): array
     {
-        $sql = "SELECT VideoID, LessonID, Url, Title, SortOrder, Duration 
-                FROM CourseVideo 
-                WHERE LessonID = :lessonID_param 
+        $sql = "SELECT VideoID, LessonID, Url, Title, SortOrder, Duration, 
+                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                FROM CourseVideo
+                WHERE LessonID = :lessonID_param
                 ORDER BY SortOrder";
         $bindParams = [':lessonID_param' => $lessonID];
         $stid = $this->executePrepared($sql, $bindParams);
@@ -97,7 +101,8 @@ class VideoBLL extends Database
                     $row['URL'],
                     $row['TITLE'],
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    isset($row['DURATION']) ? (int)$row['DURATION'] : null
+                    isset($row['DURATION']) ? (int)$row['DURATION'] : null,
+                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
                 );
             }
             @oci_free_statement($stid);

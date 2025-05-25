@@ -6,13 +6,15 @@ class CourseImageDTO
     public string $imagePath;
     public ?string $caption;
     public int $sortOrder;
+    public ?string $created_at;
 
-    public function __construct(string $imageID, string $courseID, string $imagePath, ?string $caption, int $sortOrder)
+    public function __construct(string $imageID, string $courseID, string $imagePath, ?string $caption, int $sortOrder, ?string $created_at)
     {
         $this->imageID    = $imageID;
         $this->courseID   = $courseID;
         $this->imagePath  = $imagePath;
         $this->caption    = $caption;
         $this->sortOrder  = $sortOrder;
+        $this->created_at = $created_at;
     }
 }

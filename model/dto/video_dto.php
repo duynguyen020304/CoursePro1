@@ -8,8 +8,9 @@ class VideoDTO
     public ?string $title;
     public int $sortOrder;
     public ?int $duration; // thêm trường duration kiểu int (giá trị giây)
+    public ?string $created_at;
 
-    public function __construct(string $videoID, string $lessonID, string $url, ?string $title, int $sortOrder, ?int $duration)
+    public function __construct(string $videoID, string $lessonID, string $url, ?string $title, int $sortOrder, ?int $duration, ?string $created_at=null)
     {
         $this->videoID   = $videoID;
         $this->lessonID  = $lessonID;
@@ -17,5 +18,6 @@ class VideoDTO
         $this->title     = $title;
         $this->sortOrder = $sortOrder;
         $this->duration  = $duration;
+        $this->created_at = $created_at;
     }
 }
