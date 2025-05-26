@@ -1,4 +1,10 @@
 <?php
+// Bắt đầu bộ đệm đầu ra
+ob_start();
+
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
 require_once __DIR__ . '/../service/service_user.php';
 require_once __DIR__ . '/../model/database.php';
 
@@ -13,9 +19,10 @@ class UserInitializer
         $this->userService = new UserService();
         $this->db = new Database();
     }
-
     public function initialize(): void
     {
+        $isGenerateInstructorSuccess = true;
+        $isGenerateStudentSuccess = true;
         echo "Starting user initialization...\n";
         $passwordAdmin = password_hash("duyadmin123", PASSWORD_DEFAULT);
         $adminID = str_replace('.', '_', uniqid('admin', true));
@@ -687,11 +694,12 @@ class UserInitializer
                 $biography,
                 $instructor['profileImage']
             );
-            
+
             if ($response->success) {
                 echo "Created instructor: {$instructor['firstName']} {$instructor['lastName']} ({$instructor['email']})\n";
             } else {
                 echo "Failed to create instructor {$instructor['email']}: {$response->message}\n";
+                $isGenerateInstructorSuccess = false;
             }
         }
 
@@ -699,8 +707,12 @@ class UserInitializer
         echo "Creating student accounts...\n";
         foreach ($students as $student) {
             $biography = "NOT_SET";
-            if (isset($instructor['biography'])) {
-                $biography = $instructor['biography'];
+            // The original code had isset($instructor['biography']) here, which is likely a copy-paste error.
+            // If students are also supposed to have a biography, it should be $student['biography'].
+            // For now, keeping it as 'NOT_SET' if not explicitly defined for students in your array.
+            // If you intend for students to have biographies, ensure your $students array includes a 'biography' key.
+            if (isset($student['biography'])) { // Corrected to check for student's biography
+                $biography = $student['biography'];
             }
             $response = $this->userService->create_user(
                 $student['email'],
@@ -711,18 +723,33 @@ class UserInitializer
                 $biography,
                 $student['profileImage']
             );
-            
+
             if ($response->success) {
                 echo "Created student: {$student['firstName']} {$student['lastName']} ({$student['email']})\n";
             } else {
                 echo "Failed to create student {$student['email']}: {$response->message}\n";
+                $isGenerateStudentSuccess = false;
             }
         }
-
         echo "User initialization completed!\n";
+
+        // Chỉ chuyển hướng nếu tất cả các tài khoản được tạo thành công
+        if ($isGenerateInstructorSuccess && $isGenerateStudentSuccess) {
+            // Xóa bộ đệm đầu ra trước khi chuyển hướng
+            ob_end_clean();
+            header("Location: course_initializer.php");
+            exit(); // Rất quan trọng để gọi exit() sau khi chuyển hướng
+        } else {
+            // Nếu có lỗi, hiển thị nội dung bộ đệm (các thông báo echo)
+            ob_end_flush();
+        }
     }
 }
 
 // Run the initializer
 $initializer = new UserInitializer();
 $initializer->initialize();
+
+// Đảm bảo rằng không có khoảng trắng hoặc ký tự nào khác sau thẻ đóng PHP.
+// Tốt nhất là không đóng thẻ PHP nếu file chỉ chứa code PHP.
+// ?>

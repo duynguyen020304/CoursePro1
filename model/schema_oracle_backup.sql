@@ -1,559 +1,331 @@
--- Oracle SQL Conversion
-
--- Note: Oracle does not have a direct equivalent of SET FOREIGN_KEY_CHECKS.
--- Constraints are managed individually or through deferrable constraints.
--- For script re-runnability, we will drop tables if they exist.
-
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Role CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
-
 CREATE TABLE Role (
-                      RoleID      VARCHAR2(20 CHAR) PRIMARY KEY,
-                      RoleName    VARCHAR2(50 CHAR) NOT NULL UNIQUE,
-                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+                      RoleID      VARCHAR2(20 CHAR) CONSTRAINT pk_role PRIMARY KEY,
+                      RoleName    VARCHAR2(50 CHAR) CONSTRAINT uq_role_rolename UNIQUE NOT NULL,
+                      created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
 );
 
--- Oracle uses MERGE for ON DUPLICATE KEY UPDATE
-MERGE INTO Role t
-USING (SELECT 'student' AS RoleID, 'Học sinh' AS RoleName FROM DUAL) s
-ON (t.RoleID = s.RoleID)
-WHEN NOT MATCHED THEN
-    INSERT (RoleID, RoleName, created_at)
-    VALUES (s.RoleID, s.RoleName, CURRENT_TIMESTAMP)
+MERGE INTO Role tgt
+USING (SELECT 'student' AS RoleID, 'Học sinh' AS RoleName FROM dual) src
+ON (tgt.RoleID = src.RoleID)
 WHEN MATCHED THEN
-    UPDATE SET t.RoleName = s.RoleName; -- Original did RoleName = RoleName, this updates if different
-
-MERGE INTO Role t
-USING (SELECT 'instructor' AS RoleID, 'Giảng viên' AS RoleName FROM DUAL) s
-ON (t.RoleID = s.RoleID)
+    UPDATE SET tgt.RoleName = src.RoleName
 WHEN NOT MATCHED THEN
-    INSERT (RoleID, RoleName, created_at)
-    VALUES (s.RoleID, s.RoleName, CURRENT_TIMESTAMP)
-WHEN MATCHED THEN
-    UPDATE SET t.RoleName = s.RoleName;
+    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, SYSTIMESTAMP);
 
-MERGE INTO Role t
-USING (SELECT 'admin' AS RoleID, 'Quản trị viên' AS RoleName FROM DUAL) s
-ON (t.RoleID = s.RoleID)
+MERGE INTO Role tgt
+USING (SELECT 'instructor' AS RoleID, 'Giảng viên' AS RoleName FROM dual) src
+ON (tgt.RoleID = src.RoleID)
+WHEN MATCHED THEN
+    UPDATE SET tgt.RoleName = src.RoleName
 WHEN NOT MATCHED THEN
-    INSERT (RoleID, RoleName, created_at)
-    VALUES (s.RoleID, s.RoleName, CURRENT_TIMESTAMP)
-WHEN MATCHED THEN
-    UPDATE SET t.RoleName = s.RoleName;
+    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, SYSTIMESTAMP);
 
--- 2. Users
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Users CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
+MERGE INTO Role tgt
+USING (SELECT 'admin' AS RoleID, 'Quản trị viên' AS RoleName FROM dual) src
+ON (tgt.RoleID = src.RoleID)
+WHEN MATCHED THEN
+    UPDATE SET tgt.RoleName = src.RoleName
+WHEN NOT MATCHED THEN
+    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, SYSTIMESTAMP);
+
 CREATE TABLE Users (
-                       UserID   VARCHAR2(40 CHAR) PRIMARY KEY,
-                       FirstName     VARCHAR2(100 CHAR) NOT NULL,
-                       LastName VARCHAR2(100 CHAR) NOT NULL,
-                       Email    VARCHAR2(100 CHAR) NOT NULL UNIQUE,
-                       Password VARCHAR2(255 CHAR) NOT NULL, -- Storing passwords as hashes, CHAR or BYTE semantics depends on hash output
-                       RoleID   VARCHAR2(36 CHAR) NOT NULL,
-                       ProfileImage  VARCHAR2(255 CHAR),
-                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                       FOREIGN KEY (RoleID) REFERENCES Role(RoleID)
+                       UserID       VARCHAR2(40 CHAR) CONSTRAINT pk_users PRIMARY KEY,
+                       FirstName    VARCHAR2(100 CHAR) NOT NULL,
+                       LastName     VARCHAR2(100 CHAR) NOT NULL,
+                       Email        VARCHAR2(100 CHAR) CONSTRAINT uq_users_email UNIQUE NOT NULL,
+                       Password     VARCHAR2(255 CHAR) NOT NULL,
+                       RoleID       VARCHAR2(20 CHAR) NOT NULL,
+                       ProfileImage VARCHAR2(255 CHAR),
+                       created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                       CONSTRAINT fk_users_role FOREIGN KEY (RoleID) REFERENCES Role(RoleID)
 );
 
--- 3. Instructor
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Instructor CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE Instructor (
-                            InstructorID  VARCHAR2(40 CHAR) PRIMARY KEY,
-                            UserID        VARCHAR2(40 CHAR) NOT NULL UNIQUE,
-                            Biography     CLOB,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                            FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+                            InstructorID VARCHAR2(40 CHAR) CONSTRAINT pk_instructor PRIMARY KEY,
+                            UserID       VARCHAR2(40 CHAR) CONSTRAINT uq_instructor_userid UNIQUE NOT NULL,
+                            Biography    CLOB,
+                            created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                            CONSTRAINT fk_instructor_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
--- 4. Student
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Student CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE Student (
-                         StudentID       VARCHAR2(40 CHAR) PRIMARY KEY,
-                         UserID          VARCHAR2(40 CHAR) NOT NULL UNIQUE,
-                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                         FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+                         StudentID  VARCHAR2(40 CHAR) CONSTRAINT pk_student PRIMARY KEY,
+                         UserID     VARCHAR2(40 CHAR) CONSTRAINT uq_student_userid UNIQUE NOT NULL,
+                         created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                         CONSTRAINT fk_student_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
--- 5. Category (renamed from 'categories' for consistency if preferred, sticking to original for now)
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE categories CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE categories (
-                            id NUMBER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY, -- Oracle 12c+ for auto-increment
-                            name VARCHAR2(255 CHAR) NOT NULL,
-                            parent_id NUMBER DEFAULT NULL,
-                            sort_order NUMBER DEFAULT 0,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                            FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE
+                            id          NUMBER GENERATED BY DEFAULT AS IDENTITY CONSTRAINT pk_categories PRIMARY KEY,
+                            name        VARCHAR2(255 CHAR) NOT NULL,
+                            parent_id   NUMBER DEFAULT NULL,
+                            sort_order  NUMBER DEFAULT 0,
+                            created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                            CONSTRAINT fk_categories_parent FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED
 );
 
--- Insert statements for categories are largely the same
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (1, 'Phát triển', NULL, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (33, 'Kinh doanh', NULL, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (41, 'CNTT & Phần mềm', NULL, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (49, 'Thiết kế', NULL, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (56, 'Marketing', NULL, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (63, 'Phát triển cá nhân', NULL, 6);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (69, 'Âm nhạc', NULL, 7);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (73, 'Sức khỏe & Thể hình', NULL, 8);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (78, 'Giảng dạy & Học thuật', NULL, 9);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (1, 'Phát triển', NULL, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (33, 'Kinh doanh', NULL, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (41, 'CNTT & Phần mềm', NULL, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (49, 'Thiết kế', NULL, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (56, 'Marketing', NULL, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (63, 'Phát triển cá nhân', NULL, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (69, 'Âm nhạc', NULL, 7, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (73, 'Sức khỏe & Thể hình', NULL, 8, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (78, 'Giảng dạy & Học thuật', NULL, 9, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (2, 'Lập trình Web', 1, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (14, 'Lập trình Mobile', 1, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (20, 'Lập trình Game', 1, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (24, 'Phát triển phần mềm', 1, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (30, 'Lập trình nhúng / IoT', 1, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (31, 'Blockchain', 1, 6);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (32, 'No-Code Development', 1, 7);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (2, 'Lập trình Web', 1, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (14, 'Lập trình Mobile', 1, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (20, 'Lập trình Game', 1, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (24, 'Phát triển phần mềm', 1, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (30, 'Lập trình nhúng / IoT', 1, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (31, 'Blockchain', 1, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (32, 'No-Code Development', 1, 7, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (3, 'HTML & CSS', 2, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (4, 'JavaScript', 2, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (5, 'ReactJS', 2, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (6, 'VueJS', 2, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (7, 'Angular', 2, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (8, 'PHP', 2, 6);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (9, 'Laravel', 2, 7);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (10, 'ASP.NET', 2, 8);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (11, 'Django', 2, 9);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (12, 'NodeJS', 2, 10);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (13, 'Web APIs', 2, 11);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (3, 'HTML & CSS', 2, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (4, 'JavaScript', 2, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (5, 'ReactJS', 2, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (6, 'VueJS', 2, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (7, 'Angular', 2, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (8, 'PHP', 2, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (9, 'Laravel', 2, 7, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (10, 'ASP.NET', 2, 8, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (11, 'Django', 2, 9, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (12, 'NodeJS', 2, 10, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (13, 'Web APIs', 2, 11, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (15, 'Android Development', 14, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (16, 'iOS Development', 14, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (17, 'React Native', 14, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (18, 'Flutter', 14, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (19, 'Xamarin', 14, 5);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (15, 'Android Development', 14, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (16, 'iOS Development', 14, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (17, 'React Native', 14, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (18, 'Flutter', 14, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (19, 'Xamarin', 14, 5, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (21, 'Unity', 20, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (22, 'Unreal Engine', 20, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (23, 'Godot', 20, 3);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (21, 'Unity', 20, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (22, 'Unreal Engine', 20, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (23, 'Godot', 20, 3, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (25, 'Python', 24, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (26, 'Java', 24, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (27, 'C++', 24, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (28, 'C#', 24, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (29, 'Rust', 24, 5);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (25, 'Python', 24, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (26, 'Java', 24, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (27, 'C++', 24, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (28, 'C#', 24, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (29, 'Rust', 24, 5, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (34, 'Quản trị kinh doanh', 33, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (35, 'Doanh nghiệp khởi nghiệp', 33, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (36, 'Quản lý dự án', 33, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (37, 'Agile & Scrum', 33, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (38, 'Tài chính & Kế toán', 33, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (39, 'Phân tích kinh doanh (Business Analytics)', 33, 6);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (40, 'Nhân sự (HR)', 33, 7);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (34, 'Quản trị kinh doanh', 33, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (35, 'Doanh nghiệp khởi nghiệp', 33, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (36, 'Quản lý dự án', 33, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (37, 'Agile & Scrum', 33, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (38, 'Tài chính & Kế toán', 33, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (39, 'Phân tích kinh doanh (Business Analytics)', 33, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (40, 'Nhân sự (HR)', 33, 7, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (42, 'Mạng máy tính & Bảo mật', 41, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (43, 'Ethical Hacking', 41, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (44, 'Khoa học dữ liệu (Data Science)', 41, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (45, 'Trí tuệ nhân tạo (AI)', 41, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (46, 'Hệ điều hành (Linux, Windows Server)', 41, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (47, 'DevOps', 41, 6);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (48, 'Kiểm thử phần mềm (Software Testing)', 41, 7);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (42, 'Mạng máy tính & Bảo mật', 41, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (43, 'Ethical Hacking', 41, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (44, 'Khoa học dữ liệu (Data Science)', 41, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (45, 'Trí tuệ nhân tạo (AI)', 41, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (46, 'Hệ điều hành (Linux, Windows Server)', 41, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (47, 'DevOps', 41, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (48, 'Kiểm thử phần mềm (Software Testing)', 41, 7, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (50, 'Thiết kế Web', 49, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (51, 'Thiết kế UI/UX', 49, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (52, 'Adobe Photoshop', 49, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (53, 'Illustrator', 49, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (54, 'Thiết kế đồ họa 2D/3D', 49, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (55, 'Thiết kế sản phẩm', 49, 6);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (50, 'Thiết kế Web', 49, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (51, 'Thiết kế UI/UX', 49, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (52, 'Adobe Photoshop', 49, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (53, 'Illustrator', 49, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (54, 'Thiết kế đồ họa 2D/3D', 49, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (55, 'Thiết kế sản phẩm', 49, 6, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (57, 'Digital Marketing', 56, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (58, 'SEO', 56, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (59, 'Google Ads / Facebook Ads', 56, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (60, 'Content Marketing', 56, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (61, 'Email Marketing', 56, 5);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (62, 'Affiliate Marketing', 56, 6);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (57, 'Digital Marketing', 56, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (58, 'SEO', 56, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (59, 'Google Ads / Facebook Ads', 56, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (60, 'Content Marketing', 56, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (61, 'Email Marketing', 56, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (62, 'Affiliate Marketing', 56, 6, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (64, 'Kỹ năng giao tiếp', 63, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (65, 'Lãnh đạo', 63, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (66, 'Quản lý thời gian', 63, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (67, 'Tư duy phản biện', 63, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (68, 'Đọc nhanh & Ghi nhớ', 63, 5);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (64, 'Kỹ năng giao tiếp', 63, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (65, 'Lãnh đạo', 63, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (66, 'Quản lý thời gian', 63, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (67, 'Tư duy phản biện', 63, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (68, 'Đọc nhanh & Ghi nhớ', 63, 5, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (70, 'Nhạc cụ (Piano, Guitar, v.v.)', 69, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (71, 'Sản xuất âm nhạc', 69, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (72, 'DJ & Âm thanh điện tử', 69, 3);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (70, 'Nhạc cụ (Piano, Guitar, v.v.)', 69, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (71, 'Sản xuất âm nhạc', 69, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (72, 'DJ & Âm thanh điện tử', 69, 3, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (74, 'Yoga', 73, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (75, 'Thiền', 73, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (76, 'Dinh dưỡng', 73, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (77, 'Tập luyện thể hình', 73, 4);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (74, 'Yoga', 73, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (75, 'Thiền', 73, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (76, 'Dinh dưỡng', 73, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (77, 'Tập luyện thể hình', 73, 4, SYSTIMESTAMP);
 
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (79, 'Toán học', 78, 1);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (80, 'Vật lý', 78, 2);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (81, 'Lập trình cho trẻ em', 78, 3);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (82, 'Khoa học máy tính', 78, 4);
-INSERT INTO categories (id, name, parent_id, sort_order) VALUES (83, 'IELTS, TOEIC, TOEFL', 78, 5);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (79, 'Toán học', 78, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (80, 'Vật lý', 78, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (81, 'Lập trình cho trẻ em', 78, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (82, 'Khoa học máy tính', 78, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (83, 'IELTS, TOEIC, TOEFL', 78, 5, SYSTIMESTAMP);
 
--- 6. Course
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Course CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE Course (
-                        CourseID    VARCHAR2(40 CHAR) PRIMARY KEY,
+                        CourseID    VARCHAR2(40 CHAR) CONSTRAINT pk_course PRIMARY KEY,
                         Title       VARCHAR2(255 CHAR) NOT NULL,
                         Description CLOB,
                         Price       NUMBER(10,2) NOT NULL,
-                        CreatedBy   VARCHAR2(40 CHAR) NOT NULL, -- Consider FK to Users(UserID)
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+                        CreatedBy   VARCHAR2(40 CHAR) NOT NULL,
+                        created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
 );
 
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE CourseInstructor CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE CourseInstructor (
-                                  CourseID      VARCHAR2(40 CHAR),
-                                  InstructorID  VARCHAR2(40 CHAR),
-                                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                  PRIMARY KEY (CourseID, InstructorID),
-                                  FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
-                                  FOREIGN KEY (InstructorID) REFERENCES Instructor(InstructorID) ON DELETE CASCADE
+                                  CourseID     VARCHAR2(40 CHAR),
+                                  InstructorID VARCHAR2(40 CHAR),
+                                  created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                  CONSTRAINT pk_courseinstructor PRIMARY KEY (CourseID, InstructorID),
+                                  CONSTRAINT fk_ci_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
+                                  CONSTRAINT fk_ci_instructor FOREIGN KEY (InstructorID) REFERENCES Instructor(InstructorID) ON DELETE CASCADE
 );
 
--- 7. CourseCategory
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE CourseCategory CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE CourseCategory (
                                 CourseID   VARCHAR2(40 CHAR) NOT NULL,
                                 CategoryID NUMBER NOT NULL,
-                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                PRIMARY KEY (CourseID, CategoryID),
-                                FOREIGN KEY (CourseID)   REFERENCES Course(CourseID),
-                                FOREIGN KEY (CategoryID) REFERENCES categories(id)
+                                created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                CONSTRAINT pk_coursecategory PRIMARY KEY (CourseID, CategoryID),
+                                CONSTRAINT fk_cc_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
+                                CONSTRAINT fk_cc_category FOREIGN KEY (CategoryID) REFERENCES categories(id) ON DELETE CASCADE
 );
 
--- 8. Chapter
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE CourseChapter CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE CourseChapter (
-                               ChapterID    VARCHAR2(40 CHAR) PRIMARY KEY,
-                               CourseID     VARCHAR2(40 CHAR) NOT NULL,
-                               Title        VARCHAR2(255 CHAR) NOT NULL,
-                               Description  CLOB,
-                               SortOrder    NUMBER DEFAULT 0 NOT NULL,
-                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                               FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+                               ChapterID   VARCHAR2(40 CHAR) CONSTRAINT pk_coursechapter PRIMARY KEY,
+                               CourseID    VARCHAR2(40 CHAR) NOT NULL,
+                               Title       VARCHAR2(255 CHAR) NOT NULL,
+                               Description CLOB,
+                               SortOrder   NUMBER DEFAULT 0 NOT NULL,
+                               created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                               CONSTRAINT fk_chapter_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
 );
 
--- 9. Lesson
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE CourseLesson CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE CourseLesson (
-                              LessonID    VARCHAR2(40 CHAR) PRIMARY KEY,
+                              LessonID    VARCHAR2(40 CHAR) CONSTRAINT pk_courselesson PRIMARY KEY,
                               CourseID    VARCHAR2(40 CHAR) NOT NULL,
                               ChapterID   VARCHAR2(40 CHAR) NOT NULL,
                               Title       VARCHAR2(255 CHAR) NOT NULL,
                               Content     CLOB,
                               SortOrder   NUMBER DEFAULT 0 NOT NULL,
-                              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                              FOREIGN KEY (CourseID)  REFERENCES Course(CourseID), -- Changed from CourseChapter(CourseID)
-                              FOREIGN KEY (ChapterID) REFERENCES CourseChapter(ChapterID)
+                              created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                              CONSTRAINT fk_lesson_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
+                              CONSTRAINT fk_lesson_chapter FOREIGN KEY (ChapterID) REFERENCES CourseChapter(ChapterID) ON DELETE CASCADE
 );
 
--- 10. Video
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE CourseVideo CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE CourseVideo (
-                             VideoID    VARCHAR2(40 CHAR) PRIMARY KEY,
+                             VideoID    VARCHAR2(40 CHAR) CONSTRAINT pk_coursevideo PRIMARY KEY,
                              LessonID   VARCHAR2(40 CHAR) NOT NULL,
-                             Url        VARCHAR2(255 CHAR) NOT NULL, -- Consider up to 4000 CHAR for URLs if needed
+                             Url        VARCHAR2(255 CHAR) NOT NULL,
                              Title      VARCHAR2(255 CHAR),
                              Duration   NUMBER DEFAULT 0 NOT NULL,
                              SortOrder  NUMBER DEFAULT 0 NOT NULL,
-                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                             FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID)
+                             created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                             CONSTRAINT fk_video_lesson FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID) ON DELETE CASCADE
 );
 
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE CourseResource CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE CourseResource (
-                                ResourceID    VARCHAR2(40 CHAR) PRIMARY KEY,
-                                LessonID   VARCHAR2(40 CHAR) NOT NULL,
+                                ResourceID   VARCHAR2(40 CHAR) CONSTRAINT pk_courseresource PRIMARY KEY,
+                                LessonID     VARCHAR2(40 CHAR) NOT NULL,
                                 ResourcePath VARCHAR2(255 CHAR) NOT NULL,
-                                Title      VARCHAR2(255 CHAR),
-                                SortOrder  NUMBER DEFAULT 0 NOT NULL,
-                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID)
+                                Title        VARCHAR2(255 CHAR),
+                                SortOrder    NUMBER DEFAULT 0 NOT NULL,
+                                created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                CONSTRAINT fk_resource_lesson FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID) ON DELETE CASCADE
 );
 
--- 11. CourseImage
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE CourseImage CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE CourseImage (
-                             ImageID    VARCHAR2(40 CHAR) PRIMARY KEY,
+                             ImageID    VARCHAR2(40 CHAR) CONSTRAINT pk_courseimage PRIMARY KEY,
                              CourseID   VARCHAR2(40 CHAR) NOT NULL,
                              ImagePath  VARCHAR2(255 CHAR) NOT NULL,
                              Caption    VARCHAR2(255 CHAR),
                              SortOrder  NUMBER DEFAULT 0 NOT NULL,
-                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                             FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
+                             created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                             CONSTRAINT fk_image_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
 );
 
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE CourseObjective CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE CourseObjective (
-                                 ObjectiveID VARCHAR2(40 CHAR) PRIMARY KEY, -- Assumed PK
-                                 CourseID VARCHAR2(40 CHAR) NOT NULL,
-                                 Objective VARCHAR2(255 CHAR) NOT NULL,
-                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Added created_at based on pattern
-                                 FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
+                                 ObjectiveID VARCHAR2(40 CHAR) NOT NULL,
+                                 CourseID    VARCHAR2(40 CHAR) NOT NULL,
+                                 Objective   VARCHAR2(255 CHAR) NOT NULL,
+                                 created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                 CONSTRAINT pk_courseobjective PRIMARY KEY (CourseID, ObjectiveID),
+                                 CONSTRAINT fk_objective_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
 );
 
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE CourseRequirement CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE CourseRequirement (
-                                   RequirementID VARCHAR2(40 CHAR) PRIMARY KEY, -- Assumed PK
-                                   CourseID VARCHAR2(40 CHAR) NOT NULL,
-                                   Requirement VARCHAR2(255 CHAR) NOT NULL,
-                                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Added created_at
-                                   FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
+                                   RequirementID VARCHAR2(40 CHAR) NOT NULL,
+                                   CourseID      VARCHAR2(40 CHAR) NOT NULL,
+                                   Requirement   VARCHAR2(255 CHAR) NOT NULL,
+                                   created_at    TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                   CONSTRAINT pk_courserequirement PRIMARY KEY (CourseID, RequirementID),
+                                   CONSTRAINT fk_requirement_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
 );
 
--- 12. Cart
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Cart CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE Cart (
-                      CartID VARCHAR2(40 CHAR) PRIMARY KEY,
-                      UserID VARCHAR2(40 CHAR) NOT NULL UNIQUE,
-                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                      FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+                      CartID     VARCHAR2(40 CHAR) CONSTRAINT pk_cart PRIMARY KEY,
+                      UserID     VARCHAR2(40 CHAR) CONSTRAINT uq_cart_userid UNIQUE NOT NULL,
+                      created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                      CONSTRAINT fk_cart_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
--- 13. CartItem
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE CartItem CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE CartItem (
-                          CartItemID VARCHAR2(40 CHAR) PRIMARY KEY,
+                          CartItemID VARCHAR2(40 CHAR) CONSTRAINT pk_cartitem PRIMARY KEY,
                           CartID     VARCHAR2(40 CHAR) NOT NULL,
                           CourseID   VARCHAR2(40 CHAR) NOT NULL,
-                          Quantity   NUMBER NOT NULL CHECK (Quantity > 0),
-                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                          FOREIGN KEY (CartID)   REFERENCES Cart(CartID),
-                          FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+                          Quantity   NUMBER NOT NULL,
+                          created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                          CONSTRAINT fk_cartitem_cart FOREIGN KEY (CartID) REFERENCES Cart(CartID) ON DELETE CASCADE,
+                          CONSTRAINT fk_cartitem_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
+                          CONSTRAINT ck_cartitem_quantity CHECK (Quantity > 0)
 );
 
--- 14. Orders
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Orders CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE Orders (
-                        OrderID     VARCHAR2(40 CHAR) PRIMARY KEY,
+                        OrderID     VARCHAR2(40 CHAR) CONSTRAINT pk_orders PRIMARY KEY,
                         UserID      VARCHAR2(40 CHAR) NOT NULL,
-                        OrderDate   TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Added NOT NULL
+                        OrderDate   TIMESTAMP DEFAULT SYSTIMESTAMP,
                         TotalAmount NUMBER(10,2) NOT NULL,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                        FOREIGN KEY (UserID) REFERENCES Users(UserID)
+                        created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                        CONSTRAINT fk_orders_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE SET NULL
 );
 
--- 15. OrderDetail
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE OrderDetail CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE OrderDetail (
                              OrderID  VARCHAR2(40 CHAR) NOT NULL,
                              CourseID VARCHAR2(40 CHAR) NOT NULL,
                              Price    NUMBER(10,2) NOT NULL,
-                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                             PRIMARY KEY (OrderID, CourseID),
-                             FOREIGN KEY (OrderID)  REFERENCES Orders(OrderID),
-                             FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+                             created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                             CONSTRAINT pk_orderdetail PRIMARY KEY (OrderID, CourseID),
+                             CONSTRAINT fk_detail_orders FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,
+                             CONSTRAINT fk_detail_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
 );
 
--- 16. Review
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Review CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE Review (
-                        ReviewID VARCHAR2(40 CHAR) PRIMARY KEY,
-                        UserID   VARCHAR2(40 CHAR) NOT NULL,
-                        CourseID VARCHAR2(40 CHAR) NOT NULL,
-                        Rating   NUMBER NOT NULL CHECK (Rating BETWEEN 1 AND 5),
-                        Comment  CLOB,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                        FOREIGN KEY (UserID)   REFERENCES Users(UserID),
-                        FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+                        ReviewID   VARCHAR2(40 CHAR) CONSTRAINT pk_review PRIMARY KEY,
+                        UserID     VARCHAR2(40 CHAR) NOT NULL,
+                        CourseID   VARCHAR2(40 CHAR) NOT NULL,
+                        Rating     NUMBER NOT NULL,
+                        ReviewText CLOB, -- Đã đổi từ Comment sang Review_Text
+                        created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                        CONSTRAINT fk_review_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+                        CONSTRAINT fk_review_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
+                        CONSTRAINT ck_review_rating CHECK (Rating BETWEEN 1 AND 5)
 );
 
--- 17. Payment
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Payment CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE Payment (
-                         PaymentID      VARCHAR2(40 CHAR) PRIMARY KEY,
-                         OrderID        VARCHAR2(40 CHAR) NOT NULL,
-                         PaymentDate    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Added NOT NULL
-                         PaymentMethod  VARCHAR2(50 CHAR),
-                         PaymentStatus  VARCHAR2(50 CHAR),
-                         Amount         NUMBER(10,2) NOT NULL,
-                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                         FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
+                         PaymentID     VARCHAR2(40 CHAR) CONSTRAINT pk_payment PRIMARY KEY,
+                         OrderID       VARCHAR2(40 CHAR) NOT NULL,
+                         PaymentDate   TIMESTAMP DEFAULT SYSTIMESTAMP,
+                         PaymentMethod VARCHAR2(50 CHAR),
+                         PaymentStatus VARCHAR2(50 CHAR),
+                         Amount        NUMBER(10,2) NOT NULL,
+                         created_at    TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                         CONSTRAINT fk_payment_orders FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
 );
 
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE password_resets CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN
-            RAISE;
-        END IF;
-END;
-/
 CREATE TABLE password_resets (
-                                 id NUMBER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-                                 email VARCHAR2(100 CHAR) NOT NULL,
-                                 token VARCHAR2(255 CHAR) NOT NULL,
-                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL -- Original ALTER is not needed if defined correctly here
+                                 id         NUMBER GENERATED BY DEFAULT AS IDENTITY CONSTRAINT pk_password_resets PRIMARY KEY,
+                                 email      VARCHAR2(100 CHAR) NOT NULL,
+                                 token      VARCHAR2(255 CHAR) NOT NULL,
+                                 created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
 );
 
--- Create index separately in Oracle
 CREATE INDEX idx_password_resets_email ON password_resets(email);
-
--- The ALTER TABLE for password_resets.created_at is redundant if the
--- CREATE TABLE statement already defines it as TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP.
--- If it were different, the syntax would be:
--- ALTER TABLE password_resets MODIFY (created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL);
 
 COMMIT;

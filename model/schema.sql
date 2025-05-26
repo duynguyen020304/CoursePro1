@@ -161,6 +161,48 @@ INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (81,
 INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (82, 'Khoa học máy tính', 78, 4, SYSTIMESTAMP);
 INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (83, 'IELTS, TOEIC, TOEFL', 78, 5, SYSTIMESTAMP);
 
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (84, 'Ngoại ngữ', NULL, 10, SYSTIMESTAMP);
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (85, 'Tiếng Anh', 84, 1, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (86, 'Tiếng Nhật', 84, 2, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (87, 'Tiếng Hàn', 84, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (88, 'Tiếng Trung', 84, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (89, 'Tiếng Pháp', 84, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (90, 'Tiếng Đức', 84, 6, SYSTIMESTAMP);
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (91, 'Cloud Computing (AWS, Azure, GCP)', 1, 8, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (92, 'Data Engineering', 1, 9, SYSTIMESTAMP);
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (93, 'E-commerce', 33, 8, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (94, 'Đầu tư (Chứng khoán, Bất động sản)', 33, 9, SYSTIMESTAMP);
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (95, 'Machine Learning', 41, 8, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (96, 'Database Management (SQL, NoSQL)', 41, 9, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (97, 'Cybersecurity Chuyên sâu', 41, 10, SYSTIMESTAMP);
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (98, 'Animation (2D/3D)', 49, 7, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (99, 'Video Editing (Premiere, Final Cut)', 49, 8, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (100, 'Figma', 49, 9, SYSTIMESTAMP);
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (101, 'Social Media Marketing', 56, 7, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (102, 'Branding & Xây dựng thương hiệu', 56, 8, SYSTIMESTAMP);
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (103, 'Năng suất & Tổ chức công việc', 63, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (104, 'Trí tuệ cảm xúc (EQ)', 63, 7, SYSTIMESTAMP);
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (105, 'Lý thuyết âm nhạc', 69, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (106, 'Thanh nhạc', 69, 5, SYSTIMESTAMP);
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (107, 'Sơ cứu & Chăm sóc sức khỏe cơ bản', 73, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (108, 'Mindfulness & Giảm căng thẳng', 73, 6, SYSTIMESTAMP);
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (109, 'Hóa học', 78, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (110, 'Sinh học', 78, 7, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (111, 'Lịch sử', 78, 8, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (112, 'Địa lý', 78, 9, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (113, 'Văn học', 78, 10, SYSTIMESTAMP);
+
+
 CREATE TABLE Course (
                         CourseID    VARCHAR2(40 CHAR) CONSTRAINT pk_course PRIMARY KEY,
                         Title       VARCHAR2(255 CHAR) NOT NULL,
