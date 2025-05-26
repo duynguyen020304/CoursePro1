@@ -7,8 +7,6 @@ class UserBLL extends Database
     public function create_user(UserDTO $user): bool
     {
         $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
-        // Lưu ý: Oracle thường tự động quản lý created_at qua trigger hoặc default value.
-        // Nếu không, bạn có thể thêm CURRENT_TIMESTAMP vào câu INSERT
         $sql = "INSERT INTO USERS (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage)
                 VALUES (:userID, :firstName, :lastName, :email, :password, :roleID, :profileImage)";
         $bindParams = [
