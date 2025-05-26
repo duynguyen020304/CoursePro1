@@ -22,7 +22,7 @@ class OrderBLL extends Database
         return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function get_order(string $orderID): ?OrderDTO
+    public function get_order_by_order_id(string $orderID): ?OrderDTO
     {
         // Format OrderDate and created_at using TO_CHAR for consistent retrieval
         $sql = "SELECT OrderID, UserID, 
@@ -59,7 +59,7 @@ class OrderBLL extends Database
         return $dto;
     }
 
-    public function get_orders_by_user(string $userID): array
+    public function get_orders_by_user_id(string $userID): array
     {
         // Format OrderDate and created_at using TO_CHAR for consistent retrieval
         $sql = "SELECT OrderID, UserID, 

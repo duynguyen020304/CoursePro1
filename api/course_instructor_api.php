@@ -51,7 +51,7 @@ $body = json_decode(file_get_contents('php://input'), true);
 switch ($method) {
     case 'GET':
         if (isset($query['courseID'])) {
-            $res = $service->getByCourse($query['courseID']);
+            $res = $service->get_instructors_by_course_id($query['courseID']);
         } else {
             $res = new ServiceResponse(false, 'Thiếu parameter: courseID');
         }
@@ -77,7 +77,7 @@ switch ($method) {
         break;
 
     case 'DELETE':
-        $res = $service->delete(
+        $res = $service->unlink_course_instructor(
             $body['courseID']     ?? '',
             $body['instructorID'] ?? ''
         );

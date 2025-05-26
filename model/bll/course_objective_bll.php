@@ -34,30 +34,28 @@ class CourseObjectiveBLL extends Database
         return ($stid !== false);
     }
 
-    public function delete(string $courseID, string $objectiveID): bool
+    public function delete(string $objectiveID): bool
     {
         $sql = "DELETE FROM COURSEOBJECTIVE
-                WHERE ObjectiveID = :objectiveID AND CourseID = :courseID";
+                WHERE ObjectiveID = :objectiveID";
 
         $bindParams = [
             ':objectiveID' => $objectiveID,
-            ':courseID'    => $courseID,
         ];
 
         $stid = $this->executePrepared($sql, $bindParams);
         return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function get_objective_by_ids(string $courseID, string $objectiveID): ?CourseObjectiveDTO
+    public function get_objective_by_objective_id(string $objectiveID): ?CourseObjectiveDTO
     {
         $sql = "SELECT ObjectiveID, CourseID, Objective,
                        TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
                 FROM COURSEOBJECTIVE
-                WHERE ObjectiveID = :objectiveID_param AND CourseID = :courseID_param";
+                WHERE ObjectiveID = :objectiveID_param";
 
         $bindParams = [
             ':objectiveID_param' => $objectiveID,
-            ':courseID_param'    => $courseID,
         ];
 
         $stid = $this->executePrepared($sql, $bindParams);

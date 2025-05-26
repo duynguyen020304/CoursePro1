@@ -12,7 +12,7 @@ class CategoryService
         $this->bll = new CategoryBLL();
     }
 
-    public function get_all(): ServiceResponse
+    public function get_all_categories(): ServiceResponse
     {
         try {
             $categories = $this->bll->get_all_categories();
@@ -22,7 +22,7 @@ class CategoryService
         }
     }
 
-    public function get_tree(): ServiceResponse
+    public function get_nested_categories(): ServiceResponse
     {
         try {
             $tree = $this->bll->get_nested_categories();

@@ -44,7 +44,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
     case 'GET':
         $isTree = isset($_GET['tree']) && $_GET['tree'] === '1';
-        $response = $isTree ? $service->get_tree() : $service->get_all();
+        $response = $isTree ? $service->get_nested_categories() : $service->get_all_categories();
         echo json_encode(['success' => $response->success, 'message' => $response->message, 'data' => $response->data]);
         break;
 

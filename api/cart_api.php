@@ -48,9 +48,9 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 switch ($method) {
     case 'GET':
-        $cart = $service->getCartByUser($decode->data->userID);
+        $cart = $service->get_cart_by_user($decode->data->userID);
         if (!$cart) {
-            $create_card = $service->createCart($decode->data->userID);
+            $create_card = $service->create_cart($decode->data->userID);
             if ($create_card['success']) {
                 echo json_encode(["sucesss" => $create_card['successs'], "cartID" => $create_card['cartID']]);
                 exit;
@@ -62,7 +62,7 @@ switch ($method) {
 
     case 'POST':
         if (isset($input['userID'])) {
-            echo json_encode($service->createCart($input['userID']));
+            echo json_encode($service->create_cart($input['userID']));
         } else {
             http_response_code(400);
             echo json_encode(['error' => 'Missing userID']);
@@ -71,7 +71,7 @@ switch ($method) {
 
     case 'PUT':
         if (isset($input['cartID'], $input['userID'])) {
-            $success = $service->updateCart($input['cartID'], $input['userID']);
+            $success = $service->update_cart($input['cartID'], $input['userID']);
             echo json_encode(['success' => $success]);
         } else {
             http_response_code(400);
@@ -83,7 +83,7 @@ switch ($method) {
         if (isset($_GET['cartID'])) {
             $cartID = $_GET['cartID'];
             error_log("Received cartID to delete: $cartID");
-            $success = $service->deleteCart($cartID);
+            $success = $service->delete_cart($cartID);
             echo json_encode(['success' => $success]);
         } else {
             http_response_code(400);

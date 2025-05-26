@@ -9,7 +9,7 @@ $response = null;
 switch ($method) {
     case 'GET':
         if (isset($_GET['courseID'])) {
-            $response = $service->get_chapters_by_courseID($_GET['courseID']);
+            $response = $service->get_chapters_by_course_id($_GET['courseID']);
         } else {
             $response = $service->get_all_chapters();
         }

@@ -71,7 +71,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             exit;
         }
 
-        $resp = $service->remove_category_from_course($data['courseID'], $data['categoryID']);
+        $resp = $service->unlink_course_category($data['courseID'], $data['categoryID']);
         http_response_code($resp->success ? 200 : 500);
         echo json_encode(['success' => $resp->success, 'message' => $resp->message]);
         break;

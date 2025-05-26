@@ -75,7 +75,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu']);
             exit;
         }
-        $resp = $service->delete_image($data['imageID'], $data['courseID']);
+        $resp = $service->unlink_image_course($data['imageID'], $data['courseID']);
         http_response_code($resp->success ? 200 : ($resp->message == 'Image not found' ? 404 : 500));
         echo json_encode(['success' => $resp->success, 'message' => $resp->message]);
         break;

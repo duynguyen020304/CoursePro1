@@ -6,7 +6,7 @@ require_once __DIR__ . '/../dto/course_instructor_dto.php';
 
 class CourseInstructorBLL extends Database
 {
-    public function get_by_course(string $courseID): array
+    public function get_instructors_by_course_id(string $courseID): array
     {
         $sql = "SELECT CourseID, InstructorID, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
                 FROM COURSEINSTRUCTOR 
@@ -62,7 +62,7 @@ class CourseInstructorBLL extends Database
         return ($stid !== false);
     }
 
-    public function delete(string $courseID, string $instructorID): bool
+    public function unlink_course_instructor(string $courseID, string $instructorID): bool
     {
         $sql = "DELETE FROM COURSEINSTRUCTOR
                 WHERE CourseID = :courseID AND InstructorID = :instructorID";

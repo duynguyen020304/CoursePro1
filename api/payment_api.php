@@ -70,7 +70,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             echo json_encode(['success' => false, 'message' => 'Thiếu orderID để truy vấn']);
             exit;
         }
-        $response = $service->get_payment_by_order($_GET['orderID']);
+        $response = $service->get_payment_by_order_id($_GET['orderID']);
         http_response_code($response->success ? 200 : 404);
         echo json_encode(['success' => $response->success, 'message' => $response->message, 'data' => $response->data]);
         break;

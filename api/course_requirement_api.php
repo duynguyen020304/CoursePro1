@@ -11,9 +11,9 @@ $method  = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
     case 'GET':
         if (isset($_GET['requirementID'])) {
-            $resp = $service->get_by_id($_GET['requirementID']);
+            $resp = $service->get_requirement_by_requirement_id($_GET['requirementID']);
         } elseif (isset($_GET['courseID'])) {
-            $resp = $service->get_all_by_course($_GET['courseID']);
+            $resp = $service->get_requirements_by_course_id($_GET['courseID']);
         } else {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Thiếu requirementID hoặc courseID']);

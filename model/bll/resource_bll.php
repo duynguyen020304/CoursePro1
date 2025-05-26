@@ -19,7 +19,7 @@ class ResourceBLL extends Database
         return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function get_resource_by_id(string $resourceID): ?ResourceDTO
+    public function get_resource_by_resource_id(string $resourceID): ?ResourceDTO
     {
         $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder,
                        TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
@@ -45,7 +45,7 @@ class ResourceBLL extends Database
         return $dto;
     }
 
-    public function get_resources_by_lesson(string $lessonID): array
+    public function get_resources_by_lesson_id(string $lessonID): array
     {
         $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder,
                        TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted

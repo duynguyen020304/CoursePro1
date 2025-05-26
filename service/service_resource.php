@@ -13,10 +13,10 @@ class ResourceService
         $this->resourceBll = new ResourceBLL();
     }
 
-    public function get_resource_by_id(string $resourceID): ServiceResponse
+    public function get_resource_by_resource_id(string $resourceID): ServiceResponse
     {
         try {
-            $resource = $this->resourceBll->get_resource_by_id($resourceID);
+            $resource = $this->resourceBll->get_resource_by_resource_id($resourceID);
             if (!$resource) {
                 return new ServiceResponse(false, 'Resource không tồn tại');
             }
@@ -26,10 +26,10 @@ class ResourceService
         }
     }
 
-    public function get_resources_by_lesson(string $lessonID): ServiceResponse
+    public function get_resources_by_lesson_id(string $lessonID): ServiceResponse
     {
         try {
-            $resources = $this->resourceBll->get_resources_by_lesson($lessonID);
+            $resources = $this->resourceBll->get_resources_by_lesson_id($lessonID);
             return new ServiceResponse(true, 'Lấy danh sách resource thành công', $resources);
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi: ' . $e->getMessage());
@@ -58,7 +58,7 @@ class ResourceService
 
     public function update_resource(string $resourceID, string $lessonID, string $resourcePath, ?string $title = null, int $sortOrder = 0): ServiceResponse
     {
-        $existing = $this->resourceBll->get_resource_by_id($resourceID);
+        $existing = $this->resourceBll->get_resource_by_resource_id($resourceID);
         if (!$existing) {
             return new ServiceResponse(false, 'Resource không tồn tại');
         }
@@ -71,7 +71,7 @@ class ResourceService
 
     public function delete_resource(string $resourceID): ServiceResponse
     {
-        $existing = $this->resourceBll->get_resource_by_id($resourceID);
+        $existing = $this->resourceBll->get_resource_by_resource_id($resourceID);
         if (!$existing) {
             return new ServiceResponse(false, 'Resource không tồn tại');
         }

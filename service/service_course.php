@@ -95,7 +95,7 @@ class CourseService
 
             $dto = new CourseDTO($courseID, $title, $description, $price, $course_to_update->createdBy);
 
-            $existing_categories = $this->courseCategoryBll->get_categories_by_course($courseID);
+            $existing_categories = $this->courseCategoryBll->get_categories_by_course_id($courseID);
 
             if (!empty($existing_categories)) {
                 foreach ($existing_categories as $cat) {
@@ -114,14 +114,14 @@ class CourseService
                 }
             }
 
-            $existing_course_instructors = $this->courseInstructorBll->get_by_course($courseID);
+            $existing_course_instructors = $this->courseInstructorBll->get_instructors_by_course_id($courseID);
             if ($existing_course_instructors === null) {
                 return new ServiceResponse(false, 'Lỗi khi lấy danh sách giảng viên hiện tại của khóa học.');
             }
 
             if (!empty($existing_course_instructors)) {
                 foreach ($existing_course_instructors as $courseInstructor) {
-                    if (!$this->courseInstructorBll->delete($courseID, $courseInstructor->instructorID)) {
+                    if (!$this->courseInstructorBll->unlink_course_instructor($courseID, $courseInstructor->instructorID)) {
                         return new ServiceResponse(false, 'Lỗi khi xóa giảng viên cũ: ' . $courseInstructor->instructorID);
                     }
                 }
@@ -151,18 +151,18 @@ class CourseService
             $list_course = $this->courseBll->get_all_courses();
             $list_course_with_instructors_details = [];
             foreach ($list_course as $course) {
-                $instructor_dtos_for_course = $this->courseInstructorBll->get_by_course($course->courseID);
-                $course_categories = $this->courseCategoryBll->get_categories_by_course($course->courseID);
-                $course_images = $this->courseImageBll->get_images_by_course($course->courseID);
+                $instructor_dtos_for_course = $this->courseInstructorBll->get_instructors_by_course_id($course->courseID);
+                $course_categories = $this->courseCategoryBll->get_categories_by_course_id($course->courseID);
+                $course_images = $this->courseImageBll->get_images_by_course_id($course->courseID);
                 $course_requirements = $this->courseRequirementBll->get_requirements_by_course_id($course->courseID);
                 $course_objectives = $this->courseObjectiveBll->get_objectives_by_course_id($course->courseID);
-                $course_chapters = $this->chapterBll->get_chapters_by_courseID($course->courseID);
+                $course_chapters = $this->chapterBll->get_chapters_by_course_id($course->courseID);
 
                 $instructors_info = [];
                 if (!empty($instructor_dtos_for_course)) {
                     foreach ($instructor_dtos_for_course as $instructor_dto) {
                         $instructor = $this->instructorBll->get_instructor($instructor_dto->instructorID);
-                        $instructor_user = $this->userBll->get_user_by_id($instructor->userID);
+                        $instructor_user = $this->userBll->get_user_by_user_id($instructor->userID);
                         $instructors_info[] = [
                             'instructorID' => $instructor_dto->instructorID,
                             'userID' => $instructor_user->userID,
@@ -217,9 +217,9 @@ class CourseService
                 if (!empty($course_chapters)) {
                     foreach ($course_chapters as $course_chapter) {
                         $tmp_chapter_lessons_resources_video = [];
-                        $course_lessons = $this->lessonBll->get_lessons_by_chapter($course_chapter->chapterID);
+                        $course_lessons = $this->lessonBll->get_lessons_by_chapter_id($course_chapter->chapterID);
                         foreach ($course_lessons as $course_lesson) {
-                            $resources = $this->resourceBll->get_resources_by_lesson($course_lesson->lessonID);
+                            $resources = $this->resourceBll->get_resources_by_lesson_id($course_lesson->lessonID);
                             $videos = $this->videoBll->get_videos_by_lesson($course_lesson->lessonID);
                             $tmp_lesson_resources = [];
                             $tmp_lesson_videos = [];
@@ -283,15 +283,15 @@ class CourseService
                 return new ServiceResponse(false, 'Khóa học không tồn tại');
             }
 
-            $categories = $this->courseCategoryBll->get_categories_by_course($courseID);
-            $existing_course_instructor = $this->courseInstructorBll->get_by_course($courseID);
+            $categories = $this->courseCategoryBll->get_categories_by_course_id($courseID);
+            $existing_course_instructor = $this->courseInstructorBll->get_instructors_by_course_id($courseID);
             foreach ($categories as $cat) {
                 if (!$this->courseCategoryBll->unlink_course_category($courseID, $cat->categoryID)) {
                     return new ServiceResponse(false, 'Gỡ liên kết danh mục thất bại');
                 }
             }
             foreach ($existing_course_instructor as $courseInstructor) {
-                if (!$this->courseInstructorBll->delete($courseID, $courseInstructor->instructorID)) {
+                if (!$this->courseInstructorBll->unlink_course_instructor($courseID, $courseInstructor->instructorID)) {
                     return new ServiceResponse(false, "Gỡ liên kết khóa học, giảng viên");
                 }
             }
@@ -312,13 +312,13 @@ class CourseService
                 return new ServiceResponse(false, 'Không tìm thấy khóa học');
             }
 
-            $instructor_dtos_for_course = $this->courseInstructorBll->get_by_course($course->courseID);
+            $instructor_dtos_for_course = $this->courseInstructorBll->get_instructors_by_course_id($course->courseID);
             $instructors_info = [];
             if (!empty($instructor_dtos_for_course)) {
                 foreach ($instructor_dtos_for_course as $instructor_dto) {
                     $instructor = $this->instructorBll->get_instructor($instructor_dto->instructorID);
                     if ($instructor) {
-                        $instructor_user = $this->userBll->get_user_by_id($instructor->userID);
+                        $instructor_user = $this->userBll->get_user_by_user_id($instructor->userID);
                         if ($instructor_user) {
                             $instructors_info[] = [
                                 'instructorID' => $instructor_dto->instructorID,
@@ -333,7 +333,7 @@ class CourseService
                 }
             }
 
-            $course_categories = $this->courseCategoryBll->get_categories_by_course($course->courseID);
+            $course_categories = $this->courseCategoryBll->get_categories_by_course_id($course->courseID);
             $tmp_course_categories = [];
             if (!empty($course_categories)) {
                 foreach ($course_categories as $course_category) {
@@ -347,7 +347,7 @@ class CourseService
                 }
             }
 
-            $course_images = $this->courseImageBll->get_images_by_course($course->courseID);
+            $course_images = $this->courseImageBll->get_images_by_course_id($course->courseID);
             $tmp_course_images = [];
             if (!empty($course_images)) {
                 foreach ($course_images as $course_image) {
@@ -380,14 +380,14 @@ class CourseService
                 }
             }
 
-            $course_chapters = $this->chapterBll->get_chapters_by_courseID($course->courseID);
+            $course_chapters = $this->chapterBll->get_chapters_by_course_id($course->courseID);
             $tmp_course_chapters_lessons_resources_videos = [];
             if (!empty($course_chapters)) {
                 foreach ($course_chapters as $course_chapter) {
                     $tmp_chapter_lessons_resources_video = [];
-                    $course_lessons = $this->lessonBll->get_lessons_by_chapter($course_chapter->chapterID);
+                    $course_lessons = $this->lessonBll->get_lessons_by_chapter_id($course_chapter->chapterID);
                     foreach ($course_lessons as $course_lesson) {
-                        $resources = $this->resourceBll->get_resources_by_lesson($course_lesson->lessonID);
+                        $resources = $this->resourceBll->get_resources_by_lesson_id($course_lesson->lessonID);
                         $videos = $this->videoBll->get_videos_by_lesson($course_lesson->lessonID);
                         $tmp_lesson_resources = [];
                         $tmp_lesson_videos = [];

@@ -1,5 +1,4 @@
 <?php
-// File: service/service_course_image.php
 
 require_once __DIR__ . '/../model/bll/course_image_bll.php';
 require_once __DIR__ . '/../model/dto/course_image_dto.php';
@@ -14,12 +13,6 @@ class CourseImageService
         $this->bll = new CourseImageBLL();
     }
 
-    /**
-     * Lấy tất cả ảnh của một khóa học
-     *
-     * @param string $courseID
-     * @return ServiceResponse
-     */
     public function get_images(string $courseID): ServiceResponse
     {
         try {
@@ -30,15 +23,6 @@ class CourseImageService
         }
     }
 
-    /**
-     * Thêm mới ảnh cho khóa học
-     *
-     * @param string      $courseID
-     * @param string      $imagePath  // đường dẫn tương đối
-     * @param string|null $caption
-     * @param int         $sortOrder
-     * @return ServiceResponse
-     */
     public function add_image(string $imageID, string $courseID, string $imagePath, ?string $caption = null, int $sortOrder = 0): ServiceResponse
     {
         try {
@@ -53,16 +37,10 @@ class CourseImageService
         }
     }
 
-    /**
-     * Xóa ảnh theo ImageID
-     *
-     * @param string $imageID
-     * @return ServiceResponse
-     */
-    public function delete_image(string $imageID, string $courseID): ServiceResponse
+    public function unlink_image_course(string $imageID, string $courseID): ServiceResponse
     {
         try {
-            $ok = $this->bll->delete_image($imageID, $courseID);
+            $ok = $this->bll->unlink_image_course($imageID, $courseID);
             if ($ok) {
                 return new ServiceResponse(true, 'Xóa ảnh thành công');
             }

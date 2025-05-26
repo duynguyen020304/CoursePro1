@@ -52,7 +52,7 @@ class LessonBLL extends Database
         return ($stid !== false);
     }
 
-    public function get_lesson(string $lessonID): ?LessonDTO
+    public function get_lesson_by_lesson_id(string $lessonID): ?LessonDTO
     {
         $sql = "SELECT LessonID, CourseID, ChapterID, Title, Content, SortOrder,
                        TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
@@ -87,7 +87,7 @@ class LessonBLL extends Database
         return $dto;
     }
 
-    public function get_lessons_by_chapter(string $chapterID): array
+    public function get_lessons_by_chapter_id(string $chapterID): array
     {
         $sql = "SELECT LessonID, CourseID, ChapterID, Title, Content, SortOrder,
                        TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted

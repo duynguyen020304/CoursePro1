@@ -45,7 +45,7 @@ try {
         $firstUser = $users[0];
         echo "<h2>Testing get_user_by_id('{$firstUser->userID}')</h2>";
         
-        $user = $userBLL->get_user_by_id($firstUser->userID);
+        $user = $userBLL->get_user_by_user_id($firstUser->userID);
         if ($user) {
             echo "<p style='color:green;'>Successfully retrieved user by ID!</p>";
             echo "<p>User: " . htmlspecialchars($user->firstName) . " " . htmlspecialchars($user->lastName) . "</p>";

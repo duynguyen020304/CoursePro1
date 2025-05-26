@@ -49,7 +49,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $response = null;
 
         if (isset($_GET['id'])) {
-            $response = $service->get_user_by_id($_GET['id']);
+            $response = $service->get_user_by_user_id($_GET['id']);
         } else {
             $response = $service->get_all_users();
         }

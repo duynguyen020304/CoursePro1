@@ -117,7 +117,7 @@ class ChapterBLL extends Database
         return $dto;
     }
 
-    public function get_chapters_by_courseID(string $courseID): array
+    public function get_chapters_by_course_id(string $courseID): array
     {
         $sql = "SELECT ChapterID, CourseID, Title, Description, SortOrder, 
                        TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED 
