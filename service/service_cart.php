@@ -11,12 +11,12 @@ class CartService
         $this->cartBLL = new CartBLL();
     }
 
-    public function getCartByUser(string $userID): ?CartDTO
+    public function get_cart_by_user(string $userID): ?CartDTO
     {
         return $this->cartBLL->get_cart_by_user($userID);
     }
 
-    public function createCart(string $userID): array
+    public function create_cart(string $userID): array
     {
         $cartID = uniqid('cart_', true);
         $dto = new CartDTO($cartID, $userID);
@@ -28,14 +28,14 @@ class CartService
         ];
     }
 
-    public function updateCart(string $cartID, string $userID): bool
+    public function update_cart(string $cartID, string $userID): bool
     {
         $this->cartBLL->delete_cart($cartID);
         $dto = new CartDTO($cartID, $userID);
         return $this->cartBLL->create_cart($dto);
     }
 
-    public function deleteCart(string $cartID): bool
+    public function delete_cart(string $cartID): bool
     {
         return $this->cartBLL->delete_cart($cartID);
     }

@@ -45,9 +45,9 @@ $response = null;
 switch ($method) {
     case 'GET':
         if (isset($_GET['resourceID'])) {
-            $response = $service->get_resource_by_id($_GET['resourceID']);
+            $response = $service->get_resource_by_resource_id($_GET['resourceID']);
         } elseif (isset($_GET['lessonID'])) {
-            $response = $service->get_resources_by_lesson($_GET['lessonID']);
+            $response = $service->get_resources_by_lesson_id($_GET['lessonID']);
         } else {
             $response = $service->get_all_resources();
         }

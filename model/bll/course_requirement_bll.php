@@ -34,30 +34,28 @@ class CourseRequirementBLL extends Database
         return ($stid !== false);
     }
 
-    public function delete(string $courseID, string $requirementID): bool
+    public function delete(string $requirementID): bool
     {
         $sql = "DELETE FROM COURSEREQUIREMENT
-                WHERE RequirementID = :requirementID AND CourseID = :courseID";
+                WHERE RequirementID = :requirementID";
 
         $bindParams = [
             ':requirementID' => $requirementID,
-            ':courseID'      => $courseID,
         ];
 
         $stid = $this->executePrepared($sql, $bindParams);
         return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function get_requirement_by_ids(string $courseID, string $requirementID): ?CourseRequirementDTO
+    public function get_requirement_by_requirement_id(string $requirementID): ?CourseRequirementDTO
     {
         $sql = "SELECT RequirementID, CourseID, Requirement,
                        TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
                 FROM COURSEREQUIREMENT
-                WHERE RequirementID = :requirementID_param AND CourseID = :courseID_param";
+                WHERE RequirementID = :requirementID_param";
 
         $bindParams = [
             ':requirementID_param' => $requirementID,
-            ':courseID_param'      => $courseID,
         ];
 
         $stid = $this->executePrepared($sql, $bindParams);

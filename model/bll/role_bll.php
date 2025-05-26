@@ -35,7 +35,7 @@ class RoleBLL extends Database
         return ($stid !== false);
     }
 
-    public function get_role(string $roleID): ?RoleDTO
+    public function get_role_by_role_id(string $roleID): ?RoleDTO
     {
         $sql = "SELECT RoleID, RoleName, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
                 FROM ROLE

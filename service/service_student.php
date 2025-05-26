@@ -26,9 +26,9 @@ class StudentService
         return new ServiceResponse(false, 'Tạo sinh viên thất bại');
     }
 
-    public function get_student(string $studentID): ServiceResponse
+    public function get_student_by_student_id(string $studentID): ServiceResponse
     {
-        $dto = $this->studentBLL->get_student($studentID);
+        $dto = $this->studentBLL->get_student_by_student_id($studentID);
         if ($dto) {
             return new ServiceResponse(true, 'Lấy sinh viên thành công', $dto);
         }
@@ -40,7 +40,7 @@ class StudentService
         if ($dto) {
             return new ServiceResponse(true, 'Lấy sinh viên thành công', $dto);
         }
-        $studentDto = $this->userBLL->get_user_by_id($userID);
+        $studentDto = $this->userBLL->get_user_by_user_id($userID);
         if (empty($studentDto->userID)) {
             return new ServiceResponse(false, 'Dữ liệu giảng viên không hợp lệ (Thiếu UserID)');
         }

@@ -27,9 +27,9 @@ class ChapterService
         return new ServiceResponse(false, 'Không tìm thấy chương');
     }
 
-    public function get_chapters_by_courseID(string $courseID): ServiceResponse
+    public function get_chapters_by_course_id(string $courseID): ServiceResponse
     {
-        $chap = $this->chapterBll->get_chapters_by_courseID($courseID);
+        $chap = $this->chapterBll->get_chapters_by_course_id($courseID);
         if ($chap) {
             return new ServiceResponse(true, 'Lấy chương thành công', $chap);
         }

@@ -35,7 +35,7 @@ class StudentBLL extends Database
         return ($stid !== false);
     }
 
-    public function get_student(string $studentID): ?StudentDTO
+    public function get_student_by_student_id(string $studentID): ?StudentDTO
     {
         $sql = "SELECT StudentID, UserID, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
                 FROM STUDENT

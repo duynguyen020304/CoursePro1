@@ -38,7 +38,7 @@ class InstructorService
             return new ServiceResponse(false, 'Dữ liệu giảng viên không hợp lệ (Thiếu UserID)');
         }
 
-        $userDto = $this->userBLL->get_user_by_id($instructorDto->userID);
+        $userDto = $this->userBLL->get_user_by_user_id($instructorDto->userID);
 
         if (!$userDto) {
             return new ServiceResponse(false, 'Không tìm thấy thông tin người dùng liên kết với giảng viên');
@@ -74,7 +74,7 @@ class InstructorService
             return new ServiceResponse(false, 'Dữ liệu giảng viên không hợp lệ (Thiếu UserID)');
         }
 
-        $userDto = $this->userBLL->get_user_by_id($instructorDto->userID);
+        $userDto = $this->userBLL->get_user_by_user_id($instructorDto->userID);
 
         if (!$userDto) {
             return new ServiceResponse(false, 'Không tìm thấy thông tin người dùng liên kết với giảng viên');

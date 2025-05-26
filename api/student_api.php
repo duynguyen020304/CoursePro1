@@ -46,7 +46,7 @@ switch ($method) {
     case 'GET':
         // GET /student_api.php?studentID=... or without to fetch all
         if (isset($_GET['studentID'])) {
-            $resp = $service->get_student($_GET['studentID']);
+            $resp = $service->get_student_by_student_id($_GET['studentID']);
             http_response_code($resp->success ? 200 : 404);
             echo json_encode([
                 'success' => $resp->success,

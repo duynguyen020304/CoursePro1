@@ -24,7 +24,7 @@ class PaymentBLL extends Database
         return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function get_payment_by_order(string $orderID): ?PaymentDTO
+    public function get_payment_by_order_id(string $orderID): ?PaymentDTO
     {
         // Format PaymentDate and created_at using TO_CHAR for consistent retrieval
         $sql = "SELECT PaymentID, OrderID, 

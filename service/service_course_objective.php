@@ -44,7 +44,7 @@ class CourseObjectiveService
     public function delete(string $objectiveID): ServiceResponse
     {
         try {
-            $obj = $this->bll->get_by_id($objectiveID);
+            $obj = $this->bll->get_objective_by_objective_id($objectiveID);
             if (!$obj) {
                 return new ServiceResponse(false, 'Mục tiêu không tồn tại');
             }
@@ -58,10 +58,10 @@ class CourseObjectiveService
         }
     }
 
-    public function get_by_id(string $objectiveID): ServiceResponse
+    public function get_objective_by_objective_id(string $objectiveID): ServiceResponse
     {
         try {
-            $obj = $this->bll->get_by_id($objectiveID);
+            $obj = $this->bll->get_objective_by_objective_id($objectiveID);
             if ($obj) {
                 return new ServiceResponse(true, 'Lấy mục tiêu thành công', $obj);
             }
@@ -71,10 +71,10 @@ class CourseObjectiveService
         }
     }
 
-    public function get_all_by_course(string $courseID): ServiceResponse
+    public function get_objectives_by_course_id(string $courseID): ServiceResponse
     {
         try {
-            $objs = $this->bll->get_all_by_course($courseID);
+            $objs = $this->bll->get_objectives_by_course_id($courseID);
             return new ServiceResponse(true, 'Lấy danh sách mục tiêu thành công', $objs);
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi lấy danh sách mục tiêu: ' . $e->getMessage());

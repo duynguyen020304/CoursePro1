@@ -44,7 +44,7 @@ class CourseRequirementService
     public function delete(string $requirementID): ServiceResponse
     {
         try {
-            $obj = $this->bll->get_by_id($requirementID);
+            $obj = $this->bll->get_requirement_by_requirement_id($requirementID);
             if (!$obj) {
                 return new ServiceResponse(false, 'Yêu cầu không tồn tại');
             }
@@ -58,10 +58,10 @@ class CourseRequirementService
         }
     }
 
-    public function get_by_id(string $requirementID): ServiceResponse
+    public function get_requirement_by_requirement_id(string $requirementID): ServiceResponse
     {
         try {
-            $obj = $this->bll->get_by_id($requirementID);
+            $obj = $this->bll->get_requirement_by_requirement_id($requirementID);
             if ($obj) {
                 return new ServiceResponse(true, 'Lấy yêu cầu thành công', $obj);
             }
@@ -71,10 +71,10 @@ class CourseRequirementService
         }
     }
 
-    public function get_all_by_course(string $courseID): ServiceResponse
+    public function get_requirements_by_course_id(string $courseID): ServiceResponse
     {
         try {
-            $objs = $this->bll->get_all_by_course($courseID);
+            $objs = $this->bll->get_requirements_by_course_id($courseID);
             return new ServiceResponse(true, 'Lấy danh sách yêu cầu thành công', $objs);
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi lấy danh sách yêu cầu: ' . $e->getMessage());

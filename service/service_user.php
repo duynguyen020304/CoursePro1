@@ -84,10 +84,10 @@ class UserService
         return new ServiceResponse(false, "Tạo tài khoản thất bại ở bước lưu người dùng.");
     }
 
-    public function get_user_by_id(string $userID): ServiceResponse
+    public function get_user_by_user_id(string $userID): ServiceResponse
     {
         try {
-            $user = $this->userBll->get_user_by_id($userID);
+            $user = $this->userBll->get_user_by_user_id($userID);
             if (!$user) {
                 return new ServiceResponse(false, 'Người dùng không tồn tại');
             }
@@ -115,7 +115,7 @@ class UserService
             }
             $userIDToUpdate = $data['userID'];
 
-            $existingUser = $this->userBll->get_user_by_id($userIDToUpdate, "update");
+            $existingUser = $this->userBll->get_user_by_user_id($userIDToUpdate, "update");
             if (!$existingUser) {
                 return new ServiceResponse(false, 'Người dùng không tồn tại.');
             }
@@ -207,7 +207,7 @@ class UserService
     public function delete_user(string $userID, string $performingUserRoleID): ServiceResponse
     {
         try {
-            $userToDelete = $this->userBll->get_user_by_id($userID);
+            $userToDelete = $this->userBll->get_user_by_user_id($userID);
             if (!$userToDelete) {
                 return new ServiceResponse(false, 'Người dùng không tồn tại.');
             }

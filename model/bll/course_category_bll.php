@@ -32,7 +32,7 @@ class CourseCategoryBLL extends Database
         return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function get_categories_by_course(string $courseID): array
+    public function get_categories_by_course_id(string $courseID): array
     {
         // Format created_at using TO_CHAR
         $sql = "SELECT CourseID, CategoryID, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted

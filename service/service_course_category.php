@@ -1,5 +1,4 @@
 <?php
-// File: service/service_course_category.php
 
 require_once __DIR__ . '/../model/bll/course_category_bll.php';
 require_once __DIR__ . '/../model/dto/course_category_dto.php';
@@ -14,22 +13,16 @@ class CourseCategoryService
         $this->bll = new CourseCategoryBLL();
     }
 
-    /**
-     * Lấy danh sách Category gắn với Course
-     */
     public function get_categories_by_course(string $courseID): ServiceResponse
     {
         try {
-            $list = $this->bll->get_categories_by_course($courseID);
+            $list = $this->bll->get_categories_by_course_id($courseID);
             return new ServiceResponse(true, "Lấy danh sách danh mục cho khóa học {$courseID} thành công", $list);
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi truy vấn: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Thêm Category vào Course
-     */
     public function add_category_to_course(string $courseID, string $categoryID): ServiceResponse
     {
         try {
@@ -45,10 +38,7 @@ class CourseCategoryService
         }
     }
 
-    /**
-     * Xóa Category khỏi Course
-     */
-    public function remove_category_from_course(string $courseID, string $categoryID): ServiceResponse
+    public function unlink_course_category(string $courseID, string $categoryID): ServiceResponse
     {
         try {
             if (!$this->bll->unlink_course_category($courseID, $categoryID)) {

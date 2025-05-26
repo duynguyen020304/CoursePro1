@@ -43,7 +43,7 @@ $method  = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
     case 'GET':
         if (isset($_GET['roleID'])) {
-            $resp = $service->get_role($_GET['roleID']);
+            $resp = $service->get_role_by_role_id($_GET['roleID']);
             http_response_code($resp->success ? 200 : 404);
             echo json_encode(['success' => $resp->success, 'message' => $resp->message, 'data' => $resp->data]);
         } else {

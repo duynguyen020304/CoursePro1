@@ -1,5 +1,4 @@
 <?php
-// File: service/service_lesson.php
 
 require_once __DIR__ . '/../model/bll/lesson_bll.php';
 require_once __DIR__ . '/../model/dto/lesson_dto.php';
@@ -14,11 +13,10 @@ class LessonService
         $this->bll = new LessonBLL();
     }
 
-    /** Lấy một lesson theo ID */
-    public function get_lesson(string $lessonID): ServiceResponse
+    public function get_lesson_by_lesson_id(string $lessonID): ServiceResponse
     {
         try {
-            $dto = $this->bll->get_lesson($lessonID);
+            $dto = $this->bll->get_lesson_by_lesson_id($lessonID);
             if ($dto) {
                 return new ServiceResponse(true, 'Lấy lesson thành công', $dto);
             }
@@ -28,18 +26,16 @@ class LessonService
         }
     }
 
-    /** Lấy tất cả lesson theo chapterID */
-    public function get_lessons_by_chapter(string $chapterID): ServiceResponse
+    public function get_lessons_by_chapter_id(string $chapterID): ServiceResponse
     {
         try {
-            $list = $this->bll->get_lessons_by_chapter($chapterID);
+            $list = $this->bll->get_lessons_by_chapter_id($chapterID);
             return new ServiceResponse(true, 'Lấy danh sách lesson thành công', $list);
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi lấy danh sách: ' . $e->getMessage());
         }
     }
 
-    /** Tạo mới lesson */
     public function create_lesson(string $lessonID, string $courseID, string $chapterID, string $title, ?string $content, int $sortOrder): ServiceResponse
     {
         if ($lessonID == "null") {
@@ -60,7 +56,6 @@ class LessonService
         }
     }
 
-    /** Cập nhật lesson */
     public function update_lesson(string $lessonID, string $courseID, string $chapterID, string $title, ?string $content, int $sortOrder): ServiceResponse
     {
         $dto = new LessonDTO($lessonID, $courseID, $chapterID, $title, $content, $sortOrder);
@@ -75,11 +70,10 @@ class LessonService
         }
     }
 
-    /** Xóa lesson */
     public function delete_lesson(string $lessonID): ServiceResponse
     {
         try {
-            $exists = $this->bll->get_lesson($lessonID);
+            $exists = $this->bll->get_lesson_by_lesson_id($lessonID);
             if (!$exists) {
                 return new ServiceResponse(false, 'Lesson không tồn tại');
             }

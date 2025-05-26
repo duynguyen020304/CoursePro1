@@ -99,7 +99,7 @@ class UserBLL extends Database
         return ($stid !== false);
     }
 
-    public function get_user_by_id(string $userID, string $purpose = "get"): ?UserDTO
+    public function get_user_by_user_id(string $userID, string $purpose = "get"): ?UserDTO
     {
         // Thêm TO_CHAR cho created_at
         $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, 

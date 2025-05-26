@@ -1,5 +1,4 @@
 <?php
-// File: service/service_order.php
 
 require_once __DIR__ . '/../model/bll/order_bll.php';
 require_once __DIR__ . '/../model/dto/order_dto.php';
@@ -14,9 +13,6 @@ class OrderService
         $this->bll = new OrderBLL();
     }
 
-    /**
-     * Tạo mới đơn hàng
-     */
     public function create_order(string $orderID, string $userID, DateTime $orderDate, float $totalAmount): ServiceResponse
     {
         $dto = new OrderDTO($orderID, $userID, $orderDate, $totalAmount);
@@ -27,30 +23,21 @@ class OrderService
         return new ServiceResponse(false, 'Tạo đơn hàng thất bại');
     }
 
-    /**
-     * Lấy đơn hàng theo ID
-     */
-    public function get_order(string $orderID): ServiceResponse
+    public function get_order_by_order_id(string $orderID): ServiceResponse
     {
-        $dto = $this->bll->get_order($orderID);
+        $dto = $this->bll->get_order_by_order_id($orderID);
         if ($dto) {
             return new ServiceResponse(true, 'Lấy đơn hàng thành công', $dto);
         }
         return new ServiceResponse(false, 'Không tìm thấy đơn hàng này');
     }
 
-    /**
-     * Lấy danh sách đơn hàng của user
-     */
-    public function get_orders_by_user(string $userID): ServiceResponse
+    public function get_orders_by_user_id(string $userID): ServiceResponse
     {
-        $list = $this->bll->get_orders_by_user($userID);
+        $list = $this->bll->get_orders_by_user_id($userID);
         return new ServiceResponse(true, 'Lấy danh sách đơn hàng thành công', $list);
     }
 
-    /**
-     * Cập nhật đơn hàng
-     */
     public function update_order(string $orderID, string $userID, DateTime $orderDate, float $totalAmount): ServiceResponse
     {
         $dto = new OrderDTO($orderID, $userID, $orderDate, $totalAmount);
@@ -61,9 +48,6 @@ class OrderService
         return new ServiceResponse(false, 'Cập nhật đơn hàng thất bại');
     }
 
-    /**
-     * Xóa đơn hàng
-     */
     public function delete_order(string $orderID): ServiceResponse
     {
         $ok = $this->bll->delete_order($orderID);

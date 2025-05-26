@@ -43,9 +43,9 @@ $method = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
     case 'GET':
         if (isset($_GET['lessonID'])) {
-            $resp = $service->get_lesson($_GET['lessonID']);
+            $resp = $service->get_lesson_by_lesson_id($_GET['lessonID']);
         } elseif (isset($_GET['chapterID'])) {
-            $resp = $service->get_lessons_by_chapter($_GET['chapterID']);
+            $resp = $service->get_lessons_by_chapter_id($_GET['chapterID']);
         } else {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Thiếu lessonID hoặc chapterID']);

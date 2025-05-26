@@ -45,11 +45,11 @@ switch ($method) {
     case 'GET':
         // GET /order_api.php?orderID=... or /order_api.php?userID=...
         if (isset($_GET['orderID'])) {
-            $resp = $service->get_order($_GET['orderID']);
+            $resp = $service->get_order_by_order_id($_GET['orderID']);
             http_response_code($resp->success ? 200 : 404);
             echo json_encode(['success' => $resp->success, 'message' => $resp->message, 'data' => $resp->data]);
         } elseif (isset($_GET['userID'])) {
-            $resp = $service->get_orders_by_user($_GET['userID']);
+            $resp = $service->get_orders_by_user_id($_GET['userID']);
             http_response_code($resp->success ? 200 : 500);
             echo json_encode(['success' => $resp->success, 'message' => $resp->message, 'data' => $resp->data]);
         } else {

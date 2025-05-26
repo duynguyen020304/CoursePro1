@@ -14,9 +14,9 @@ class CourseInstructorService
         $this->bll = new CourseInstructorBLL();
     }
 
-    public function getByCourse($courseID) : ServiceResponse
+    public function get_instructors_by_course_id($courseID) : ServiceResponse
     {
-        $data = $this->bll->get_by_course($courseID);
+        $data = $this->bll->get_instructors_by_course_id($courseID);
         return new ServiceResponse(true, 'Lấy danh sách giảng viên thành công', $data);
     }
 
@@ -36,9 +36,9 @@ class CourseInstructorService
         return new ServiceResponse(false, 'Cập nhật mapping thất bại');
     }
 
-    public function delete($courseID, $instructorID) :  ServiceResponse
+    public function unlink_course_instructor($courseID, $instructorID) :  ServiceResponse
     {
-        if ($this->bll->delete($courseID, $instructorID)) {
+        if ($this->bll->unlink_course_instructor($courseID, $instructorID)) {
             return new ServiceResponse(true, 'Xóa mapping thành công');
         }
         return new ServiceResponse(false, 'Xóa mapping thất bại');

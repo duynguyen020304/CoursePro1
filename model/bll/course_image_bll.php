@@ -42,7 +42,7 @@ class CourseImageBLL extends Database
         return ($stid !== false);
     }
 
-    public function delete_image(string $imageID, string $courseID): bool
+    public function unlink_image_course(string $imageID, string $courseID): bool
     {
         $sql = "DELETE FROM COURSEIMAGE WHERE ImageID = :imageID AND CourseID = :courseID";
 
@@ -55,7 +55,7 @@ class CourseImageBLL extends Database
         return ($stid !== false) && ($this->getAffectedRows() === 1);
     }
 
-    public function get_image_by_id(string $imageID): ?CourseImageDTO
+    public function get_image_by_image_id(string $imageID): ?CourseImageDTO
     {
         $sql = "SELECT ImageID, CourseID, ImagePath, Caption, SortOrder,
                        TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
@@ -83,7 +83,7 @@ class CourseImageBLL extends Database
     }
 
 
-    public function get_images_by_course(string $courseID): array
+    public function get_images_by_course_id(string $courseID): array
     {
         $sql = "SELECT ImageID, CourseID, ImagePath, Caption, SortOrder,
                        TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
