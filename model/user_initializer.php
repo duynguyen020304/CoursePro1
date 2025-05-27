@@ -737,7 +737,7 @@ class UserInitializer
         if ($isGenerateInstructorSuccess && $isGenerateStudentSuccess) {
             // Xóa bộ đệm đầu ra trước khi chuyển hướng
             ob_end_clean();
-            header("Location: course_initializer.php");
+//            header("Location: course_initializer.php");
             exit(); // Rất quan trọng để gọi exit() sau khi chuyển hướng
         } else {
             // Nếu có lỗi, hiển thị nội dung bộ đệm (các thông báo echo)

@@ -13,3 +13,13 @@ SELECT * FROm COURSELESSON;
 select * from COURSECHAPTER where COURSEID= 'course_68345bf1a01039_85080426';
 
 select * from COURSELESSON where COURSELESSON.CHAPTERID='chapter_68345bf1d2fde7_66070408';
+
+
+SELECT trigger_name, table_owner, table_name, status, triggering_event, when_clause
+FROM USER_TRIGGERS
+ORDER BY table_name, trigger_name;
+
+SELECT object_name, object_type, status, created, last_ddl_time
+FROM USER_OBJECTS
+WHERE object_type IN ('PROCEDURE', 'FUNCTION', 'PACKAGE')
+ORDER BY object_type, object_name;

@@ -116,13 +116,12 @@ CREATE OR REPLACE PACKAGE BODY USER_PKG AS
         IF SQL%ROWCOUNT = 0 THEN
             RAISE_APPLICATION_ERROR(-20172, 'User with UserID ''' || p_UserID || ''' not found for deletion.');
         END IF;
-        -- ON DELETE CASCADE/SET NULL for related tables should be defined on those tables' FK constraints.
     EXCEPTION
         WHEN OTHERS THEN
             IF SQLCODE = -20172 THEN
                 RAISE;
             ELSIF SQLCODE = -2292 THEN
-                RAISE_APPLICATION_ERROR(-20173, 'Cannot delete UserID ''' || p_UserID || ''' as it is referenced by other records.');
+                RAISE_APPLICATION_ERROR(-20173, 'Cannot delete UserID ''' || p_UserID || ''' as it is referenced by other records (e.g., active orders, courses created). Please check related data or use ON DELETE SET NULL/CASCADE on foreign keys if appropriate.');
             ELSE
                 RAISE;
             END IF;
@@ -138,10 +137,17 @@ CREATE OR REPLACE PACKAGE BODY USER_PKG AS
         p_SetProfileImageNull BOOLEAN DEFAULT FALSE
     ) IS
         v_user_exists NUMBER;
+        v_set_profile_image_to_null_num NUMBER;
     BEGIN
         SELECT COUNT(*) INTO v_user_exists FROM USERS WHERE UserID = p_UserID;
         IF v_user_exists = 0 THEN
             RAISE_APPLICATION_ERROR(-20174, 'User with UserID ''' || p_UserID || ''' not found for update.');
+        END IF;
+
+        IF p_SetProfileImageNull THEN
+            v_set_profile_image_to_null_num := 1;
+        ELSE
+            v_set_profile_image_to_null_num := 0;
         END IF;
 
         UPDATE USERS
@@ -150,10 +156,11 @@ CREATE OR REPLACE PACKAGE BODY USER_PKG AS
             Password     = NVL(p_Password, Password),
             RoleID       = NVL(p_RoleID, RoleID),
             ProfileImage = CASE
-                               WHEN p_SetProfileImageNull THEN NULL
+                               WHEN v_set_profile_image_to_null_num = 1 THEN NULL
                                ELSE NVL(p_ProfileImage, ProfileImage)
                 END
         WHERE UserID = p_UserID;
+
     EXCEPTION
         WHEN OTHERS THEN
             IF SQLCODE = -20174 THEN
@@ -252,13 +259,7 @@ CREATE OR REPLACE PACKAGE BODY USER_PKG AS
         ELSE
             RETURN 0;
         END IF;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
     END EMAIL_EXISTS_FUNC;
 
 END USER_PKG;
 /
-
-SHOW ERRORS PACKAGE USER_PKG;
-SHOW ERRORS PACKAGE BODY USER_PKG;
