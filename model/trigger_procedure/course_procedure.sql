@@ -1,0 +1,147 @@
+CREATE OR REPLACE PACKAGE COURSE_PKG AS
+
+    PROCEDURE CREATE_COURSE_PROC(
+        p_CourseID     IN COURSE.CourseID%TYPE,
+        p_Title        IN COURSE.Title%TYPE,
+        p_Description  IN COURSE.Description%TYPE,
+        p_Price        IN COURSE.Price%TYPE,
+        p_CreatedBy    IN COURSE.CreatedBy%TYPE
+    );
+
+    PROCEDURE DELETE_COURSE_PROC(
+        p_CourseID IN COURSE.CourseID%TYPE
+    );
+
+    PROCEDURE UPDATE_COURSE_PROC(
+        p_CourseID     IN COURSE.CourseID%TYPE,
+        p_Title        IN COURSE.Title%TYPE,
+        p_Description  IN COURSE.Description%TYPE,
+        p_Price        IN COURSE.Price%TYPE,
+        p_CreatedBy    IN COURSE.CreatedBy%TYPE
+    );
+
+    FUNCTION GET_COURSE_BY_ID_FUNC(
+        p_CourseID IN COURSE.CourseID%TYPE
+    ) RETURN SYS_REFCURSOR;
+
+    FUNCTION GET_ALL_COURSES_FUNC
+    RETURN SYS_REFCURSOR;
+
+END COURSE_PKG;
+/
+
+CREATE OR REPLACE PACKAGE BODY COURSE_PKG AS
+
+    PROCEDURE CREATE_COURSE_PROC(
+        p_CourseID     IN COURSE.CourseID%TYPE,
+        p_Title        IN COURSE.Title%TYPE,
+        p_Description  IN COURSE.Description%TYPE,
+        p_Price        IN COURSE.Price%TYPE,
+        p_CreatedBy    IN COURSE.CreatedBy%TYPE
+    ) IS
+    BEGIN
+        INSERT INTO COURSE (CourseID, Title, Description, Price, CreatedBy)
+        VALUES (p_CourseID, p_Title, p_Description, p_Price, p_CreatedBy);
+        -- PHP BLL checks for affectedRows === 1. SQL%ROWCOUNT will be 1 on success.
+        -- Oracle will handle PK violation (DUP_VAL_ON_INDEX)
+        -- Oracle will handle FK violation for CreatedBy if it's a valid FK.
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END CREATE_COURSE_PROC;
+
+    PROCEDURE DELETE_COURSE_PROC(
+        p_CourseID IN COURSE.CourseID%TYPE
+    ) IS
+    BEGIN
+        DELETE FROM COURSE
+        WHERE CourseID = p_CourseID;
+
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20031, 'Course with ID ''' || p_CourseID || ''' not found, or no rows deleted.');
+        END IF;
+        -- ON DELETE CASCADE for related tables (CourseInstructor, CourseCategory, etc.)
+        -- should be defined on those tables' FK constraints.
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20031 THEN
+                RAISE;
+            ELSE
+                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in DELETE_COURSE_PROC: ' || SQLERRM);
+            END IF;
+    END DELETE_COURSE_PROC;
+
+    PROCEDURE UPDATE_COURSE_PROC(
+        p_CourseID     IN COURSE.CourseID%TYPE,
+        p_Title        IN COURSE.Title%TYPE,
+        p_Description  IN COURSE.Description%TYPE,
+        p_Price        IN COURSE.Price%TYPE,
+        p_CreatedBy    IN COURSE.CreatedBy%TYPE
+    ) IS
+    BEGIN
+        UPDATE COURSE
+        SET Title = p_Title,
+            Description = p_Description,
+            Price = p_Price,
+            CreatedBy = p_CreatedBy
+        WHERE CourseID = p_CourseID;
+
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20032, 'Course with ID ''' || p_CourseID || ''' not found for update.');
+        END IF;
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20032 THEN
+                RAISE;
+            ELSE
+                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in UPDATE_COURSE_PROC: ' || SQLERRM);
+            END IF;
+    END UPDATE_COURSE_PROC;
+
+    FUNCTION GET_COURSE_BY_ID_FUNC(
+        p_CourseID IN COURSE.CourseID%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                CourseID,
+                Title,
+                Description,
+                Price,
+                CreatedBy,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED
+            FROM
+                COURSE
+            WHERE
+                CourseID = p_CourseID;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_COURSE_BY_ID_FUNC;
+
+    FUNCTION GET_ALL_COURSES_FUNC
+    RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                CourseID,
+                Title,
+                Description,
+                Price,
+                CreatedBy,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED
+            FROM
+                COURSE
+            ORDER BY Title ASC;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_ALL_COURSES_FUNC;
+
+END COURSE_PKG;
+/
+
