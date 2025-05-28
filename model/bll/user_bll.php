@@ -7,8 +7,8 @@ class UserBLL extends Database
     public function create_user(UserDTO $user): bool
     {
         $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
-        $sql = "INSERT INTO USERS (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage)
-                VALUES (:userID, :firstName, :lastName, :email, :password, :roleID, :profileImage)";
+        $sql = "BEGIN USER_PKG.CREATE_USER_PROC(:userID, :firstName, :lastName, :email, :password, :roleID, :profileImage); END;";
+
         $bindParams = [
             ':userID'       => $user->userID,
             ':firstName'    => $user->firstName,
@@ -18,24 +18,54 @@ class UserBLL extends Database
             ':roleID'       => $user->roleID,
             ':profileImage' => $user->profileImage,
         ];
+
         $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        return ($stid !== false);
     }
 
     public function authenticate(string $email, string $password): ?UserDTO
     {
-        // Thêm TO_CHAR cho created_at
-        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted 
-                FROM USERS 
-                WHERE Email = :email";
-        $bindParams = [':email' => $email];
-        $stid = $this->executePrepared($sql, $bindParams);
-        $dto = null;
+        $sql = "BEGIN :result_cursor := USER_PKG.GET_USER_FOR_AUTH_FUNC(:email_param); END;";
+        $bindParams = [
+            ':email_param' => $email
+        ];
 
-        if ($stid) {
-            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                if (password_verify($password, $row['PASSWORD'])) {
+        $dto = null;
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[UserBLL] Failed to create new cursor for GET_USER_FOR_AUTH_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return null;
+        }
+
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[UserBLL] OCI Parse failed for GET_USER_FOR_AUTH_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        @oci_bind_by_name($parsed_stid, ':email_param', $bindParams[':email_param']);
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[UserBLL] OCI Execute failed for GET_USER_FOR_AUTH_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[UserBLL] OCI Execute failed for result cursor of GET_USER_FOR_AUTH_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                if (isset($row['PASSWORD']) && password_verify($password, $row['PASSWORD'])) {
                     $dto = new UserDTO(
                         $row['USERID'],
                         $row['FIRSTNAME'],
@@ -44,54 +74,45 @@ class UserBLL extends Database
                         "",
                         $row['ROLEID'],
                         $row['PROFILEIMAGE'],
-                        // Sử dụng tên alias đã định dạng
                         $row['CREATED_AT_FORMATTED'] ?? null
                     );
                 }
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
+
         return $dto;
     }
 
     public function delete_user(string $userID): bool
     {
-        $sql = "DELETE FROM USERS WHERE UserID = :userID";
+        $sql = "BEGIN USER_PKG.DELETE_USER_PROC(:userID); END;";
         $bindParams = [':userID' => $userID];
         $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        return ($stid !== false);
     }
 
     public function update_user(UserDTO $user): bool
     {
-        $setClauses = [];
-        $bindParams = [];
+        $sql = "BEGIN USER_PKG.UPDATE_USER_PROC(:userID, :firstName, :lastName, :password, :roleID, :profileImage, :setProfileImageNull); END;";
 
-        if ($user->firstName !== null) {
-            $setClauses[] = "FirstName = :firstName";
-            $bindParams[':firstName'] = $user->firstName;
-        }
-        if ($user->lastName !== null) {
-            $setClauses[] = "LastName = :lastName";
-            $bindParams[':lastName'] = $user->lastName;
-        }
+        $newHashedPassword = null;
         if (!empty($user->password)) {
-            $setClauses[] = "Password = :password";
-            $bindParams[':password'] = password_hash($user->password, PASSWORD_DEFAULT);
-        }
-        if ($user->roleID !== null) {
-            $setClauses[] = "RoleID = :roleID";
-            $bindParams[':roleID'] = $user->roleID;
-        }
-        $setClauses[] = "ProfileImage = :profileImage";
-        $bindParams[':profileImage'] = $user->profileImage;
-
-        if (empty($setClauses)) {
-            return true;
+            $newHashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
         }
 
-        $sql = "UPDATE USERS SET " . implode(', ', $setClauses) . " WHERE UserID = :userID";
-        $bindParams[':userID'] = $user->userID;
+        $setProfileImageToNullFlag = false;
+
+        $bindParams = [
+            ':userID'        => $user->userID,
+            ':firstName'     => $user->firstName,
+            ':lastName'      => $user->lastName,
+            ':password'      => $newHashedPassword,
+            ':roleID'        => $user->roleID,
+            ':profileImage'  => $user->profileImage,
+            ':setProfileImageNull' => $setProfileImageToNullFlag,
+        ];
 
         $stid = $this->executePrepared($sql, $bindParams);
         return ($stid !== false);
@@ -99,16 +120,46 @@ class UserBLL extends Database
 
     public function get_user_by_user_id(string $userID, string $purpose = "get"): ?UserDTO
     {
-        // Thêm TO_CHAR cho created_at
-        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted 
-                FROM USERS WHERE UserID = :userID";
-        $bindParams = [':userID' => $userID];
-        $stid = $this->executePrepared($sql, $bindParams);
-        $dto = null;
+        $sql = "BEGIN :result_cursor := USER_PKG.GET_USER_BY_ID_FUNC(:userID_param); END;";
+        $bindParams = [
+            ':userID_param' => $userID
+        ];
 
-        if ($stid) {
-            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $dto = null;
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[UserBLL] Failed to create new cursor for GET_USER_BY_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return null;
+        }
+
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[UserBLL] OCI Parse failed for GET_USER_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        @oci_bind_by_name($parsed_stid, ':userID_param', $bindParams[':userID_param']);
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[UserBLL] OCI Execute failed for GET_USER_BY_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[UserBLL] OCI Execute failed for result cursor of GET_USER_BY_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $passwordForDTO = "";
                 if ($purpose === "update" || $purpose === "internal_check") {
                     $passwordForDTO = $row['PASSWORD'];
@@ -121,27 +172,58 @@ class UserBLL extends Database
                     $passwordForDTO,
                     $row['ROLEID'],
                     $row['PROFILEIMAGE'],
-                    // Sử dụng tên alias đã định dạng
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
+
         return $dto;
     }
 
     public function get_user_by_email(string $email): ?UserDTO
     {
-        // Thêm TO_CHAR cho created_at
-        $sql = "SELECT UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted 
-                FROM USERS WHERE Email = :email";
-        $bindParams = [':email' => $email];
-        $stid = $this->executePrepared($sql, $bindParams);
-        $dto = null;
+        $sql = "BEGIN :result_cursor := USER_PKG.GET_USER_BY_EMAIL_FUNC(:email_param); END;";
+        $bindParams = [
+            ':email_param' => $email
+        ];
 
-        if ($stid) {
-            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $dto = null;
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[UserBLL] Failed to create new cursor for GET_USER_BY_EMAIL_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return null;
+        }
+
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[UserBLL] OCI Parse failed for GET_USER_BY_EMAIL_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        @oci_bind_by_name($parsed_stid, ':email_param', $bindParams[':email_param']);
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[UserBLL] OCI Execute failed for GET_USER_BY_EMAIL_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[UserBLL] OCI Execute failed for result cursor of GET_USER_BY_EMAIL_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $dto = new UserDTO(
                     $row['USERID'],
                     $row['FIRSTNAME'],
@@ -150,26 +232,53 @@ class UserBLL extends Database
                     "",
                     $row['ROLEID'],
                     $row['PROFILEIMAGE'],
-                    // Sử dụng tên alias đã định dạng
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
+
         return $dto;
     }
 
     public function get_all_users(): array
     {
-        // Thêm TO_CHAR cho created_at
-        $sql = "SELECT UserID, FirstName, LastName, Email, RoleID, ProfileImage, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted 
-                FROM USERS";
-        $stid = $this->executePrepared($sql);
+        $sql = "BEGIN :result_cursor := USER_PKG.GET_ALL_USERS_FUNC(); END;";
         $users = [];
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[UserBLL] Failed to create new cursor for GET_ALL_USERS_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return [];
+        }
 
-        if ($stid) {
-            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[UserBLL] OCI Parse failed for GET_ALL_USERS_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[UserBLL] OCI Execute failed for GET_ALL_USERS_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[UserBLL] OCI Execute failed for result cursor of GET_ALL_USERS_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $users[] = new UserDTO(
                     $row['USERID'],
                     $row['FIRSTNAME'],
@@ -178,33 +287,34 @@ class UserBLL extends Database
                     "",
                     $row['ROLEID'],
                     $row['PROFILEIMAGE'],
-                    // Sử dụng tên alias đã định dạng
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
+
         return $users;
     }
 
     public function email_exists(string $email, ?string $excludeUserID = null): bool
     {
-        $sql = "SELECT COUNT(UserID) AS EMAIL_COUNT FROM USERS WHERE Email = :email";
-        $bindParams = [':email' => $email];
+        $sql = "SELECT USER_PKG.EMAIL_EXISTS_FUNC(:email, :excludeUserID) AS EMAIL_EXISTS FROM DUAL";
 
-        if ($excludeUserID !== null) {
-            $sql .= " AND UserID != :excludeUserID";
-            $bindParams[':excludeUserID'] = $excludeUserID;
-        }
+        $bindParams = [
+            ':email'         => $email,
+            ':excludeUserID' => $excludeUserID,
+        ];
 
         $stid = $this->executePrepared($sql, $bindParams);
         if ($stid) {
             $row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS);
             @oci_free_statement($stid);
-            if ($row && isset($row['EMAIL_COUNT'])) {
-                return (int)$row['EMAIL_COUNT'] > 0;
+            if ($row && isset($row['EMAIL_EXISTS'])) {
+                return (int)$row['EMAIL_EXISTS'] === 1;
             }
         }
+        error_log('[UserBLL] Failed to check email existence for Email: ' . $email);
         return false;
     }
 }
