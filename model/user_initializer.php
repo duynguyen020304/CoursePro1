@@ -26,8 +26,8 @@ class UserInitializer
         echo "Starting user initialization...\n";
         $passwordAdmin = password_hash("duyadmin123", PASSWORD_DEFAULT);
         $adminID = str_replace('.', '_', uniqid('admin', true));
-//        $admin_sql = "INSERT INTO Users (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage) VALUES ('{$adminID}', 'Duy', 'Admin', 'duyadmin123@example.com', '{$passwordAdmin}', 'admin', 'null')";
-//        $this->db->execute($admin_sql);
+        $admin_sql = "INSERT INTO Users (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage) VALUES ('{$adminID}', 'Duy', 'Admin', 'duyadmin123@example.com', '{$passwordAdmin}', 'admin', 'null')";
+        $this->db->execute($admin_sql);
         // Create 4 instructor accounts
         $instructors = [
             [

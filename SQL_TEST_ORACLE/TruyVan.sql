@@ -23,3 +23,5 @@ SELECT object_name, object_type, status, created, last_ddl_time
 FROM USER_OBJECTS
 WHERE object_type IN ('PROCEDURE', 'FUNCTION', 'PACKAGE')
 ORDER BY object_type, object_name;
+
+select * from COURSE_HISTORY;
