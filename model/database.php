@@ -258,6 +258,96 @@ class Database
         return $row === false ? null : $row;
     }
 
+    public function runPlSqlScript(string $sqlScript): bool
+    {
+        if (!$this->isConnected()) {
+            $this->lastError = 'Not connected to Oracle database for script execution';
+            error_log('[DB-OCI8] runPlSqlScript: Not connected.');
+            return false;
+        }
+
+        $sqlScript = str_replace(["\r\n", "\r"], "\n", $sqlScript);
+        // Remove comments AFTER splitting by / to preserve comments within PL/SQL blocks if any
+        // However, for simplicity and to avoid issues with / in comments, removing them first is safer.
+        $sqlScript = preg_replace('/--[^\n]*\n?/s', '', $sqlScript);
+        $sqlScript = preg_replace('/\/\*.*?\*\//s', '', $sqlScript);
+        $sqlScript = trim($sqlScript);
+
+        if (empty($sqlScript)) {
+            return true;
+        }
+
+        // Split script by '/' on its own line
+        $blocks = preg_split('/^\s*\/\s*($|\n)/m', $sqlScript);
+        $all_successful = true;
+
+        foreach ($blocks as $block_idx => $block_content) {
+            $trimmed_block = trim($block_content);
+            if (empty($trimmed_block)) {
+                continue;
+            }
+
+            $this->lastQuery = "PL/SQL Script Block #{$block_idx}: " . substr($trimmed_block, 0, 200) . "...";
+            error_log("[DB-OCI8] Executing PL/SQL Script Block #{$block_idx}: " . substr($trimmed_block, 0, 100) . "...");
+
+            $result = $this->execute($trimmed_block);
+
+            if ($result === false) {
+                $this->lastError = "PL/SQL Script block #{$block_idx} failed: " . ($this->getLastError() ?? 'Unknown error during script execution.');
+                error_log("[DB-OCI8] " . $this->lastError . " Block content (first 200 chars): " . substr($trimmed_block, 0, 200));
+                $all_successful = false;
+                break;
+            }
+        }
+        return $all_successful;
+    }
+
+    public function runSchemaScript(string $sqlScript): bool
+    {
+        if (!$this->isConnected()) {
+            $this->lastError = 'Not connected to Oracle database for script execution';
+            error_log('[DB-OCI8] runSchemaScript: Not connected.');
+            return false;
+        }
+
+        $sqlScript = str_replace(["\r\n", "\r"], "\n", $sqlScript);
+        $sqlScript = preg_replace('/--[^\n]*\n?/s', '', $sqlScript);
+        $sqlScript = preg_replace('/\/\*.*?\*\//s', '', $sqlScript);
+        $sqlScript = trim($sqlScript);
+
+        if (empty($sqlScript)) {
+            return true;
+        }
+
+        // Remove a trailing semicolon from the whole script to avoid an empty last statement after explode
+        if (substr($sqlScript, -1) === ';') {
+            $sqlScript = substr($sqlScript, 0, -1);
+        }
+
+        $statements = explode(';', $sqlScript);
+        $all_successful = true;
+
+        foreach ($statements as $statement_idx => $statement_text) {
+            $trimmed_statement = trim($statement_text);
+            if (empty($trimmed_statement)) {
+                continue;
+            }
+
+            $this->lastQuery = "Schema Script Statement #{$statement_idx}: " . substr($trimmed_statement, 0, 200) . "...";
+            error_log("[DB-OCI8] Executing Schema Statement #{$statement_idx}: " . substr($trimmed_statement, 0, 100) . "...");
+
+            $result = $this->execute($trimmed_statement);
+
+            if ($result === false) {
+                $this->lastError = "Schema Script statement #{$statement_idx} failed: " . ($this->getLastError() ?? 'Unknown error during script execution.');
+                error_log("[DB-OCI8] " . $this->lastError . " Statement: " . substr($trimmed_statement, 0, 100));
+                $all_successful = false;
+                break;
+            }
+        }
+        return $all_successful;
+    }
+
     public function runScript(string $sqlScript): bool
     {
         if (!$this->isConnected()) {

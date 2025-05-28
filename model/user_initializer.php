@@ -26,8 +26,8 @@ class UserInitializer
         echo "Starting user initialization...\n";
         $passwordAdmin = password_hash("duyadmin123", PASSWORD_DEFAULT);
         $adminID = str_replace('.', '_', uniqid('admin', true));
-        $admin_sql = "INSERT INTO Users (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage) VALUES ('{$adminID}', 'Duy', 'Admin', 'duyadmin123@example.com', '{$passwordAdmin}', 'admin', 'null')";
-        $this->db->execute($admin_sql);
+//        $admin_sql = "INSERT INTO Users (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage) VALUES ('{$adminID}', 'Duy', 'Admin', 'duyadmin123@example.com', '{$passwordAdmin}', 'admin', 'null')";
+//        $this->db->execute($admin_sql);
         // Create 4 instructor accounts
         $instructors = [
             [
@@ -678,7 +678,6 @@ class UserInitializer
             ]
         ];
 
-        // Create instructors
         echo "Creating instructor accounts...\n";
         foreach ($instructors as $instructor) {
             $biography = "NOT_SET";
@@ -703,15 +702,10 @@ class UserInitializer
             }
         }
 
-        // Create students
         echo "Creating student accounts...\n";
         foreach ($students as $student) {
             $biography = "NOT_SET";
-            // The original code had isset($instructor['biography']) here, which is likely a copy-paste error.
-            // If students are also supposed to have a biography, it should be $student['biography'].
-            // For now, keeping it as 'NOT_SET' if not explicitly defined for students in your array.
-            // If you intend for students to have biographies, ensure your $students array includes a 'biography' key.
-            if (isset($student['biography'])) { // Corrected to check for student's biography
+            if (isset($student['biography'])) {
                 $biography = $student['biography'];
             }
             $response = $this->userService->create_user(
@@ -733,23 +727,15 @@ class UserInitializer
         }
         echo "User initialization completed!\n";
 
-        // Chỉ chuyển hướng nếu tất cả các tài khoản được tạo thành công
         if ($isGenerateInstructorSuccess && $isGenerateStudentSuccess) {
-            // Xóa bộ đệm đầu ra trước khi chuyển hướng
             ob_end_clean();
-//            header("Location: course_initializer.php");
-            exit(); // Rất quan trọng để gọi exit() sau khi chuyển hướng
+            header("Location: course_initializer.php");
+            exit(); 
         } else {
-            // Nếu có lỗi, hiển thị nội dung bộ đệm (các thông báo echo)
             ob_end_flush();
         }
     }
 }
 
-// Run the initializer
 $initializer = new UserInitializer();
 $initializer->initialize();
-
-// Đảm bảo rằng không có khoảng trắng hoặc ký tự nào khác sau thẻ đóng PHP.
-// Tốt nhất là không đóng thẻ PHP nếu file chỉ chứa code PHP.
-// ?>
