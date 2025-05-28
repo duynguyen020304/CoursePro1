@@ -275,6 +275,195 @@ class CourseService
             return new ServiceResponse(false, 'Lỗi khi lấy danh sách: ' . $e->getMessage());
         }
     }
+
+    public function get_k_courses_for_home_page(int $k=8): ServiceResponse
+    {
+        try {
+            $list_course = $this->courseBll->get_all_courses();
+            $list_course_with_instructors_details = [];
+            $i = 0;
+            foreach ($list_course as $course) {
+                if ($i == $k) {
+                    break;
+                }
+                $instructor_dtos_for_course = $this->courseInstructorBll->get_instructors_by_course_id($course->courseID);
+                $course_categories = $this->courseCategoryBll->get_categories_by_course_id($course->courseID);
+                $course_images = $this->courseImageBll->get_images_by_course_id($course->courseID);
+                $instructors_info = [];
+                if (!empty($instructor_dtos_for_course)) {
+                    foreach ($instructor_dtos_for_course as $instructor_dto) {
+                        $instructor = $this->instructorBll->get_instructor($instructor_dto->instructorID);
+                        $instructor_user = $this->userBll->get_user_by_user_id($instructor->userID);
+                        $instructors_info[] = [
+                            'instructorID' => $instructor_dto->instructorID,
+                            'userID' => $instructor_user->userID,
+                            'firstName' => $instructor_user->firstName,
+                            'lastName' => $instructor_user->lastName,
+                            'biography' => $instructor->biography,
+                            'profileImage' => $instructor_user->profileImage,
+                        ];
+                    }
+                }
+                $tmp_course_categories = [];
+                if (!empty($course_categories)) {
+                    foreach ($course_categories as $course_category) {
+                        $category_name = $this->categoryBll->get_category($course_category->categoryID)->name;
+                        $tmp_course_categories[] = [
+                            'categoryID' => $course_category->categoryID,
+                            'categoryName' => $category_name,
+                        ];
+                    }
+                }
+                $tmp_course_images = [];
+                if (!empty($course_images)) {
+                    foreach ($course_images as $course_image) {
+                        $tmp_course_images[] = [
+                            'imageID' => $course_image->imageID,
+                            'imagePath' => $course_image->imagePath
+                        ];
+                    }
+                }
+
+                $list_course_with_instructors_details[] = [
+                    'courseID' => $course->courseID,
+                    'title' => $course->title,
+                    'description' => $course->description,
+                    'price' => $course->price,
+                    'createdBy' => $course->createdBy,
+                    'images' => $tmp_course_images,
+                    'categories' => $tmp_course_categories,
+                    'instructors' => $instructors_info,
+                ];
+                $i = $i + 1;
+            }
+            return new ServiceResponse(true, 'Lấy danh sách thành công', $list_course_with_instructors_details);
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi khi lấy danh sách: ' . $e->getMessage());
+        }
+    }
+
+    public function get_all_courses_for_upload_video(): ServiceResponse
+    {
+        try {
+            $list_course = $this->courseBll->get_all_courses();
+            $list_course_with_instructors_details = [];
+            foreach ($list_course as $course) {
+//                $instructor_dtos_for_course = $this->courseInstructorBll->get_instructors_by_course_id($course->courseID);
+//                $course_categories = $this->courseCategoryBll->get_categories_by_course_id($course->courseID);
+                $course_images = $this->courseImageBll->get_images_by_course_id($course->courseID);
+//                $instructors_info = [];
+//                if (!empty($instructor_dtos_for_course)) {
+//                    foreach ($instructor_dtos_for_course as $instructor_dto) {
+//                        $instructor = $this->instructorBll->get_instructor($instructor_dto->instructorID);
+//                        $instructor_user = $this->userBll->get_user_by_user_id($instructor->userID);
+//                        $instructors_info[] = [
+//                            'instructorID' => $instructor_dto->instructorID,
+//                            'userID' => $instructor_user->userID,
+//                            'firstName' => $instructor_user->firstName,
+//                            'lastName' => $instructor_user->lastName,
+//                            'biography' => $instructor->biography,
+//                            'profileImage' => $instructor_user->profileImage,
+//                        ];
+//                    }
+//                }
+//                $tmp_course_categories = [];
+//                if (!empty($course_categories)) {
+//                    foreach ($course_categories as $course_category) {
+//                        $category_name = $this->categoryBll->get_category($course_category->categoryID)->name;
+//                        $tmp_course_categories[] = [
+//                            'categoryID' => $course_category->categoryID,
+//                            'categoryName' => $category_name,
+//                        ];
+//                    }
+//                }
+                $tmp_course_images = [];
+                if (!empty($course_images)) {
+                    foreach ($course_images as $course_image) {
+                        $tmp_course_images[] = [
+                            'imageID' => $course_image->imageID,
+                            'imagePath' => $course_image->imagePath
+                        ];
+                    }
+                }
+
+                $list_course_with_instructors_details[] = [
+                    'courseID' => $course->courseID,
+                    'title' => $course->title,
+                    'description' => $course->description,
+//                    'price' => $course->price,
+                    'createdBy' => $course->createdBy,
+                    'images' => $tmp_course_images,
+//                    'categories' => $tmp_course_categories,
+//                    'instructors' => $instructors_info,
+                ];
+            }
+            return new ServiceResponse(true, 'Lấy danh sách thành công', $list_course_with_instructors_details);
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi khi lấy danh sách: ' . $e->getMessage());
+        }
+    }
+
+    public function get_all_courses_for_course_management(): ServiceResponse
+    {
+        try {
+            $list_course = $this->courseBll->get_all_courses();
+            $list_course_with_instructors_details = [];
+            foreach ($list_course as $course) {
+                $instructor_dtos_for_course = $this->courseInstructorBll->get_instructors_by_course_id($course->courseID);
+                $course_categories = $this->courseCategoryBll->get_categories_by_course_id($course->courseID);
+                $course_images = $this->courseImageBll->get_images_by_course_id($course->courseID);
+                $instructors_info = [];
+                if (!empty($instructor_dtos_for_course)) {
+                    foreach ($instructor_dtos_for_course as $instructor_dto) {
+                        $instructor = $this->instructorBll->get_instructor($instructor_dto->instructorID);
+                        $instructor_user = $this->userBll->get_user_by_user_id($instructor->userID);
+                        $instructors_info[] = [
+                            'instructorID' => $instructor_dto->instructorID,
+                            'userID' => $instructor_user->userID,
+                            'firstName' => $instructor_user->firstName,
+                            'lastName' => $instructor_user->lastName,
+//                            'biography' => $instructor->biography,
+//                            'profileImage' => $instructor_user->profileImage,
+                        ];
+                    }
+                }
+                $tmp_course_categories = [];
+                if (!empty($course_categories)) {
+                    foreach ($course_categories as $course_category) {
+                        $category_name = $this->categoryBll->get_category($course_category->categoryID)->name;
+                        $tmp_course_categories[] = [
+                            'categoryID' => $course_category->categoryID,
+                            'categoryName' => $category_name,
+                        ];
+                    }
+                }
+                $tmp_course_images = [];
+                if (!empty($course_images)) {
+                    foreach ($course_images as $course_image) {
+                        $tmp_course_images[] = [
+                            'imageID' => $course_image->imageID,
+                            'imagePath' => $course_image->imagePath
+                        ];
+                    }
+                }
+
+                $list_course_with_instructors_details[] = [
+                    'courseID' => $course->courseID,
+                    'title' => $course->title,
+                    'description' => $course->description,
+                    'price' => $course->price,
+                    'createdBy' => $course->createdBy,
+                    'images' => $tmp_course_images,
+                    'categories' => $tmp_course_categories,
+                    'instructors' => $instructors_info,
+                ];
+            }
+            return new ServiceResponse(true, 'Lấy danh sách thành công', $list_course_with_instructors_details);
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi khi lấy danh sách: ' . $e->getMessage());
+        }
+    }
+
     public function delete_course(string $courseID): ServiceResponse
     {
         try {

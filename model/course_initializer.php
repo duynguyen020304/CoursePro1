@@ -7631,7 +7631,7 @@ class CourseInitializer
             // Randomly assign a number of instructors (1 to 4)
             $currentCourseInstructorIDs = [];
             if (!empty($availableInstructorIDs)) {
-                $numInstructorsToAssign = rand(1, min(4, count($availableInstructorIDs)));
+                $numInstructorsToAssign = rand(1, min(3, count($availableInstructorIDs)));
                 // array_rand có thể trả về một giá trị duy nhất nếu num=1, hoặc một mảng các keys nếu num > 1
                 $randomInstructorKeys = (array) array_rand($availableInstructorIDs, $numInstructorsToAssign);
 
