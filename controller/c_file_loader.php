@@ -231,7 +231,7 @@ switch ($act) {
         $allCourseURL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
             . "://" . $_SERVER['HTTP_HOST']
             . $baseAppPath
-            . '/api/course_api.php?isGetAllCourse=true';
+            . '/api/course_api.php?isGetAllCourse=true&option=1';
         $allCourseResp = callApi($allCourseURL, "GET");
         http_response_code($allCourseResp['http_status_code'] ?? ($allCourseResp['success'] ? 200 : 500));
         echo json_encode($allCourseResp);

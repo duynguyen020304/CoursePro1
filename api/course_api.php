@@ -47,10 +47,24 @@ $service = new CourseService();
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
         $isGetAllCourseParam = $_GET['isGetAllCourse'] ?? null;
+        $optionParam = $_GET['option'] ?? 1; #Option 0 lấy tất cả dữ liệu khóa học(bao gồm nhiều loại dữ liệu khác nhau), cực chậm
+                                             #Option 1 lấy k dữ liệu khóa học, nhanh hơn
+        $optionParam = filter_var($optionParam, FILTER_VALIDATE_INT);
         $courseIDParam = $_GET['courseID'] ?? null;
 
         if ($isGetAllCourseParam !== null && filter_var($isGetAllCourseParam, FILTER_VALIDATE_BOOLEAN)) {
-            $response = $service->get_all_courses();
+            if ($optionParam == 0) {
+                $response = $service->get_all_courses();
+            }
+            else if ($optionParam == 1) {
+                $response = $service->get_k_courses_for_home_page(8);
+            }
+            else if ($optionParam == 2) {
+                $response = $service->get_all_courses_for_course_management();
+            }
+            else if ($optionParam == 3) {
+                $response = $service->get_all_courses_for_upload_video();
+            }
             http_response_code($response->success ? 200 : 500);
             echo json_encode([
                 'success' => $response->success,

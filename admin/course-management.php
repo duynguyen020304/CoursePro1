@@ -82,7 +82,6 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
         if (!empty($payload)) {
             $options['http']['content'] = json_encode($payload);
         } else if (in_array($methodUpper, ['POST', 'PUT', 'PATCH'])) {
-            // Send empty JSON object if payload is empty for these methods
             $options['http']['content'] = '{}';
         }
     }
@@ -104,14 +103,13 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
             'success' => false,
             'message' => 'API connection failed or timed out.',
             'data' => null,
-            'http_status_code' => $status_code ?? 0 // Provide a default if status code couldn't be parsed
+            'http_status_code' => $status_code ?? 0
         ];
     }
 
     $decodedResponse = json_decode($response, true);
     $jsonError = json_last_error();
 
-    // Handle 204 No Content explicitly, as json_decode will return null for an empty body
     if ($response === '' || ($decodedResponse === null && $jsonError === JSON_ERROR_NONE && $status_code === 204)) {
         return [
             'success' => true,
@@ -126,28 +124,25 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
             'success' => false,
             'message' => 'Invalid API response format (not JSON). Error: ' . json_last_error_msg(),
             'data' => null,
-            'raw_response' => $response, // Include raw response for debugging
+            'raw_response' => $response,
             'http_status_code' => $status_code
         ];
     }
 
-    // Ensure decodedResponse is an array for consistency, even if API returns a single value not in an object
     if (!is_array($decodedResponse)) {
-        $decodedResponse = ['data' => $decodedResponse]; // Wrap it if it's not an array
+        $decodedResponse = ['data' => $decodedResponse];
     }
 
-    // Add http_status_code and success to the response if not already set by the API
     if (!isset($decodedResponse['http_status_code'])) {
         $decodedResponse['http_status_code'] = $status_code;
     }
     if (!isset($decodedResponse['success'])) {
-        // Consider any 2xx status code as success if not explicitly provided
         $decodedResponse['success'] = ($status_code >= 200 && $status_code < 300);
     }
     return $decodedResponse;
 }
 
-$courseResp = callApi('course_api.php?isGetAllCourse=true', 'GET');
+$courseResp = callApi('course_api.php?isGetAllCourse=true&option=2', 'GET');
 $courses    = $courseResp['success'] ? ($courseResp['data'] ?? []) : [];
 
 $catResp   = callApi('category_api.php', 'GET');
@@ -161,37 +156,31 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
 <html lang="vi">
 
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Quản lý Khóa học</title>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/base_dashboard.css" rel="stylesheet">
-    <link href="css/admin_style.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="css/base_dashboard.css" rel="stylesheet" />
+    <link href="css/admin_style.css" rel="stylesheet" />
     <style>
         .action-buttons .btn {
-            margin-right: .25rem; /* Spacing between buttons */
+            margin-right: .25rem;
         }
-
         .action-buttons .btn:last-child {
-            margin-right: 0; /* No margin for the last button */
+            margin-right: 0;
         }
-
-        /* Ensure modal body is scrollable for long content */
         .modal-dialog-scrollable .modal-body {
-            max-height: calc(100vh - 260px); /* Adjust as needed */
+            max-height: calc(100vh - 260px);
             overflow-y: auto;
         }
-        /* Styling for buttons inside list group items (objectives/requirements) */
-        .list-group-item span .btn { /* More specific selector if needed */
-            padding: 0.1rem 0.3rem; /* Smaller padding for small buttons */
-            font-size: 0.8rem;      /* Smaller font size */
+        .list-group-item span .btn {
+            padding: 0.1rem 0.3rem;
+            font-size: 0.8rem;
         }
-        /* Padding for objective/requirement list items */
         #courseObjectivesList .list-group-item,
         #courseRequirementsList .list-group-item {
-            padding: 0.5rem 0.75rem; /* Standard padding */
+            padding: 0.5rem 0.75rem;
         }
-        /* Style for input group used for adding objectives/requirements */
         .sub-item-input-group .form-control {
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
@@ -213,7 +202,6 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                 <i class="bi bi-plus-lg me-1"></i> Thêm Khóa học
             </button>
         </div>
-
         <div id="alertPlaceholder"></div>
         <?php if (isset($_SESSION['success'])): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -273,7 +261,7 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                                     foreach ($c['categories'] as $category) {
                                         if (isset($category['categoryName'])) {
                                             $categoryNamesArray[] = $category['categoryName'];
-                                        } elseif (isset($category['name'])) { // Fallback if 'name' is used
+                                        } elseif (isset($category['name'])) {
                                             $categoryNamesArray[] = $category['name'];
                                         }
                                     }
@@ -284,7 +272,6 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                             </td>
                             <td>
                                 <?php
-                                // Prefer createdByFullName, fallback to createdBy (which might be an ID or username)
                                 $creator_raw = $c['createdByFullName'] ?? ($c['createdBy'] ?? 'N/A');
                                 echo htmlspecialchars(format_display_creator_raw($creator_raw));
                                 ?>
@@ -316,8 +303,8 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <form id="courseForm" method="POST" action="../controller/c_course_management.php" enctype="multipart/form-data">
-                <input type="hidden" name="act" id="formAct" value="create">
-                <input type="hidden" name="CourseID" id="modalCourseID">
+                <input type="hidden" name="act" id="formAct" value="create" />
+                <input type="hidden" name="CourseID" id="modalCourseID" />
                 <div class="modal-header">
                     <h5 class="modal-title" id="courseModalLabel">Thêm Khóa học</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -327,11 +314,11 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="Title" id="modalTitle" required>
+                                <input type="text" class="form-control" name="Title" id="modalTitle" required />
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Giá (₫) <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="Price" id="modalPrice" step="1000" min="0" required>
+                                <input type="number" class="form-control" name="Price" id="modalPrice" step="1000" min="0" required />
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Giảng viên <span class="text-danger">*</span></label>
@@ -357,31 +344,31 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Ảnh đại diện</label>
-                                <input type="file" class="form-control" name="CourseImage" id="modalCourseImage" accept="image/jpeg,image/png,image/webp">
-                                <img id="modalImagePreview" src="#" alt="Xem trước ảnh" class="mt-2 img-fluid rounded" style="max-height:150px; display:none;">
+                                <input type="file" class="form-control" name="CourseImage" id="modalCourseImage" accept="image/jpeg,image/png,image/webp" />
+                                <img id="modalImagePreview" src="#" alt="Xem trước ảnh" class="mt-2 img-fluid rounded" style="max-height:150px; display:none;" />
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Mục tiêu khóa học</label>
-                                <div id="courseObjectivesList" class="list-group mb-2" style="max-height: 200px; overflow-y: auto;">
-                                </div>
+                                <div id="courseObjectivesList" class="list-group mb-2" style="max-height: 200px; overflow-y: auto;"></div>
                                 <div class="input-group sub-item-input-group">
-                                    <input type="text" class="form-control" id="newObjectiveText" placeholder="Nhập mục tiêu mới">
+                                    <input type="text" class="form-control" id="newObjectiveText" placeholder="Nhập mục tiêu mới" />
                                     <button class="btn btn-outline-success" type="button" id="addObjectiveBtn"><i class="bi bi-plus-circle-fill"></i> Thêm</button>
                                 </div>
-                                <input type="hidden" id="editingObjectiveID"> </div>
+                                <input type="hidden" id="editingObjectiveID" />
+                            </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Yêu cầu khóa học</label>
-                                <div id="courseRequirementsList" class="list-group mb-2" style="max-height: 200px; overflow-y: auto;">
-                                </div>
+                                <div id="courseRequirementsList" class="list-group mb-2" style="max-height: 200px; overflow-y: auto;"></div>
                                 <div class="input-group sub-item-input-group">
-                                    <input type="text" class="form-control" id="newRequirementText" placeholder="Nhập yêu cầu mới">
+                                    <input type="text" class="form-control" id="newRequirementText" placeholder="Nhập yêu cầu mới" />
                                     <button class="btn btn-outline-success" type="button" id="addRequirementBtn"><i class="bi bi-plus-circle-fill"></i> Thêm</button>
                                 </div>
-                                <input type="hidden" id="editingRequirementID"> </div>
+                                <input type="hidden" id="editingRequirementID" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -395,15 +382,12 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
 </div>
 <script src="js/bootstrap.bundle.min.js"></script>
 <script>
-    // Constants for API and paths
     const API_BASE_URL = '<?= API_BASE ?>';
-    const APP_IMG_BASE_PATH = '<?= APP_BASE_PATH_FOR_IMAGES ?>'; // Not directly used in current JS, but good to have
+    const APP_IMG_BASE_PATH = '<?= APP_BASE_PATH_FOR_IMAGES ?>';
     const USER_TOKEN = '<?= $_SESSION['user']['token'] ?? '' ?>';
-    const IMAGE_SERVING_SCRIPT_NAME = 'c_file_loader.php'; // Assumed name for image serving
+    const IMAGE_SERVING_SCRIPT_NAME = 'c_file_loader.php';
     const PROJECT_BASE = '<?= APP_ROOT_URL_BASE ?>'
 
-
-    // Utility to show alerts
     function showAlert(message, type = 'success', duration = 3000) {
         const alertPlaceholder = document.getElementById('alertPlaceholder');
         const wrapper = document.createElement('div');
@@ -415,60 +399,47 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
         ].join('');
         alertPlaceholder.append(wrapper);
         setTimeout(() => {
-            // Check if wrapper still exists and is part of the DOM before removing
             if (wrapper && wrapper.parentNode) {
                 wrapper.remove();
             }
         }, duration);
     }
 
-    // Centralized API fetch function
     async function fetchApi(endpoint, method = 'GET', payload = null) {
         let url = `${API_BASE_URL}/${endpoint}`;
-
-        // Append query parameters for GET requests
         if (method.toUpperCase() === 'GET' && payload && Object.keys(payload).length > 0) {
             const queryParams = new URLSearchParams(payload);
             url += `?${queryParams.toString()}`;
         }
-
         const options = {
             method: method.toUpperCase(),
             headers: {
-                'Accept': 'application/json' // Expect JSON response
+                'Accept': 'application/json'
             }
         };
         if (USER_TOKEN) {
             options.headers['Authorization'] = `Bearer ${USER_TOKEN}`;
         }
-
-        // For methods other than GET/HEAD, set Content-Type and body
         if (method.toUpperCase() !== 'GET' && method.toUpperCase() !== 'HEAD') {
             options.headers['Content-Type'] = 'application/json; charset=utf-8';
-            options.body = payload ? JSON.stringify(payload) : JSON.stringify({}); // Send empty JSON object if no payload
+            options.body = payload ? JSON.stringify(payload) : JSON.stringify({});
         }
-
         try {
             const response = await fetch(url, options);
             let responseData = {};
-
-            // Handle 204 No Content: successful request with no body
             if (response.status === 204) {
                 responseData = { success: true, message: 'Thao tác thành công, không có nội dung trả về.' };
             } else if (response.headers.get("content-type")?.includes("application/json")) {
-                responseData = await response.json(); // Parse JSON if content type is correct
+                responseData = await response.json();
             } else {
-                // Handle non-JSON responses (e.g., plain text error messages from server)
                 const textResponse = await response.text();
                 responseData = {
-                    success: response.ok, // Use response.ok to determine success
+                    success: response.ok,
                     message: textResponse || (response.ok ? "Thao tác thành công" : "Lỗi không xác định từ máy chủ"),
-                    data: textResponse // Store raw text response
+                    data: textResponse
                 };
             }
-
-            responseData.http_status_code = response.status; // Always include status code
-            // Ensure 'success' property is consistently set based on HTTP status if not already present
+            responseData.http_status_code = response.status;
             if (typeof responseData.success === 'undefined') {
                 responseData.success = response.ok;
             }
@@ -479,12 +450,11 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
         }
     }
 
-
     document.addEventListener('DOMContentLoaded', () => {
         const courseModal = new bootstrap.Modal(document.getElementById('courseModal'));
         const form = document.getElementById('courseForm');
         const actInput = document.getElementById('formAct');
-        const idInput = document.getElementById('modalCourseID'); // Hidden input for CourseID
+        const idInput = document.getElementById('modalCourseID');
         const titleInput = document.getElementById('modalTitle');
         const priceInput = document.getElementById('modalPrice');
         const instructorsSelect = document.getElementById('modalInstructors');
@@ -494,21 +464,18 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
         const imagePreview = document.getElementById('modalImagePreview');
         const courseModalLabel = document.getElementById('courseModalLabel');
 
-        // Objectives elements
         const objectivesListDiv = document.getElementById('courseObjectivesList');
         const newObjectiveText = document.getElementById('newObjectiveText');
         const addObjectiveBtn = document.getElementById('addObjectiveBtn');
-        const editingObjectiveIDInput = document.getElementById('editingObjectiveID'); // Hidden input for editing objective ID
+        const editingObjectiveIDInput = document.getElementById('editingObjectiveID');
 
-        // Requirements elements
         const requirementsListDiv = document.getElementById('courseRequirementsList');
         const newRequirementText = document.getElementById('newRequirementText');
         const addRequirementBtn = document.getElementById('addRequirementBtn');
-        const editingRequirementIDInput = document.getElementById('editingRequirementID'); // Hidden input for editing requirement ID
+        const editingRequirementIDInput = document.getElementById('editingRequirementID');
 
-        let currentCourseID = null; // To store the ID of the course being edited for objectives/requirements
+        let currentCourseID = null;
 
-        // Image preview handler
         imageInput.addEventListener('change', e => {
             const file = e.target.files[0];
             if (file) {
@@ -519,18 +486,16 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                 };
                 reader.readAsDataURL(file);
             } else {
-                // If no file is selected, revert to existing URL or hide
                 if (!imagePreview.dataset.existingUrl) {
                     imagePreview.src = '#';
                     imagePreview.style.display = 'none';
                 } else {
-                    imagePreview.src = imagePreview.dataset.existingUrl; // Revert to the initially loaded image
+                    imagePreview.src = imagePreview.dataset.existingUrl;
                     imagePreview.style.display = 'block';
                 }
             }
         });
 
-        // Function to reset objectives and requirements UI
         function resetSubItemsUI() {
             objectivesListDiv.innerHTML = '';
             newObjectiveText.value = '';
@@ -547,12 +512,11 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
             editingRequirementIDInput.value = '';
         }
 
-        // --- Objectives Management ---
         async function loadObjectives(courseID) {
             if (!courseID) return;
             objectivesListDiv.innerHTML = '<div class="text-center text-muted p-2">Đang tải...</div>';
             const response = await fetchApi(`course_objective_api.php?courseID=${courseID}`);
-            objectivesListDiv.innerHTML = ''; // Clear loading message
+            objectivesListDiv.innerHTML = '';
             if (response.success && response.data && Array.isArray(response.data)) {
                 if (response.data.length === 0) {
                     objectivesListDiv.innerHTML = '<div class="text-center text-muted p-2">Chưa có mục tiêu nào.</div>';
@@ -595,12 +559,12 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
 
             if (response.success) {
                 showAlert(editingID ? 'Cập nhật mục tiêu thành công!' : 'Thêm mục tiêu thành công!');
-                newObjectiveText.value = ''; // Clear input
-                editingObjectiveIDInput.value = ''; // Reset editing ID
-                addObjectiveBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Thêm'; // Reset button
+                newObjectiveText.value = '';
+                editingObjectiveIDInput.value = '';
+                addObjectiveBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Thêm';
                 addObjectiveBtn.classList.remove('btn-warning');
                 addObjectiveBtn.classList.add('btn-outline-success');
-                loadObjectives(currentCourseID); // Reload list
+                loadObjectives(currentCourseID);
             } else {
                 showAlert(`Lỗi: ${response.message || (editingID ? 'Không thể cập nhật mục tiêu.' : 'Không thể thêm mục tiêu.')}`, 'danger');
             }
@@ -622,12 +586,11 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                 addObjectiveBtn.classList.add('btn-warning');
                 newObjectiveText.focus();
             } else if (target.classList.contains('delete-objective')) {
-                // Replace confirm with a custom modal if needed for better UX
                 if (window.confirm('Bạn có chắc muốn xóa mục tiêu này?')) {
                     const response = await fetchApi('course_objective_api.php', 'DELETE', { objectiveID });
                     if (response.success) {
                         showAlert('Xóa mục tiêu thành công!');
-                        loadObjectives(currentCourseID); // Reload list
+                        loadObjectives(currentCourseID);
                     } else {
                         showAlert(`Lỗi: ${response.message || 'Không thể xóa mục tiêu.'}`, 'danger');
                     }
@@ -635,12 +598,11 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
             }
         });
 
-        // --- Requirements Management ---
         async function loadRequirements(courseID) {
             if (!courseID) return;
             requirementsListDiv.innerHTML = '<div class="text-center text-muted p-2">Đang tải...</div>';
             const response = await fetchApi(`course_requirement_api.php?courseID=${courseID}`);
-            requirementsListDiv.innerHTML = ''; // Clear loading
+            requirementsListDiv.innerHTML = '';
             if (response.success && response.data && Array.isArray(response.data)) {
                 if (response.data.length === 0) {
                     requirementsListDiv.innerHTML = '<div class="text-center text-muted p-2">Chưa có yêu cầu nào.</div>';
@@ -722,36 +684,31 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
             }
         });
 
-
-        // Helper to escape HTML special characters for display
         function htmlspecialchars(str) {
-            if (typeof str !== 'string') return ''; // Ensure input is a string
+            if (typeof str !== 'string') return '';
             const map = {
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' // HTML5 recommended
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
             };
             return str.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
-        // --- Modal Open/Close Handlers ---
         document.querySelectorAll('.add-new-course-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                form.reset(); // Clear form fields
+                form.reset();
                 actInput.value = 'create';
-                idInput.value = ''; // Clear course ID
-                currentCourseID = null; // Reset current course ID
+                idInput.value = '';
+                currentCourseID = null;
                 courseModalLabel.textContent = 'Thêm Khóa học';
 
-                // Reset multi-selects
                 Array.from(instructorsSelect.options).forEach(option => option.selected = false);
                 Array.from(categoriesSelect.options).forEach(option => option.selected = false);
 
-                // Reset image preview
                 imagePreview.src = '#';
                 imagePreview.style.display = 'none';
                 imagePreview.removeAttribute('data-existing-url');
-                imageInput.value = ''; // Clear file input
+                imageInput.value = '';
 
-                resetSubItemsUI(); // Clear objectives and requirements
+                resetSubItemsUI();
                 courseModal.show();
             });
         });
@@ -768,15 +725,14 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                     const data = JSON.parse(dataString);
                     form.reset();
                     actInput.value = 'update';
-                    idInput.value = data.courseID || ''; // Set hidden course ID
-                    currentCourseID = data.courseID; // Set for objectives/requirements
+                    idInput.value = data.courseID || '';
+                    currentCourseID = data.courseID;
                     titleInput.value = data.title || '';
                     priceInput.value = data.price || '0';
                     descriptionInput.value = data.description || '';
                     courseModalLabel.textContent = 'Sửa Khóa học';
 
-                    // Pre-select instructors
-                    Array.from(instructorsSelect.options).forEach(opt => opt.selected = false); // Reset first
+                    Array.from(instructorsSelect.options).forEach(opt => opt.selected = false);
                     if (data.instructors && Array.isArray(data.instructors)) {
                         const selectedInstructorIDs = data.instructors.map(instr => instr.instructorID.toString());
                         Array.from(instructorsSelect.options).forEach(option => {
@@ -786,8 +742,7 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                         });
                     }
 
-                    // Pre-select categories
-                    Array.from(categoriesSelect.options).forEach(opt => opt.selected = false); // Reset first
+                    Array.from(categoriesSelect.options).forEach(opt => opt.selected = false);
                     if (data.categories && Array.isArray(data.categories)) {
                         const selectedCategoryIDs = data.categories.map(cat => (cat.id || cat.categoryID).toString());
                         Array.from(categoriesSelect.options).forEach(option => {
@@ -797,29 +752,23 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                         });
                     }
 
-                    // Handle image preview for existing course
-                    imageInput.value = ''; // Clear file input
+                    imageInput.value = '';
                     imagePreview.src = '#';
                     imagePreview.style.display = 'none';
                     imagePreview.removeAttribute('data-existing-url');
 
-                    if (currentCourseID) { // Fetch and display existing image if available
-                        // Attempt to get the primary image for the course
+                    if (currentCourseID) {
                         const imgResponse = await fetchApi(`course_image_api.php?courseID=${currentCourseID}&isPrimary=true`);
                         if (imgResponse.success && imgResponse.data && Array.isArray(imgResponse.data) && imgResponse.data.length > 0) {
-                            const imagePathFromServer = imgResponse.data[0].imagePath; // Assuming API returns imagePath
+                            const imagePathFromServer = imgResponse.data[0].imagePath;
                             if (imagePathFromServer) {
-                                // Construct URL: Needs to know how images are served.
-                                // This assumes a specific controller/script handles image serving.
-                                const imageName = imagePathFromServer.split('/').pop(); // Get filename
+                                const imageName = imagePathFromServer.split('/').pop();
                                 const imageUrl = `${PROJECT_BASE}/controller/${IMAGE_SERVING_SCRIPT_NAME}?act=serve_image&course_id=${currentCourseID}&image=${encodeURIComponent(imageName)}`;
-
                                 imagePreview.src = imageUrl;
                                 imagePreview.style.display = 'block';
-                                imagePreview.dataset.existingUrl = imageUrl; // Store for later reference
+                                imagePreview.dataset.existingUrl = imageUrl;
                             }
                         } else if (imgResponse.success && imgResponse.data && imgResponse.data.length === 0) {
-                            // No primary image found, try to get any image
                             const anyImgResponse = await fetchApi(`course_image_api.php?courseID=${currentCourseID}`);
                             if (anyImgResponse.success && anyImgResponse.data && Array.isArray(anyImgResponse.data) && anyImgResponse.data.length > 0) {
                                 const imagePathFromServer = anyImgResponse.data[0].imagePath;
@@ -834,60 +783,47 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                         }
                     }
 
-
-                    resetSubItemsUI(); // Clear current objectives/requirements before loading new ones
+                    resetSubItemsUI();
                     if (currentCourseID) {
                         loadObjectives(currentCourseID);
                         loadRequirements(currentCourseID);
                     }
-
                     courseModal.show();
-
                 } catch (e) {
                     console.error('Error parsing data-course JSON or setting up modal:', e);
                     showAlert('Lỗi: Không thể xử lý dữ liệu khóa học để sửa. ' + e.message, 'danger');
-                    console.error('Problematic JSON string for debugging:', dataString); // Log the string
+                    console.error('Problematic JSON string for debugging:', dataString);
                 }
             });
         });
 
         document.querySelectorAll('.delete-course').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.preventDefault(); // Prevent default if it's a link or form button
+                e.preventDefault();
                 if (!window.confirm('Bạn có chắc muốn xóa khóa học này? Hành động này không thể hoàn tác.')) return;
-
                 const courseIdToDelete = btn.getAttribute('data-id');
                 if (!courseIdToDelete) {
                     showAlert('Lỗi: Không tìm thấy ID khóa học để xóa.', 'danger');
                     return;
                 }
-                // Redirect to the controller to handle deletion
-                // Ensure the URL is correctly formed for your controller
                 window.location.href = `../controller/c_course_management.php?act=delete&courseID=${encodeURIComponent(courseIdToDelete)}`;
             });
         });
 
-        // Reset form and UI elements when modal is hidden
         document.getElementById('courseModal').addEventListener('hidden.bs.modal', function () {
             form.reset();
-            actInput.value = 'create'; // Default to create action
+            actInput.value = 'create';
             idInput.value = '';
             currentCourseID = null;
-
-            // Clear selections in multi-selects
             Array.from(instructorsSelect.options).forEach(option => option.selected = false);
             Array.from(categoriesSelect.options).forEach(option => option.selected = false);
-
-            // Reset image preview
             imagePreview.src = '#';
             imagePreview.style.display = 'none';
             imagePreview.removeAttribute('data-existing-url');
-            imageInput.value = ''; // Clear the file input
-
-            resetSubItemsUI(); // Clear objectives and requirements lists
-            courseModalLabel.textContent = 'Thêm Khóa học'; // Reset modal title
+            imageInput.value = '';
+            resetSubItemsUI();
+            courseModalLabel.textContent = 'Thêm Khóa học';
         });
-
     });
 </script>
 </body>
