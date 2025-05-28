@@ -6,95 +6,142 @@ class VideoBLL extends Database
 {
     public function create_video(VideoDTO $v): bool
     {
-        $sql = "INSERT INTO CourseVideo (VideoID, LessonID, Url, Title, Duration, SortOrder)
-                VALUES (:videoID, :lessonID, :url, :title, :duration, :sortOrder)";
+        $sql = "BEGIN COURSE_VIDEO_PKG.CREATE_VIDEO_PROC(:videoID, :lessonID, :url, :title, :duration, :sortOrder); END;";
         $bindParams = [
             ':videoID'   => $v->videoID,
             ':lessonID'  => $v->lessonID,
             ':url'       => $v->url,
             ':title'     => $v->title,
             ':duration'  => $v->duration ?? 0,
-            ':sortOrder' => $v->sortOrder,
+            ':sortOrder' => $v->sortOrder ?? 0,
         ];
         $stid = $this->executePrepared($sql, $bindParams);
-        $success = ($stid !== false);
-        if ($success) {
-            // No action needed here, affected rows check is below
-        }
-        return $success && $this->getAffectedRows() === 1;
+        return ($stid !== false);
     }
 
     public function delete_video(string $vid): bool
     {
-        $sql = "DELETE FROM CourseVideo WHERE VideoID = :videoID";
+        $sql = "BEGIN COURSE_VIDEO_PKG.DELETE_VIDEO_PROC(:videoID); END;";
         $bindParams = [':videoID' => $vid];
         $stid = $this->executePrepared($sql, $bindParams);
-        $success = ($stid !== false);
-        return $success && $this->getAffectedRows() === 1;
+        return ($stid !== false);
     }
 
     public function update_video(VideoDTO $v): bool
     {
-        $setClauses = [];
-        $bindParams = [];
-        $setClauses[] = "LessonID = :lessonID";
-        $bindParams[':lessonID'] = $v->lessonID;
-        $setClauses[] = "Url = :url";
-        $bindParams[':url'] = $v->url;
-        $setClauses[] = "SortOrder = :sortOrder";
-        $bindParams[':sortOrder'] = $v->sortOrder;
-        $setClauses[] = "Title = :title";
-        $bindParams[':title'] = $v->title;
-        $setClauses[] = "Duration = :duration";
-        $bindParams[':duration'] = $v->duration ?? 0;
-        $bindParams[':videoID_where'] = $v->videoID;
-        if (empty($setClauses)) {
-            return true;
-        }
-        $sql = "UPDATE CourseVideo SET " . implode(', ', $setClauses) . " WHERE VideoID = :videoID_where";
+        $sql = "BEGIN COURSE_VIDEO_PKG.UPDATE_VIDEO_PROC(:videoID_where, :lessonID, :url, :title, :duration, :sortOrder); END;";
+        $bindParams = [
+            ':videoID_where' => $v->videoID,
+            ':lessonID'  => $v->lessonID,
+            ':url'       => $v->url,
+            ':title'     => $v->title,
+            ':duration'  => $v->duration ?? 0,
+            ':sortOrder' => $v->sortOrder ?? 0,
+        ];
         $stid = $this->executePrepared($sql, $bindParams);
         return ($stid !== false);
     }
 
     public function get_video(string $videoID): ?VideoDTO
     {
-        $sql = "SELECT VideoID, LessonID, Url, Title, SortOrder, Duration, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-                FROM CourseVideo
-                WHERE VideoID = :videoID_param";
-        $bindParams = [':videoID_param' => $videoID];
-        $stid = $this->executePrepared($sql, $bindParams);
-        if ($stid) {
-            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $video = new VideoDTO(
+        $sql = "BEGIN :result_cursor := COURSE_VIDEO_PKG.GET_VIDEO_BY_ID_FUNC(:videoID_param); END;";
+        $bindParams = [
+            ':videoID_param' => $videoID
+        ];
+
+        $dto = null;
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[VideoBLL] Failed to create new cursor for GET_VIDEO_BY_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return null;
+        }
+
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[VideoBLL] OCI Parse failed for GET_VIDEO_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        @oci_bind_by_name($parsed_stid, ':videoID_param', $bindParams[':videoID_param']);
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[VideoBLL] OCI Execute failed for GET_VIDEO_BY_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[VideoBLL] OCI Execute failed for result cursor of GET_VIDEO_BY_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+                $dto = new VideoDTO(
                     $row['VIDEOID'],
                     $row['LESSONID'],
                     $row['URL'],
                     $row['TITLE'],
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
                     isset($row['DURATION']) ? (int)$row['DURATION'] : null,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
-                @oci_free_statement($stid);
-                return $video;
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
-        return null;
+        @oci_free_statement($parsed_stid);
+
+        return $dto;
     }
 
     public function get_videos_by_lesson(string $lessonID): array
     {
-        $sql = "SELECT VideoID, LessonID, Url, Title, SortOrder, Duration, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-                FROM CourseVideo
-                WHERE LessonID = :lessonID_param
-                ORDER BY SortOrder";
-        $bindParams = [':lessonID_param' => $lessonID];
-        $stid = $this->executePrepared($sql, $bindParams);
+        $sql = "BEGIN :result_cursor := COURSE_VIDEO_PKG.GET_VIDEOS_BY_LESSON_FUNC(:lessonID_param); END;";
+        $bindParams = [
+            ':lessonID_param' => $lessonID
+        ];
         $videos = [];
-        if ($stid) {
-            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[VideoBLL] Failed to create new cursor for GET_VIDEOS_BY_LESSON_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return [];
+        }
+
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[VideoBLL] OCI Parse failed for GET_VIDEOS_BY_LESSON_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        @oci_bind_by_name($parsed_stid, ':lessonID_param', $bindParams[':lessonID_param']);
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[VideoBLL] OCI Execute failed for GET_VIDEOS_BY_LESSON_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[VideoBLL] OCI Execute failed for result cursor of GET_VIDEOS_BY_LESSON_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $videos[] = new VideoDTO(
                     $row['VIDEOID'],
                     $row['LESSONID'],
@@ -102,11 +149,14 @@ class VideoBLL extends Database
                     $row['TITLE'],
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
                     isset($row['DURATION']) ? (int)$row['DURATION'] : null,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
+
         return $videos;
     }
 }
+?>

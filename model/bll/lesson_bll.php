@@ -6,47 +6,39 @@ class LessonBLL extends Database
 {
     public function create_lesson(LessonDTO $lesson_dto): bool
     {
-        $sql = "INSERT INTO COURSELESSON (LessonID, CourseID, ChapterID, Title, Content, SortOrder)
-                VALUES (:lessonID, :courseID, :chapterID, :title, :content, :sortOrder)";
-        if ($lesson_dto->content === null) { // Changed == to === for strict comparison
-            $lesson_dto->content = "null"; // Consider handling actual NULL values if appropriate for your DB schema
-        }
+        $sql = "BEGIN COURSE_LESSON_PKG.CREATE_LESSON_PROC(:lessonID, :courseID, :chapterID, :title, :content, :sortOrder); END;";
+
         $bindParams = [
             ':lessonID'  => $lesson_dto->lessonID,
             ':courseID'  => $lesson_dto->courseID,
             ':chapterID' => $lesson_dto->chapterID,
             ':title'     => $lesson_dto->title,
-            ':content'   => $lesson_dto->content,
+            ':content'   => ['value' => $lesson_dto->content, 'type' => OCI_B_CLOB],
             ':sortOrder' => $lesson_dto->sortOrder ?? 0,
         ];
         $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        return ($stid !== false);
     }
 
     public function delete_lesson(string $lessonID): bool
     {
-        $sql = "DELETE FROM COURSELESSON WHERE LessonID = :lessonID";
+        $sql = "BEGIN COURSE_LESSON_PKG.DELETE_LESSON_PROC(:lessonID); END;";
         $bindParams = [':lessonID' => $lessonID];
         $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        return ($stid !== false);
     }
 
     public function update_lesson(LessonDTO $lesson_dto): bool
     {
-        $sql = "UPDATE COURSELESSON SET
-                CourseID = :courseID,
-                ChapterID = :chapterID,
-                Title = :title,
-                Content = :content,
-                SortOrder = :sortOrder
-                WHERE LessonID = :lessonID_where";
+        $sql = "BEGIN COURSE_LESSON_PKG.UPDATE_LESSON_PROC(:lessonID_where, :courseID, :chapterID, :title, :content, :sortOrder); END;";
+
         $bindParams = [
-            ':courseID'  => $lesson_dto->courseID,
-            ':chapterID' => $lesson_dto->chapterID,
-            ':title'     => $lesson_dto->title,
-            ':content'   => $lesson_dto->content,
-            ':sortOrder' => $lesson_dto->sortOrder ?? 0,
             ':lessonID_where' => $lesson_dto->lessonID,
+            ':courseID'      => $lesson_dto->courseID,
+            ':chapterID'     => $lesson_dto->chapterID,
+            ':title'         => $lesson_dto->title,
+            ':content'       => ['value' => $lesson_dto->content, 'type' => OCI_B_CLOB],
+            ':sortOrder'     => $lesson_dto->sortOrder ?? 0,
         ];
         $stid = $this->executePrepared($sql, $bindParams);
         return ($stid !== false);
@@ -54,22 +46,50 @@ class LessonBLL extends Database
 
     public function get_lesson_by_lesson_id(string $lessonID): ?LessonDTO
     {
-        $sql = "SELECT LessonID, CourseID, ChapterID, Title, Content, SortOrder,
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-                FROM COURSELESSON
-                WHERE LessonID = :lessonID_param";
-        $bindParams = [':lessonID_param' => $lessonID];
-        $stid = $this->executePrepared($sql, $bindParams);
-        $dto = null;
+        $sql = "BEGIN :result_cursor := COURSE_LESSON_PKG.GET_LESSON_BY_ID_FUNC(:lessonID_param); END;";
+        $bindParams = [
+            ':lessonID_param' => $lessonID
+        ];
 
-        if ($stid) {
-            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $dto = null;
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[LessonBLL] Failed to create new cursor for GET_LESSON_BY_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return null;
+        }
+
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[LessonBLL] OCI Parse failed for GET_LESSON_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        @oci_bind_by_name($parsed_stid, ':lessonID_param', $bindParams[':lessonID_param']);
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[LessonBLL] OCI Execute failed for GET_LESSON_BY_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[LessonBLL] OCI Execute failed for result cursor of GET_LESSON_BY_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $content = null;
-                // Handle CLOB content if it's an OCI-Lob object
                 if (is_object($row['CONTENT']) && method_exists($row['CONTENT'], 'read')) {
                     $content = $row['CONTENT']->read($row['CONTENT']->size());
                 } elseif (isset($row['CONTENT'])) {
-                    // Fallback for non-object content, though typically CLOBs are objects
                     $content = $row['CONTENT'];
                 }
                 $dto = new LessonDTO(
@@ -79,29 +99,58 @@ class LessonBLL extends Database
                     $row['TITLE'],
                     $content,
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
         return $dto;
     }
 
     public function get_lessons_by_chapter_id(string $chapterID): array
     {
-        $sql = "SELECT LessonID, CourseID, ChapterID, Title, Content, SortOrder,
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-                FROM COURSELESSON
-                WHERE ChapterID = :chapterID_param
-                ORDER BY SortOrder ASC";
-        $bindParams = [':chapterID_param' => $chapterID];
-        $stid = $this->executePrepared($sql, $bindParams);
-        $lessons = [];
+        $sql = "BEGIN :result_cursor := COURSE_LESSON_PKG.GET_LESSONS_BY_CHAPTER_FUNC(:chapterID_param); END;";
+        $bindParams = [
+            ':chapterID' => $chapterID
+        ];
 
-        if ($stid) {
-            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $lessons = [];
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[LessonBLL] Failed to create new cursor for GET_LESSONS_BY_CHAPTER_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return [];
+        }
+
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[LessonBLL] OCI Parse failed for GET_LESSONS_BY_CHAPTER_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        @oci_bind_by_name($parsed_stid, ':chapterID', $bindParams[':chapterID']);
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[LessonBLL] OCI Execute failed for GET_LESSONS_BY_CHAPTER_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[LessonBLL] OCI Execute failed for result cursor of GET_LESSONS_BY_CHAPTER_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $content = null;
-                // Handle CLOB content
                 if (is_object($row['CONTENT']) && method_exists($row['CONTENT'], 'read')) {
                     $content = $row['CONTENT']->read($row['CONTENT']->size());
                 } elseif (isset($row['CONTENT'])) {
@@ -114,29 +163,58 @@ class LessonBLL extends Database
                     $row['TITLE'],
                     $content,
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
         return $lessons;
     }
 
     public function get_lessons_by_course(string $courseID): array
     {
-        $sql = "SELECT LessonID, CourseID, ChapterID, Title, Content, SortOrder,
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-                FROM COURSELESSON
-                WHERE CourseID = :courseID_param
-                ORDER BY ChapterID ASC, SortOrder ASC";
-        $bindParams = [':courseID_param' => $courseID];
-        $stid = $this->executePrepared($sql, $bindParams);
-        $lessons = [];
+        $sql = "BEGIN :result_cursor := COURSE_LESSON_PKG.GET_LESSONS_BY_COURSE_FUNC(:courseID); END;";
+        $bindParams = [
+            ':courseID' => $courseID
+        ];
 
-        if ($stid) {
-            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $lessons = [];
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[LessonBLL] Failed to create new cursor for GET_LESSONS_BY_COURSE_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return [];
+        }
+
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[LessonBLL] OCI Parse failed for GET_LESSONS_BY_COURSE_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        @oci_bind_by_name($parsed_stid, ':courseID', $bindParams[':courseID']);
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[LessonBLL] OCI Execute failed for GET_LESSONS_BY_COURSE_FUNC. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[LessonBLL] OCI Execute failed for result cursor of GET_LESSONS_BY_COURSE_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $content = null;
-                // Handle CLOB content
                 if (is_object($row['CONTENT']) && method_exists($row['CONTENT'], 'read')) {
                     $content = $row['CONTENT']->read($row['CONTENT']->size());
                 } elseif (isset($row['CONTENT'])) {
@@ -149,11 +227,13 @@ class LessonBLL extends Database
                     $row['TITLE'],
                     $content,
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
         return $lessons;
     }
 }
+?>

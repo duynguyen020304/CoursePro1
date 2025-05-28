@@ -6,8 +6,7 @@ class CategoryBLL extends Database
 {
     public function create_category(CategoryDTO $cat): bool
     {
-        $sql = "INSERT INTO CATEGORIES (Name, Parent_ID, Sort_Order)
-                VALUES (:name, :parent_id, :sort_order)";
+        $sql = "BEGIN CATEGORY_PKG.CREATE_CATEGORY_PROC(:name, :parent_id, :sort_order); END;";
 
         $bindParams = [
             ':name'       => $cat->name,
@@ -16,29 +15,27 @@ class CategoryBLL extends Database
         ];
 
         $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        return ($stid !== false);
     }
 
     public function delete_category(int $id): bool
     {
-        $sql = "DELETE FROM CATEGORIES WHERE ID = :id";
+        $sql = "BEGIN CATEGORY_PKG.DELETE_CATEGORY_PROC(:id); END;";
         $bindParams = [':id' => $id];
 
         $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        return ($stid !== false);
     }
 
     public function update_category(CategoryDTO $cat): bool
     {
-        $sql = "UPDATE CATEGORIES
-                SET Name = :name, Parent_ID = :parent_id, Sort_Order = :sort_order
-                WHERE ID = :id_where";
+        $sql = "BEGIN CATEGORY_PKG.UPDATE_CATEGORY_PROC(:id_where, :name, :parent_id, :sort_order); END;";
 
         $bindParams = [
+            ':id_where'   => $cat->id,
             ':name'       => $cat->name,
             ':parent_id'  => $cat->parent_id,
             ':sort_order' => $cat->sort_order ?? 0,
-            ':id_where'   => $cat->id,
         ];
 
         $stid = $this->executePrepared($sql, $bindParams);
@@ -47,52 +44,108 @@ class CategoryBLL extends Database
 
     public function get_category(int $id): ?CategoryDTO
     {
-        $sql = "SELECT ID, Name, Parent_ID, Sort_Order, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-                FROM CATEGORIES 
-                WHERE ID = :id_param";
-        $bindParams = [':id_param' => $id];
+        $sql = "BEGIN :result_cursor := CATEGORY_PKG.GET_CATEGORY_BY_ID_FUNC(:id_param); END;";
+        $bindParams = [
+            ':id_param' => $id
+        ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
         $dto = null;
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[CategoryBLL] Failed to create new cursor for GET_CATEGORY_BY_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return null;
+        }
 
-        if ($stid) {
-            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[CategoryBLL] OCI Parse failed for GET_CATEGORY_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        @oci_bind_by_name($parsed_stid, ':id_param', $bindParams[':id_param']);
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[CategoryBLL] OCI Execute failed for GET_CATEGORY_BY_ID_FUNC. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[CategoryBLL] OCI Execute failed for result cursor. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $dto = new CategoryDTO(
                     isset($row['ID']) ? (int)$row['ID'] : 0,
                     $row['NAME'],
                     isset($row['PARENT_ID']) ? (int)$row['PARENT_ID'] : null,
                     isset($row['SORT_ORDER']) ? (int)$row['SORT_ORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
         return $dto;
     }
 
     public function get_all_categories(): array
     {
-        $sql = "SELECT ID, Name, Parent_ID, Sort_Order, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-                FROM CATEGORIES 
-                ORDER BY Sort_Order ASC, Name ASC";
-
-        $stid = $this->executePrepared($sql);
+        $sql = "BEGIN :result_cursor := CATEGORY_PKG.GET_ALL_CATEGORIES_FUNC(); END;";
         $list = [];
 
-        if ($stid) {
-            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[CategoryBLL] Failed to create new cursor for GET_ALL_CATEGORIES_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return [];
+        }
+
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[CategoryBLL] OCI Parse failed for GET_ALL_CATEGORIES_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[CategoryBLL] OCI Execute failed for GET_ALL_CATEGORIES_FUNC. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[CategoryBLL] OCI Execute failed for result cursor. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        $stid_cursor = $out_cursor;
+        if ($stid_cursor) {
+            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $list[] = new CategoryDTO(
                     isset($row['ID']) ? (int)$row['ID'] : 0,
                     $row['NAME'],
                     isset($row['PARENT_ID']) ? (int)$row['PARENT_ID'] : null,
                     isset($row['SORT_ORDER']) ? (int)$row['SORT_ORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
         return $list;
     }
 
@@ -114,7 +167,7 @@ class CategoryBLL extends Database
                 $all_by_id[$parentID]['children'][] = &$node;
             }
         }
-        unset($node); // Break the reference to the last element
+        unset($node);
 
         return $tree;
     }

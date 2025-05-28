@@ -6,125 +6,171 @@ class OrderBLL extends Database
 {
     public function create_order(OrderDTO $order): bool
     {
-        // For inserting, convert DateTime to a string format Oracle understands for TIMESTAMP
-        $sql = "INSERT INTO ORDERS (OrderID, UserID, OrderDate, TotalAmount)
-                VALUES (:orderID, :userID, TO_TIMESTAMP(:orderDate, 'YYYY-MM-DD HH24:MI:SS.FF6'), :totalAmount)";
+        $sql = "BEGIN ORDER_PKG.CREATE_ORDER_PROC(:orderID, :userID, :orderDate, :totalAmount); END;";
 
         $bindParams = [
             ':orderID'     => $order->orderID,
             ':userID'      => $order->userID,
-            // Format to include fractional seconds for TIMESTAMP
             ':orderDate'   => $order->orderDate instanceof DateTimeInterface ? $order->orderDate->format('Y-m-d H:i:s.u') : null,
             ':totalAmount' => is_numeric($order->totalAmount) ? (float)$order->totalAmount : 0,
         ];
 
         $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        return ($stid !== false);
     }
 
     public function get_order_by_order_id(string $orderID): ?OrderDTO
     {
-        // Format OrderDate and created_at using TO_CHAR for consistent retrieval
-        $sql = "SELECT OrderID, UserID, 
-                       TO_CHAR(OrderDate, 'YYYY-MM-DD HH24:MI:SS.FF6') AS order_date_formatted,
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-                FROM ORDERS
-                WHERE OrderID = :orderID_param";
-        $bindParams = [':orderID_param' => $orderID];
+        $sql = "BEGIN :result_cursor := ORDER_PKG.GET_ORDER_BY_ID_FUNC(:orderID_param); END;";
+        $bindParams = [
+            ':orderID_param' => $orderID
+        ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
         $dto = null;
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[OrderBLL] Failed to create new cursor for GET_ORDER_BY_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return null;
+        }
 
-        if ($stid) {
-            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[OrderBLL] OCI Parse failed for GET_ORDER_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        @oci_bind_by_name($parsed_stid, ':orderID_param', $bindParams[':orderID_param']);
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[OrderBLL] OCI Execute failed for GET_ORDER_BY_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[OrderBLL] OCI Execute failed for result cursor of GET_ORDER_BY_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return null;
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $orderDate = null;
-                // Parse the formatted string back into a DateTime object
                 if (!empty($row['ORDER_DATE_FORMATTED'])) {
                     try {
                         $orderDate = new DateTime($row['ORDER_DATE_FORMATTED']);
                     } catch (Exception $e) {
-                        error_log("Error parsing ORDER_DATE_FORMATTED from DB: " . $row['ORDER_DATE_FORMATTED'] . " - " . $e->getMessage());
+                        error_log("Error parsing ORDER_DATE_FORMATTED from DB (via PL/SQL): " . $row['ORDER_DATE_FORMATTED'] . " - " . $e->getMessage());
                     }
                 }
                 $dto = new OrderDTO(
                     $row['ORDERID'],
                     $row['USERID'],
-                    $orderDate, // Use the parsed DateTime object
+                    $orderDate,
                     isset($row['TOTALAMOUNT']) ? (float)$row['TOTALAMOUNT'] : 0.0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
+
         return $dto;
     }
 
     public function get_orders_by_user_id(string $userID): array
     {
-        // Format OrderDate and created_at using TO_CHAR for consistent retrieval
-        $sql = "SELECT OrderID, UserID, 
-                       TO_CHAR(OrderDate, 'YYYY-MM-DD HH24:MI:SS.FF6') AS order_date_formatted,
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-                FROM ORDERS
-                WHERE UserID = :userID_param
-                ORDER BY OrderDate DESC";
+        $sql = "BEGIN :result_cursor := ORDER_PKG.GET_ORDERS_BY_USER_FUNC(:userID_param); END;";
+        $bindParams = [
+            ':userID_param' => $userID
+        ];
 
-        $bindParams = [':userID_param' => $userID];
-
-        $stid = $this->executePrepared($sql, $bindParams);
         $orders = [];
+        $out_cursor = @oci_new_cursor($this->conn);
+        if (!$out_cursor) {
+            error_log('[OrderBLL] Failed to create new cursor for GET_ORDERS_BY_USER_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            return [];
+        }
 
-        if ($stid) {
-            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $parsed_stid = @oci_parse($this->conn, $sql);
+        if (!$parsed_stid) {
+            error_log('[OrderBLL] OCI Parse failed for GET_ORDERS_BY_USER_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        @oci_bind_by_name($parsed_stid, ':userID_param', $bindParams[':userID_param']);
+        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
+
+        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
+        if (!@oci_execute($parsed_stid, $execute_mode)) {
+            error_log('[OrderBLL] OCI Execute failed for GET_ORDERS_BY_USER_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+
+        if (!@oci_execute($out_cursor, $execute_mode)) {
+            error_log('[OrderBLL] OCI Execute failed for result cursor of GET_ORDERS_BY_USER_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
+            @oci_free_statement($parsed_stid);
+            @oci_free_cursor($out_cursor);
+            return [];
+        }
+        $stid_cursor = $out_cursor;
+
+        if ($stid_cursor) {
+            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
                 $orderDate = null;
-                // Parse the formatted string back into a DateTime object
                 if (!empty($row['ORDER_DATE_FORMATTED'])) {
                     try {
                         $orderDate = new DateTime($row['ORDER_DATE_FORMATTED']);
                     } catch (Exception $e) {
-                        error_log("Error parsing ORDER_DATE_FORMATTED from DB in get_orders_by_user: " . $row['ORDER_DATE_FORMATTED'] . " - " . $e->getMessage());
+                        error_log("Error parsing ORDER_DATE_FORMATTED from DB in get_orders_by_user (via PL/SQL): " . $row['ORDER_DATE_FORMATTED'] . " - " . $e->getMessage());
                     }
                 }
                 $orders[] = new OrderDTO(
                     $row['ORDERID'],
                     $row['USERID'],
-                    $orderDate, // Use the parsed DateTime object
+                    $orderDate,
                     isset($row['TOTALAMOUNT']) ? (float)$row['TOTALAMOUNT'] : 0.0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            @oci_free_statement($stid_cursor);
         }
+        @oci_free_statement($parsed_stid);
+
         return $orders;
     }
 
     public function update_order(OrderDTO $order): bool
     {
-        // For updating, convert DateTime to a string format Oracle understands for TIMESTAMP
-        $sql = "UPDATE ORDERS SET
-                UserID = :userID,
-                OrderDate = TO_TIMESTAMP(:orderDate, 'YYYY-MM-DD HH24:MI:SS.FF6'),
-                TotalAmount = :totalAmount
-                WHERE OrderID = :orderID_where";
+        $sql = "BEGIN ORDER_PKG.UPDATE_ORDER_PROC(:orderID_where, :userID, :orderDate, :totalAmount); END;";
 
         $bindParams = [
+            ':orderID_where' => $order->orderID,
             ':userID'       => $order->userID,
-            // Format to include fractional seconds for TIMESTAMP
             ':orderDate'    => $order->orderDate instanceof DateTimeInterface ? $order->orderDate->format('Y-m-d H:i:s.u') : null,
             ':totalAmount'  => is_numeric($order->totalAmount) ? (float)$order->totalAmount : 0,
-            ':orderID_where' => $order->orderID,
         ];
 
         $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        return ($stid !== false);
     }
 
     public function delete_order(string $orderID): bool
     {
-        $sql = "DELETE FROM ORDERS WHERE OrderID = :orderID";
+        $sql = "BEGIN ORDER_PKG.DELETE_ORDER_PROC(:orderID); END;";
         $bindParams = [':orderID' => $orderID];
 
         $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        return ($stid !== false);
     }
 }
+?>
