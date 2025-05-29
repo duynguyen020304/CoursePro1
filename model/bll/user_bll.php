@@ -95,23 +95,14 @@ class UserBLL extends Database
 
     public function update_user(UserDTO $user): bool
     {
-        $sql = "BEGIN USER_PKG.UPDATE_USER_PROC(:userID, :firstName, :lastName, :password, :roleID, :profileImage, :setProfileImageNull); END;";
-
-        $newHashedPassword = null;
-        if (!empty($user->password)) {
-            $newHashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
-        }
-
-        $setProfileImageToNullFlag = false;
-
+        $sql = "BEGIN USER_PKG.UPDATE_USER_PROC(:userID, :firstName, :lastName, :password, :roleID, :profileImage); END;";
         $bindParams = [
             ':userID'        => $user->userID,
             ':firstName'     => $user->firstName,
             ':lastName'      => $user->lastName,
-            ':password'      => $newHashedPassword,
+            ':password'      => $user->password,
             ':roleID'        => $user->roleID,
             ':profileImage'  => $user->profileImage,
-            ':setProfileImageNull' => $setProfileImageToNullFlag,
         ];
 
         $stid = $this->executePrepared($sql, $bindParams);

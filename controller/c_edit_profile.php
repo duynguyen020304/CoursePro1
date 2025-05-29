@@ -340,63 +340,6 @@ switch ($action) {
         exit;
         break;
 
-
-    case 'save_password':
-        if ($requestMethod !== 'POST') {
-            $_SESSION['update_message'] = 'Invalid request method for password change.';
-            $_SESSION['message_type'] = 'danger';
-            header("Location: " . $redirectUrl);
-            exit;
-        }
-
-        $userID = $_POST['userID'] ?? null;
-        $currentPassword = $_POST['currentPassword'] ?? '';
-        $newPassword = $_POST['newPassword'] ?? '';
-        $confirmPassword = $_POST['confirmPassword'] ?? '';
-
-        if (empty($userID) || empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
-            $_SESSION['update_message'] = 'All password fields are required.';
-            $_SESSION['message_type'] = 'danger';
-            header("Location: " . $redirectUrl);
-            exit;
-        }
-
-        if ($newPassword !== $confirmPassword) {
-            $_SESSION['update_message'] = 'New password and confirmation password do not match.';
-            $_SESSION['message_type'] = 'danger';
-            header("Location: " . $redirectUrl);
-            exit;
-        }
-
-        if (strlen($newPassword) < 8) {
-            $_SESSION['update_message'] = 'New password must be at least 8 characters long.';
-            $_SESSION['message_type'] = 'danger';
-            header("Location: " . $redirectUrl);
-            exit;
-        }
-
-        $apiPayload = [
-            'userID' => $userID,
-            'currentPassword' => $currentPassword,
-            'newPassword' => $newPassword,
-            'isChangePassword' => true,
-        ];
-
-        $passwordApiUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
-            . "://" . $_SERVER['HTTP_HOST']
-            . $baseAppPath
-            . '/api/user_api.php';
-        $response = callApi($passwordApiUrl, 'PUT', $apiPayload);
-
-        if ($response['success']) {
-            $_SESSION['update_message'] = $response['message'] ?? 'Password changed successfully.';
-            $_SESSION['message_type'] = 'success';
-        } else {
-            $_SESSION['update_message'] = 'Failed to change password: ' . ($response['message'] ?? 'Unknown API error.');
-        }
-        header("Location: " . $redirectUrl . '#profileContent');
-        exit;
-        break;
     case 'load_img_profile':
         $userId = $_GET['user_id'] ?? null;
         $imageName = $_GET['image'] ?? null;
