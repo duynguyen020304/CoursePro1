@@ -1,7 +1,9 @@
+-- Script SQL được cập nhật để sử dụng UTC+7 cho các cột TIMESTAMP
+
 CREATE TABLE Role (
                       RoleID      VARCHAR2(20 CHAR) CONSTRAINT pk_role PRIMARY KEY,
                       RoleName    VARCHAR2(50 CHAR) CONSTRAINT uq_role_rolename UNIQUE NOT NULL,
-                      created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
+                      created_at TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL
 );
 
 MERGE INTO Role tgt
@@ -10,7 +12,7 @@ ON (tgt.RoleID = src.RoleID)
 WHEN MATCHED THEN
     UPDATE SET tgt.RoleName = src.RoleName
 WHEN NOT MATCHED THEN
-    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, SYSTIMESTAMP);
+    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
 MERGE INTO Role tgt
 USING (SELECT 'instructor' AS RoleID, 'Giảng viên' AS RoleName FROM dual) src
@@ -18,7 +20,7 @@ ON (tgt.RoleID = src.RoleID)
 WHEN MATCHED THEN
     UPDATE SET tgt.RoleName = src.RoleName
 WHEN NOT MATCHED THEN
-    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, SYSTIMESTAMP);
+    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
 MERGE INTO Role tgt
 USING (SELECT 'admin' AS RoleID, 'Quản trị viên' AS RoleName FROM dual) src
@@ -26,7 +28,7 @@ ON (tgt.RoleID = src.RoleID)
 WHEN MATCHED THEN
     UPDATE SET tgt.RoleName = src.RoleName
 WHEN NOT MATCHED THEN
-    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, SYSTIMESTAMP);
+    INSERT (RoleID, RoleName, created_at) VALUES (src.RoleID, src.RoleName, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
 CREATE TABLE Users (
                        UserID       VARCHAR2(40 CHAR) CONSTRAINT pk_users PRIMARY KEY,
@@ -36,7 +38,7 @@ CREATE TABLE Users (
                        Password     VARCHAR2(255 CHAR) NOT NULL,
                        RoleID       VARCHAR2(20 CHAR) NOT NULL,
                        ProfileImage VARCHAR2(255 CHAR),
-                       created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                       created_at   TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                        CONSTRAINT fk_users_role FOREIGN KEY (RoleID) REFERENCES Role(RoleID)
 );
 
@@ -44,14 +46,14 @@ CREATE TABLE Instructor (
                             InstructorID VARCHAR2(40 CHAR) CONSTRAINT pk_instructor PRIMARY KEY,
                             UserID       VARCHAR2(40 CHAR) CONSTRAINT uq_instructor_userid UNIQUE NOT NULL,
                             Biography    CLOB,
-                            created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                            created_at   TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                             CONSTRAINT fk_instructor_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
 CREATE TABLE Student (
                          StudentID  VARCHAR2(40 CHAR) CONSTRAINT pk_student PRIMARY KEY,
                          UserID     VARCHAR2(40 CHAR) CONSTRAINT uq_student_userid UNIQUE NOT NULL,
-                         created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                         created_at TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                          CONSTRAINT fk_student_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
@@ -60,147 +62,147 @@ CREATE TABLE categories (
                             name        VARCHAR2(255 CHAR) NOT NULL,
                             parent_id   NUMBER DEFAULT NULL,
                             sort_order  NUMBER DEFAULT 0,
-                            created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                            created_at  TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                             CONSTRAINT fk_categories_parent FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED
 );
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (1, 'Phát triển', NULL, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (33, 'Kinh doanh', NULL, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (41, 'CNTT & Phần mềm', NULL, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (49, 'Thiết kế', NULL, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (56, 'Marketing', NULL, 5, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (63, 'Phát triển cá nhân', NULL, 6, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (69, 'Âm nhạc', NULL, 7, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (73, 'Sức khỏe & Thể hình', NULL, 8, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (78, 'Giảng dạy & Học thuật', NULL, 9, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (1, 'Phát triển', NULL, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (33, 'Kinh doanh', NULL, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (41, 'CNTT & Phần mềm', NULL, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (49, 'Thiết kế', NULL, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (56, 'Marketing', NULL, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (63, 'Phát triển cá nhân', NULL, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (69, 'Âm nhạc', NULL, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (73, 'Sức khỏe & Thể hình', NULL, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (78, 'Giảng dạy & Học thuật', NULL, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (2, 'Lập trình Web', 1, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (14, 'Lập trình Mobile', 1, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (20, 'Lập trình Game', 1, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (24, 'Phát triển phần mềm', 1, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (30, 'Lập trình nhúng / IoT', 1, 5, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (31, 'Blockchain', 1, 6, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (32, 'No-Code Development', 1, 7, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (2, 'Lập trình Web', 1, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (14, 'Lập trình Mobile', 1, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (20, 'Lập trình Game', 1, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (24, 'Phát triển phần mềm', 1, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (30, 'Lập trình nhúng / IoT', 1, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (31, 'Blockchain', 1, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (32, 'No-Code Development', 1, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (3, 'HTML & CSS', 2, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (4, 'JavaScript', 2, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (5, 'ReactJS', 2, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (6, 'VueJS', 2, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (7, 'Angular', 2, 5, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (8, 'PHP', 2, 6, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (9, 'Laravel', 2, 7, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (10, 'ASP.NET', 2, 8, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (11, 'Django', 2, 9, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (12, 'NodeJS', 2, 10, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (13, 'Web APIs', 2, 11, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (3, 'HTML & CSS', 2, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (4, 'JavaScript', 2, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (5, 'ReactJS', 2, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (6, 'VueJS', 2, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (7, 'Angular', 2, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (8, 'PHP', 2, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (9, 'Laravel', 2, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (10, 'ASP.NET', 2, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (11, 'Django', 2, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (12, 'NodeJS', 2, 10, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (13, 'Web APIs', 2, 11, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (15, 'Android Development', 14, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (16, 'iOS Development', 14, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (17, 'React Native', 14, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (18, 'Flutter', 14, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (19, 'Xamarin', 14, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (15, 'Android Development', 14, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (16, 'iOS Development', 14, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (17, 'React Native', 14, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (18, 'Flutter', 14, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (19, 'Xamarin', 14, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (21, 'Unity', 20, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (22, 'Unreal Engine', 20, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (23, 'Godot', 20, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (21, 'Unity', 20, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (22, 'Unreal Engine', 20, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (23, 'Godot', 20, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (25, 'Python', 24, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (26, 'Java', 24, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (27, 'C++', 24, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (28, 'C#', 24, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (29, 'Rust', 24, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (25, 'Python', 24, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (26, 'Java', 24, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (27, 'C++', 24, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (28, 'C#', 24, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (29, 'Rust', 24, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (34, 'Quản trị kinh doanh', 33, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (35, 'Doanh nghiệp khởi nghiệp', 33, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (36, 'Quản lý dự án', 33, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (37, 'Agile & Scrum', 33, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (38, 'Tài chính & Kế toán', 33, 5, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (39, 'Phân tích kinh doanh (Business Analytics)', 33, 6, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (40, 'Nhân sự (HR)', 33, 7, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (34, 'Quản trị kinh doanh', 33, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (35, 'Doanh nghiệp khởi nghiệp', 33, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (36, 'Quản lý dự án', 33, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (37, 'Agile & Scrum', 33, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (38, 'Tài chính & Kế toán', 33, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (39, 'Phân tích kinh doanh (Business Analytics)', 33, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (40, 'Nhân sự (HR)', 33, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (42, 'Mạng máy tính & Bảo mật', 41, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (43, 'Ethical Hacking', 41, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (44, 'Khoa học dữ liệu (Data Science)', 41, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (45, 'Trí tuệ nhân tạo (AI)', 41, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (46, 'Hệ điều hành (Linux, Windows Server)', 41, 5, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (47, 'DevOps', 41, 6, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (48, 'Kiểm thử phần mềm (Software Testing)', 41, 7, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (42, 'Mạng máy tính & Bảo mật', 41, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (43, 'Ethical Hacking', 41, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (44, 'Khoa học dữ liệu (Data Science)', 41, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (45, 'Trí tuệ nhân tạo (AI)', 41, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (46, 'Hệ điều hành (Linux, Windows Server)', 41, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (47, 'DevOps', 41, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (48, 'Kiểm thử phần mềm (Software Testing)', 41, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (50, 'Thiết kế Web', 49, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (51, 'Thiết kế UI/UX', 49, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (52, 'Adobe Photoshop', 49, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (53, 'Illustrator', 49, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (54, 'Thiết kế đồ họa 2D/3D', 49, 5, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (55, 'Thiết kế sản phẩm', 49, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (50, 'Thiết kế Web', 49, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (51, 'Thiết kế UI/UX', 49, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (52, 'Adobe Photoshop', 49, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (53, 'Illustrator', 49, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (54, 'Thiết kế đồ họa 2D/3D', 49, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (55, 'Thiết kế sản phẩm', 49, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (57, 'Digital Marketing', 56, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (58, 'SEO', 56, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (59, 'Google Ads / Facebook Ads', 56, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (60, 'Content Marketing', 56, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (61, 'Email Marketing', 56, 5, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (62, 'Affiliate Marketing', 56, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (57, 'Digital Marketing', 56, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (58, 'SEO', 56, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (59, 'Google Ads / Facebook Ads', 56, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (60, 'Content Marketing', 56, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (61, 'Email Marketing', 56, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (62, 'Affiliate Marketing', 56, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (64, 'Kỹ năng giao tiếp', 63, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (65, 'Lãnh đạo', 63, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (66, 'Quản lý thời gian', 63, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (67, 'Tư duy phản biện', 63, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (68, 'Đọc nhanh & Ghi nhớ', 63, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (64, 'Kỹ năng giao tiếp', 63, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (65, 'Lãnh đạo', 63, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (66, 'Quản lý thời gian', 63, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (67, 'Tư duy phản biện', 63, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (68, 'Đọc nhanh & Ghi nhớ', 63, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (70, 'Nhạc cụ (Piano, Guitar, v.v.)', 69, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (71, 'Sản xuất âm nhạc', 69, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (72, 'DJ & Âm thanh điện tử', 69, 3, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (70, 'Nhạc cụ (Piano, Guitar, v.v.)', 69, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (71, 'Sản xuất âm nhạc', 69, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (72, 'DJ & Âm thanh điện tử', 69, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (74, 'Yoga', 73, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (75, 'Thiền', 73, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (76, 'Dinh dưỡng', 73, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (77, 'Tập luyện thể hình', 73, 4, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (74, 'Yoga', 73, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (75, 'Thiền', 73, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (76, 'Dinh dưỡng', 73, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (77, 'Tập luyện thể hình', 73, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (79, 'Toán học', 78, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (80, 'Vật lý', 78, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (81, 'Lập trình cho trẻ em', 78, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (82, 'Khoa học máy tính', 78, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (83, 'IELTS, TOEIC, TOEFL', 78, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (79, 'Toán học', 78, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (80, 'Vật lý', 78, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (81, 'Lập trình cho trẻ em', 78, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (82, 'Khoa học máy tính', 78, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (83, 'IELTS, TOEIC, TOEFL', 78, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (84, 'Ngoại ngữ', NULL, 10, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (84, 'Ngoại ngữ', NULL, 10, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (85, 'Tiếng Anh', 84, 1, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (86, 'Tiếng Nhật', 84, 2, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (87, 'Tiếng Hàn', 84, 3, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (88, 'Tiếng Trung', 84, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (89, 'Tiếng Pháp', 84, 5, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (90, 'Tiếng Đức', 84, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (85, 'Tiếng Anh', 84, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (86, 'Tiếng Nhật', 84, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (87, 'Tiếng Hàn', 84, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (88, 'Tiếng Trung', 84, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (89, 'Tiếng Pháp', 84, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (90, 'Tiếng Đức', 84, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (91, 'Cloud Computing (AWS, Azure, GCP)', 1, 8, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (92, 'Data Engineering', 1, 9, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (91, 'Cloud Computing (AWS, Azure, GCP)', 1, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (92, 'Data Engineering', 1, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (93, 'E-commerce', 33, 8, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (94, 'Đầu tư (Chứng khoán, Bất động sản)', 33, 9, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (93, 'E-commerce', 33, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (94, 'Đầu tư (Chứng khoán, Bất động sản)', 33, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (95, 'Machine Learning', 41, 8, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (96, 'Database Management (SQL, NoSQL)', 41, 9, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (97, 'Cybersecurity Chuyên sâu', 41, 10, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (95, 'Machine Learning', 41, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (96, 'Database Management (SQL, NoSQL)', 41, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (97, 'Cybersecurity Chuyên sâu', 41, 10, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (98, 'Animation (2D/3D)', 49, 7, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (99, 'Video Editing (Premiere, Final Cut)', 49, 8, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (100, 'Figma', 49, 9, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (98, 'Animation (2D/3D)', 49, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (99, 'Video Editing (Premiere, Final Cut)', 49, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (100, 'Figma', 49, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (101, 'Social Media Marketing', 56, 7, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (102, 'Branding & Xây dựng thương hiệu', 56, 8, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (101, 'Social Media Marketing', 56, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (102, 'Branding & Xây dựng thương hiệu', 56, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (103, 'Năng suất & Tổ chức công việc', 63, 6, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (104, 'Trí tuệ cảm xúc (EQ)', 63, 7, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (103, 'Năng suất & Tổ chức công việc', 63, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (104, 'Trí tuệ cảm xúc (EQ)', 63, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (105, 'Lý thuyết âm nhạc', 69, 4, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (106, 'Thanh nhạc', 69, 5, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (105, 'Lý thuyết âm nhạc', 69, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (106, 'Thanh nhạc', 69, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (107, 'Sơ cứu & Chăm sóc sức khỏe cơ bản', 73, 5, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (108, 'Mindfulness & Giảm căng thẳng', 73, 6, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (107, 'Sơ cứu & Chăm sóc sức khỏe cơ bản', 73, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (108, 'Mindfulness & Giảm căng thẳng', 73, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (109, 'Hóa học', 78, 6, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (110, 'Sinh học', 78, 7, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (111, 'Lịch sử', 78, 8, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (112, 'Địa lý', 78, 9, SYSTIMESTAMP);
-INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (113, 'Văn học', 78, 10, SYSTIMESTAMP);
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (109, 'Hóa học', 78, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (110, 'Sinh học', 78, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (111, 'Lịch sử', 78, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (112, 'Địa lý', 78, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (113, 'Văn học', 78, 10, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
 
 CREATE TABLE Course (
@@ -209,13 +211,13 @@ CREATE TABLE Course (
                         Description CLOB,
                         Price       NUMBER(10,2) NOT NULL,
                         CreatedBy   VARCHAR2(40 CHAR) NOT NULL,
-                        created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
+                        created_at  TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL
 );
 
 CREATE TABLE CourseInstructor (
                                   CourseID     VARCHAR2(40 CHAR),
                                   InstructorID VARCHAR2(40 CHAR),
-                                  created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                  created_at   TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                   CONSTRAINT pk_courseinstructor PRIMARY KEY (CourseID, InstructorID),
                                   CONSTRAINT fk_ci_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
                                   CONSTRAINT fk_ci_instructor FOREIGN KEY (InstructorID) REFERENCES Instructor(InstructorID) ON DELETE CASCADE
@@ -224,7 +226,7 @@ CREATE TABLE CourseInstructor (
 CREATE TABLE CourseCategory (
                                 CourseID   VARCHAR2(40 CHAR) NOT NULL,
                                 CategoryID NUMBER NOT NULL,
-                                created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                created_at TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                 CONSTRAINT pk_coursecategory PRIMARY KEY (CourseID, CategoryID),
                                 CONSTRAINT fk_cc_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
                                 CONSTRAINT fk_cc_category FOREIGN KEY (CategoryID) REFERENCES categories(id) ON DELETE CASCADE
@@ -236,7 +238,7 @@ CREATE TABLE CourseChapter (
                                Title       VARCHAR2(255 CHAR) NOT NULL,
                                Description CLOB,
                                SortOrder   NUMBER DEFAULT 0 NOT NULL,
-                               created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                               created_at  TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                CONSTRAINT fk_chapter_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
 );
 
@@ -247,7 +249,7 @@ CREATE TABLE CourseLesson (
                               Title       VARCHAR2(255 CHAR) NOT NULL,
                               Content     CLOB,
                               SortOrder   NUMBER DEFAULT 0 NOT NULL,
-                              created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                              created_at  TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                               CONSTRAINT fk_lesson_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
                               CONSTRAINT fk_lesson_chapter FOREIGN KEY (ChapterID) REFERENCES CourseChapter(ChapterID) ON DELETE CASCADE
 );
@@ -259,7 +261,7 @@ CREATE TABLE CourseVideo (
                              Title      VARCHAR2(255 CHAR),
                              Duration   NUMBER DEFAULT 0 NOT NULL,
                              SortOrder  NUMBER DEFAULT 0 NOT NULL,
-                             created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                             created_at TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                              CONSTRAINT fk_video_lesson FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID) ON DELETE CASCADE
 );
 
@@ -269,7 +271,7 @@ CREATE TABLE CourseResource (
                                 ResourcePath VARCHAR2(255 CHAR) NOT NULL,
                                 Title        VARCHAR2(255 CHAR),
                                 SortOrder    NUMBER DEFAULT 0 NOT NULL,
-                                created_at   TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                created_at   TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                 CONSTRAINT fk_resource_lesson FOREIGN KEY (LessonID) REFERENCES CourseLesson(LessonID) ON DELETE CASCADE
 );
 
@@ -279,7 +281,7 @@ CREATE TABLE CourseImage (
                              ImagePath  VARCHAR2(255 CHAR) NOT NULL,
                              Caption    VARCHAR2(255 CHAR),
                              SortOrder  NUMBER DEFAULT 0 NOT NULL,
-                             created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                             created_at TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                              CONSTRAINT fk_image_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
 );
 
@@ -287,7 +289,7 @@ CREATE TABLE CourseObjective (
                                  ObjectiveID VARCHAR2(40 CHAR) NOT NULL,
                                  CourseID    VARCHAR2(40 CHAR) NOT NULL,
                                  Objective   VARCHAR2(255 CHAR) NOT NULL,
-                                 created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                 created_at  TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                  CONSTRAINT pk_courseobjective PRIMARY KEY (CourseID, ObjectiveID),
                                  CONSTRAINT fk_objective_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
 );
@@ -296,7 +298,7 @@ CREATE TABLE CourseRequirement (
                                    RequirementID VARCHAR2(40 CHAR) NOT NULL,
                                    CourseID      VARCHAR2(40 CHAR) NOT NULL,
                                    Requirement   VARCHAR2(255 CHAR) NOT NULL,
-                                   created_at    TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                   created_at    TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                    CONSTRAINT pk_courserequirement PRIMARY KEY (CourseID, RequirementID),
                                    CONSTRAINT fk_requirement_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE
 );
@@ -304,7 +306,7 @@ CREATE TABLE CourseRequirement (
 CREATE TABLE Cart (
                       CartID     VARCHAR2(40 CHAR) CONSTRAINT pk_cart PRIMARY KEY,
                       UserID     VARCHAR2(40 CHAR) CONSTRAINT uq_cart_userid UNIQUE NOT NULL,
-                      created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                      created_at TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                       CONSTRAINT fk_cart_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
@@ -313,7 +315,7 @@ CREATE TABLE CartItem (
                           CartID     VARCHAR2(40 CHAR) NOT NULL,
                           CourseID   VARCHAR2(40 CHAR) NOT NULL,
                           Quantity   NUMBER NOT NULL,
-                          created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                          created_at TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                           CONSTRAINT fk_cartitem_cart FOREIGN KEY (CartID) REFERENCES Cart(CartID) ON DELETE CASCADE,
                           CONSTRAINT fk_cartitem_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
                           CONSTRAINT ck_cartitem_quantity CHECK (Quantity > 0)
@@ -322,9 +324,9 @@ CREATE TABLE CartItem (
 CREATE TABLE Orders (
                         OrderID     VARCHAR2(40 CHAR) CONSTRAINT pk_orders PRIMARY KEY,
                         UserID      VARCHAR2(40 CHAR) NOT NULL,
-                        OrderDate   TIMESTAMP DEFAULT SYSTIMESTAMP,
+                        OrderDate   TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP),
                         TotalAmount NUMBER(10,2) NOT NULL,
-                        created_at  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                        created_at  TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                         CONSTRAINT fk_orders_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE SET NULL
 );
 
@@ -332,7 +334,7 @@ CREATE TABLE OrderDetail (
                              OrderID  VARCHAR2(40 CHAR) NOT NULL,
                              CourseID VARCHAR2(40 CHAR) NOT NULL,
                              Price    NUMBER(10,2) NOT NULL,
-                             created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                             created_at TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                              CONSTRAINT pk_orderdetail PRIMARY KEY (OrderID, CourseID),
                              CONSTRAINT fk_detail_orders FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,
                              CONSTRAINT fk_detail_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
@@ -343,8 +345,8 @@ CREATE TABLE Review (
                         UserID     VARCHAR2(40 CHAR) NOT NULL,
                         CourseID   VARCHAR2(40 CHAR) NOT NULL,
                         Rating     NUMBER NOT NULL,
-                        ReviewText CLOB, -- Đã đổi từ Comment sang Review_Text
-                        created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                        ReviewText CLOB,
+                        created_at TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                         CONSTRAINT fk_review_users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
                         CONSTRAINT fk_review_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID) ON DELETE CASCADE,
                         CONSTRAINT ck_review_rating CHECK (Rating BETWEEN 1 AND 5)
@@ -353,11 +355,11 @@ CREATE TABLE Review (
 CREATE TABLE Payment (
                          PaymentID     VARCHAR2(40 CHAR) CONSTRAINT pk_payment PRIMARY KEY,
                          OrderID       VARCHAR2(40 CHAR) NOT NULL,
-                         PaymentDate   TIMESTAMP DEFAULT SYSTIMESTAMP,
+                         PaymentDate   TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP),
                          PaymentMethod VARCHAR2(50 CHAR),
                          PaymentStatus VARCHAR2(50 CHAR),
                          Amount        NUMBER(10,2) NOT NULL,
-                         created_at    TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                         created_at    TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                          CONSTRAINT fk_payment_orders FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
 );
 
@@ -365,10 +367,14 @@ CREATE TABLE password_resets (
                                  id         NUMBER GENERATED BY DEFAULT AS IDENTITY CONSTRAINT pk_password_resets PRIMARY KEY,
                                  email      VARCHAR2(100 CHAR) NOT NULL,
                                  token      VARCHAR2(255 CHAR) NOT NULL,
-                                 created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
+                                 created_at TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL
 );
 
 CREATE INDEX idx_password_resets_email ON password_resets(email);
+
+-- History Tables
+-- Lưu ý: created_at_original sẽ lưu giá trị đã được chuyển đổi sang UTC+7 từ bảng gốc
+-- DML_Timestamp cũng sẽ được lưu trữ theo UTC+7
 
 CREATE TABLE Users_History (
                                HistoryID         NUMBER GENERATED BY DEFAULT AS IDENTITY CONSTRAINT pk_users_history PRIMARY KEY,
@@ -381,7 +387,7 @@ CREATE TABLE Users_History (
                                ProfileImage      VARCHAR2(255 CHAR),
                                created_at_original TIMESTAMP,
                                DML_Type          VARCHAR2(10 CHAR) NOT NULL,
-                               DML_Timestamp     TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                               DML_Timestamp     TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                DML_User          VARCHAR2(128 CHAR)
 );
 
@@ -394,7 +400,7 @@ CREATE TABLE Course_History (
                                 CreatedBy         VARCHAR2(40 CHAR),
                                 created_at_original TIMESTAMP,
                                 DML_Type          VARCHAR2(10 CHAR) NOT NULL,
-                                DML_Timestamp     TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                DML_Timestamp     TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                 DML_User          VARCHAR2(128 CHAR)
 );
 
@@ -402,11 +408,11 @@ CREATE TABLE Orders_History (
                                 HistoryID         NUMBER GENERATED BY DEFAULT AS IDENTITY CONSTRAINT pk_orders_history PRIMARY KEY,
                                 OrderID           VARCHAR2(40 CHAR),
                                 UserID            VARCHAR2(40 CHAR),
-                                OrderDate         TIMESTAMP,
+                                OrderDate         TIMESTAMP, -- Lưu ý: OrderDate gốc cũng đã được chuyển đổi
                                 TotalAmount       NUMBER(10,2),
                                 created_at_original TIMESTAMP,
                                 DML_Type          VARCHAR2(10 CHAR) NOT NULL,
-                                DML_Timestamp     TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                DML_Timestamp     TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                 DML_User          VARCHAR2(128 CHAR)
 );
 
@@ -416,7 +422,7 @@ CREATE TABLE Role_History (
                               RoleName          VARCHAR2(50 CHAR),
                               created_at_original TIMESTAMP,
                               DML_Type          VARCHAR2(10 CHAR) NOT NULL,
-                              DML_Timestamp     TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                              DML_Timestamp     TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                               DML_User          VARCHAR2(128 CHAR)
 );
 
@@ -427,7 +433,7 @@ CREATE TABLE Instructor_History (
                                     Biography           CLOB,
                                     created_at_original TIMESTAMP,
                                     DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                    DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                    DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                     DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -437,7 +443,7 @@ CREATE TABLE Student_History (
                                  UserID              VARCHAR2(40 CHAR),
                                  created_at_original TIMESTAMP,
                                  DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                 DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                 DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                  DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -449,7 +455,7 @@ CREATE TABLE categories_History (
                                     sort_order          NUMBER,
                                     created_at_original TIMESTAMP,
                                     DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                    DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                    DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                     DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -459,7 +465,7 @@ CREATE TABLE CourseInstructor_History (
                                           InstructorID        VARCHAR2(40 CHAR),
                                           created_at_original TIMESTAMP,
                                           DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                          DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                          DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                           DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -469,7 +475,7 @@ CREATE TABLE CourseCategory_History (
                                         CategoryID          NUMBER,
                                         created_at_original TIMESTAMP,
                                         DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                        DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                        DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                         DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -482,7 +488,7 @@ CREATE TABLE CourseChapter_History (
                                        SortOrder           NUMBER,
                                        created_at_original TIMESTAMP,
                                        DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                       DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                       DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                        DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -496,7 +502,7 @@ CREATE TABLE CourseLesson_History (
                                       SortOrder           NUMBER,
                                       created_at_original TIMESTAMP,
                                       DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                      DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                      DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                       DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -510,7 +516,7 @@ CREATE TABLE CourseVideo_History (
                                      SortOrder           NUMBER,
                                      created_at_original TIMESTAMP,
                                      DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                     DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                     DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                      DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -523,7 +529,7 @@ CREATE TABLE CourseResource_History (
                                         SortOrder           NUMBER,
                                         created_at_original TIMESTAMP,
                                         DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                        DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                        DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                         DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -536,7 +542,7 @@ CREATE TABLE CourseImage_History (
                                      SortOrder           NUMBER,
                                      created_at_original TIMESTAMP,
                                      DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                     DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                     DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                      DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -547,7 +553,7 @@ CREATE TABLE CourseObjective_History (
                                          Objective           VARCHAR2(255 CHAR),
                                          created_at_original TIMESTAMP,
                                          DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                         DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                         DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                          DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -558,7 +564,7 @@ CREATE TABLE CourseRequirement_History (
                                            Requirement         VARCHAR2(255 CHAR),
                                            created_at_original TIMESTAMP,
                                            DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                           DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                           DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                            DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -568,7 +574,7 @@ CREATE TABLE Cart_History (
                               UserID              VARCHAR2(40 CHAR),
                               created_at_original TIMESTAMP,
                               DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                              DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                              DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                               DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -580,7 +586,7 @@ CREATE TABLE CartItem_History (
                                   Quantity            NUMBER,
                                   created_at_original TIMESTAMP,
                                   DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                  DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                  DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                   DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -591,7 +597,7 @@ CREATE TABLE OrderDetail_History (
                                      Price               NUMBER(10,2),
                                      created_at_original TIMESTAMP,
                                      DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                     DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                     DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                      DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -604,7 +610,7 @@ CREATE TABLE Review_History (
                                 ReviewText          CLOB,
                                 created_at_original TIMESTAMP,
                                 DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                 DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -612,13 +618,13 @@ CREATE TABLE Payment_History (
                                  HistoryID           NUMBER GENERATED BY DEFAULT AS IDENTITY CONSTRAINT pk_payment_history PRIMARY KEY,
                                  PaymentID           VARCHAR2(40 CHAR),
                                  OrderID             VARCHAR2(40 CHAR),
-                                 PaymentDate         TIMESTAMP,
+                                 PaymentDate         TIMESTAMP, -- Lưu ý: PaymentDate gốc cũng đã được chuyển đổi
                                  PaymentMethod       VARCHAR2(50 CHAR),
                                  PaymentStatus       VARCHAR2(50 CHAR),
                                  Amount              NUMBER(10,2),
                                  created_at_original TIMESTAMP,
                                  DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                 DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                 DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                  DML_User            VARCHAR2(128 CHAR)
 );
 
@@ -629,7 +635,7 @@ CREATE TABLE password_resets_History (
                                          token               VARCHAR2(255 CHAR),
                                          created_at_original TIMESTAMP,
                                          DML_Type            VARCHAR2(10 CHAR) NOT NULL,
-                                         DML_Timestamp       TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                                         DML_Timestamp       TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL,
                                          DML_User            VARCHAR2(128 CHAR)
 );
 

@@ -1,5 +1,5 @@
 <?php
-
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 class Database
 {
     private string $host = 'localhost';
@@ -46,6 +46,41 @@ class Database
             if (!$this->conn) {
                 $error = oci_error();
                 $this->handleOracleError($error, "Oracle Connection Failed. User: '{$this->user}', String: '{$connection_string}'");
+            }
+            if ($this->conn) {
+                $alterSessionSQL = "ALTER SESSION SET TIME_ZONE = 'Asia/Ho_Chi_Minh'";
+                $stid_alter = oci_parse($this->conn, $alterSessionSQL);
+
+                if (!$stid_alter) {
+                    $error = oci_error($this->conn);
+                    $this->handleOracleError($error, "OCI Parse failed for ALTER SESSION TIME_ZONE. SQL: " . $alterSessionSQL);
+                } else {
+                    if (!@oci_execute($stid_alter, OCI_DEFAULT)) { // OCI_DEFAULT thường là auto-commit cho DDL
+                        $error = oci_error($stid_alter);
+                        $this->handleOracleError($error, "OCI Execute failed for ALTER SESSION TIME_ZONE. SQL: " . $alterSessionSQL);
+                    } else {
+                        error_log("[DB-OCI8] Successfully executed: " . $alterSessionSQL);
+                        // Xác minh ngay lập tức
+                        $tz_check_sql = "SELECT SESSIONTIMEZONE FROM DUAL";
+                        $stid_check = @oci_parse($this->conn, $tz_check_sql);
+                        if ($stid_check && @oci_execute($stid_check)) {
+                            if (($row_tz = @oci_fetch_assoc($stid_check)) !== false) {
+                                error_log("[DB-OCI8] Verified SESSIONTIMEZONE: " . $row_tz['SESSIONTIMEZONE']);
+                                // Oracle có thể trả về +07:00 thay vì tên vùng
+                                if (strcasecmp($row_tz['SESSIONTIMEZONE'], 'Asia/Ho_Chi_Minh') != 0 && strcasecmp($row_tz['SESSIONTIMEZONE'], '+07:00') != 0) {
+                                    error_log("[DB-OCI8] WARNING: SESSIONTIMEZONE after ALTER is '" . $row_tz['SESSIONTIMEZONE'] . "', expected 'Asia/Ho_Chi_Minh' or '+07:00'.");
+                                }
+                            } else {
+                                error_log("[DB-OCI8] Could not fetch SESSIONTIMEZONE for verification.");
+                            }
+                            @oci_free_statement($stid_check);
+                        } else {
+                            $error_check = $stid_check ? oci_error($stid_check) : oci_error($this->conn);
+                            $this->handleOracleError($error_check, "Failed to execute/parse SESSIONTIMEZONE check.");
+                        }
+                    }
+                    @oci_free_statement($stid_alter);
+                }
             }
         } catch (Exception $e) {
             $this->lastError = $e->getMessage();
