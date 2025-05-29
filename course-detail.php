@@ -168,7 +168,7 @@ $js_user_token = $_SESSION['user']['token'] ?? null;
 $js_current_course_id = $course_data['courseID'] ?? null;
 $js_is_user_logged_in = isset($_SESSION['user']['token']);
 $js_signin_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/signin.php';
-
+$js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
 ?>
 <?php include('template/head.php'); ?>
     <script type="text/javascript">
@@ -177,6 +177,7 @@ $js_signin_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/signin.php';
         const CURRENT_COURSE_ID_JS = <?php echo json_encode($js_current_course_id); ?>;
         const IS_USER_LOGGED_IN_JS = <?php echo json_encode($js_is_user_logged_in); ?>;
         const SIGNIN_URL_JS = <?php echo json_encode($js_signin_url); ?>;
+        const CART_PAGE_URL_JS = <?php echo json_encode($js_cart_page_url); ?>;
     </script>
 <?php include('template/header.php'); ?>
     <link href="<?php echo $app_root_url_for_paths; ?>/public/css/course-detail.css" rel="stylesheet">
@@ -546,7 +547,7 @@ $js_signin_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/signin.php';
                 </div>
                 <div class="course-price"><?php echo format_price($course_data['price'] ?? 0); ?></div>
                 <button id="addToCartBtn" class="course-btn course-btn-cart" type="button">Thêm vào giỏ hàng</button>
-                <button class="course-btn course-btn-buy" type="button">Mua ngay</button>
+                <button id="buyNowBtn" class="course-btn course-btn-buy" type="button">Mua ngay</button>
                 <div class="course-guarantee">Bảo đảm hoàn tiền trong 30 ngày</div>
                 <ul class="course-feature-list">
                     <li><svg width="18" height="18" fill="none" stroke="#5624d0" stroke-width="2">
@@ -786,6 +787,111 @@ $js_signin_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/signin.php';
                     } finally {
                         this.disabled = false;
                         this.textContent = 'Thêm vào giỏ hàng';
+                    }
+                });
+            }
+            const buyNowButton = document.getElementById('buyNowBtn');
+
+            if (buyNowButton) {
+                buyNowButton.addEventListener('click', async function() {
+                    if (!IS_USER_LOGGED_IN_JS) {
+                        alert('Bạn cần đăng nhập để mua khóa học.');
+                        window.location.href = SIGNIN_URL_JS;
+                        return;
+                    }
+
+                    if (!CURRENT_COURSE_ID_JS) {
+                        alert('Lỗi: Không xác định được ID khóa học.');
+                        return;
+                    }
+
+                    if (!USER_TOKEN_JS) {
+                        alert('Lỗi: Không tìm thấy token xác thực. Vui lòng đăng nhập lại.');
+                        window.location.href = SIGNIN_URL_JS;
+                        return;
+                    }
+
+                    this.disabled = true;
+                    this.textContent = 'Đang xử lý...';
+
+                    try {
+                        // Lấy thông tin giỏ hàng hoặc tạo mới (tương tự addToCart)
+                        const cartApiResponse = await fetch(`${API_BASE_JS}/cart_api.php`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': 'Bearer ' + USER_TOKEN_JS,
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (!cartApiResponse.ok) {
+                            const errorText = await cartApiResponse.text();
+                            throw new Error(`Lỗi khi lấy giỏ hàng: ${cartApiResponse.status} - ${errorText.substring(0, 100)}`);
+                        }
+
+                        const cartData = await cartApiResponse.json();
+                        let cartId;
+
+                        // Xử lý các trường hợp trả về cartID (bao gồm cả trường hợp có thể có lỗiพิมพ์ 'sucesss')
+                        if (cartData.success && cartData.cartID) {
+                            cartId = cartData.cartID;
+                        } else if (cartData.success && cartData.data && cartData.cartID) { // Thêm kiểm tra cartData.data tồn tại
+                            cartId = cartData.data.cartID; // Giả sử cartID nằm trong data nếu cấu trúc là vậy
+                        } else if (cartData.cartID) { // Kiểm tra trực tiếp cartID nếu có
+                            cartId = cartData.cartID;
+                            if (cartData.sucesss) { // Kiểm tra lỗi typo 'sucesss' như trong code gốc
+                                console.warn("API 'cart_api.php' responded with typo 'sucesss'.");
+                            }
+                        }
+                        else {
+                            // Nếu API tạo cart mới và trả về cartID trong một cấu trúc khác, cần điều chỉnh ở đây
+                            // Ví dụ: nếu API trả về { success: true, data: { cartID: "xyz" } }
+                            // if (cartData.success && cartData.data && cartData.data.cartID) {
+                            //    cartId = cartData.data.cartID;
+                            // } else {
+                            throw new Error('Không thể lấy hoặc tạo cartID: ' + (cartData.message || 'Phản hồi không hợp lệ từ cart_api.php'));
+                            // }
+                        }
+
+
+                        const addItemPayload = {
+                            cartID: cartId,
+                            courseID: CURRENT_COURSE_ID_JS,
+                            quantity: 1
+                        };
+
+                        // Thêm sản phẩm vào giỏ hàng (tương tự addToCart)
+                        const addItemResponse = await fetch(`${API_BASE_JS}/cart_item_api.php`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + USER_TOKEN_JS,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(addItemPayload)
+                        });
+
+                        if (!addItemResponse.ok) {
+                            const errorText = await addItemResponse.text();
+                            throw new Error(`Lỗi khi thêm vào giỏ hàng: ${addItemResponse.status} - ${errorText.substring(0, 100)}`);
+                        }
+
+                        const addItemData = await addItemResponse.json();
+
+                        if (addItemData.status === 'success' || addItemData.success === true) { // Kiểm tra cả 'status' và 'success'
+                            alert('Đã thêm khóa học vào giỏ hàng! Đang chuyển hướng đến giỏ hàng...');
+                            // Chuyển hướng đến trang giỏ hàng
+                            window.location.href = CART_PAGE_URL_JS;
+                            // Không cần re-enable nút vì đã chuyển trang
+                        } else {
+                            throw new Error('Không thể thêm vào giỏ hàng: ' + (addItemData.message || 'Lỗi không xác định từ cart_item_api.php'));
+                        }
+
+                    } catch (error) {
+                        console.error('Lỗi khi thực hiện mua ngay:', error);
+                        alert('Đã xảy ra lỗi: ' + error.message);
+                        this.disabled = false; // Kích hoạt lại nút nếu có lỗi
+                        this.textContent = 'Mua ngay'; // Khôi phục văn bản nút
                     }
                 });
             }
