@@ -49,12 +49,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
             echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu bắt buộc: orderID, paymentDate hoặc amount']);
             exit;
         }
-        // Chuyển chuỗi thành DateTime
-        try {
-            $paymentDate = new DateTime($data['paymentDate']);
-        } catch (Exception $e) {
-            $paymentDate = new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
-        }
+
+        $paymentDate = new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
         $method = $data['paymentMethod'] ?? null;
         $status = $data['paymentStatus'] ?? null;
         $amount = floatval($data['amount']);

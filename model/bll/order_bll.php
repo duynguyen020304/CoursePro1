@@ -6,12 +6,28 @@ class OrderBLL extends Database
 {
     public function create_order(OrderDTO $order): bool
     {
-        $sql = "BEGIN ORDER_PKG.CREATE_ORDER_PROC(:orderID, :userID, :orderDate, :totalAmount); END;";
+        // Calls ORDER_PKG.CREATE_ORDER_PROC
+        // Explicitly convert the date string to TIMESTAMP within the anonymous PL/SQL block
+        $sql = "BEGIN 
+                    ORDER_PKG.CREATE_ORDER_PROC(
+                        p_OrderID     => :orderID, 
+                        p_UserID      => :userID, 
+                        p_OrderDate   => TO_TIMESTAMP(:orderDate_str, 'YYYY-MM-DD HH24:MI:SS.FF6'), 
+                        p_TotalAmount => :totalAmount
+                    ); 
+                END;";
+
+        $orderDateString = null;
+        if ($order->orderDate instanceof DateTimeInterface) {
+            // Ensure microseconds are padded to 6 digits if necessary, though FF6 handles variable length.
+            // Using 'u' format specifier which gives microseconds.
+            $orderDateString = $order->orderDate->format('Y-m-d H:i:s.u');
+        }
 
         $bindParams = [
             ':orderID'     => $order->orderID,
             ':userID'      => $order->userID,
-            ':orderDate'   => $order->orderDate instanceof DateTimeInterface ? $order->orderDate->format('Y-m-d H:i:s.u') : null,
+            ':orderDate_str' => $orderDateString, // Bind the string
             ':totalAmount' => is_numeric($order->totalAmount) ? (float)$order->totalAmount : 0,
         ];
 
@@ -151,12 +167,25 @@ class OrderBLL extends Database
 
     public function update_order(OrderDTO $order): bool
     {
-        $sql = "BEGIN ORDER_PKG.UPDATE_ORDER_PROC(:orderID_where, :userID, :orderDate, :totalAmount); END;";
+        // Calls ORDER_PKG.UPDATE_ORDER_PROC
+        $sql = "BEGIN 
+                    ORDER_PKG.UPDATE_ORDER_PROC(
+                        p_OrderID     => :orderID_where, 
+                        p_UserID      => :userID, 
+                        p_OrderDate   => TO_TIMESTAMP(:orderDate_str, 'YYYY-MM-DD HH24:MI:SS.FF6'), 
+                        p_TotalAmount => :totalAmount
+                    ); 
+                END;";
+
+        $orderDateString = null;
+        if ($order->orderDate instanceof DateTimeInterface) {
+            $orderDateString = $order->orderDate->format('Y-m-d H:i:s.u');
+        }
 
         $bindParams = [
             ':orderID_where' => $order->orderID,
             ':userID'       => $order->userID,
-            ':orderDate'    => $order->orderDate instanceof DateTimeInterface ? $order->orderDate->format('Y-m-d H:i:s.u') : null,
+            ':orderDate_str'    => $orderDateString, // Bind the string
             ':totalAmount'  => is_numeric($order->totalAmount) ? (float)$order->totalAmount : 0,
         ];
 
@@ -166,6 +195,7 @@ class OrderBLL extends Database
 
     public function delete_order(string $orderID): bool
     {
+        // Calls ORDER_PKG.DELETE_ORDER_PROC
         $sql = "BEGIN ORDER_PKG.DELETE_ORDER_PROC(:orderID); END;";
         $bindParams = [':orderID' => $orderID];
 

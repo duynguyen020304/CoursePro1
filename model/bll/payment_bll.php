@@ -6,12 +6,28 @@ class PaymentBLL extends Database
 {
     public function create_payment(PaymentDTO $p): bool
     {
-        $sql = "BEGIN PAYMENT_PKG.CREATE_PAYMENT_PROC(:paymentID, :orderID, :paymentDate, :paymentMethod, :paymentStatus, :amount); END;";
+        // Calls PAYMENT_PKG.CREATE_PAYMENT_PROC
+        // Explicitly convert the date string to TIMESTAMP within the anonymous PL/SQL block
+        $sql = "BEGIN 
+                    PAYMENT_PKG.CREATE_PAYMENT_PROC(
+                        p_PaymentID     => :paymentID, 
+                        p_OrderID       => :orderID, 
+                        p_PaymentDate   => TO_TIMESTAMP(:paymentDate_str, 'YYYY-MM-DD HH24:MI:SS.FF6'), 
+                        p_PaymentMethod => :paymentMethod, 
+                        p_PaymentStatus => :paymentStatus, 
+                        p_Amount        => :amount
+                    ); 
+                END;";
+
+        $paymentDateString = null;
+        if ($p->paymentDate instanceof DateTimeInterface) {
+            $paymentDateString = $p->paymentDate->format('Y-m-d H:i:s.u');
+        }
 
         $bindParams = [
             ':paymentID'     => $p->paymentID,
             ':orderID'       => $p->orderID,
-            ':paymentDate'   => $p->paymentDate instanceof DateTimeInterface ? $p->paymentDate->format('Y-m-d H:i:s.u') : null,
+            ':paymentDate_str' => $paymentDateString, // Bind the string
             ':paymentMethod' => $p->paymentMethod,
             ':paymentStatus' => $p->paymentStatus,
             ':amount'        => is_numeric($p->amount) ? (float)$p->amount : 0,
@@ -158,12 +174,28 @@ class PaymentBLL extends Database
 
     public function update_payment(PaymentDTO $p): bool
     {
-        $sql = "BEGIN PAYMENT_PKG.UPDATE_PAYMENT_PROC(:paymentID_where, :orderID, :paymentDate, :paymentMethod, :paymentStatus, :amount); END;";
+        // Calls PAYMENT_PKG.UPDATE_PAYMENT_PROC
+        // Explicitly convert the date string to TIMESTAMP within the anonymous PL/SQL block
+        $sql = "BEGIN 
+                    PAYMENT_PKG.UPDATE_PAYMENT_PROC(
+                        p_PaymentID     => :paymentID_where, 
+                        p_OrderID       => :orderID, 
+                        p_PaymentDate   => TO_TIMESTAMP(:paymentDate_str, 'YYYY-MM-DD HH24:MI:SS.FF6'), 
+                        p_PaymentMethod => :paymentMethod, 
+                        p_PaymentStatus => :paymentStatus, 
+                        p_Amount        => :amount
+                    ); 
+                END;";
+
+        $paymentDateString = null;
+        if ($p->paymentDate instanceof DateTimeInterface) {
+            $paymentDateString = $p->paymentDate->format('Y-m-d H:i:s.u');
+        }
 
         $bindParams = [
             ':paymentID_where' => $p->paymentID,
             ':orderID'        => $p->orderID,
-            ':paymentDate'    => $p->paymentDate instanceof DateTimeInterface ? $p->paymentDate->format('Y-m-d H:i:s.u') : null,
+            ':paymentDate_str'    => $paymentDateString, // Bind the string
             ':paymentMethod'  => $p->paymentMethod,
             ':paymentStatus'  => $p->paymentStatus,
             ':amount'         => is_numeric($p->amount) ? (float)$p->amount : 0,
@@ -175,6 +207,7 @@ class PaymentBLL extends Database
 
     public function delete_payment(string $paymentID): bool
     {
+        // Calls PAYMENT_PKG.DELETE_PAYMENT_PROC
         $sql = "BEGIN PAYMENT_PKG.DELETE_PAYMENT_PROC(:paymentID); END;";
         $bindParams = [':paymentID' => $paymentID];
 
