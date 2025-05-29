@@ -50,9 +50,6 @@ CREATE OR REPLACE PACKAGE BODY COURSE_LESSON_PKG AS
     BEGIN
         INSERT INTO COURSELESSON (LessonID, CourseID, ChapterID, Title, Content, SortOrder)
         VALUES (p_LessonID, p_CourseID, p_ChapterID, p_Title, p_Content, p_SortOrder);
-        -- PHP BLL checks for affectedRows === 1. SQL%ROWCOUNT will be 1 on success.
-        -- Oracle handles PK violation (LessonID).
-        -- Oracle handles FK violations (CourseID, ChapterID).
     EXCEPTION
         WHEN DUP_VAL_ON_INDEX THEN
             RAISE_APPLICATION_ERROR(-20100, 'Lesson with LessonID ''' || p_LessonID || ''' already exists.');
@@ -70,7 +67,6 @@ CREATE OR REPLACE PACKAGE BODY COURSE_LESSON_PKG AS
         IF SQL%ROWCOUNT = 0 THEN
             RAISE_APPLICATION_ERROR(-20102, 'Lesson with LessonID ''' || p_LessonID || ''' not found for deletion.');
         END IF;
-        -- Related records in CourseVideo, CourseResource will be deleted due to ON DELETE CASCADE.
     EXCEPTION
         WHEN OTHERS THEN
             IF SQLCODE = -20102 THEN
@@ -100,8 +96,6 @@ CREATE OR REPLACE PACKAGE BODY COURSE_LESSON_PKG AS
         IF SQL%ROWCOUNT = 0 THEN
             RAISE_APPLICATION_ERROR(-20101, 'Lesson with LessonID ''' || p_LessonID || ''' not found for update.');
         END IF;
-        -- PHP BLL checks ($stid !== false), success if no Oracle error.
-        -- Oracle handles FK violations (CourseID, ChapterID).
     EXCEPTION
         WHEN OTHERS THEN
             IF SQLCODE = -20101 THEN
@@ -153,11 +147,8 @@ CREATE OR REPLACE PACKAGE BODY COURSE_LESSON_PKG AS
                 COURSELESSON
             WHERE
                 ChapterID = p_ChapterID
-            ORDER BY SortOrder ASC; -- As per BLL
+            ORDER BY SortOrder ASC;
         RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
     END GET_LESSONS_BY_CHAPTER_FUNC;
 
     FUNCTION GET_LESSONS_BY_COURSE_FUNC(
@@ -178,11 +169,8 @@ CREATE OR REPLACE PACKAGE BODY COURSE_LESSON_PKG AS
                 COURSELESSON
             WHERE
                 CourseID = p_CourseID
-            ORDER BY ChapterID ASC, SortOrder ASC; -- As per BLL
+            ORDER BY ChapterID ASC, SortOrder ASC;
         RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
     END GET_LESSONS_BY_COURSE_FUNC;
 
 END COURSE_LESSON_PKG;

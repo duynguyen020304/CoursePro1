@@ -323,12 +323,6 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
                     <label for="video-file" class="form-label">Tải lên file Video (mp4, mov, avi, webm) <span class="text-danger">*</span></label>
                     <input type="file" id="video-file" class="form-control" accept=".mp4,.mov,.avi,.webm,.mkv">
                 </div>
-                <label class="form-label">Thời lượng Video (HH:MM:SS - tùy chọn)</label>
-                <div class="d-flex gap-2 mb-3">
-                    <input type="number" id="video-hh" class="form-control" placeholder="HH" min="0" max="99" value="00" />
-                    <input type="number" id="video-mm" class="form-control" placeholder="MM" min="0" max="59" value="00" />
-                    <input type="number" id="video-ss" class="form-control" placeholder="SS" min="0" max="59" value="00" />
-                </div>
                 <div class="mb-3">
                     <label for="lesson-attachments" class="form-label">Tài liệu đính kèm (pdf, zip, doc, ...)</label>
                     <input type="file" id="lesson-attachments" class="form-control" multiple accept=".pdf,.zip,.doc,.docx,.ppt,.pptx,.txt,.xls,.xlsx,.jpg,.jpeg,.png,.gif" />
@@ -662,7 +656,6 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
             $('#lessonModalLabel').text('Thêm Bài học cho chương: ' + $topicItem.data('topic-name'));
 
             $('#lessonModal').find('input[type="text"], input[type="file"], input[type="number"], textarea, select').val('');
-            $('#video-hh, #video-mm, #video-ss').val('00');
             $('#video-source').val('');
             $('#video-file-group, #video-url-group').hide();
             $('#lessonModal').removeData('lessonId');
@@ -708,7 +701,6 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
         $('#lessonModal').on('hidden.bs.modal', function() {
             $(this).find('input[type="text"], input[type="file"], input[type="number"], textarea, select').val('');
             $('#video-source').val('');
-            $('#video-hh, #video-mm, #video-ss').val('00');
             $('#video-file-group, #video-url-group').hide();
             $('#current-chapter-id-for-lesson').val('');
         });
@@ -726,10 +718,7 @@ $c_video_controller_url = $protocol . '://' . $host . $controller_path_relative;
             const videoFile = $('#video-file')[0].files.length > 0 ? $('#video-file')[0].files[0] : null;
 
             const resourceFiles = Array.from($('#lesson-attachments')[0].files);
-            const durationHH = $('#video-hh').val() || '00';
-            const durationMM = $('#video-mm').val() || '00';
-            const durationSS = $('#video-ss').val() || '00';
-            const durationForDisplay = `${durationHH}:${durationMM}:${durationSS}`;
+
 
             let validationError = false;
             if (!lessonTitle) { showGlobalMessage('Vui lòng nhập tiêu đề bài học.', 'warning'); validationError = true; }
