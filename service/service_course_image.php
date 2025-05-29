@@ -16,7 +16,7 @@ class CourseImageService
     public function get_images(string $courseID): ServiceResponse
     {
         try {
-            $images = $this->bll->get_images_by_course($courseID);
+            $images = $this->bll->get_images_by_course_id($courseID);
             return new ServiceResponse(true, 'Lấy ảnh thành công', $images);
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi lấy ảnh: ' . $e->getMessage());

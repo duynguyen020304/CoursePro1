@@ -371,18 +371,18 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
                                 </div>
                             </li>
                             <li><hr class="dropdown-divider my-1"></li>
-                            <li><a class="dropdown-item" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/my-courses.php"><i class="fas fa-book-open me-2"></i>Khóa học của tôi</a></li>
+                            <li><a class="dropdown-item" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/user.php"><i class="fas fa-book-open me-2"></i>Khóa học của tôi</a></li>
                             <li><a class="dropdown-item" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/cart.php"><i class="fas fa-shopping-cart me-2"></i>Giỏ hàng
                                     <?php if ($cart_item_count > 0): ?>
                                         <span class="badge rounded-pill bg-primary ms-1"><?php echo $cart_item_count; ?></span>
                                     <?php endif; ?>
                                 </a>
                             </li>
-                            <li><a class="dropdown-item" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/wishlist.php"><i class="fas fa-heart me-2"></i>Danh sách yêu thích</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-heart me-2"></i>Danh sách yêu thích</a></li>
                             <li><hr class="dropdown-divider my-1"></li>
-                            <li><a class="dropdown-item" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/notifications.php"><i class="fas fa-bell me-2"></i>Thông báo</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-bell me-2"></i>Thông báo</a></li>
                             <li><hr class="dropdown-divider my-1"></li>
-                            <li><a class="dropdown-item" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/profile-settings.php"><i class="fas fa-cog me-2"></i>Cài đặt tài khoản</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Cài đặt tài khoản</a></li>
                             <li><a class="dropdown-item" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/purchase-history.php"><i class="fas fa-history me-2"></i>Lịch sử mua hàng</a></li>
                             <li><hr class="dropdown-divider my-1"></li>
                             <li>
