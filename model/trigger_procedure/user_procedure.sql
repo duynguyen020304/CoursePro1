@@ -24,8 +24,7 @@ CREATE OR REPLACE PACKAGE USER_PKG AS
         p_LastName      IN USERS.LastName%TYPE     DEFAULT NULL,
         p_Password      IN USERS.Password%TYPE     DEFAULT NULL,
         p_RoleID        IN USERS.RoleID%TYPE       DEFAULT NULL,
-        p_ProfileImage  IN USERS.ProfileImage%TYPE DEFAULT NULL,
-        p_SetProfileImageNull BOOLEAN DEFAULT FALSE
+        p_ProfileImage  IN USERS.ProfileImage%TYPE DEFAULT NULL
     );
 
     FUNCTION GET_USER_BY_ID_FUNC(
@@ -133,21 +132,13 @@ CREATE OR REPLACE PACKAGE BODY USER_PKG AS
         p_LastName      IN USERS.LastName%TYPE     DEFAULT NULL,
         p_Password      IN USERS.Password%TYPE     DEFAULT NULL,
         p_RoleID        IN USERS.RoleID%TYPE       DEFAULT NULL,
-        p_ProfileImage  IN USERS.ProfileImage%TYPE DEFAULT NULL,
-        p_SetProfileImageNull BOOLEAN DEFAULT FALSE
+        p_ProfileImage  IN USERS.ProfileImage%TYPE DEFAULT NULL
     ) IS
         v_user_exists NUMBER;
-        v_set_profile_image_to_null_num NUMBER;
     BEGIN
         SELECT COUNT(*) INTO v_user_exists FROM USERS WHERE UserID = p_UserID;
         IF v_user_exists = 0 THEN
             RAISE_APPLICATION_ERROR(-20174, 'User with UserID ''' || p_UserID || ''' not found for update.');
-        END IF;
-
-        IF p_SetProfileImageNull THEN
-            v_set_profile_image_to_null_num := 1;
-        ELSE
-            v_set_profile_image_to_null_num := 0;
         END IF;
 
         UPDATE USERS
@@ -155,10 +146,7 @@ CREATE OR REPLACE PACKAGE BODY USER_PKG AS
             LastName     = NVL(p_LastName, LastName),
             Password     = NVL(p_Password, Password),
             RoleID       = NVL(p_RoleID, RoleID),
-            ProfileImage = CASE
-                               WHEN v_set_profile_image_to_null_num = 1 THEN NULL
-                               ELSE NVL(p_ProfileImage, ProfileImage)
-                END
+            ProfileImage = NVL(p_ProfileImage, ProfileImage) -- Simplified this line
         WHERE UserID = p_UserID;
 
     EXCEPTION

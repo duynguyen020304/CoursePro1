@@ -169,7 +169,7 @@ class UserService
             }
 
             $newPasswordHash = $existingUser->password;
-            if (isset($data['isChangePassword']) && $data['isChangePassword'] === true) {
+            if (isset($data['isChangePassword']) && $data['isChangePassword']) {
                 if (!isset($data['currentPassword'], $data['newPassword'])) {
                     return new ServiceResponse(false, 'Thiếu mật khẩu hiện tại hoặc mật khẩu mới để thay đổi.');
                 }
