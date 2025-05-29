@@ -13,7 +13,7 @@ class CourseCategoryService
         $this->bll = new CourseCategoryBLL();
     }
 
-    public function get_categories_by_course(string $courseID): ServiceResponse
+    public function get_categories_by_course_id(string $courseID): ServiceResponse
     {
         try {
             $list = $this->bll->get_categories_by_course_id($courseID);
@@ -22,6 +22,18 @@ class CourseCategoryService
             return new ServiceResponse(false, 'Lỗi khi truy vấn: ' . $e->getMessage());
         }
     }
+
+    public function get_courses_by_category_id(string $categoryID): ServiceResponse
+    {
+        try {
+            $list = $this->bll->get_courses_by_category_id($categoryID);
+            return new ServiceResponse(true, "Lấy danh sách khóa học cho danh mục {$categoryID} thành công", $list);
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi khi truy vấn: ' . $e->getMessage());
+        }
+    }
+
+
 
     public function add_category_to_course(string $courseID, string $categoryID): ServiceResponse
     {

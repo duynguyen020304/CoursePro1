@@ -635,4 +635,70 @@ class CourseService
             return new ServiceResponse(false, 'Lỗi khi lấy thông tin khóa học: ' . $e->getMessage());
         }
     }
+    public function get_course_by_id_for_category_filter(string $courseID): ServiceResponse
+    {
+        try {
+            $course = $this->courseBll->get_course($courseID);
+
+            if (!$course) {
+                return new ServiceResponse(false, 'Không tìm thấy khóa học');
+            }
+
+            $instructor_dtos_for_course = $this->courseInstructorBll->get_instructors_by_course_id($course->courseID);
+            $instructors_info = [];
+            if (!empty($instructor_dtos_for_course)) {
+                foreach ($instructor_dtos_for_course as $instructor_dto) {
+                    $instructor = $this->instructorBll->get_instructor($instructor_dto->instructorID);
+                    if ($instructor) {
+                        $instructor_user = $this->userBll->get_user_by_user_id($instructor->userID);
+                        if ($instructor_user) {
+                            $instructors_info[] = [
+                                'instructorID' => $instructor_dto->instructorID,
+                                'userID' => $instructor_user->userID,
+                                'firstName' => $instructor_user->firstName,
+                                'lastName' => $instructor_user->lastName,
+//                                'biography' => $instructor->biography,
+                                'profileImage' => $instructor_user->profileImage,
+                            ];
+                        }
+                    }
+                }
+            }
+
+            $course_images = $this->courseImageBll->get_images_by_course_id($course->courseID);
+            $tmp_course_images = [];
+            if (!empty($course_images)) {
+                foreach ($course_images as $course_image) {
+                    $tmp_course_images[] = [
+                        'imageID' => $course_image->imageID,
+                        'imagePath' => $course_image->imagePath
+                    ];
+                }
+            }
+
+            $course_chapters = $this->chapterBll->get_chapters_by_course_id($course->courseID);
+            $total_lesson = 0;
+            if (!empty($course_chapters)) {
+                foreach ($course_chapters as $course_chapter) {
+                    $course_lessons = $this->lessonBll->get_lessons_by_chapter_id($course_chapter->chapterID);
+                    $total_lesson += count($course_lessons);
+                }
+            }
+
+            $course_details = [
+                'courseID' => $course->courseID,
+                'title' => $course->title,
+                'description' => $course->description,
+                'price' => $course->price,
+                'createdBy' => $course->createdBy,
+                'instructors' => $instructors_info,
+                'images' => $tmp_course_images,
+                'totalLesson' => $total_lesson
+            ];
+
+            return new ServiceResponse(true, 'Lấy thông tin khóa học thành công', $course_details);
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi khi lấy thông tin khóa học: ' . $e->getMessage());
+        }
+    }
 }

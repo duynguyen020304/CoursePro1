@@ -111,10 +111,10 @@ body {
 }
 
 /* Đảm bảo sidebar filter có thể cuộn nếu nội dung quá dài */
-#filterSidebar .filters-container {
-    max-height: calc(100vh - 200px); /* Điều chỉnh giá trị này nếu cần */
-    overflow-y: auto;
-}
+/*#filterSidebar .filters-container {*/
+/*    max-height: calc(100vh - 200px); !* Điều chỉnh giá trị này nếu cần *!*/
+/*    overflow-y: auto;*/
+/*}*/
 
 /* Căn chỉnh price section trong card */
 .price-section {
