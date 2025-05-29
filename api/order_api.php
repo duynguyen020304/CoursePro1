@@ -72,13 +72,13 @@ switch ($method) {
         // Tạo orderID tự động
         $orderID = uniqid('order_', true);
 
-        // Kiểm tra định dạng orderDate
-        try {
-            $dt = new DateTime($data['orderDate']);
-        } catch (Exception $e) {
-            $dt = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
-        }
-
+//        // Kiểm tra định dạng orderDate
+//        try {
+//            $dt = new DateTime($data['orderDate']);
+//        } catch (Exception $e) {
+//
+//        }
+        $dt = new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
         // Tạo đơn hàng
         $resp = $service->create_order(
             $orderID,        // Sử dụng orderID tự động tạo
