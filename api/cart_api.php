@@ -50,9 +50,9 @@ switch ($method) {
     case 'GET':
         $cart = $service->get_cart_by_user($decode->data->userID);
         if (!$cart) {
-            $create_card = $service->create_cart($decode->data->userID);
-            if ($create_card['success']) {
-                echo json_encode(["sucesss" => $create_card['successs'], "cartID" => $create_card['cartID']]);
+            $create_cart = $service->create_cart($decode->data->userID);
+            if ($create_cart['success']) {
+                echo json_encode(["sucesss" => $create_cart['successs'], "cartID" => $create_cart['cartID']]);
                 exit;
             }
         }

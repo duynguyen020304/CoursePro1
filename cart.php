@@ -3,7 +3,6 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// --- Logic để xác định $app_root_path_relative và API_BASE ---
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
 $host = $_SERVER['HTTP_HOST'];
 $script_path = $_SERVER['SCRIPT_NAME'];
@@ -51,10 +50,7 @@ if (!defined('API_BASE_HEADER')) {
     define('API_BASE', API_BASE_HEADER);
 }
 $file_loader_base_url = APP_ROOT_PATH_RELATIVE . '/controller/c_file_loader.php';
-// --- Kết thúc logic xác định đường dẫn ---
 
-
-// --- Hàm callApi ---
 if (!function_exists('callApi')) {
     function callApi(string $endpoint, string $method = 'GET', array $payload = []): array
     {
@@ -120,29 +116,24 @@ if (!function_exists('callApi')) {
         return $result;
     }
 }
-// --- Kết thúc hàm callApi ---
 
-// --- Hàm định dạng giá ---
 if (!function_exists('format_cart_price')) {
     function format_cart_price($price) {
         if (!is_numeric($price)) return 'N/A';
         return number_format($price, 0, ',', '.') . ' VNĐ';
     }
 }
-// --- Kết thúc hàm định dạng giá ---
 
-// --- Lấy dữ liệu giỏ hàng ---
 $cart_items_detailed = [];
 $total_cart_price = 0;
 $cart_error_message = null;
-$current_cart_id_page = null; // Sẽ được sử dụng bởi JS để clear cart
-$js_user_id = null; // Sẽ được sử dụng bởi JS để tạo order
+$current_cart_id_page = null;
+$js_user_id = null;
 
 if (!isset($_SESSION['user']['token']) || !isset($_SESSION['user']['userID'])) {
     $cart_error_message = "Bạn cần đăng nhập để xem giỏ hàng.";
 } else {
-    $js_user_id = $_SESSION['user']['userID']; // Lấy userID cho JS
-    // 1. Lấy cartID
+    $js_user_id = $_SESSION['user']['userID'];
     $cart_api_response = callApi('cart_api.php', 'GET');
     if (isset($cart_api_response['success']) && $cart_api_response['success']) {
         if (isset($cart_api_response['cartID'])) {
@@ -150,7 +141,6 @@ if (!isset($_SESSION['user']['token']) || !isset($_SESSION['user']['userID'])) {
         } elseif (isset($cart_api_response['data']['cartID'])) {
             $current_cart_id_page = $cart_api_response['data']['cartID'];
         } else {
-            // Xử lý lỗi typo "sucesss" nếu có
             if (isset($cart_api_response['sucesss']) && $cart_api_response['sucesss'] && isset($cart_api_response['cartID'])) {
                 $current_cart_id_page = $cart_api_response['cartID'];
             } else {
@@ -161,14 +151,34 @@ if (!isset($_SESSION['user']['token']) || !isset($_SESSION['user']['userID'])) {
         $cart_error_message = "Lỗi khi lấy thông tin giỏ hàng: " . ($cart_api_response['message'] ?? 'Unknown error from cart_api');
     }
 
-    // 2. Nếu có cartID, lấy cart items
     if ($current_cart_id_page && !$cart_error_message) {
         $cart_items_api_response = callApi('cart_item_api.php', 'GET', ['cartID' => $current_cart_id_page]);
 
         if (isset($cart_items_api_response['status']) && $cart_items_api_response['status'] === 'success' && isset($cart_items_api_response['data'])) {
             $items_from_api = $cart_items_api_response['data'];
-            if (!empty($items_from_api)) {
-                foreach ($items_from_api as $item) {
+
+            // --- BẮT ĐẦU PHẦN THÊM MỚI ---
+            $unique_cart_items = [];
+            $seen_course_ids = [];
+            foreach ($items_from_api as $item) {
+                if (isset($item['courseID'])) {
+                    // Nếu courseID chưa được thấy, thêm vào mảng duy nhất
+                    if (!in_array($item['courseID'], $seen_course_ids)) {
+                        $unique_cart_items[] = $item;
+                        $seen_course_ids[] = $item['courseID'];
+                    } else {
+                        // Nếu courseID đã tồn tại, đây là mục trùng lặp, xóa nó khỏi giỏ hàng
+                        // Cần gọi API DELETE để xóa mục này khỏi cơ sở dữ liệu
+                        callApi('cart_item_api.php', 'DELETE', ['cartItemID' => $item['cartItemID']]);
+                        error_log("Đã tự động xóa mục giỏ hàng trùng lặp: cartItemID=" . $item['cartItemID'] . ", courseID=" . $item['courseID']);
+                    }
+                }
+            }
+            $items_to_process = $unique_cart_items; // Sử dụng mảng đã lọc
+            // --- KẾT THÚC PHẦN THÊM MỚI ---
+
+            if (!empty($items_to_process)) { // Thay đổi $items_from_api thành $items_to_process
+                foreach ($items_to_process as $item) {
                     if (isset($item['courseID'])) {
                         $course_details_response = callApi('course_api.php', 'GET', ['courseID' => $item['courseID']]);
                         if (isset($course_details_response['success']) && $course_details_response['success'] && isset($course_details_response['data'])) {
@@ -211,15 +221,13 @@ if (!isset($_SESSION['user']['token']) || !isset($_SESSION['user']['userID'])) {
         } else { $cart_error_message = "Lỗi khi lấy các mục trong giỏ hàng: " . ($cart_items_api_response['message'] ?? ($cart_items_api_response['status'] ?? 'Unknown error')); }
     }
 }
-// --- Kết thúc lấy dữ liệu giỏ hàng ---
 
-// Truyền biến PHP sang JavaScript
 $js_vars_for_cart = [
     'apiBase' => API_BASE,
     'userToken' => $_SESSION['user']['token'] ?? null,
-    'userId' => $js_user_id, // Đã lấy ở trên
+    'userId' => $js_user_id,
     'currentCartId' => $current_cart_id_page,
-    'cartItems' => $cart_items_detailed, // Mảng chi tiết các item trong giỏ hàng
+    'cartItems' => $cart_items_detailed,
     'totalCartPrice' => $total_cart_price,
     'isUserLoggedIn' => isset($_SESSION['user']['token']),
     'signInUrl' => APP_ROOT_PATH_RELATIVE . '/signin.php',
@@ -229,234 +237,229 @@ $js_vars_for_cart = [
 ?>
 
 <?php include('template/head.php'); ?>
-<script type="text/javascript">
-    const CART_PAGE_VARS = <?php echo json_encode($js_vars_for_cart); ?>;
-</script>
-<link href="<?php echo APP_ROOT_PATH_RELATIVE; ?>/public/css/cart.css" rel="stylesheet">
+    <script type="text/javascript">
+        const CART_PAGE_VARS = <?php echo json_encode($js_vars_for_cart); ?>;
+    </script>
+    <link href="<?php echo APP_ROOT_PATH_RELATIVE; ?>/public/css/cart.css" rel="stylesheet">
 <?php include('template/header.php'); ?>
 
-<section class="cart-section py-5">
-    <div class="container" style="padding-top: 100px;">
-        <h2 class="text-center mb-4">Các Khóa Học Trong Giỏ Hàng</h2>
+    <section class="cart-section py-5">
+        <div class="container" style="padding-top: 100px;">
+            <h2 class="text-center mb-4">Các Khóa Học Trong Giỏ Hàng</h2>
 
-        <?php if ($cart_error_message): ?>
-            <div class="alert alert-warning text-center" role="alert">
-                <?php echo htmlspecialchars($cart_error_message); ?>
-                <?php if (!isset($_SESSION['user']['token'])): ?>
-                    <br><a href="<?php echo APP_ROOT_PATH_RELATIVE; ?>/signin.php" class="btn btn-primary mt-2">Đăng nhập</a>
-                <?php endif; ?>
-            </div>
-        <?php elseif (empty($cart_items_detailed)): ?>
-            <div class="alert alert-info text-center" role="alert">
-                Giỏ hàng của bạn hiện đang trống.
-                <br><a href="<?php echo APP_ROOT_PATH_RELATIVE; ?>/home.php" class="btn btn-outline-primary mt-2">Tiếp tục mua sắm</a>
-            </div>
-        <?php else: ?>
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="cart-items">
-                        <?php foreach ($cart_items_detailed as $item): ?>
-                            <div class="cart-item" id="cart-item-row-<?php echo htmlspecialchars($item['cartItemID']); ?>">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <?php
-                                        $image_url = APP_ROOT_PATH_RELATIVE . "/public/images/course_placeholder.png";
-                                        if (!empty($item['imagePath']) && !empty($item['courseID'])) {
-                                            $image_filename = basename($item['imagePath']);
-                                            $image_url = htmlspecialchars($file_loader_base_url . "?act=serve_image&course_id=" . urlencode($item['courseID']) . "&image=" . urlencode($image_filename));
-                                        }
-                                        ?>
-                                        <img src="<?php echo $image_url; ?>" alt="<?php echo htmlspecialchars($item['title']); ?>" class="img-fluid cart-item-image" onerror="this.onerror=null;this.src='<?php echo APP_ROOT_PATH_RELATIVE; ?>/public/images/course_placeholder.png';">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h5 class="cart-item-title">
-                                            <a href="<?php echo APP_ROOT_PATH_RELATIVE; ?>/course-detail.php?courseID=<?php echo htmlspecialchars($item['courseID']); ?>">
-                                                <?php echo htmlspecialchars($item['title']); ?>
-                                            </a>
-                                        </h5>
-                                        <p class="cart-item-instructor">
-                                            Giảng viên:
+            <?php if ($cart_error_message): ?>
+                <div class="alert alert-warning text-center" role="alert">
+                    <?php echo htmlspecialchars($cart_error_message); ?>
+                    <?php if (!isset($_SESSION['user']['token'])): ?>
+                        <br><a href="<?php echo APP_ROOT_PATH_RELATIVE; ?>/signin.php" class="btn btn-primary mt-2">Đăng nhập</a>
+                    <?php endif; ?>
+                </div>
+            <?php elseif (empty($cart_items_detailed)): ?>
+                <div class="alert alert-info text-center" role="alert">
+                    Giỏ hàng của bạn hiện đang trống.
+                    <br><a href="<?php echo APP_ROOT_PATH_RELATIVE; ?>/home.php" class="btn btn-outline-primary mt-2">Tiếp tục mua sắm</a>
+                </div>
+            <?php else: ?>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="cart-items">
+                            <?php foreach ($cart_items_detailed as $item): ?>
+                                <div class="cart-item" id="cart-item-row-<?php echo htmlspecialchars($item['cartItemID']); ?>">
+                                    <div class="row">
+                                        <div class="col-md-3">
                                             <?php
-                                            if (!empty($item['instructors']) && is_array($item['instructors'])) {
-                                                $instructor_names = array_map(function ($instructor) {
-                                                    return htmlspecialchars(($instructor['firstName'] ?? '') . ' ' . ($instructor['lastName'] ?? ''));
-                                                }, $item['instructors']);
-                                                echo implode(', ', array_filter($instructor_names));
-                                            } else { echo 'N/A'; }
+                                            $image_url = APP_ROOT_PATH_RELATIVE . "/public/images/course_placeholder.png";
+                                            if (!empty($item['imagePath']) && !empty($item['courseID'])) {
+                                                $image_filename = basename($item['imagePath']);
+                                                $image_url = htmlspecialchars($file_loader_base_url . "?act=serve_image&course_id=" . urlencode($item['courseID']) . "&image=" . urlencode($image_filename));
+                                            }
                                             ?>
-                                        </p>
-                                    </div>
-                                    <div class="col-md-3 cart-item-actions">
-                                        <p class="cart-item-price"><?php echo format_cart_price($item['price']); ?></p>
-                                        <button class="btn btn-danger btn-sm mt-2" onclick="deleteCartItem('<?php echo htmlspecialchars($item['cartItemID']); ?>')">Xóa</button>
+                                            <img src="<?php echo $image_url; ?>" alt="<?php echo htmlspecialchars($item['title']); ?>" class="img-fluid cart-item-image" onerror="this.onerror=null;this.src='<?php echo APP_ROOT_PATH_RELATIVE; ?>/public/images/course_placeholder.png';">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h5 class="cart-item-title">
+                                                <a href="<?php echo APP_ROOT_PATH_RELATIVE; ?>/course-detail.php?courseID=<?php echo htmlspecialchars($item['courseID']); ?>">
+                                                    <?php echo htmlspecialchars($item['title']); ?>
+                                                </a>
+                                            </h5>
+                                            <p class="cart-item-instructor">
+                                                Giảng viên:
+                                                <?php
+                                                if (!empty($item['instructors']) && is_array($item['instructors'])) {
+                                                    $instructor_names = array_map(function ($instructor) {
+                                                        return htmlspecialchars(($instructor['firstName'] ?? '') . ' ' . ($instructor['lastName'] ?? ''));
+                                                    }, $item['instructors']);
+                                                    echo implode(', ', array_filter($instructor_names));
+                                                } else { echo 'N/A'; }
+                                                ?>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-3 cart-item-actions">
+                                            <p class="cart-item-price"><?php echo format_cart_price($item['price']); ?></p>
+                                            <button class="btn btn-danger btn-sm mt-2" onclick="deleteCartItem('<?php echo htmlspecialchars($item['cartItemID']); ?>')">Xóa</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="cart-summary">
+                            <h4>Tổng Cộng</h4>
+                            <ul class="list-unstyled">
+                                <li><strong>Tổng Tiền:</strong> <span id="total-price"><?php echo format_cart_price($total_cart_price); ?></span></li>
+                            </ul>
+                            <button id="checkoutBtn" class="btn btn-success btn-lg btn-block w-100">Tiến Hành Thanh Toán</button>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="cart-summary">
-                        <h4>Tổng Cộng</h4>
-                        <ul class="list-unstyled">
-                            <li><strong>Tổng Tiền:</strong> <span id="total-price"><?php echo format_cart_price($total_cart_price); ?></span></li>
-                        </ul>
-                        <button id="checkoutBtn" class="btn btn-success btn-lg btn-block w-100">Tiến Hành Thanh Toán</button>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
-    </div>
-</section>
-
-<section class="recommended-courses py-5 bg-light">
-    <div class="container">
-        <h2 class="text-center mb-4">Khóa Học Gợi Ý Cho Bạn</h2>
-        <div class="row">
-            <div class="col-md-4 mb-3"> <div class="card h-100"> <img src="public/img/python.png" class="card-img-top" alt="Python" style="height: 200px; object-fit: cover;" onerror="this.onerror=null;this.src='https://placehold.co/300x200/EFEFEF/AAAAAA?text=Python';"> <div class="card-body d-flex flex-column"> <h5 class="card-title">Lập Trình Python</h5> <p class="card-text">Khóa học Python cho người mới.</p> <a href="#" class="btn btn-primary mt-auto">Xem Chi Tiết</a> </div> </div> </div>
-            <div class="col-md-4 mb-3"> <div class="card h-100"> <img src="public/img/images.webp" class="card-img-top" alt="Web Design" style="height: 200px; object-fit: cover;" onerror="this.onerror=null;this.src='https://placehold.co/300x200/EFEFEF/AAAAAA?text=Web+Design';"> <div class="card-body d-flex flex-column"> <h5 class="card-title">Thiết Kế Web Hiện Đại</h5> <p class="card-text">Học HTML5, CSS3 và JavaScript.</p> <a href="#" class="btn btn-primary mt-auto">Xem Chi Tiết</a> </div> </div> </div>
-            <div class="col-md-4 mb-3"> <div class="card h-100"> <img src="public/img/digital_marketing.png" class="card-img-top" alt="Marketing" style="height: 200px; object-fit: cover;" onerror="this.onerror=null;this.src='https://placehold.co/300x200/EFEFEF/AAAAAA?text=Marketing';"> <div class="card-body d-flex flex-column"> <h5 class="card-title">Digital Marketing</h5> <p class="card-text">Marketing trực tuyến hiệu quả.</p> <a href="#" class="btn btn-primary mt-auto">Xem Chi Tiết</a> </div> </div> </div>
+            <?php endif; ?>
         </div>
-    </div>
-</section>
+    </section>
 
-<script>
-    async function deleteCartItem(cartItemID) {
-        if (!confirm('Bạn có chắc chắn muốn xóa khóa học này khỏi giỏ hàng?')) return;
-        if (!CART_PAGE_VARS.userToken) {
-            alert('Lỗi xác thực. Vui lòng đăng nhập lại.');
-            window.location.href = CART_PAGE_VARS.signInUrl;
-            return;
-        }
-        try {
-            const response = await fetch(`${CART_PAGE_VARS.apiBase}/cart_item_api.php`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CART_PAGE_VARS.userToken },
-                body: JSON.stringify({ cartItemID: cartItemID })
-            });
-            const resultText = await response.text();
-            let result;
-            try { result = JSON.parse(resultText); }
-            catch (e) {
-                console.error("JSON Parse Error: ", resultText);
-                alert('Lỗi xử lý phản hồi: ' + resultText.substring(0,100)); return;
+    <section class="recommended-courses py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-4">Khóa Học Gợi Ý Cho Bạn</h2>
+            <div class="row">
+                <div class="col-md-4 mb-3"> <div class="card h-100"> <img src="public/img/python.png" class="card-img-top" alt="Python" style="height: 200px; object-fit: cover;" onerror="this.onerror=null;this.src='https://placehold.co/300x200/EFEFEF/AAAAAA?text=Python';"> <div class="card-body d-flex flex-column"> <h5 class="card-title">Lập Trình Python</h5> <p class="card-text">Khóa học Python cho người mới.</p> <a href="#" class="btn btn-primary mt-auto">Xem Chi Tiết</a> </div> </div> </div>
+                <div class="col-md-4 mb-3"> <div class="card h-100"> <img src="public/img/images.webp" class="card-img-top" alt="Web Design" style="height: 200px; object-fit: cover;" onerror="this.onerror=null;this.src='https://placehold.co/300x200/EFEFEF/AAAAAA?text=Web+Design';"> <div class="card-body d-flex flex-column"> <h5 class="card-title">Thiết Kế Web Hiện Đại</h5> <p class="card-text">Học HTML5, CSS3 và JavaScript.</p> <a href="#" class="btn btn-primary mt-auto">Xem Chi Tiết</a> </div> </div> </div>
+                <div class="col-md-4 mb-3"> <div class="card h-100"> <img src="public/img/digital_marketing.png" class="card-img-top" alt="Marketing" style="height: 200px; object-fit: cover;" onerror="this.onerror=null;this.src='https://placehold.co/300x200/EFEFEF/AAAAAA?text=Marketing';"> <div class="card-body d-flex flex-column"> <h5 class="card-title">Digital Marketing</h5> <p class="card-text">Marketing trực tuyến hiệu quả.</p> <a href="#" class="btn btn-primary mt-auto">Xem Chi Tiết</a> </div> </div> </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        async function deleteCartItem(cartItemID) {
+            if (!confirm('Bạn có chắc chắn muốn xóa khóa học này khỏi giỏ hàng?')) return;
+            if (!CART_PAGE_VARS.userToken) {
+                alert('Lỗi xác thực. Vui lòng đăng nhập lại.');
+                window.location.href = CART_PAGE_VARS.signInUrl;
+                return;
             }
-            if (response.ok && result.status === 'success') {
-                alert(result.message || 'Xóa khóa học thành công!');
-                location.reload();
-            } else { alert('Lỗi khi xóa: ' + (result.message || result.status || 'Unknown error')); }
-        } catch (error) { console.error('Error deleting cart item:', error); alert('Lỗi kết nối khi xóa sản phẩm.'); }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const checkoutButton = document.getElementById('checkoutBtn');
-        if (checkoutButton) {
-            checkoutButton.addEventListener('click', handleCheckout);
-        }
-    });
-
-    async function handleCheckout() {
-        if (!CART_PAGE_VARS.isUserLoggedIn) {
-            alert('Bạn cần đăng nhập để tiến hành thanh toán.');
-            window.location.href = CART_PAGE_VARS.signInUrl;
-            return;
-        }
-        if (!CART_PAGE_VARS.cartItems || CART_PAGE_VARS.cartItems.length === 0) {
-            alert('Giỏ hàng của bạn đang trống.');
-            return;
-        }
-        if (!CART_PAGE_VARS.userToken || !CART_PAGE_VARS.userId || !CART_PAGE_VARS.currentCartId) {
-            alert('Lỗi thông tin người dùng hoặc giỏ hàng. Vui lòng thử đăng nhập lại.');
-            return;
+            try {
+                const response = await fetch(`${CART_PAGE_VARS.apiBase}/cart_item_api.php`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CART_PAGE_VARS.userToken },
+                    body: JSON.stringify({ cartItemID: cartItemID })
+                });
+                const resultText = await response.text();
+                let result;
+                try { result = JSON.parse(resultText); }
+                catch (e) {
+                    console.error("JSON Parse Error: ", resultText);
+                    alert('Lỗi xử lý phản hồi: ' + resultText.substring(0,100)); return;
+                }
+                if (response.ok && result.status === 'success') {
+                    alert(result.message || 'Xóa khóa học thành công!');
+                    location.reload();
+                } else { alert('Lỗi khi xóa: ' + (result.message || result.status || 'Unknown error')); }
+            } catch (error) { console.error('Error deleting cart item:', error); alert('Lỗi kết nối khi xóa sản phẩm.'); }
         }
 
-        const checkoutButton = document.getElementById('checkoutBtn');
-        checkoutButton.disabled = true;
-        checkoutButton.textContent = 'Đang xử lý...';
-
-        try {
-            // Bước 1: Tạo Order
-            const orderPayload = {
-                userID: CART_PAGE_VARS.userId,
-                totalAmount: CART_PAGE_VARS.totalCartPrice,
-                orderDate: new Date().toISOString() // Gửi ngày giờ chuẩn ISO
-            };
-            const orderResponse = await fetch(`${CART_PAGE_VARS.apiBase}/order_api.php`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CART_PAGE_VARS.userToken },
-                body: JSON.stringify(orderPayload)
-            });
-            const orderData = await orderResponse.json();
-            if (!orderResponse.ok || !orderData.success || !orderData.data || !orderData.data.orderID) {
-                throw new Error('Tạo đơn hàng thất bại: ' + (orderData.message || 'Lỗi không xác định từ order_api'));
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkoutButton = document.getElementById('checkoutBtn');
+            if (checkoutButton) {
+                checkoutButton.addEventListener('click', handleCheckout);
             }
-            const newOrderID = orderData.data.orderID;
-            console.log('Order created:', newOrderID);
+        });
 
-            // Bước 2: Tạo Order Details
-            for (const item of CART_PAGE_VARS.cartItems) {
-                const detailPayload = {
-                    orderID: newOrderID,
-                    courseID: item.courseID,
-                    price: item.raw_price // Sử dụng giá gốc
+        async function handleCheckout() {
+            if (!CART_PAGE_VARS.isUserLoggedIn) {
+                alert('Bạn cần đăng nhập để tiến hành thanh toán.');
+                window.location.href = CART_PAGE_VARS.signInUrl;
+                return;
+            }
+            if (!CART_PAGE_VARS.cartItems || CART_PAGE_VARS.cartItems.length === 0) {
+                alert('Giỏ hàng của bạn đang trống.');
+                return;
+            }
+            if (!CART_PAGE_VARS.userToken || !CART_PAGE_VARS.userId || !CART_PAGE_VARS.currentCartId) {
+                alert('Lỗi thông tin người dùng hoặc giỏ hàng. Vui lòng thử đăng nhập lại.');
+                return;
+            }
+
+            const checkoutButton = document.getElementById('checkoutBtn');
+            checkoutButton.disabled = true;
+            checkoutButton.textContent = 'Đang xử lý...';
+
+            try {
+                const orderPayload = {
+                    userID: CART_PAGE_VARS.userId,
+                    totalAmount: CART_PAGE_VARS.totalCartPrice,
+                    orderDate: new Date().toISOString()
                 };
-                const detailResponse = await fetch(`${CART_PAGE_VARS.apiBase}/order_detail_api.php`, {
+                const orderResponse = await fetch(`${CART_PAGE_VARS.apiBase}/order_api.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CART_PAGE_VARS.userToken },
-                    body: JSON.stringify(detailPayload)
+                    body: JSON.stringify(orderPayload)
                 });
-                const detailData = await detailResponse.json();
-                if (!detailResponse.ok || !detailData.success) {
-                    throw new Error(`Thêm chi tiết đơn hàng thất bại cho khóa học ${item.courseID}: ` + (detailData.message || 'Lỗi không xác định'));
+                const orderData = await orderResponse.json();
+                if (!orderResponse.ok || !orderData.success || !orderData.data || !orderData.data.orderID) {
+                    throw new Error('Tạo đơn hàng thất bại: ' + (orderData.message || 'Lỗi không xác định từ order_api'));
                 }
-                console.log('Order detail added for course:', item.courseID);
+                const newOrderID = orderData.data.orderID;
+                console.log('Order created:', newOrderID);
+
+                for (const item of CART_PAGE_VARS.cartItems) {
+                    const detailPayload = {
+                        orderID: newOrderID,
+                        courseID: item.courseID,
+                        price: item.raw_price
+                    };
+                    const detailResponse = await fetch(`${CART_PAGE_VARS.apiBase}/order_detail_api.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CART_PAGE_VARS.userToken },
+                        body: JSON.stringify(detailPayload)
+                    });
+                    const detailData = await detailResponse.json();
+                    if (!detailResponse.ok || !detailData.success) {
+                        throw new Error(`Thêm chi tiết đơn hàng thất bại cho khóa học ${item.courseID}: ` + (detailData.message || 'Lỗi không xác định'));
+                    }
+                    console.log('Order detail added for course:', item.courseID);
+                }
+
+                const paymentPayload = {
+                    orderID: newOrderID,
+                    amount: CART_PAGE_VARS.totalCartPrice,
+                    paymentDate: new Date().toISOString(),
+                    paymentMethod: "Thanh toán Online",
+                    paymentStatus: "Completed"
+                };
+                const paymentResponse = await fetch(`${CART_PAGE_VARS.apiBase}/payment_api.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CART_PAGE_VARS.userToken },
+                    body: JSON.stringify(paymentPayload)
+                });
+                const paymentData = await paymentResponse.json();
+                if (!paymentResponse.ok || !paymentData.success) {
+                    throw new Error('Ghi nhận thanh toán thất bại: ' + (paymentData.message || 'Lỗi không xác định từ payment_api'));
+                }
+                console.log('Payment recorded:', paymentData.data);
+
+                const clearCartResponse = await fetch(`${CART_PAGE_VARS.apiBase}/cart_item_api.php`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CART_PAGE_VARS.userToken },
+                    body: JSON.stringify({ cartID: CART_PAGE_VARS.currentCartId })
+                });
+                const clearCartData = await clearCartResponse.json();
+                if (!clearCartResponse.ok || clearCartData.status !== 'success') {
+                    console.warn('Không thể xóa giỏ hàng sau khi thanh toán: ' + (clearCartData.message || 'Lỗi không xác định'));
+                } else {
+                    console.log('Cart cleared successfully.');
+                }
+
+                alert('Thanh toán thành công! Cảm ơn bạn đã mua hàng.');
+                window.location.href = CART_PAGE_VARS.appRoot + '/home.php';
+
+            } catch (error) {
+                console.error('Lỗi trong quá trình thanh toán:', error);
+                alert('Đã xảy ra lỗi trong quá trình thanh toán: ' + error.message);
+            } finally {
+                checkoutButton.disabled = false;
+                checkoutButton.textContent = 'Tiến Hành Thanh Toán';
             }
-
-            // Bước 3: Tạo Payment
-            const paymentPayload = {
-                orderID: newOrderID,
-                amount: CART_PAGE_VARS.totalCartPrice,
-                paymentDate: new Date().toISOString(),
-                paymentMethod: "Thanh toán Online", // Giả định
-                paymentStatus: "Completed" // Giả định thành công
-            };
-            const paymentResponse = await fetch(`${CART_PAGE_VARS.apiBase}/payment_api.php`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CART_PAGE_VARS.userToken },
-                body: JSON.stringify(paymentPayload)
-            });
-            const paymentData = await paymentResponse.json();
-            if (!paymentResponse.ok || !paymentData.success) {
-                throw new Error('Ghi nhận thanh toán thất bại: ' + (paymentData.message || 'Lỗi không xác định từ payment_api'));
-            }
-            console.log('Payment recorded:', paymentData.data);
-
-            // Bước 4: Clear Cart
-            const clearCartResponse = await fetch(`${CART_PAGE_VARS.apiBase}/cart_item_api.php`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CART_PAGE_VARS.userToken },
-                body: JSON.stringify({ cartID: CART_PAGE_VARS.currentCartId })
-            });
-            const clearCartData = await clearCartResponse.json();
-            if (!clearCartResponse.ok || clearCartData.status !== 'success') {
-                // Không ném lỗi ở đây vì thanh toán đã thành công, chỉ log lại
-                console.warn('Không thể xóa giỏ hàng sau khi thanh toán: ' + (clearCartData.message || 'Lỗi không xác định'));
-            } else {
-                console.log('Cart cleared successfully.');
-            }
-
-            alert('Thanh toán thành công! Cảm ơn bạn đã mua hàng.');
-            window.location.href = CART_PAGE_VARS.appRoot + '/home.php'; // Chuyển về trang chủ hoặc trang cảm ơn
-
-        } catch (error) {
-            console.error('Lỗi trong quá trình thanh toán:', error);
-            alert('Đã xảy ra lỗi trong quá trình thanh toán: ' + error.message);
-        } finally {
-            checkoutButton.disabled = false;
-            checkoutButton.textContent = 'Tiến Hành Thanh Toán';
         }
-    }
 
-</script>
+    </script>
 
 <?php include('template/footer.php'); ?>

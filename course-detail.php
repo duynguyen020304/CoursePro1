@@ -171,219 +171,219 @@ $js_signin_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/signin.php';
 $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
 ?>
 <?php include('template/head.php'); ?>
-    <script type="text/javascript">
-        const API_BASE_JS = <?php echo json_encode($js_api_base); ?>;
-        const USER_TOKEN_JS = <?php echo json_encode($js_user_token); ?>;
-        const CURRENT_COURSE_ID_JS = <?php echo json_encode($js_current_course_id); ?>;
-        const IS_USER_LOGGED_IN_JS = <?php echo json_encode($js_is_user_logged_in); ?>;
-        const SIGNIN_URL_JS = <?php echo json_encode($js_signin_url); ?>;
-        const CART_PAGE_URL_JS = <?php echo json_encode($js_cart_page_url); ?>;
-    </script>
+<script type="text/javascript">
+    const API_BASE_JS = <?php echo json_encode($js_api_base); ?>;
+    const USER_TOKEN_JS = <?php echo json_encode($js_user_token); ?>;
+    const CURRENT_COURSE_ID_JS = <?php echo json_encode($js_current_course_id); ?>;
+    const IS_USER_LOGGED_IN_JS = <?php echo json_encode($js_is_user_logged_in); ?>;
+    const SIGNIN_URL_JS = <?php echo json_encode($js_signin_url); ?>;
+    const CART_PAGE_URL_JS = <?php echo json_encode($js_cart_page_url); ?>;
+</script>
 <?php include('template/header.php'); ?>
-    <link href="<?php echo $app_root_url_for_paths; ?>/public/css/course-detail.css" rel="stylesheet">
-    <style>
-        .course-hero-container {
-            max-width: 960px;
-            margin: 0 auto;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
+<link href="<?php echo $app_root_url_for_paths; ?>/public/css/course-detail.css" rel="stylesheet">
+<style>
+    .course-hero-container {
+        max-width: 960px;
+        margin: 0 auto;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
 
-        .course-hero-main {
-            flex: 1 1 580px;
-            min-width: 300px;
-        }
+    .course-hero-main {
+        flex: 1 1 580px;
+        min-width: 300px;
+    }
 
-        .course-aside {
-            flex: 0 0 300px;
-        }
+    .course-aside {
+        flex: 0 0 300px;
+    }
 
-        .course-hero-title,
-        .course-section-title,
-        .lesson-title-area span,
-        .course-meta-author,
-        .course-breadcrumbs a {
-            word-break: break-word;
-            overflow-wrap: break-word;
-            -webkit-hyphens: auto;
-            -ms-hyphens: auto;
-            hyphens: auto;
-        }
+    .course-hero-title,
+    .course-section-title,
+    .lesson-title-area span,
+    .course-meta-author,
+    .course-breadcrumbs a {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        -webkit-hyphens: auto;
+        -ms-hyphens: auto;
+        hyphens: auto;
+    }
 
-        .course-lecture-list {
-            padding-left: 0;
-            list-style-type: none;
-        }
+    .course-lecture-list {
+        padding-left: 0;
+        list-style-type: none;
+    }
 
-        .lesson-entry {
-            border-bottom: 1px solid #e8e8e8;
-            padding: 12px 0;
-        }
+    .lesson-entry {
+        border-bottom: 1px solid #e8e8e8;
+        padding: 12px 0;
+    }
 
-        .lesson-entry:last-child {
-            border-bottom: none;
-        }
+    .lesson-entry:last-child {
+        border-bottom: none;
+    }
 
-        .lesson-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            cursor: default;
-        }
+    .lesson-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        cursor: default;
+    }
 
-        .lesson-title-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-grow: 1;
-            min-width: 0;
-        }
+    .lesson-title-area {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-grow: 1;
+        min-width: 0;
+    }
 
-        .lesson-title-area span {
-            font-weight: 500;
-            color: #2d2f31;
-            font-size: 15px;
-            line-height: 1.4;
-            white-space: normal;
-        }
+    .lesson-title-area span {
+        font-weight: 500;
+        color: #2d2f31;
+        font-size: 15px;
+        line-height: 1.4;
+        white-space: normal;
+    }
 
-        .lesson-icon-svg {
-            width: 20px;
-            height: 20px;
-            fill: #5624d0;
-            flex-shrink: 0;
-        }
+    .lesson-icon-svg {
+        width: 20px;
+        height: 20px;
+        fill: #5624d0;
+        flex-shrink: 0;
+    }
 
-        .lesson-actions-area {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-shrink: 0;
-            margin-left: 10px;
-        }
+    .lesson-actions-area {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-shrink: 0;
+        margin-left: 10px;
+    }
 
-        .btn-lesson-resources {
-            background-color: transparent;
-            border: 1px solid #5624d0;
-            color: #5624d0;
-            padding: 5px 12px;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
+    .btn-lesson-resources {
+        background-color: transparent;
+        border: 1px solid #5624d0;
+        color: #5624d0;
+        padding: 5px 12px;
+        border-radius: 4px;
+        font-size: 13px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
 
-        .btn-lesson-resources:hover,
-        .btn-lesson-resources.active {
-            background-color: #5624d0;
-            color: #fff;
-        }
+    .btn-lesson-resources:hover,
+    .btn-lesson-resources.active {
+        background-color: #5624d0;
+        color: #fff;
+    }
 
-        .lesson-preview-link {
-            font-size: 13px;
-            color: #007791;
-            text-decoration: none;
-            font-weight: 600;
-        }
+    .lesson-preview-link {
+        font-size: 13px;
+        color: #007791;
+        text-decoration: none;
+        font-weight: 600;
+    }
 
-        .lesson-preview-link:hover {
-            text-decoration: underline;
-        }
+    .lesson-preview-link:hover {
+        text-decoration: underline;
+    }
 
-        .lesson-duration-badge {
-            font-size: 13px;
-            color: #505759;
-            background-color: #f7f7f7;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 500;
-        }
+    .lesson-duration-badge {
+        font-size: 13px;
+        color: #505759;
+        background-color: #f7f7f7;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
 
-        .lesson-content-details {
-            padding-left: 30px;
-            margin-top: 12px;
-            background-color: #fbfbfb;
-            border-radius: 4px;
-            padding: 12px;
-            border: 1px solid #efefef;
-        }
+    .lesson-content-details {
+        padding-left: 30px;
+        margin-top: 12px;
+        background-color: #fbfbfb;
+        border-radius: 4px;
+        padding: 12px;
+        border: 1px solid #efefef;
+    }
 
-        .resource-list-collapsible,
-        .video-list-collapsible {
-            list-style-type: none;
-            padding-left: 0;
-            margin-top: 8px;
-        }
+    .resource-list-collapsible,
+    .video-list-collapsible {
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: 8px;
+    }
 
-        .resource-list-collapsible:first-child,
-        .video-list-collapsible:first-child {
-            margin-top: 0;
-        }
+    .resource-list-collapsible:first-child,
+    .video-list-collapsible:first-child {
+        margin-top: 0;
+    }
 
-        .resource-list-collapsible li,
-        .video-list-collapsible li {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 0;
-            font-size: 14px;
-            color: #333;
-        }
+    .resource-list-collapsible li,
+    .video-list-collapsible li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+        font-size: 14px;
+        color: #333;
+    }
 
-        .resource-list-collapsible li svg,
-        .video-list-collapsible li svg {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
-            flex-shrink: 0;
-        }
+    .resource-list-collapsible li svg,
+    .video-list-collapsible li svg {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+        flex-shrink: 0;
+    }
 
-        .resource-list-collapsible li a,
-        .video-list-collapsible li a {
-            color: #0056d2;
-            text-decoration: none;
-            flex-grow: 1;
-            word-break: break-all;
-        }
+    .resource-list-collapsible li a,
+    .video-list-collapsible li a {
+        color: #0056d2;
+        text-decoration: none;
+        flex-grow: 1;
+        word-break: break-all;
+    }
 
-        .resource-list-collapsible li a:hover,
-        .video-list-collapsible li a:hover {
-            text-decoration: underline;
-        }
+    .resource-list-collapsible li a:hover,
+    .video-list-collapsible li a:hover {
+        text-decoration: underline;
+    }
 
-        .video-item-duration {
-            font-size: 0.85em;
-            color: #777;
-            margin-left: auto;
-            padding-left: 10px;
-        }
+    .video-item-duration {
+        font-size: 0.85em;
+        color: #777;
+        margin-left: auto;
+        padding-left: 10px;
+    }
 
-        .sub-list-title {
-            display: block;
-            font-weight: 600;
-            font-size: 14px;
-            color: #1c1d1f;
-            margin-bottom: 8px;
-            margin-top: 10px;
-            padding-bottom: 4px;
-            border-bottom: 1px solid #e0e0e0;
-        }
+    .sub-list-title {
+        display: block;
+        font-weight: 600;
+        font-size: 14px;
+        color: #1c1d1f;
+        margin-bottom: 8px;
+        margin-top: 10px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #e0e0e0;
+    }
 
-        .sub-list-title:first-child {
-            margin-top: 0;
-        }
+    .sub-list-title:first-child {
+        margin-top: 0;
+    }
 
-        .chapter-description {
-            font-size: 0.9em;
-            color: #555;
-            margin-bottom: 10px;
-            padding-left: 0;
-            line-height: 1.5;
-        }
-    </style>
+    .chapter-description {
+        font-size: 0.9em;
+        color: #555;
+        margin-bottom: 10px;
+        padding-left: 0;
+        line-height: 1.5;
+    }
+</style>
 
 <?php if ($error_message): ?>
     <div class="course-hero-bg">
@@ -646,256 +646,284 @@ $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
     </div>
 <?php endif; ?>
 
-    <script>
-        function toggleSyllabusSection(button) {
-            const content = button.nextElementSibling;
-            const isExpanded = button.getAttribute('aria-expanded') === 'true';
+<script>
+    function toggleSyllabusSection(button) {
+        const content = button.nextElementSibling;
+        const isExpanded = button.getAttribute('aria-expanded') === 'true';
 
-            button.setAttribute('aria-expanded', !isExpanded);
-            if (!isExpanded) {
-                content.classList.add('open');
-            } else {
-                content.classList.remove('open');
+        button.setAttribute('aria-expanded', !isExpanded);
+        if (!isExpanded) {
+            content.classList.add('open');
+        } else {
+            content.classList.remove('open');
+        }
+    }
+
+    function toggleLessonDetails(button, contentId) {
+        const content = document.getElementById(contentId);
+        if (content) {
+            const isVisible = content.style.display === 'block';
+            content.style.display = isVisible ? 'none' : 'block';
+            button.classList.toggle('active', !isVisible);
+        }
+    }
+    const expandAllButton = document.querySelector('.course-content-expand');
+    if (expandAllButton) {
+        expandAllButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sections = document.querySelectorAll('.course-section-content');
+            const toggles = document.querySelectorAll('.course-section-toggle');
+            const isAnyOpen = Array.from(sections).some(section => section.classList.contains('open'));
+
+            sections.forEach(section => {
+                if (isAnyOpen) {
+                    section.classList.remove('open');
+                } else {
+                    section.classList.add('open');
+                }
+            });
+
+            toggles.forEach(toggle => {
+                if (isAnyOpen) {
+                    toggle.setAttribute('aria-expanded', 'false');
+                } else {
+                    toggle.setAttribute('aria-expanded', 'true');
+                }
+            });
+
+            this.textContent = isAnyOpen ? 'Mở rộng tất cả' : 'Thu gọn tất cả';
+            this.setAttribute('aria-expanded', !isAnyOpen);
+        });
+    }
+
+    async function checkCourseInCart(cartId, courseId, token) {
+        const response = await fetch(`${API_BASE_JS}/cart_item_api.php?cartID=${cartId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Accept': 'application/json'
             }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`API Error (checkCourseInCart - cart_item_api.php GET): ${response.status} - ${errorText.substring(0, 200)}`);
+            throw new Error(`Không thể kiểm tra giỏ hàng. Vui lòng thử lại.`);
         }
 
-        function toggleLessonDetails(button, contentId) {
-            const content = document.getElementById(contentId);
-            if (content) {
-                const isVisible = content.style.display === 'block';
-                content.style.display = isVisible ? 'none' : 'block';
-                button.classList.toggle('active', !isVisible);
-            }
+        const result = await response.json();
+
+        if (result && result.status === 'success' && Array.isArray(result.data)) {
+            return result.data.some(item => item.courseID === courseId);
+        } else if (result && result.status !== 'success') {
+            console.warn(`API Warning (checkCourseInCart - cart_item_api.php GET): cart_item_api trả về status không thành công: `, result.message || '');
+            return false;
         }
-        const expandAllButton = document.querySelector('.course-content-expand');
-        if (expandAllButton) {
-            expandAllButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                const sections = document.querySelectorAll('.course-section-content');
-                const toggles = document.querySelectorAll('.course-section-toggle');
-                const isAnyOpen = Array.from(sections).some(section => section.classList.contains('open'));
+        console.warn(`API Warning (checkCourseInCart - cart_item_api.php GET): Cấu trúc phản hồi không hợp lệ.`);
+        return false;
+    }
 
-                sections.forEach(section => {
-                    if (isAnyOpen) {
-                        section.classList.remove('open');
-                    } else {
-                        section.classList.add('open');
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const addToCartButton = document.getElementById('addToCartBtn');
+
+        if (addToCartButton) {
+            addToCartButton.addEventListener('click', async function() {
+                if (!IS_USER_LOGGED_IN_JS) {
+                    alert('Bạn cần đăng nhập để thêm khóa học vào giỏ hàng.');
+                    window.location.href = SIGNIN_URL_JS;
+                    return;
+                }
+
+                if (!CURRENT_COURSE_ID_JS) {
+                    alert('Lỗi: Không xác định được ID khóa học.');
+                    return;
+                }
+
+                if (!USER_TOKEN_JS) {
+                    alert('Lỗi: Không tìm thấy token xác thực. Vui lòng đăng nhập lại.');
+                    window.location.href = SIGNIN_URL_JS;
+                    return;
+                }
+
+                this.disabled = true;
+                this.textContent = 'Đang xử lý...';
+
+                try {
+                    const cartApiResponse = await fetch(`${API_BASE_JS}/cart_api.php`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + USER_TOKEN_JS,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!cartApiResponse.ok) {
+                        const errorText = await cartApiResponse.text();
+                        throw new Error(`Lỗi khi lấy giỏ hàng: ${cartApiResponse.status} - ${errorText.substring(0,100)}`);
                     }
-                });
 
-                toggles.forEach(toggle => {
-                    if (isAnyOpen) {
-                        toggle.setAttribute('aria-expanded', 'false');
+                    const cartData = await cartApiResponse.json();
+                    let cartId;
+
+                    if (cartData.success && cartData.cartID) {
+                        cartId = cartData.cartID;
+                    } else if (cartData.success && cartData.data && cartData.data.cartID) {
+                        cartId = cartData.data.cartID;
+                    } else if (cartData.sucesss && cartData.cartID) {
+                        cartId = cartData.cartID;
+                        console.warn("API 'cart_api.php' (GET) responded with typo 'sucesss'.");
                     } else {
-                        toggle.setAttribute('aria-expanded', 'true');
+                        throw new Error('Không thể lấy hoặc tạo cartID: ' + (cartData.message || JSON.stringify(cartData)));
                     }
-                });
 
-                this.textContent = isAnyOpen ? 'Mở rộng tất cả' : 'Thu gọn tất cả';
-                this.setAttribute('aria-expanded', !isAnyOpen);
+                    const courseExists = await checkCourseInCart(cartId, CURRENT_COURSE_ID_JS, USER_TOKEN_JS);
+
+                    if (courseExists) {
+                        alert('Khóa học này đã có trong giỏ hàng của bạn.');
+                        return;
+                    }
+
+                    const addItemPayload = {
+                        cartID: cartId,
+                        courseID: CURRENT_COURSE_ID_JS,
+                        quantity: 1
+                    };
+
+                    const addItemResponse = await fetch(`${API_BASE_JS}/cart_item_api.php`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + USER_TOKEN_JS,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(addItemPayload)
+                    });
+
+                    if (!addItemResponse.ok) {
+                        const errorText = await addItemResponse.text();
+                        throw new Error(`Lỗi khi thêm vào giỏ hàng: ${addItemResponse.status} - ${errorText.substring(0,100)}`);
+                    }
+
+                    const addItemData = await addItemResponse.json();
+
+                    if (addItemData.status === 'success' || addItemData.success === true) {
+                        alert('Đã thêm khóa học vào giỏ hàng!');
+                        location.reload();
+                    } else {
+                        throw new Error('Không thể thêm vào giỏ hàng: ' + (addItemData.message || 'Lỗi không xác định từ cart_item_api.php'));
+                    }
+
+                } catch (error) {
+                    console.error('Lỗi khi thêm vào giỏ hàng:', error);
+                    alert('Đã xảy ra lỗi: ' + error.message);
+                } finally {
+                    this.disabled = false;
+                    this.textContent = 'Thêm vào giỏ hàng';
+                }
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const addToCartButton = document.getElementById('addToCartBtn');
+        const buyNowButton = document.getElementById('buyNowBtn');
+        if (buyNowButton) {
+            buyNowButton.addEventListener('click', async function() {
+                if (!IS_USER_LOGGED_IN_JS) {
+                    alert('Bạn cần đăng nhập để mua khóa học.');
+                    window.location.href = SIGNIN_URL_JS;
+                    return;
+                }
 
-            if (addToCartButton) {
-                addToCartButton.addEventListener('click', async function() {
-                    if (!IS_USER_LOGGED_IN_JS) {
-                        alert('Bạn cần đăng nhập để thêm khóa học vào giỏ hàng.');
-                        window.location.href = SIGNIN_URL_JS;
+                if (!CURRENT_COURSE_ID_JS) {
+                    alert('Lỗi: Không xác định được ID khóa học.');
+                    return;
+                }
+
+                if (!USER_TOKEN_JS) {
+                    alert('Lỗi: Không tìm thấy token xác thực. Vui lòng đăng nhập lại.');
+                    window.location.href = SIGNIN_URL_JS;
+                    return;
+                }
+
+                this.disabled = true;
+                this.textContent = 'Đang xử lý...';
+
+                try {
+                    const cartApiResponse = await fetch(`${API_BASE_JS}/cart_api.php`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + USER_TOKEN_JS,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!cartApiResponse.ok) {
+                        const errorText = await cartApiResponse.text();
+                        throw new Error(`Lỗi khi lấy giỏ hàng: ${cartApiResponse.status} - ${errorText.substring(0, 100)}`);
+                    }
+
+                    const cartData = await cartApiResponse.json();
+                    let cartId;
+
+                    if (cartData.success && cartData.cartID) {
+                        cartId = cartData.cartID;
+                    } else if (cartData.success && cartData.data && cartData.data.cartID) {
+                        cartId = cartData.data.cartID;
+                    } else if (cartData.cartID) {
+                        cartId = cartData.cartID;
+                        if (cartData.sucesss) {
+                            console.warn("API 'cart_api.php' (GET) responded with typo 'sucesss'.");
+                        }
+                    } else {
+                        throw new Error('Không thể lấy hoặc tạo cartID: ' + (cartData.message || JSON.stringify(cartData)));
+                    }
+
+                    const courseExists = await checkCourseInCart(cartId, CURRENT_COURSE_ID_JS, USER_TOKEN_JS);
+
+                    if (courseExists) {
+                        alert('Khóa học này đã có trong giỏ hàng của bạn. Đang chuyển bạn đến trang giỏ hàng.');
+                        window.location.href = CART_PAGE_URL_JS;
                         return;
                     }
 
-                    if (!CURRENT_COURSE_ID_JS) {
-                        alert('Lỗi: Không xác định được ID khóa học.');
-                        return;
+                    const addItemPayload = {
+                        cartID: cartId,
+                        courseID: CURRENT_COURSE_ID_JS,
+                        quantity: 1
+                    };
+
+                    const addItemResponse = await fetch(`${API_BASE_JS}/cart_item_api.php`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + USER_TOKEN_JS,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(addItemPayload)
+                    });
+
+                    if (!addItemResponse.ok) {
+                        const errorText = await addItemResponse.text();
+                        throw new Error(`Lỗi khi thêm vào giỏ hàng: ${addItemResponse.status} - ${errorText.substring(0, 100)}`);
                     }
 
-                    if (!USER_TOKEN_JS) {
-                        alert('Lỗi: Không tìm thấy token xác thực. Vui lòng đăng nhập lại.');
-                        window.location.href = SIGNIN_URL_JS;
-                        return;
+                    const addItemData = await addItemResponse.json();
+
+                    if (addItemData.status === 'success' || addItemData.success === true) {
+                        alert('Đã thêm khóa học vào giỏ hàng! Đang chuyển hướng đến giỏ hàng...');
+                        window.location.href = CART_PAGE_URL_JS;
+                    } else {
+                        throw new Error('Không thể thêm vào giỏ hàng: ' + (addItemData.message || 'Lỗi không xác định từ cart_item_api.php'));
                     }
 
-                    this.disabled = true;
-                    this.textContent = 'Đang xử lý...';
-
-                    try {
-                        console.log(`${API_BASE_JS}/cart_api.php`)
-                        const cartApiResponse = await fetch(`${API_BASE_JS}/cart_api.php`, {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': 'Bearer ' + USER_TOKEN_JS,
-                                'Accept': 'application/json'
-                            }
-                        });
-
-
-                        if (!cartApiResponse.ok) {
-                            const errorText = await cartApiResponse.text();
-                            throw new Error(`Lỗi khi lấy giỏ hàng: ${cartApiResponse.status} - ${errorText.substring(0,100)}`);
-                        }
-
-                        const cartData = await cartApiResponse.json();
-                        let cartId;
-
-                        if (cartData.success && cartData.cartID) {
-                            cartId = cartData.cartID;
-                        } else if (cartData.success && cartData.data && cartData.cartID) {
-                            cartId = cartData.cartID;
-                        } else if (cartData.sucesss && cartData.cartID) {
-                            cartId = cartData.cartID;
-                            console.warn("API 'cart_api.php' responded with typo 'sucesss'.");
-                        } else {
-                            throw new Error('Không thể lấy hoặc tạo cartID: ' + (cartData.message || 'Phản hồi không hợp lệ từ cart_api.php'));
-                        }
-
-                        const addItemPayload = {
-                            cartID: cartId,
-                            courseID: CURRENT_COURSE_ID_JS,
-                            quantity: 1
-                        };
-
-                        const addItemResponse = await fetch(`${API_BASE_JS}/cart_item_api.php`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': 'Bearer ' + USER_TOKEN_JS,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(addItemPayload)
-                        });
-
-                        if (!addItemResponse.ok) {
-                            const errorText = await addItemResponse.text();
-                            throw new Error(`Lỗi khi thêm vào giỏ hàng: ${addItemResponse.status} - ${errorText.substring(0,100)}`);
-                        }
-
-                        const addItemData = await addItemResponse.json();
-
-                        if (addItemData.status === 'success') {
-                            alert('Đã thêm khóa học vào giỏ hàng!');
-                            location.reload();
-                        } else {
-                            throw new Error('Không thể thêm vào giỏ hàng: ' + (addItemData.message || 'Lỗi không xác định từ cart_item_api.php'));
-                        }
-
-                    } catch (error) {
-                        console.error('Lỗi khi thêm vào giỏ hàng:', error);
-                        alert('Đã xảy ra lỗi: ' + error.message);
-                    } finally {
-                        this.disabled = false;
-                        this.textContent = 'Thêm vào giỏ hàng';
-                    }
-                });
-            }
-            const buyNowButton = document.getElementById('buyNowBtn');
-
-            if (buyNowButton) {
-                buyNowButton.addEventListener('click', async function() {
-                    if (!IS_USER_LOGGED_IN_JS) {
-                        alert('Bạn cần đăng nhập để mua khóa học.');
-                        window.location.href = SIGNIN_URL_JS;
-                        return;
-                    }
-
-                    if (!CURRENT_COURSE_ID_JS) {
-                        alert('Lỗi: Không xác định được ID khóa học.');
-                        return;
-                    }
-
-                    if (!USER_TOKEN_JS) {
-                        alert('Lỗi: Không tìm thấy token xác thực. Vui lòng đăng nhập lại.');
-                        window.location.href = SIGNIN_URL_JS;
-                        return;
-                    }
-
-                    this.disabled = true;
-                    this.textContent = 'Đang xử lý...';
-
-                    try {
-                        // Lấy thông tin giỏ hàng hoặc tạo mới (tương tự addToCart)
-                        const cartApiResponse = await fetch(`${API_BASE_JS}/cart_api.php`, {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': 'Bearer ' + USER_TOKEN_JS,
-                                'Accept': 'application/json'
-                            }
-                        });
-
-                        if (!cartApiResponse.ok) {
-                            const errorText = await cartApiResponse.text();
-                            throw new Error(`Lỗi khi lấy giỏ hàng: ${cartApiResponse.status} - ${errorText.substring(0, 100)}`);
-                        }
-
-                        const cartData = await cartApiResponse.json();
-                        let cartId;
-
-                        // Xử lý các trường hợp trả về cartID (bao gồm cả trường hợp có thể có lỗiพิมพ์ 'sucesss')
-                        if (cartData.success && cartData.cartID) {
-                            cartId = cartData.cartID;
-                        } else if (cartData.success && cartData.data && cartData.cartID) { // Thêm kiểm tra cartData.data tồn tại
-                            cartId = cartData.data.cartID; // Giả sử cartID nằm trong data nếu cấu trúc là vậy
-                        } else if (cartData.cartID) { // Kiểm tra trực tiếp cartID nếu có
-                            cartId = cartData.cartID;
-                            if (cartData.sucesss) { // Kiểm tra lỗi typo 'sucesss' như trong code gốc
-                                console.warn("API 'cart_api.php' responded with typo 'sucesss'.");
-                            }
-                        }
-                        else {
-                            // Nếu API tạo cart mới và trả về cartID trong một cấu trúc khác, cần điều chỉnh ở đây
-                            // Ví dụ: nếu API trả về { success: true, data: { cartID: "xyz" } }
-                            // if (cartData.success && cartData.data && cartData.data.cartID) {
-                            //    cartId = cartData.data.cartID;
-                            // } else {
-                            throw new Error('Không thể lấy hoặc tạo cartID: ' + (cartData.message || 'Phản hồi không hợp lệ từ cart_api.php'));
-                            // }
-                        }
-
-
-                        const addItemPayload = {
-                            cartID: cartId,
-                            courseID: CURRENT_COURSE_ID_JS,
-                            quantity: 1
-                        };
-
-                        // Thêm sản phẩm vào giỏ hàng (tương tự addToCart)
-                        const addItemResponse = await fetch(`${API_BASE_JS}/cart_item_api.php`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': 'Bearer ' + USER_TOKEN_JS,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(addItemPayload)
-                        });
-
-                        if (!addItemResponse.ok) {
-                            const errorText = await addItemResponse.text();
-                            throw new Error(`Lỗi khi thêm vào giỏ hàng: ${addItemResponse.status} - ${errorText.substring(0, 100)}`);
-                        }
-
-                        const addItemData = await addItemResponse.json();
-
-                        if (addItemData.status === 'success' || addItemData.success === true) { // Kiểm tra cả 'status' và 'success'
-                            alert('Đã thêm khóa học vào giỏ hàng! Đang chuyển hướng đến giỏ hàng...');
-                            // Chuyển hướng đến trang giỏ hàng
-                            window.location.href = CART_PAGE_URL_JS;
-                            // Không cần re-enable nút vì đã chuyển trang
-                        } else {
-                            throw new Error('Không thể thêm vào giỏ hàng: ' + (addItemData.message || 'Lỗi không xác định từ cart_item_api.php'));
-                        }
-
-                    } catch (error) {
-                        console.error('Lỗi khi thực hiện mua ngay:', error);
-                        alert('Đã xảy ra lỗi: ' + error.message);
-                        this.disabled = false; // Kích hoạt lại nút nếu có lỗi
-                        this.textContent = 'Mua ngay'; // Khôi phục văn bản nút
-                    }
-                });
-            }
-        });
-    </script>
-    <script src="<?php echo $app_root_url_for_paths; ?>/public/js/course-detail.js"></script>
+                } catch (error) {
+                    console.error('Lỗi khi thực hiện mua ngay:', error);
+                    alert('Đã xảy ra lỗi: ' + error.message);
+                    this.disabled = false;
+                    this.textContent = 'Mua ngay';
+                }
+            });
+        }
+    });
+</script>
+<script src="<?php echo $app_root_url_for_paths; ?>/public/js/course-detail.js"></script>
 <?php include('template/footer.php'); ?>
