@@ -113,15 +113,19 @@ class ChapterBLL extends Database
         ];
 
         $dto = null;
+        if (!$this->conn) {
+            error_log('[ChapterBLL] Database connection is not set for GET_CHAPTER_BY_ID_FUNC.');
+            return null;
+        }
         $out_cursor = @oci_new_cursor($this->conn);
         if (!$out_cursor) {
-            error_log('[ChapterBLL] Failed to create new cursor for GET_CHAPTER_BY_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            error_log('[ChapterBLL] Failed to create new cursor for GET_CHAPTER_BY_ID_FUNC: ' . oci_error($this->conn)['message']);
             return null;
         }
 
         $parsed_stid = @oci_parse($this->conn, $sql);
         if (!$parsed_stid) {
-            error_log('[ChapterBLL] OCI Parse failed for GET_CHAPTER_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            error_log('[ChapterBLL] OCI Parse failed for GET_CHAPTER_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . oci_error($this->conn)['message']);
             @oci_free_cursor($out_cursor);
             return null;
         }
@@ -143,28 +147,48 @@ class ChapterBLL extends Database
             @oci_free_cursor($out_cursor);
             return null;
         }
-        $stid_cursor = $out_cursor;
+        $stid_cursor = $out_cursor; // Use the executed cursor
 
         if ($stid_cursor) {
             if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $description = null;
-                if (is_object($row['DESCRIPTION']) && method_exists($row['DESCRIPTION'], 'read')) {
-                    $description = $row['DESCRIPTION']->read($row['DESCRIPTION']->size());
-                } elseif (isset($row['DESCRIPTION'])) {
-                    $description = $row['DESCRIPTION'];
+                // --- Start of modified DESCRIPTION handling ---
+                $description = ''; // Defaulting to an empty string.
+
+                // Check if DESCRIPTION is set in the $row array and is not explicitly null
+                if (isset($row['DESCRIPTION']) && $row['DESCRIPTION'] !== null) {
+                    // Check if it's an object and has a 'read' method (typical for LOB types)
+                    if (is_object($row['DESCRIPTION']) && method_exists($row['DESCRIPTION'], 'read')) {
+                        $lob_size = 0;
+                        if (method_exists($row['DESCRIPTION'], 'size')) {
+                            $lob_size = $row['DESCRIPTION']->size();
+                        }
+
+                        if ($lob_size > 0) {
+                            $content = $row['DESCRIPTION']->read($lob_size);
+                            if ($content !== false && $content !== null) {
+                                $description = $content;
+                            }
+                        }
+                    } else {
+                        // If $row['DESCRIPTION'] is set, not null, but not a LOB object,
+                        // assign its value directly.
+                        $description = $row['DESCRIPTION'];
+                    }
                 }
+                // --- End of modified DESCRIPTION handling ---
+
                 $dto = new ChapterDTO(
                     $row['CHAPTERID'],
                     $row['COURSEID'],
                     $row['TITLE'],
-                    $description,
+                    $description, // Use the processed description
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid_cursor);
+            @oci_free_statement($stid_cursor); // Free the cursor statement handle
         }
-        @oci_free_statement($parsed_stid);
+        @oci_free_statement($parsed_stid); // Free the main statement handle
 
         return $dto;
     }
@@ -177,15 +201,19 @@ class ChapterBLL extends Database
         ];
 
         $list = [];
+        if (!$this->conn) {
+            error_log('[ChapterBLL] Database connection is not set for GET_CHAPTERS_BY_COURSE_FUNC.');
+            return [];
+        }
         $out_cursor = @oci_new_cursor($this->conn);
         if (!$out_cursor) {
-            error_log('[ChapterBLL] Failed to create new cursor for GET_CHAPTERS_BY_COURSE_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            error_log('[ChapterBLL] Failed to create new cursor for GET_CHAPTERS_BY_COURSE_FUNC: ' . oci_error($this->conn)['message']);
             return [];
         }
 
         $parsed_stid = @oci_parse($this->conn, $sql);
         if (!$parsed_stid) {
-            error_log('[ChapterBLL] OCI Parse failed for GET_CHAPTERS_BY_COURSE_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
+            error_log('[ChapterBLL] OCI Parse failed for GET_CHAPTERS_BY_COURSE_FUNC. SQL: ' . $sql . ' Error: ' . oci_error($this->conn)['message']);
             @oci_free_cursor($out_cursor);
             return [];
         }
@@ -207,28 +235,48 @@ class ChapterBLL extends Database
             @oci_free_cursor($out_cursor);
             return [];
         }
-        $stid_cursor = $out_cursor;
+        $stid_cursor = $out_cursor; // Use the executed cursor
 
         if ($stid_cursor) {
             while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $description = null;
-                if (is_object($row['DESCRIPTION']) && method_exists($row['DESCRIPTION'], 'read')) {
-                    $description = $row['DESCRIPTION']->read($row['DESCRIPTION']->size());
-                } elseif (isset($row['DESCRIPTION'])) {
-                    $description = $row['DESCRIPTION'];
+                // --- Start of modified DESCRIPTION handling ---
+                $description = ''; // Defaulting to an empty string.
+
+                // Check if DESCRIPTION is set in the $row array and is not explicitly null
+                if (isset($row['DESCRIPTION']) && $row['DESCRIPTION'] !== null) {
+                    // Check if it's an object and has a 'read' method (typical for LOB types)
+                    if (is_object($row['DESCRIPTION']) && method_exists($row['DESCRIPTION'], 'read')) {
+                        $lob_size = 0;
+                        if (method_exists($row['DESCRIPTION'], 'size')) {
+                            $lob_size = $row['DESCRIPTION']->size();
+                        }
+
+                        if ($lob_size > 0) {
+                            $content = $row['DESCRIPTION']->read($lob_size);
+                            if ($content !== false && $content !== null) {
+                                $description = $content;
+                            }
+                        }
+                    } else {
+                        // If $row['DESCRIPTION'] is set, not null, but not a LOB object,
+                        // assign its value directly.
+                        $description = $row['DESCRIPTION'];
+                    }
                 }
+                // --- End of modified DESCRIPTION handling ---
+
                 $list[] = new ChapterDTO(
                     $row['CHAPTERID'],
                     $row['COURSEID'],
                     $row['TITLE'],
-                    $description,
+                    $description, // Use the processed description
                     isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
-            @oci_free_statement($stid_cursor);
+            @oci_free_statement($stid_cursor); // Free the cursor statement handle
         }
-        @oci_free_statement($parsed_stid);
+        @oci_free_statement($parsed_stid); // Free the main statement handle
 
         return $list;
     }

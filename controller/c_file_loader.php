@@ -3,110 +3,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Define project root and uploads directory.
-define('PROJECT_ROOT', dirname(__DIR__));
-define('UPLOADS_DIR', PROJECT_ROOT . '/uploads');
-
-/**
- * Calls an external API.
- */
-function callApi(string $url, string $requestMethod, array $payload = []): array
-{
-    $jsonPayload = null;
-    if (!empty($payload) && in_array(strtoupper($requestMethod), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
-        $jsonPayload = json_encode($payload);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return ['success' => false, 'message' => 'Internal error: Failed to encode payload. JSON Error: ' . json_last_error_msg()];
-        }
-    } elseif (empty($payload) && in_array(strtoupper($requestMethod), ['POST', 'PUT'])) {
-        $jsonPayload = '{}';
-    }
-
-    $headers = "Content-Type: application/json; charset=utf-8\r\n" .
-        "Accept: application/json\r\n";
-
-    if (isset($_SESSION['user']['token'])) {
-        $token = $_SESSION['user']['token'];
-        $headers .= "Authorization: Bearer " . $token . "\r\n";
-    }
-
-    $opts = [
-        'http' => [
-            'method' => strtoupper($requestMethod),
-            'header' => $headers,
-            'ignore_errors' => true,
-            'timeout' => 15
-        ]
-    ];
-
-    if ($jsonPayload !== null) {
-        $opts['http']['content'] = $jsonPayload;
-    }
-
-    $context = stream_context_create($opts);
-    $response = @file_get_contents($url, false, $context);
-    $responseHeaders = $http_response_header ?? [];
-
-    if ($response === false) {
-        return ['success' => false, 'message' => 'API connection failed. Unable to reach the server at ' . $url, 'http_status_code' => null];
-    }
-
-    $decodedResponse = json_decode($response, true);
-    $jsonError = json_last_error();
-
-    $httpStatusCode = null;
-    foreach ($responseHeaders as $header) {
-        if (preg_match('{HTTP/\d\.\d\s+(\d+)\s+}', $header, $match)) {
-            $httpStatusCode = intval($match[1]);
-            break;
-        }
-    }
-
-    if ($response !== '' && $decodedResponse === null && $jsonError !== JSON_ERROR_NONE) {
-        return [
-            'success' => false,
-            'message' => 'Invalid API response format (not JSON). Error: ' . json_last_error_msg(),
-            'raw_response' => substr($response, 0, 1000),
-            'http_status_code' => $httpStatusCode
-        ];
-    }
-
-    if ($response === '' || ($decodedResponse === null && $jsonError === JSON_ERROR_NONE)) {
-        return [
-            'success' => ($httpStatusCode >= 200 && $httpStatusCode < 300),
-            'message' => $httpStatusCode === 204 ? 'Operation successful with no content.' : 'Operation completed with empty response.',
-            'data' => null,
-            'http_status_code' => $httpStatusCode
-        ];
-    }
-
-    if (is_array($decodedResponse)) {
-        if (!isset($decodedResponse['http_status_code'])) {
-            $decodedResponse['http_status_code'] = $httpStatusCode;
-        }
-        if (!isset($decodedResponse['success'])) {
-            $decodedResponse['success'] = ($httpStatusCode >= 200 && $httpStatusCode < 300);
-        }
-        if (!isset($decodedResponse['data'])) {
-            $decodedResponse['data'] = null;
-        }
-        if (!isset($decodedResponse['message']) && !$decodedResponse['success']) {
-            $decodedResponse['message'] = 'API request failed with status code ' . $httpStatusCode;
-        } elseif (!isset($decodedResponse['message']) && $decodedResponse['success']) {
-            $decodedResponse['message'] = 'API request successful.';
-        }
-    } else {
-        $decodedResponse = [
-            'success' => ($httpStatusCode >= 200 && $httpStatusCode < 300),
-            'message' => 'API returned non-array JSON, but was decoded.',
-            'data' => $decodedResponse,
-            'http_status_code' => $httpStatusCode
-        ];
-    }
-
-    return $decodedResponse;
-}
-// Define project root and uploads directory.
 if (!defined('PROJECT_ROOT')) {
     define('PROJECT_ROOT', dirname(__DIR__));
 }
@@ -114,98 +10,221 @@ if (!defined('UPLOADS_DIR')) {
     define('UPLOADS_DIR', PROJECT_ROOT . '/uploads');
 }
 
-// Hàm trợ giúp để phục vụ tệp an toàn
-function serve_file(string $filePath, string $requestedFilename): void
-{
-    if (file_exists($filePath) && is_readable($filePath)) {
-        $mimeType = mime_content_type($filePath);
-        if (!$mimeType) { // Fallback nếu mime_content_type không hoạt động
-            $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-            switch ($extension) {
-                case 'jpeg':
-                case 'jpg':
-                    $mimeType = 'image/jpeg';
-                    break;
-                case 'png':
-                    $mimeType = 'image/png';
-                    break;
-                case 'gif':
-                    $mimeType = 'image/gif';
-                    break;
-                case 'pdf':
-                    $mimeType = 'application/pdf';
-                    break;
-                case 'mp4':
-                    $mimeType = 'video/mp4';
-                    break;
-                case 'webm':
-                    $mimeType = 'video/webm';
-                    break;
-                case 'ogg':
-                    $mimeType = 'video/ogg';
-                    break;
-                // Thêm các loại tệp khác nếu cần
-                default:
-                    http_response_code(500);
-                    error_log("FileLoader: Unsupported file type or cannot determine MIME type for: " . $filePath);
-                    exit;
+// It's good practice to have one definition for callApi or include it from a central file.
+// Assuming this callApi function might be slightly different or specific to this context.
+// If it's identical to the one in watch_video.php, consider refactoring to a shared include.
+if (!function_exists('callApi_fileLoader')) { // Renamed to avoid redefinition if included elsewhere
+    function callApi_fileLoader(string $url, string $requestMethod, array $payload = []): array
+    {
+        $jsonPayload = null;
+        if (!empty($payload) && in_array(strtoupper($requestMethod), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+            $jsonPayload = json_encode($payload);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return ['success' => false, 'message' => 'Internal error: Failed to encode payload. JSON Error: ' . json_last_error_msg()];
+            }
+        } elseif (empty($payload) && in_array(strtoupper($requestMethod), ['POST', 'PUT'])) {
+            $jsonPayload = '{}';
+        }
+
+        $headers = "Content-Type: application/json; charset=utf-8\r\n" .
+            "Accept: application/json\r\n";
+
+        if (isset($_SESSION['user']['token'])) {
+            $token = $_SESSION['user']['token'];
+            $headers .= "Authorization: Bearer " . $token . "\r\n";
+        }
+
+        $opts = [
+            'http' => [
+                'method' => strtoupper($requestMethod),
+                'header' => $headers,
+                'ignore_errors' => true,
+                'timeout' => 15 // Consider if 15s is enough for all API calls from here
+            ]
+        ];
+
+        if ($jsonPayload !== null) {
+            $opts['http']['content'] = $jsonPayload;
+        }
+
+        $context = stream_context_create($opts);
+        $response = @file_get_contents($url, false, $context);
+        $responseHeaders = $http_response_header ?? [];
+
+        if ($response === false) {
+            return ['success' => false, 'message' => 'API connection failed. Unable to reach the server at ' . $url, 'http_status_code' => null];
+        }
+
+        $decodedResponse = json_decode($response, true);
+        $jsonError = json_last_error();
+
+        $httpStatusCode = null;
+        foreach ($responseHeaders as $header) {
+            if (preg_match('{HTTP/\d\.\d\s+(\d+)\s+}', $header, $match)) {
+                $httpStatusCode = intval($match[1]);
+                break;
             }
         }
-        header_remove('Content-Type'); // Xóa header JSON mặc định (nếu có từ switch trước)
-        header('Content-Type: ' . $mimeType);
-        header('Content-Length: ' . filesize($filePath));
-        header('Cache-Control: public, max-age=86400'); // Cache 1 ngày
-        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 86400) . ' GMT');
-        // Cho phép streaming cho video/audio
-        if (strpos($mimeType, 'video/') === 0 || strpos($mimeType, 'audio/') === 0) {
-            header('Accept-Ranges: bytes');
-            // Xử lý partial content nếu client yêu cầu (cần thiết cho tua video)
-            if (isset($_SERVER['HTTP_RANGE'])) {
-                $size = filesize($filePath);
-                $length = $size;
-                $start = 0;
-                $end = $size - 1;
 
-                header("HTTP/1.1 206 Partial Content");
+        if ($response !== '' && $decodedResponse === null && $jsonError !== JSON_ERROR_NONE) {
+            return [
+                'success' => false,
+                'message' => 'Invalid API response format (not JSON). Error: ' . json_last_error_msg(),
+                'raw_response' => substr($response, 0, 1000), // Limit raw response for brevity
+                'http_status_code' => $httpStatusCode
+            ];
+        }
 
-                $range = $_SERVER['HTTP_RANGE'];
-                if (preg_match('/bytes=\h*(\d+)-(\d*)[\D.*]?/i', $range, $matches)) {
-                    $start = intval($matches[1]);
-                    if (!empty($matches[2])) {
-                        $end = intval($matches[2]);
-                    }
-                }
-
-                header("Content-Range: bytes $start-$end/$size");
-                header("Content-Length: " . ($end - $start + 1));
-
-                $f = fopen($filePath, 'rb');
-                fseek($f, $start);
-                $buffer = 1024 * 8; // 8KB buffer
-                while (!feof($f) && ($p = ftell($f)) <= $end) {
-                    if ($p + $buffer > $end) {
-                        $buffer = $end - $p + 1;
-                    }
-                    set_time_limit(0); // Ngăn script timeout khi stream file lớn
-                    echo fread($f, $buffer);
-                    flush(); // Gửi buffer ra client
-                }
-                fclose($f);
-                exit;
+        if ($response === '' || ($decodedResponse === null && $jsonError === JSON_ERROR_NONE && $response !== '')) {
+            if($decodedResponse === null && $jsonError === JSON_ERROR_NONE && $response === 'null'){ // Specifically handle "null" string response
+                return [
+                    'success' => ($httpStatusCode >= 200 && $httpStatusCode < 300),
+                    'message' => $httpStatusCode === 204 ? 'Operation successful with no content.' : 'Operation completed with valid empty JSON response.',
+                    'data' => null,
+                    'http_status_code' => $httpStatusCode
+                ];
             }
+            return [
+                'success' => ($httpStatusCode >= 200 && $httpStatusCode < 300),
+                'message' => $httpStatusCode === 204 ? 'Operation successful with no content.' : 'Operation completed with empty response.',
+                'data' => null,
+                'http_status_code' => $httpStatusCode
+            ];
+        }
+
+
+        if (is_array($decodedResponse)) {
+            if (!isset($decodedResponse['http_status_code'])) {
+                $decodedResponse['http_status_code'] = $httpStatusCode;
+            }
+            if (!isset($decodedResponse['success'])) {
+                // Ensure success reflects HTTP status if not explicitly set
+                $decodedResponse['success'] = ($httpStatusCode >= 200 && $httpStatusCode < 300);
+            }
+            if ($decodedResponse['success'] && !array_key_exists('data', $decodedResponse)) {
+                $decodedResponse['data'] = null; // Ensure 'data' key exists on success
+            }
+            if (!isset($decodedResponse['message']) && !$decodedResponse['success']) {
+                $decodedResponse['message'] = 'API request failed with status code ' . $httpStatusCode;
+            } elseif (!isset($decodedResponse['message']) && $decodedResponse['success']) {
+                $decodedResponse['message'] = 'API request successful.';
+            }
+        } else { // Handle cases where JSON is valid but not an array (e.g., a single JSON string, number)
+            $decodedResponse = [
+                'success' => ($httpStatusCode >= 200 && $httpStatusCode < 300),
+                'message' => 'API returned non-array JSON, but was decoded.',
+                'data' => $decodedResponse, // Store the decoded non-array data
+                'http_status_code' => $httpStatusCode
+            ];
+        }
+
+        return $decodedResponse;
+    }
+}
+
+
+function serve_file(string $filePath, string $requestedFilename, bool $forceDownload = false): void
+{
+    if (file_exists($filePath) && is_readable($filePath)) {
+        $fileSize = filesize($filePath);
+        $mimeType = mime_content_type($filePath);
+
+        if (!$mimeType) { // Fallback for mime_content_type failure
+            $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+            switch ($extension) {
+                case 'jpeg': case 'jpg': $mimeType = 'image/jpeg'; break;
+                case 'png': $mimeType = 'image/png'; break;
+                case 'gif': $mimeType = 'image/gif'; break;
+                case 'pdf': $mimeType = 'application/pdf'; break;
+                case 'zip': $mimeType = 'application/zip'; break;
+                case 'doc': $mimeType = 'application/msword'; break;
+                case 'docx': $mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'; break;
+                case 'xls': $mimeType = 'application/vnd.ms-excel'; break;
+                case 'xlsx': $mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; break;
+                case 'ppt': $mimeType = 'application/vnd.ms-powerpoint'; break;
+                case 'pptx': $mimeType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'; break;
+                case 'txt': $mimeType = 'text/plain'; break;
+                case 'mp4': $mimeType = 'video/mp4'; break;
+                case 'webm': $mimeType = 'video/webm'; break;
+                case 'ogg': $mimeType = 'video/ogg'; break; // Corrected from 'ogv' to 'ogg' for common video
+                case 'mp3': $mimeType = 'audio/mpeg'; break;
+                default:
+                    $mimeType = 'application/octet-stream'; // Generic binary type
+            }
+        }
+
+        if (ob_get_level()) { // Clear output buffer
+            ob_end_clean();
+        }
+
+        header('Content-Type: ' . $mimeType);
+        header('Content-Length: ' . $fileSize);
+        header('Cache-Control: private, max-age=0, must-revalidate'); // Cache control for downloads
+        header('Pragma: public'); // For compatibility
+
+        $isMedia = strpos($mimeType, 'video/') === 0 || strpos($mimeType, 'audio/') === 0;
+        $isImage = strpos($mimeType, 'image/') === 0;
+        $isPdf = $mimeType === 'application/pdf';
+
+        // If $forceDownload is true, OR if it's not media, not an image, and not a PDF, then attach.
+        // Otherwise (if $forceDownload is false AND it IS media, image, or PDF), serve inline.
+        if ($forceDownload || (!$isMedia && !$isImage && !$isPdf) ) {
+            header('Content-Disposition: attachment; filename="' . basename($requestedFilename) . '"');
         } else {
-            // Cho phép tải xuống với tên gốc cho các loại tệp khác (ví dụ PDF)
             header('Content-Disposition: inline; filename="' . basename($requestedFilename) . '"');
         }
 
-        ob_clean();
-        flush();
-        readfile($filePath);
+        // Handle byte range requests for media files (streaming)
+        if ($isMedia && isset($_SERVER['HTTP_RANGE'])) {
+            header('Accept-Ranges: bytes');
+            $range = $_SERVER['HTTP_RANGE'];
+            list($start, $end) = [0, $fileSize - 1];
+
+            // Parse range header
+            if (preg_match('/bytes=\h*(\d+)-(\d*)[\D.*]?/i', $range, $matches)) {
+                $start = intval($matches[1]);
+                if (!empty($matches[2])) {
+                    $end = intval($matches[2]);
+                }
+            }
+            $end = min($end, $fileSize - 1); // Ensure end doesn't exceed file size
+
+            if ($start > $end || $start >= $fileSize) {
+                http_response_code(416); // Range Not Satisfiable
+                header("Content-Range: bytes */$fileSize");
+                exit;
+            }
+
+            http_response_code(206); // Partial Content
+            header("Content-Range: bytes $start-$end/$fileSize");
+            header("Content-Length: " . ($end - $start + 1));
+
+            $fh = @fopen($filePath, 'rb');
+            if ($fh) {
+                fseek($fh, $start);
+                $bytesToSend = $end - $start + 1;
+                while ($bytesToSend > 0 && !feof($fh) && !connection_aborted()) {
+                    $bufferSize = min(1024 * 8, $bytesToSend); // Read in 8KB chunks
+                    $buffer = fread($fh, $bufferSize);
+                    echo $buffer;
+                    flush(); // Flush output buffer
+                    $bytesToSend -= strlen($buffer);
+                }
+                fclose($fh);
+            }
+        } else {
+            // For non-range requests or non-media files, read the whole file
+            readfile($filePath);
+        }
         exit;
     } else {
-        error_log("FileLoader: File not found or not readable: " . $filePath);
-        http_response_code(404); // Not Found
-        // Không echo JSON ở đây vì header Content-Type đã bị xóa hoặc thay đổi
+        error_log("FileLoader: File not found or not readable: " . $filePath . " (Requested: " . $requestedFilename . ")");
+        if (!headers_sent()) {
+            // Ensure JSON output for errors if headers not already sent
+            header('Content-Type: application/json');
+        }
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'File not found or not accessible. Requested: ' . basename($requestedFilename)]);
         exit;
     }
 }
@@ -214,169 +233,132 @@ function serve_file(string $filePath, string $requestedFilename): void
 $act = '';
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
+// Determine action based on request method
 if ($requestMethod === 'POST') {
     $act = $_POST['act'] ?? '';
 } elseif ($requestMethod === 'GET') {
     $act = $_GET['act'] ?? '';
 }
 
-header('Content-Type: application/json');
+// Set default Content-Type to JSON for actions that return JSON
+// Specific file serving actions will override this.
+if ($act !== 'serve_image' && $act !== 'serve_user_image' && $act !== 'serve_course_video' && $act !== 'serve_course_resource') {
+    if (!headers_sent()) {
+        header('Content-Type: application/json');
+    }
+}
+
 
 switch ($act) {
     case 'home_page':
         $baseAppPath = dirname(dirname($_SERVER['SCRIPT_NAME']));
-        if ($baseAppPath === '/' || $baseAppPath === '\\') {
+        if ($baseAppPath === '/' || $baseAppPath === '\\') { // Normalize base path
             $baseAppPath = '';
         }
         $allCourseURL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
             . "://" . $_SERVER['HTTP_HOST']
-            . $baseAppPath
+            . $baseAppPath // Use normalized base path
             . '/api/course_api.php?isGetAllCourse=true&option=1';
-        $allCourseResp = callApi($allCourseURL, "GET");
+        $allCourseResp = callApi_fileLoader($allCourseURL, "GET"); // Use renamed function
         http_response_code($allCourseResp['http_status_code'] ?? ($allCourseResp['success'] ? 200 : 500));
         echo json_encode($allCourseResp);
         break;
 
     case 'get_instructors_home_page':
-        $allInstructorsURL = "http://localhost/CoursePro1/api/instructor_api.php?isGetInstructorHomePage=true";
-        $allInstructorsResp = callApi($allInstructorsURL, "GET");
+        // Consider making the base path construction more robust or configurable
+        $baseAppPathForInstructors = dirname(dirname($_SERVER['SCRIPT_NAME']));
+        if ($baseAppPathForInstructors === '/' || $baseAppPathForInstructors === '\\') {
+            $baseAppPathForInstructors = '';
+        }
+        // The '/CoursePro1' part seems specific to localhost, might need a better way to handle this
+        $apiSubPath = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false && $baseAppPathForInstructors === '' ? '/CoursePro1' : $baseAppPathForInstructors);
+
+        $allInstructorsURL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
+            . "://" . $_SERVER['HTTP_HOST']
+            . $apiSubPath // Use determined API subpath
+            . '/api/instructor_api.php?isGetInstructorHomePage=true';
+        $allInstructorsResp = callApi_fileLoader($allInstructorsURL, "GET"); // Use renamed function
         http_response_code($allInstructorsResp['http_status_code'] ?? ($allInstructorsResp['success'] ? 200 : 500));
         echo json_encode($allInstructorsResp);
         break;
 
-    case 'serve_image': // For course images
+    case 'serve_image':
         $courseId = $_GET['course_id'] ?? null;
         $imageName = $_GET['image'] ?? null;
 
         if (!$courseId || !$imageName) {
+            if (!headers_sent()) { header('Content-Type: application/json');}
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Missing course_id or image name.']);
             exit;
         }
-        $imageName = basename($imageName);
-        $imagePath = UPLOADS_DIR . '/' . $courseId . '/' . $imageName; // Path: uploads/{course_id}/{imageName}
-
-        if (file_exists($imagePath) && is_readable($imagePath)) {
-            $mimeType = mime_content_type($imagePath);
-            if (!$mimeType) {
-                $extension = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
-                switch ($extension) {
-                    case 'jpeg':
-                    case 'jpg':
-                        $mimeType = 'image/jpeg';
-                        break;
-                    case 'png':
-                        $mimeType = 'image/png';
-                        break;
-                    case 'gif':
-                        $mimeType = 'image/gif';
-                        break;
-                    default:
-                        http_response_code(500);
-                        exit;
-                }
-            }
-            header_remove('Content-Type');
-            header('Content-Type: ' . $mimeType);
-            header('Content-Length: ' . filesize($imagePath));
-            header('Cache-Control: public, max-age=3600');
-            header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 3600) . ' GMT');
-            ob_clean();
-            flush();
-            readfile($imagePath);
-            exit;
-        } else {
-            http_response_code(404);
-            exit;
-        }
+        $imageName = basename($imageName); // Sanitize filename
+        $imagePath = UPLOADS_DIR . DIRECTORY_SEPARATOR . preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$courseId) . DIRECTORY_SEPARATOR . $imageName;
+        serve_file($imagePath, $imageName, false); // Images are typically served inline
         break;
 
-    case 'serve_user_image': // For user (instructor) profile images
+    case 'serve_user_image':
         $userId = $_GET['user_id'] ?? null;
         $imageName = $_GET['image'] ?? null;
 
         if (!$userId || !$imageName) {
+            if (!headers_sent()) { header('Content-Type: application/json');}
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Missing user_id or image name.']);
             exit;
         }
-        $imageName = basename($imageName); // Security: prevent directory traversal
-        // Path structure: uploads/{userID}/{imageName}
-        $imagePath = UPLOADS_DIR . '/' . $userId . '/' . $imageName;
-
-        if (file_exists($imagePath) && is_readable($imagePath)) {
-            $mimeType = mime_content_type($imagePath);
-            if (!$mimeType) {
-                $extension = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
-                switch ($extension) {
-                    case 'jpeg':
-                    case 'jpg':
-                        $mimeType = 'image/jpeg';
-                        break;
-                    case 'png':
-                        $mimeType = 'image/png';
-                        break;
-                    case 'gif':
-                        $mimeType = 'image/gif';
-                        break;
-                    default:
-                        http_response_code(500);
-                        exit;
-                }
-            }
-            header_remove('Content-Type'); // Remove default JSON header
-            header('Content-Type: ' . $mimeType);
-            header('Content-Length: ' . filesize($imagePath));
-            header('Cache-Control: public, max-age=3600'); // Cache for 1 hour
-            header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 3600) . ' GMT');
-            ob_clean();
-            flush();
-            readfile($imagePath);
-            exit;
-        } else {
-            http_response_code(404); // Not Found
-            exit;
-        }
+        $imageName = basename($imageName); // Sanitize filename
+        $imagePath = UPLOADS_DIR . DIRECTORY_SEPARATOR . 'user_avatars' . DIRECTORY_SEPARATOR . preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$userId) . DIRECTORY_SEPARATOR . $imageName;
+        serve_file($imagePath, $imageName, false); // User avatars are typically served inline
         break;
+
     case 'serve_course_video':
-        header('Content-Type: application/json'); // Cho các lỗi JSON tiềm ẩn
         $courseId = $_GET['course_id'] ?? null;
-        $chapterId = $_GET['chapter_id'] ?? null; // Cần chapterID để xây dựng đường dẫn
-        $videoFilename = $_GET['filename'] ?? null; // Tên file video
+        $chapterId = $_GET['chapter_id'] ?? null;
+        $videoFilename = $_GET['filename'] ?? null;
 
         if (!$courseId || !$chapterId || !$videoFilename) {
+            if (!headers_sent()) { header('Content-Type: application/json');}
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Missing course_id, chapter_id, or video filename.']);
             exit;
         }
-        $videoFilename = basename($videoFilename);
-        // Đường dẫn theo cấu trúc: uploads/{courseID}/{chapterID}/videos/{videoFilename}
-        $videoPath = UPLOADS_DIR . '/' . $courseId . '/' . $chapterId . '/videos/' . $videoFilename;
-        serve_file($videoPath, $videoFilename);
+        $videoFilename = basename($videoFilename); // Sanitize filename
+        $safeCourseId = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$courseId);
+        $safeChapterId = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$chapterId);
+        $videoPath = UPLOADS_DIR . DIRECTORY_SEPARATOR . $safeCourseId . DIRECTORY_SEPARATOR . $safeChapterId . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . $videoFilename;
+        serve_file($videoPath, $videoFilename, false); // Videos are served inline (allowing streaming)
         break;
 
     case 'serve_course_resource':
-        header('Content-Type: application/json');
         $courseId = $_GET['course_id'] ?? null;
-        $chapterId = $_GET['chapter_id'] ?? null; // Cần chapterID
-        $resourceFilename = $_GET['filename'] ?? null; // Tên file tài liệu
+        $chapterId = $_GET['chapter_id'] ?? null;
+        $resourceFilename = $_GET['filename'] ?? null;
+
+        // MODIFIED: Always force download for resources
+        $forceDownload = true;
 
         if (!$courseId || !$chapterId || !$resourceFilename) {
+            if (!headers_sent()) { header('Content-Type: application/json');}
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Missing course_id, chapter_id, or resource filename.']);
             exit;
         }
-        $resourceFilename = basename($resourceFilename);
-        // Đường dẫn theo cấu trúc: uploads/{courseID}/{chapterID}/resources/{resourceFilename}
-        $resourcePath = UPLOADS_DIR . '/' . $courseId . '/' . $chapterId . '/resources/' . $resourceFilename;
-        serve_file($resourcePath, $resourceFilename);
+        $resourceFilename = basename($resourceFilename); // Sanitize filename
+        $safeCourseId = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$courseId);
+        $safeChapterId = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$chapterId);
+        $resourcePath = UPLOADS_DIR . DIRECTORY_SEPARATOR . $safeCourseId . DIRECTORY_SEPARATOR . $safeChapterId . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . $resourceFilename;
+
+        serve_file($resourcePath, $resourceFilename, $forceDownload); // $forceDownload is now always true
         break;
 
     default:
-        http_response_code(404);
+        if (!headers_sent()) { header('Content-Type: application/json');}
+        http_response_code(404); // Not Found for invalid actions
         echo json_encode([
             'success' => false,
             'message' => 'Invalid action specified. Requested action: \'' . htmlspecialchars($act) . '\''
         ]);
         break;
 }
+?>

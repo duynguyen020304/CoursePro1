@@ -1,3 +1,3 @@
 <?php
-// phpinfo();
-echo ini_get('error_log');
+ phpinfo();
+//echo ini_get('error_log');
