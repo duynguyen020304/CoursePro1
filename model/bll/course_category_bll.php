@@ -85,7 +85,7 @@ class CourseCategoryBLL extends Database
         return $list;
     }
 
-    public function get_courses_by_category($categoryID): array
+    public function get_courses_by_category_id($categoryID): array
     {
         $sql = "BEGIN :result_cursor := COURSE_CATEGORY_PKG.GET_COURSES_BY_CATEGORY_FUNC(:categoryID_param); END;";
         $bindParams = [
