@@ -187,7 +187,7 @@ class UserInitializer
                 'email' => 'instructor18@example.com',
                 'password' => 'Instructor@123',
                 'firstName' => 'Do',
-                'lastName' => 'Thi My Hanh',
+                'lastName' => 'My Hanh',
                 'role' => 'instructor',
                 'biography' => 'Cô **Đỗ Thị Mỹ Hạnh** là một chuyên gia về **Quản trị cơ sở dữ liệu NoSQL** và **Distributed Systems** với hơn **9 năm kinh nghiệm** trong việc triển khai và tối ưu hóa các hệ thống dữ liệu phân tán hiệu suất cao. Cô đã làm việc với các cơ sở dữ liệu như **MongoDB, Cassandra, Redis** và các công nghệ liên quan. Cô Mỹ Hạnh có kiến thức sâu sắc về việc xử lý dữ liệu lớn, đảm bảo tính nhất quán và khả năng mở rộng của hệ thống trong môi trường phi quan hệ. Cô không chỉ giảng dạy về lý thuyết mà còn chia sẻ kinh nghiệm thực tế về cách thức lựa chọn cơ sở dữ liệu phù hợp, thiết kế lược đồ tối ưu và quản lý các hệ thống dữ liệu phân tán phức tạp.',
                 'profileImage' => 'default'
@@ -730,7 +730,7 @@ class UserInitializer
         if ($isGenerateInstructorSuccess && $isGenerateStudentSuccess) {
             ob_end_clean();
             header("Location: course_initializer.php");
-            exit(); 
+            exit();
         } else {
             ob_end_flush();
         }

@@ -7,7 +7,6 @@ class ResourceBLL extends Database
     public function create_resource(ResourceDTO $resource): bool
     {
         $sql = "BEGIN COURSE_RESOURCE_PKG.CREATE_RESOURCE_PROC(:resourceID, :lessonID, :resourcePath, :title, :sortOrder); END;";
-
         $bindParams = [
             ':resourceID'   => $resource->resourceID,
             ':lessonID'     => $resource->lessonID,
@@ -15,7 +14,6 @@ class ResourceBLL extends Database
             ':title'        => $resource->title,
             ':sortOrder'    => $resource->sortOrder ?? 0,
         ];
-
         $stid = $this->executePrepared($sql, $bindParams);
         return ($stid !== false);
     }
@@ -84,7 +82,6 @@ class ResourceBLL extends Database
         $bindParams = [
             ':lessonID_param' => $lessonID
         ];
-
         $resources = [];
         $out_cursor = @oci_new_cursor($this->conn);
         if (!$out_cursor) {
@@ -139,7 +136,6 @@ class ResourceBLL extends Database
     public function get_all_resources(): array
     {
         $sql = "BEGIN :result_cursor := COURSE_RESOURCE_PKG.GET_ALL_RESOURCES_FUNC(); END;";
-
         $resources = [];
         $out_cursor = @oci_new_cursor($this->conn);
         if (!$out_cursor) {
@@ -193,7 +189,6 @@ class ResourceBLL extends Database
     public function update_resource(ResourceDTO $resource): bool
     {
         $sql = "BEGIN COURSE_RESOURCE_PKG.UPDATE_RESOURCE_PROC(:resourceID_where, :lessonID, :resourcePath, :title, :sortOrder); END;";
-
         $bindParams = [
             ':resourceID_where' => $resource->resourceID,
             ':lessonID'       => $resource->lessonID,
@@ -201,7 +196,6 @@ class ResourceBLL extends Database
             ':title'          => $resource->title,
             ':sortOrder'      => $resource->sortOrder ?? 0,
         ];
-
         $stid = $this->executePrepared($sql, $bindParams);
         return ($stid !== false);
     }
@@ -210,9 +204,7 @@ class ResourceBLL extends Database
     {
         $sql = "BEGIN COURSE_RESOURCE_PKG.DELETE_RESOURCE_PROC(:resourceID); END;";
         $bindParams = [':resourceID' => $resourceID];
-
         $stid = $this->executePrepared($sql, $bindParams);
         return ($stid !== false);
     }
 }
-?>
