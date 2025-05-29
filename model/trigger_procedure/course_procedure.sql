@@ -25,7 +25,12 @@ CREATE OR REPLACE PACKAGE COURSE_PKG AS
     ) RETURN SYS_REFCURSOR;
 
     FUNCTION GET_ALL_COURSES_FUNC
-    RETURN SYS_REFCURSOR;
+        RETURN SYS_REFCURSOR;
+
+    -- New procedure to get courses by title (for search functionality)
+    FUNCTION GET_COURSES_BY_TITLE_FUNC(
+        p_Title IN COURSE.Title%TYPE
+    ) RETURN SYS_REFCURSOR;
 
 END COURSE_PKG;
 /
@@ -122,7 +127,7 @@ CREATE OR REPLACE PACKAGE BODY COURSE_PKG AS
     END GET_COURSE_BY_ID_FUNC;
 
     FUNCTION GET_ALL_COURSES_FUNC
-    RETURN SYS_REFCURSOR IS
+        RETURN SYS_REFCURSOR IS
         v_cursor SYS_REFCURSOR;
     BEGIN
         OPEN v_cursor FOR
@@ -142,6 +147,30 @@ CREATE OR REPLACE PACKAGE BODY COURSE_PKG AS
             RAISE;
     END GET_ALL_COURSES_FUNC;
 
+    -- Implementation of the new procedure to get courses by title
+    FUNCTION GET_COURSES_BY_TITLE_FUNC(
+        p_Title IN COURSE.Title%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                CourseID,
+                Title,
+                Description,
+                Price,
+                CreatedBy,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED
+            FROM
+                COURSE
+            WHERE
+                UPPER(Title) LIKE '%' || UPPER(p_Title) || '%'
+            ORDER BY Title ASC;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_COURSES_BY_TITLE_FUNC;
+
 END COURSE_PKG;
 /
-

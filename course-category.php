@@ -1,8 +1,11 @@
 <?php
+// Start session if not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+// Get user token from session, if available
 $token = $_SESSION['user']['token'] ?? null;
+// Include the head template
 include('template/head.php');
 ?>
 <!DOCTYPE html>
@@ -18,38 +21,9 @@ include('template/head.php');
 </head>
 <body class="bg-light">
 
-<?php include('template/header.php'); ?>
+<?php include('template/header.php'); // Include the header template ?>
 
 <main class="container py-4 py-md-5">
-    <section class="bg-white p-3 p-md-4 rounded shadow-sm mb-4 mb-md-5">
-        <h1 id="categoryTitle" class="display-5 display-md-4 fw-bold text-dark mb-3">Khóa học</h1>
-        <p id="categoryDescription" class="text-muted mb-4 fs-6 fs-md-5">
-            Duyệt các khóa học trong danh mục được chọn.
-        </p>
-        <div class="row row-cols-2 row-cols-sm-4 g-3 mb-4 text-center">
-            <div class="col">
-                <p class="h2 fw-bold text-custom-purple" id="learnerCount">-</p>
-                <p class="small text-muted">Số người học</p>
-            </div>
-            <div class="col">
-                <p class="h2 fw-bold text-custom-purple" id="categoryCourseCount">-</p>
-                <p class="small text-muted">Số khóa học</p>
-            </div>
-            <div class="col">
-                <p class="h2 fw-bold text-custom-purple" id="labCount">- <i class="fas fa-info-circle small text-muted"></i></p>
-                <p class="small text-muted">Số bài thực hành</p>
-            </div>
-            <div class="col">
-                <p class="h2 fw-bold text-custom-purple" id="avgRatingCategory">- <i class="fas fa-star text-warning"></i></p>
-                <p class="small text-muted">Đánh giá trung bình</p>
-            </div>
-        </div>
-        <div class="d-flex flex-wrap gap-2 align-items-center">
-            <span class="text-dark fw-semibold me-2">Liên quan:</span>
-            <button class="btn btn-outline-secondary btn-sm rounded-pill py-1 px-2">IT & Software</button>
-            <button class="btn btn-outline-secondary btn-sm rounded-pill py-1 px-2">Business</button>
-        </div>
-    </section>
 
     <section class="row g-4">
         <div class="col-12">
@@ -92,42 +66,47 @@ include('template/head.php');
     </section>
 </main>
 
-<?php include('template/footer.php'); ?>
+<?php include('template/footer.php'); // Include the footer template ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // DOM Element References
         const sortBySelect = document.getElementById('sortBy');
         const courseListContainer = document.getElementById('courseList');
         const courseCountElement = document.getElementById('courseCount');
+        // Các element đã bị xóa khỏi HTML, nhưng khai báo biến vẫn còn để tránh lỗi nếu JS không được chỉnh sửa kỹ
+        // Tuy nhiên, các thao tác với các element này sẽ không có tác dụng vì chúng không còn tồn tại trên DOM
         const categoryTitleElement = document.getElementById('categoryTitle');
         const categoryDescriptionElement = document.getElementById('categoryDescription');
-
         const learnerCountElement = document.getElementById('learnerCount');
         const categoryCourseCountElement = document.getElementById('categoryCourseCount');
         const labCountElement = document.getElementById('labCount');
         const avgRatingCategoryElement = document.getElementById('avgRatingCategory');
 
-
+        // Get PHP token for API calls
         const phpToken = <?php echo json_encode($token); ?>;
-        let allFetchedCourses = [];
+        let allFetchedCourses = []; // Store all courses fetched for sorting
 
+        // Function to get category ID from URL parameters
         function getCategoryIdFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('categoryID');
         }
 
+        // Async function to fetch details for a single course
         async function fetchCourseDetails(courseId) {
             if (!courseId) {
                 console.warn("fetchCourseDetails called with invalid courseId:", courseId);
                 return null;
             }
             try {
+                // API endpoint for fetching course details
                 const courseApiUrl = `http://localhost/CoursePro1/api/course_api.php?courseID=${courseId}&isFilterByCategory=true`;
                 const response = await fetch(courseApiUrl, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${phpToken}`,
+                        'Authorization': `Bearer ${phpToken}`, // Authorization token
                         'Content-Type': 'application/json'
                     }
                 });
@@ -139,7 +118,7 @@ include('template/head.php');
                 }
                 const result = await response.json();
                 if (result.success && result.data) {
-                    return result.data;
+                    return result.data; // Return course data on success
                 } else {
                     console.error(`Lỗi API khi lấy chi tiết khóa học ${courseId}: ${result.message}`);
                     return null;
@@ -150,10 +129,12 @@ include('template/head.php');
             }
         }
 
+        // Async function to fetch courses based on category ID
         async function fetchCoursesByCategory(categoryId) {
             if (!courseListContainer) return;
-            courseListContainer.innerHTML = '<p class="text-center py-5">Đang tải khóa học...</p>';
+            courseListContainer.innerHTML = '<p class="text-center py-5">Đang tải khóa học...</p>'; // Loading message
 
+            // Check for PHP token
             if (!phpToken) {
                 courseListContainer.innerHTML = '<p class="text-danger text-center py-5">Lỗi: Không tìm thấy token xác thực. Vui lòng đăng nhập lại.</p>';
                 console.error("PHP token is missing.");
@@ -162,6 +143,7 @@ include('template/head.php');
             }
 
             try {
+                // API endpoint for fetching courses by category and category details
                 const categoryApiUrl = `http://localhost/CoursePro1/api/course_category_api.php?categoryID=${categoryId}`;
                 const categoryResponse = await fetch(categoryApiUrl, {
                     method: 'GET',
@@ -178,6 +160,7 @@ include('template/head.php');
 
                 const categoryResult = await categoryResponse.json();
 
+                // Update category title and description - Sẽ không có tác dụng vì element đã bị xóa
                 if (categoryResult.categoryName && categoryTitleElement) {
                     categoryTitleElement.textContent = categoryResult.categoryName;
                 } else if (categoryTitleElement) {
@@ -187,6 +170,7 @@ include('template/head.php');
                     categoryDescriptionElement.textContent = categoryResult.categoryDescription;
                 }
 
+                // Update category statistics - Sẽ không có tác dụng vì element đã bị xóa
                 if (categoryResult.stats) {
                     if (learnerCountElement) learnerCountElement.textContent = categoryResult.stats.totalLearners || '-';
                     if (categoryCourseCountElement) categoryCourseCountElement.textContent = categoryResult.stats.totalCourses || '-';
@@ -194,7 +178,7 @@ include('template/head.php');
                     if (avgRatingCategoryElement) avgRatingCategoryElement.innerHTML = `${parseFloat(categoryResult.stats.averageRating || 0).toFixed(1)} <i class="fas fa-star text-warning"></i>`;
                 }
 
-
+                // Validate API response for course list
                 if (!categoryResult.success || !Array.isArray(categoryResult.data)) {
                     console.error('Lỗi API hoặc định dạng dữ liệu không hợp lệ từ course_category_api:', categoryResult.message, categoryResult.data);
                     courseListContainer.innerHTML = `<p class="text-muted text-center py-5">Không tìm thấy khóa học nào cho danh mục này hoặc có lỗi xảy ra. ${categoryResult.message || ''}</p>`;
@@ -202,30 +186,32 @@ include('template/head.php');
                     return;
                 }
 
-                const courseInfos = categoryResult.data;
+                const courseInfos = categoryResult.data; // Array of basic course info (like courseID)
 
+                // Handle empty course list
                 if (courseInfos.length === 0) {
                     courseListContainer.innerHTML = '<p class="text-muted text-center py-5">Không có khóa học nào trong danh mục này.</p>';
                     updateCourseCount(0);
-                    if (categoryCourseCountElement) categoryCourseCountElement.textContent = '0';
+                    if (categoryCourseCountElement) categoryCourseCountElement.textContent = '0'; // Sẽ không có tác dụng
                     return;
                 }
-                if (categoryCourseCountElement) categoryCourseCountElement.textContent = courseInfos.length;
+                if (categoryCourseCountElement) categoryCourseCountElement.textContent = courseInfos.length; // Sẽ không có tác dụng
 
 
+                // Fetch detailed information for each course
                 const courseDetailPromises = courseInfos.map(info => {
                     if (!info || typeof info.courseID === 'undefined' || info.courseID === null) {
                         console.warn("Đối tượng thông tin khóa học không có courseID hoặc courseID không hợp lệ:", info);
-                        return Promise.resolve(null);
+                        return Promise.resolve(null); // Resolve with null for invalid entries
                     }
                     return fetchCourseDetails(info.courseID);
                 });
 
                 const detailedCoursesResults = await Promise.all(courseDetailPromises);
-                allFetchedCourses = detailedCoursesResults.filter(course => course !== null && typeof course === 'object');
+                allFetchedCourses = detailedCoursesResults.filter(course => course !== null && typeof course === 'object'); // Filter out nulls and ensure they are objects
 
-                updateCourseList(allFetchedCourses);
-                updateCourseCount(allFetchedCourses.length);
+                updateCourseList(allFetchedCourses); // Display courses
+                updateCourseCount(allFetchedCourses.length); // Update total course count display
 
             } catch (error) {
                 console.error('Lỗi khi tải khóa học:', error);
@@ -234,24 +220,29 @@ include('template/head.php');
             }
         }
 
+        // Function to generate star rating HTML
         function generateStars(rating) {
             let starsHTML = '';
             const numRating = parseFloat(rating);
 
+            // Handle invalid rating
             if (isNaN(numRating) || numRating < 0 || numRating > 5) {
-                for (let i = 0; i < 5; i++) starsHTML += '<i class="far fa-star text-muted"></i>';
+                for (let i = 0; i < 5; i++) starsHTML += '<i class="far fa-star text-muted"></i>'; // Default to 5 empty stars
                 return starsHTML;
             }
 
             const fullStars = Math.floor(numRating);
-            const halfStar = (numRating % 1) >= 0.25 && (numRating % 1) < 0.75;
+            const halfStar = (numRating % 1) >= 0.25 && (numRating % 1) < 0.75; // Check for half star
 
+            // Add full stars
             for (let i = 0; i < fullStars; i++) {
                 starsHTML += '<i class="fas fa-star"></i>';
             }
+            // Add half star if applicable
             if (halfStar) {
                 starsHTML += '<i class="fas fa-star-half-alt"></i>';
             }
+            // Add empty stars
             const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
             for (let i = 0; i < emptyStars; i++) {
                 starsHTML += '<i class="far fa-star"></i>';
@@ -259,41 +250,46 @@ include('template/head.php');
             return starsHTML;
         }
 
+        // Function to update the course list display in the DOM
         function updateCourseList(coursesData) {
             if (!courseListContainer) return;
-            courseListContainer.innerHTML = '';
+            courseListContainer.innerHTML = ''; // Clear previous list
 
             if (coursesData && coursesData.length > 0) {
                 coursesData.forEach(course => {
                     if (!course || typeof course.courseID === 'undefined') {
                         console.warn("Dữ liệu khóa học không hợp lệ hoặc thiếu courseID:", course);
-                        return;
+                        return; // Skip invalid course data
                     }
 
                     const courseElement = document.createElement('div');
-                    courseElement.className = 'course-card card mb-3 shadow-sm';
+                    courseElement.className = 'course-card card mb-3 shadow-sm'; // Bootstrap card styling
 
                     const title = course.title || 'Không có tiêu đề';
 
+                    // Determine image URL
                     let imageUrl;
                     if (course.images && Array.isArray(course.images) && course.images.length > 0) {
                         const imageFilename = course.images[0];
+                        // Ensure filename is a non-empty string
                         if (typeof imageFilename === 'string' && imageFilename.trim() !== '') {
                             imageUrl = `http://localhost/CoursePro1/controller/c_file_loader.php?act=serve_image&course_id=${course.courseID}&image=${encodeURIComponent(imageFilename)}`;
                         }
                     }
-
+                    // Fallback to image_url if images array is not sufficient
                     if (!imageUrl && course.image_url) {
                         if (course.image_url.startsWith('http://') || course.image_url.startsWith('https://')) {
-                            imageUrl = course.image_url;
+                            imageUrl = course.image_url; // Absolute URL
                         } else {
+                            // Relative path, construct full URL
                             imageUrl = `http://localhost/CoursePro1/controller/c_file_loader.php?act=serve_image&course_id=${course.courseID}&image=${encodeURIComponent(course.image_url)}`;
                         }
                     }
-
+                    // Fallback to placeholder if no image is found
                     if (!imageUrl) {
                         imageUrl = `https://placehold.co/240x135/E2E8F0/94A3B8?text=${encodeURIComponent(title)}`;
                     }
+
 
                     const shortDescription = course.short_description || course.description || 'Không có mô tả ngắn.';
                     const instructorNames = course.instructor_names_concat || (course.instructors && course.instructors.length > 0 ? course.instructors.map(i => `${i.firstName} ${i.lastName}`).join(', ') : 'Nhiều giảng viên');
@@ -301,10 +297,11 @@ include('template/head.php');
                     const totalRatingsCount = parseInt(course.total_ratings_count || 0).toLocaleString('vi-VN');
 
                     const duration = course.total_duration_text || (course.total_duration ? `${Math.round(course.total_duration / 3600)} giờ` : 'N/A');
-                    const lectureCount = course.total_lectures_count || course.totalLesson || 'N/A';
+                    const lectureCount = course.total_lectures_count || course.totalLesson || 'N/A'; // Assuming totalLesson might be a fallback
                     const level = course.level_name || 'Mọi cấp độ';
 
 
+                    // Pricing
                     const priceValue = parseFloat(course.price);
                     const originalPriceValue = course.original_price ? parseFloat(course.original_price) : 0;
 
@@ -313,6 +310,7 @@ include('template/head.php');
 
                     const courseDetailUrl = `course-detail.php?courseID=${course.courseID}`;
 
+                    // Course card HTML structure
                     courseElement.innerHTML = `
                     <div class="row g-0">
                         <div class="col-lg-3 col-md-4">
@@ -331,7 +329,7 @@ include('template/head.php');
                                         <span class="text-warning rating-stars me-1">${generateStars(avgRating)}</span>
                                         <span class="ms-1 rating-count" style="font-size: 0.75rem; color: #6c757d;">(${totalRatingsCount} đánh giá)</span>
                                     </div>
-                                    <p class="card-text small text-muted" style="font-size: 0.8rem;">${duration} · ${lectureCount} bài giảng · ${level}</p>
+                                    <p class="card-text small text-muted" style="font-size: 0.8rem;">${lectureCount} bài giảng · ${level}</p>
                                 </div>
                                 <div class="text-md-end price-section flex-shrink-0 align-self-md-start mt-2 mt-md-0">
                                     <p class="h5 fw-bold text-custom-purple mb-0">${priceHTML}</p>
@@ -344,61 +342,68 @@ include('template/head.php');
                     courseListContainer.appendChild(courseElement);
                 });
             } else {
+                // Message if no courses match criteria
                 courseListContainer.innerHTML = '<p class="text-muted text-center py-5">Không tìm thấy khóa học nào phù hợp với tiêu chí của bạn.</p>';
             }
         }
 
+        // Function to update the displayed course count
         function updateCourseCount(count) {
             if (courseCountElement) {
                 courseCountElement.textContent = Number(count).toLocaleString('vi-VN');
             }
         }
 
+        // Function to apply sorting to the fetched courses
         function applySort() {
-            const sortBy = sortBySelect ? sortBySelect.value : 'highest_rated';
+            const sortBy = sortBySelect ? sortBySelect.value : 'highest_rated'; // Default sort
             console.log("Sắp xếp theo:", sortBy);
 
             if (allFetchedCourses && allFetchedCourses.length > 0) {
-                let sortedCourses = [...allFetchedCourses];
+                let sortedCourses = [...allFetchedCourses]; // Create a copy to sort
 
                 switch (sortBy) {
                     case 'highest_rated':
                         sortedCourses.sort((a, b) => (parseFloat(b.avg_rating) || 0) - (parseFloat(a.avg_rating) || 0));
                         break;
                     case 'newest':
+                        // Check if date field exists for sorting
                         if (sortedCourses[0] && (sortedCourses[0].created_at || sortedCourses[0].createdAt)) {
                             sortedCourses.sort((a, b) => {
                                 const dateA = new Date(a.created_at || a.createdAt);
                                 const dateB = new Date(b.created_at || b.createdAt);
-                                return dateB - dateA;
+                                return dateB - dateA; // Sort descending (newest first)
                             });
                         } else {
                             console.warn("Không thể sắp xếp theo 'Mới nhất': thiếu trường dữ liệu ngày tháng (ví dụ: created_at).");
                         }
                         break;
-                    case 'most_popular':
+                    case 'most_popular': // Assuming popularity is based on total ratings count
                         sortedCourses.sort((a, b) => (parseInt(b.total_ratings_count) || 0) - (parseInt(a.total_ratings_count) || 0));
                         break;
                 }
-                updateCourseList(sortedCourses);
+                updateCourseList(sortedCourses); // Re-render the list with sorted courses
             } else {
                 console.log("Không có khóa học để sắp xếp.");
             }
         }
 
+        // Add event listener for sort select change
         if (sortBySelect) {
             sortBySelect.addEventListener('change', applySort);
         }
 
+        // Initial fetch of courses
         const categoryId = getCategoryIdFromUrl();
         if (categoryId) {
             fetchCoursesByCategory(categoryId);
         } else {
+            // Handle missing category ID
             if (courseListContainer) {
                 courseListContainer.innerHTML = '<p class="text-warning text-center py-5">Vui lòng cung cấp một ID danh mục trong URL (ví dụ: ?categoryID=1) để xem các khóa học.</p>';
             }
             updateCourseCount(0);
-            if (categoryTitleElement) categoryTitleElement.textContent = 'Không có danh mục nào được chọn';
+            if (categoryTitleElement) categoryTitleElement.textContent = 'Không có danh mục nào được chọn'; // Sẽ không có tác dụng
             console.warn("CategoryID không tìm thấy trong URL.");
         }
     });

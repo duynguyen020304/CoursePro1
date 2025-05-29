@@ -701,4 +701,62 @@ class CourseService
             return new ServiceResponse(false, 'Lỗi khi lấy thông tin khóa học: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Searches for courses by title and returns enriched course details.
+     *
+     * @param string $title The title (or part of the title) to search for.
+     * @return ServiceResponse A ServiceResponse object containing success status, message, and an array of enriched Course details.
+     */
+    public function search_courses_by_title(string $title): ServiceResponse
+    {
+        try {
+            $list_course = $this->courseBll->search_courses_by_title($title);
+            $list_course_with_details = [];
+
+            foreach ($list_course as $course) {
+                $instructor_dtos_for_course = $this->courseInstructorBll->get_instructors_by_course_id($course->courseID);
+                $course_images = $this->courseImageBll->get_images_by_course_id($course->courseID);
+                $instructors_info = [];
+                if (!empty($instructor_dtos_for_course)) {
+                    foreach ($instructor_dtos_for_course as $instructor_dto) {
+                        $instructor = $this->instructorBll->get_instructor($instructor_dto->instructorID);
+                        if ($instructor) {
+                            $instructor_user = $this->userBll->get_user_by_user_id($instructor->userID);
+                            if ($instructor_user) {
+                                $instructors_info[] = [
+//                                    'instructorID' => $instructor_dto->instructorID,
+//                                    'userID' => $instructor_user->userID,
+                                    'firstName' => $instructor_user->firstName,
+                                    'lastName' => $instructor_user->lastName,
+                                    'profileImage' => $instructor_user->profileImage,
+                                ];
+                            }
+                        }
+                    }
+                }
+                $tmp_course_images = [];
+                if (!empty($course_images)) {
+                    foreach ($course_images as $course_image) {
+                        $tmp_course_images[] = [
+                            'imageID' => $course_image->imageID,
+                            'imagePath' => $course_image->imagePath
+                        ];
+                    }
+                }
+                $list_course_with_details[] = [
+                    'courseID' => $course->courseID,
+                    'title' => $course->title,
+                    'description' => $course->description,
+                    'price' => $course->price,
+                    'createdBy' => $course->createdBy,
+                    'instructors' => $instructors_info,
+                    'images' => $tmp_course_images,
+                ];
+            }
+            return new ServiceResponse(true, 'Tìm kiếm khóa học thành công', $list_course_with_details);
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi khi tìm kiếm khóa học: ' . $e->getMessage());
+        }
+    }
 }
