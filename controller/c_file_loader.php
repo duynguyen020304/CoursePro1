@@ -10,10 +10,8 @@ if (!defined('UPLOADS_DIR')) {
     define('UPLOADS_DIR', PROJECT_ROOT . '/uploads');
 }
 
-// It's good practice to have one definition for callApi or include it from a central file.
-// Assuming this callApi function might be slightly different or specific to this context.
-// If it's identical to the one in watch_video.php, consider refactoring to a shared include.
-if (!function_exists('callApi_fileLoader')) { // Renamed to avoid redefinition if included elsewhere
+
+if (!function_exists('callApi_fileLoader')) {
     function callApi_fileLoader(string $url, string $requestMethod, array $payload = []): array
     {
         $jsonPayload = null;
@@ -308,7 +306,7 @@ switch ($act) {
             exit;
         }
         $imageName = basename($imageName); // Sanitize filename
-        $imagePath = UPLOADS_DIR . DIRECTORY_SEPARATOR . 'user_avatars' . DIRECTORY_SEPARATOR . preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$userId) . DIRECTORY_SEPARATOR . $imageName;
+        $imagePath = UPLOADS_DIR . DIRECTORY_SEPARATOR . preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$userId) . DIRECTORY_SEPARATOR . $imageName;
         serve_file($imagePath, $imageName, false); // User avatars are typically served inline
         break;
 

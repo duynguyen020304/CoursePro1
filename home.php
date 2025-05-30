@@ -278,9 +278,9 @@ include('template/head.php');
             <div class="row">
                 <?php
                 $categories = [
-                    ['title' => 'Công nghệ Thông tin', 'description' => 'Khóa học về lập trình, web, an ninh mạng, và các công nghệ mới.', 'image' => 'public/img/tech_category.jpg', 'link' => 'category.php?cat=technology'],
-                    ['title' => 'Kinh doanh & Marketing', 'description' => 'Các khóa học về marketing, quản lý, khởi nghiệp và phát triển doanh nghiệp.', 'image' => 'public/img/bussiness_category.webp', 'link' => 'category.php?cat=business'],
-                    ['title' => 'Thiết kế & Sáng tạo', 'description' => 'Khóa học về thiết kế đồ họa, UX/UI, nhiếp ảnh và sáng tạo nghệ thuật.', 'image' => 'public/img/art_category.webp', 'link' => 'category.php?cat=design'],
+                    ['title' => 'Công nghệ Thông tin', 'description' => 'Khóa học về lập trình, web, an ninh mạng, và các công nghệ mới.', 'image' => 'public/img/tech_category.jpg', 'link' => 'course-category.php?categoryID=2'],
+                    ['title' => 'Kinh doanh & Marketing', 'description' => 'Các khóa học về marketing, quản lý, khởi nghiệp và phát triển doanh nghiệp.', 'image' => 'public/img/bussiness_category.webp', 'link' => 'course-category.php?categoryID=33'],
+                    ['title' => 'Thiết kế & Sáng tạo', 'description' => 'Khóa học về thiết kế đồ họa, UX/UI, nhiếp ảnh và sáng tạo nghệ thuật.', 'image' => 'public/img/art_category.webp', 'link' => 'course-category.php?categoryID=49'],
                 ];
                 foreach ($categories as $category) {
                     ?>

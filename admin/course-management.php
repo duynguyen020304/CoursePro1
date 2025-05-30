@@ -227,7 +227,7 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                     <th>Giá (₫)</th>
                     <th>Giảng viên</th>
                     <th>Danh mục</th>
-                    <th>Người tạo</th>
+<!--                    <th>Người tạo</th>-->
                     <th class="text-end">Hành động</th>
                 </tr>
                 </thead>
@@ -270,12 +270,12 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                                 echo htmlspecialchars(truncate_text_with_ellipsis_raw($fullCategoryString, 25, '......'));
                                 ?>
                             </td>
-                            <td>
-                                <?php
-                                $creator_raw = $c['createdByFullName'] ?? ($c['createdBy'] ?? 'N/A');
-                                echo htmlspecialchars(format_display_creator_raw($creator_raw));
-                                ?>
-                            </td>
+<!--                            <td>-->
+<!--                                --><?php
+//                                $creator_raw = $c['createdByFullName'] ?? ($c['createdBy'] ?? 'N/A');
+//                                echo htmlspecialchars(format_display_creator_raw($creator_raw));
+//                                ?>
+<!--                            </td>-->
                             <td class="text-end action-buttons">
                                 <button class="btn btn-sm btn-outline-primary edit-course"
                                         data-course='<?= htmlspecialchars(json_encode($c, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>'
