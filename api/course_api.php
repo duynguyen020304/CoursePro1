@@ -52,6 +52,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $optionParam = filter_var($optionParam, FILTER_VALIDATE_INT);
         $courseIDParam = $_GET['courseID'] ?? null;
         $isFilterByCategory = $_GET['isFilterByCategory'] ?? null;
+        $isGetCourseForRecommend = $_GET['isGetCourseForRecommend'] ?? null;
+
 
         if ($isGetAllCourseParam !== null && filter_var($isGetAllCourseParam, FILTER_VALIDATE_BOOLEAN)) {
             if ($optionParam == 0) {
@@ -85,6 +87,26 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 exit;
             }
             $response = $service->get_course_by_id_for_category_filter($courseIDParam);
+            http_response_code($response->success ? 200 : 500);
+            echo json_encode([
+                'success' => $response->success,
+                'message' => $response->message,
+                'data'    => $response->data
+            ]);
+            exit;
+        }
+        else if ($courseIDParam !== null && $isGetCourseForRecommend !== null && filter_var($isGetCourseForRecommend, FILTER_VALIDATE_BOOLEAN)) {
+            if (empty($courseIDParam)) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'courseID parameter cannot be empty when provided.',
+                    'data'    => null
+                ]);
+                exit;
+            }
+
+            $response = $service->get_course_for_recommend($courseIDParam);
             http_response_code($response->success ? 200 : 500);
             echo json_encode([
                 'success' => $response->success,
