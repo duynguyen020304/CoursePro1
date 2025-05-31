@@ -7576,7 +7576,6709 @@ class CourseInitializer
                     ]
                 ]
             ]
-        ]
+        ],
+        [
+            'title' => 'HTML Toàn Diện: Từ Cơ Bản Đến Nâng Cao',
+            'description' => 'Khóa học này sẽ đưa bạn từ những kiến thức cơ bản nhất của HTML đến các kỹ thuật nâng cao, giúp bạn xây dựng cấu trúc website mạnh mẽ và chuẩn SEO.',
+            'price' => 450000.00,
+            'categoryIds' => [3, 2], // HTML & CSS, Lập trình Web
+            'requirements' => [
+                'Máy tính có kết nối internet.',
+                'Sự kiên nhẫn và đam mê học hỏi về phát triển web.',
+            ],
+            'objectives' => [
+                'Nắm vững cú pháp và cấu trúc cơ bản của HTML5.',
+                'Sử dụng thành thạo các thẻ HTML để tạo nội dung, form, bảng, media.',
+                'Hiểu về ngữ nghĩa HTML (Semantic HTML) và tầm quan trọng của nó.',
+                'Áp dụng các kỹ thuật HTML nâng cao cho SEO và khả năng tiếp cận.',
+                'Xây dựng cấu trúc HTML cho các dự án web thực tế.',
+                'Biết cách debug và validate mã HTML.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu HTML và Cấu trúc cơ bản',
+                    'description' => 'Tìm hiểu HTML là gì, lịch sử phát triển và cấu trúc một trang HTML.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: HTML là gì? Vai trò của HTML trong Web', 'content' => 'Tổng quan về HTML và cách nó hoạt động với CSS, JS.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cấu trúc một tài liệu HTML5', 'content' => 'Thẻ `<!DOCTYPE html>`, `<html>`, `<head>`, `<body>`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Các thẻ HTML cơ bản: Tiêu đề, Đoạn văn, Liên kết', 'content' => 'Sử dụng `<h1>` đến `<h6>`, `<p>`, `<a>`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Thẻ hình ảnh và video', 'content' => 'Chèn hình ảnh (`<img>`) và video (`<video>`) vào trang web.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Làm việc với Văn bản và Danh sách',
+                    'description' => 'Cách định dạng văn bản và tạo các loại danh sách khác nhau.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Định dạng văn bản: in đậm, in nghiêng, gạch chân', 'content' => 'Sử dụng `<strong>`, `<em>`, `<u>`, `<sub>`, `<sup>`.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Các thẻ ngữ nghĩa cho văn bản', 'content' => 'Thẻ `<blockquote>`, `<q>`, `<cite>`, `<abbr>`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Danh sách không thứ tự và có thứ tự', 'content' => 'Sử dụng `<ul>`, `<ol>`, `<li>`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Danh sách định nghĩa và các trường hợp sử dụng', 'content' => 'Thẻ `<dl>`, `<dt>`, `<dd>`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Bảng và Form trong HTML',
+                    'description' => 'Xây dựng bảng dữ liệu và các biểu mẫu tương tác với người dùng.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Tạo bảng cơ bản với `<table>`, `<tr>`, `<td>`, `<th>`', 'content' => 'Cấu trúc bảng và các thẻ cơ bản.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Gộp hàng, gộp cột và chú thích bảng', 'content' => 'Sử dụng `rowspan`, `colspan`, `<caption>`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Các loại input trong form HTML5', 'content' => 'Text, password, email, number, date, checkbox, radio.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Thẻ `<textarea>`, `<select>`, `<button>` và thuộc tính `action`, `method`', 'content' => 'Tạo các trường nhập liệu phức tạp hơn.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Thuộc tính `placeholder`, `required`, `pattern` cho form', 'content' => 'Tối ưu hóa trải nghiệm người dùng và validation cơ bản.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Ngữ nghĩa HTML5 và Cấu trúc trang',
+                    'description' => 'Sử dụng các thẻ ngữ nghĩa mới của HTML5 để xây dựng cấu trúc trang web rõ ràng và ý nghĩa.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu Semantic HTML và lợi ích', 'content' => 'Tại sao nên sử dụng các thẻ ngữ nghĩa.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Thẻ `<header>`, `<nav>`, `<main>`, `<footer>`', 'content' => 'Cấu trúc các phần chính của trang web.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Thẻ `<article>`, `<section>`, `<aside>`', 'content' => 'Phân chia nội dung chính và nội dung phụ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Thẻ `<figure>`, `<figcaption>`, `<mark>`, `<time>`', 'content' => 'Các thẻ ngữ nghĩa khác hữu ích.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: HTML và SEO (Tối ưu hóa công cụ tìm kiếm)',
+                    'description' => 'Học cách viết HTML thân thiện với SEO để cải thiện thứ hạng tìm kiếm.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Tầm quan trọng của HTML trong SEO', 'content' => 'Cách HTML ảnh hưởng đến việc xếp hạng trên công cụ tìm kiếm.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Tối ưu thẻ `<title>` và `<meta description>`', 'content' => 'Viết tiêu đề và mô tả hấp dẫn cho SEO.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Sử dụng thẻ Heading (`<h1>` đến `<h6>`) đúng cách', 'content' => 'Cấu trúc tiêu đề để tối ưu nội dung.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Thuộc tính `alt` cho hình ảnh và liên kết nội bộ/ngoại bộ', 'content' => 'Tối ưu hình ảnh và chiến lược liên kết.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: HTML và Khả năng tiếp cận (Accessibility)',
+                    'description' => 'Đảm bảo trang web của bạn có thể truy cập được bởi tất cả mọi người, bao gồm cả người khuyết tật.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Giới thiệu Web Accessibility và lý do cần thiết', 'content' => 'Tầm quan trọng của việc tạo ra các trang web dễ tiếp cận.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Thuộc tính ARIA và vai trò của nó', 'content' => 'Sử dụng ARIA để cải thiện khả năng tiếp cận.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Cấu trúc form và bảng thân thiện với người dùng', 'content' => 'Thiết kế form và bảng dễ sử dụng cho mọi đối tượng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Kiểm tra và debug HTML', 'content' => 'Sử dụng công cụ để kiểm tra lỗi HTML và khả năng tiếp cận.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Xây dựng trang Portfolio cá nhân',
+                    'description' => 'Áp dụng tất cả kiến thức đã học để xây dựng một trang portfolio cá nhân hoàn chỉnh bằng HTML.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Lên kế hoạch cấu trúc HTML cho Portfolio', 'content' => 'Phân tích yêu cầu và thiết kế cấu trúc trang.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Xây dựng phần Header và Navigation', 'content' => 'Tạo thanh điều hướng và thông tin giới thiệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Phát triển phần About Me và Skills', 'content' => 'Tạo các section giới thiệu bản thân và kỹ năng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Xây dựng phần Projects và Contact Form', 'content' => 'Hiển thị các dự án và form liên hệ.', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Tối ưu hóa SEO và Accessibility cho Portfolio', 'content' => 'Kiểm tra và cải thiện trang web.', 'sortOrder' => 5],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'CSS Masterclass: Thiết Kế Giao Diện Đẹp và Phản Hồi',
+            'description' => 'Khóa học chuyên sâu về CSS, từ những khái niệm cơ bản đến các kỹ thuật nâng cao như Flexbox, Grid, Responsive Design, và Animation.',
+            'price' => 550000.00,
+            'categoryIds' => [3, 2], // HTML & CSS, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về HTML.',
+                'Máy tính có kết nối internet và trình soạn thảo code.',
+            ],
+            'objectives' => [
+                'Nắm vững cú pháp CSS và các cách nhúng CSS vào HTML.',
+                'Sử dụng các thuộc tính CSS để định dạng văn bản, màu sắc, nền, box model.',
+                'Thành thạo Flexbox và CSS Grid để xây dựng bố cục phức tạp.',
+                'Thiết kế giao diện phản hồi (Responsive Design) cho mọi thiết bị.',
+                'Áp dụng Transition, Transform, Animation để tạo hiệu ứng động.',
+                'Hiểu và sử dụng các bộ chọn CSS nâng cao và Pseudo-classes/elements.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu CSS và Cách hoạt động',
+                    'description' => 'Khái niệm CSS, các cách nhúng CSS và cú pháp cơ bản.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: CSS là gì? Tại sao cần CSS?', 'content' => 'Vai trò của CSS trong việc tạo kiểu cho trang web.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các cách nhúng CSS: Inline, Internal, External', 'content' => 'Ưu nhược điểm của từng phương pháp.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cú pháp CSS cơ bản: Selector, Property, Value', 'content' => 'Hiểu cách viết các quy tắc CSS.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Độ ưu tiên (Specificity) và Kế thừa (Inheritance) trong CSS', 'content' => 'Cách CSS áp dụng các quy tắc khi có xung đột.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Box Model và Định dạng cơ bản',
+                    'description' => 'Tìm hiểu về mô hình hộp của CSS và các thuộc tính định dạng cơ bản.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Box Model: Content, Padding, Border, Margin', 'content' => 'Hiểu các thành phần của Box Model.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Thuộc tính `width`, `height`, `min-width`, `max-width`', 'content' => 'Kiểm soát kích thước của các phần tử.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Thuộc tính `color`, `background-color`, `background-image`', 'content' => 'Định dạng màu sắc và hình nền.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Định dạng văn bản: `font-family`, `font-size`, `font-weight`, `text-align`', 'content' => 'Làm việc với kiểu chữ và căn chỉnh văn bản.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Bố cục với Flexbox',
+                    'description' => 'Học cách xây dựng bố cục một chiều linh hoạt và mạnh mẽ với Flexbox.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu Flexbox và các khái niệm chính', 'content' => 'Container, items, main axis, cross axis.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Thuộc tính cho Flex Container: `display: flex`, `flex-direction`, `justify-content`', 'content' => 'Điều khiển hướng và căn chỉnh của các item.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Thuộc tính cho Flex Container: `align-items`, `flex-wrap`, `align-content`', 'content' => 'Căn chỉnh theo trục chéo và xuống dòng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Thuộc tính cho Flex Items: `flex-grow`, `flex-shrink`, `flex-basis`, `order`, `align-self`', 'content' => 'Điều khiển kích thước và vị trí của từng item.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Bố cục với CSS Grid',
+                    'description' => 'Học cách xây dựng bố cục hai chiều mạnh mẽ và phức tạp với CSS Grid.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu CSS Grid và các khái niệm chính', 'content' => 'Grid container, grid items, lines, tracks, areas.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Tạo Grid cơ bản: `grid-template-columns`, `grid-template-rows`, `gap`', 'content' => 'Định nghĩa các cột, hàng và khoảng cách.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Định vị Grid Items: `grid-column`, `grid-row`, `grid-area`', 'content' => 'Đặt các item vào vị trí mong muốn trong grid.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Grid Template Areas và Responsive Grid', 'content' => 'Sử dụng template areas để đặt tên cho các vùng trong grid.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Các hàm `repeat()`, `minmax()`, `auto-fit`, `auto-fill`', 'content' => 'Tạo grid linh hoạt và tự động.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Responsive Design với Media Queries',
+                    'description' => 'Thiết kế trang web hiển thị đẹp và hoạt động tốt trên mọi kích thước màn hình.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu Responsive Design và Mobile-first approach', 'content' => 'Tại sao cần thiết kế responsive và các phương pháp.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Sử dụng Meta Viewport Tag', 'content' => 'Thiết lập viewport cho thiết bị di động.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Media Queries: Cú pháp và các Breakpoint phổ biến', 'content' => 'Viết các quy tắc CSS dựa trên kích thước màn hình.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Thiết kế Responsive cho Hình ảnh và Video', 'content' => 'Đảm bảo media hiển thị đúng cách trên mọi thiết bị.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Hiệu ứng động với Transition, Transform, Animation',
+                    'description' => 'Tạo các hiệu ứng chuyển động mượt mà và hấp dẫn cho giao diện người dùng.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Transition: Chuyển đổi trạng thái mượt mà', 'content' => 'Thuộc tính `transition-property`, `transition-duration`, `transition-timing-function`.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Transform: Xoay, co giãn, dịch chuyển phần tử', 'content' => 'Sử dụng `translate`, `rotate`, `scale`, `skew`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Animation: Tạo hoạt ảnh phức tạp với `@keyframes`', 'content' => 'Định nghĩa các bước của hoạt ảnh.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Các thuộc tính Animation: `animation-name`, `animation-duration`, `animation-iteration-count`, `animation-delay`', 'content' => 'Kiểm soát hoạt ảnh.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: CSS Nâng cao và Thực hành',
+                    'description' => 'Khám phá các kỹ thuật CSS nâng cao và áp dụng vào dự án thực tế.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Pseudo-classes và Pseudo-elements', 'content' => 'Sử dụng `:hover`, `:active`, `::before`, `::after`.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Biến CSS (CSS Variables)', 'content' => 'Định nghĩa và sử dụng biến trong CSS.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Shadow và Gradient', 'content' => 'Tạo hiệu ứng đổ bóng và chuyển màu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Thực hành: Xây dựng một Landing Page Responsive', 'content' => 'Áp dụng kiến thức đã học để tạo một trang đích hoàn chỉnh.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'JavaScript Cơ Bản: Nền Tảng Lập Trình Web Động',
+            'description' => 'Khóa học này cung cấp kiến thức nền tảng vững chắc về JavaScript, ngôn ngữ lập trình cốt lõi của web động và tương tác.',
+            'price' => 500000.00,
+            'categoryIds' => [4, 2], // JavaScript, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về HTML và CSS.',
+                'Máy tính có trình duyệt web và trình soạn thảo code.',
+            ],
+            'objectives' => [
+                'Nắm vững cú pháp JavaScript cơ bản: biến, kiểu dữ liệu, toán tử.',
+                'Sử dụng các cấu trúc điều khiển: if/else, switch, vòng lặp.',
+                'Làm việc với hàm, mảng và đối tượng trong JavaScript.',
+                'Thao tác DOM để thay đổi nội dung và kiểu dáng của trang web.',
+                'Xử lý sự kiện người dùng (clicks, keypresses, etc.).',
+                'Hiểu về khái niệm bất đồng bộ (Asynchronous JavaScript) cơ bản.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu JavaScript và Môi trường phát triển',
+                    'description' => 'Khái niệm JavaScript, cách nhúng vào HTML và công cụ cần thiết.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: JavaScript là gì? Vai trò của JS trong Web', 'content' => 'Tổng quan về JavaScript và ứng dụng của nó.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các cách nhúng JavaScript vào HTML', 'content' => 'Inline, Internal, External Script.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Sử dụng Console của trình duyệt để debug', 'content' => 'Làm quen với công cụ phát triển của trình duyệt.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Biến, Kiểu dữ liệu và Toán tử cơ bản', 'content' => 'Khai báo biến, các kiểu dữ liệu (string, number, boolean, null, undefined).', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Cấu trúc điều khiển và Hàm',
+                    'description' => 'Học cách điều khiển luồng chương trình và tổ chức code bằng hàm.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Câu lệnh điều kiện: `if`, `else if`, `else`', 'content' => 'Thực hiện các khối code có điều kiện.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Câu lệnh `switch`', 'content' => 'Xử lý nhiều trường hợp điều kiện.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Vòng lặp: `for`, `while`, `do...while`', 'content' => 'Lặp lại các tác vụ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Khai báo và gọi hàm trong JavaScript', 'content' => 'Tạo các khối code có thể tái sử dụng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Tham số hàm và giá trị trả về', 'content' => 'Truyền dữ liệu vào và lấy kết quả từ hàm.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Mảng và Đối tượng',
+                    'description' => 'Làm việc với các cấu trúc dữ liệu cơ bản trong JavaScript.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Mảng (Arrays) trong JavaScript', 'content' => 'Khai báo, truy cập, thêm/sửa/xóa phần tử trong mảng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Các phương thức cơ bản của mảng: `push`, `pop`, `shift`, `unshift`', 'content' => 'Thao tác với mảng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Đối tượng (Objects) trong JavaScript', 'content' => 'Khai báo, truy cập thuộc tính, phương thức của đối tượng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Duyệt mảng và đối tượng', 'content' => 'Sử dụng vòng lặp `for...of`, `for...in` và các phương thức `forEach`, `map`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Thao tác DOM (Document Object Model)',
+                    'description' => 'Học cách JavaScript tương tác và thay đổi nội dung, cấu trúc, kiểu dáng của trang HTML.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu DOM và cây DOM', 'content' => 'Hiểu cấu trúc của tài liệu HTML dưới dạng đối tượng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Chọn phần tử HTML: `getElementById`, `querySelector`, `querySelectorAll`', 'content' => 'Cách truy cập các phần tử HTML từ JavaScript.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Thay đổi nội dung và thuộc tính của phần tử', 'content' => 'Sử dụng `innerHTML`, `textContent`, `setAttribute`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Thay đổi kiểu dáng (CSS) của phần tử', 'content' => 'Sử dụng `style` property và `classList`.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Thêm, xóa và di chuyển phần tử', 'content' => 'Sử dụng `createElement`, `appendChild`, `removeChild`.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Xử lý sự kiện (Event Handling)',
+                    'description' => 'Phản ứng với các hành động của người dùng trên trang web.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu Event và Event Listener', 'content' => 'Khái niệm sự kiện và cách lắng nghe sự kiện.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Các sự kiện phổ biến: `click`, `mouseover`, `keydown`, `submit`', 'content' => 'Làm việc với các sự kiện thường gặp.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Đối tượng Event và các thuộc tính quan trọng', 'content' => 'Truy cập thông tin về sự kiện xảy ra.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Event Bubbling và Event Capturing', 'content' => 'Hiểu cơ chế lan truyền sự kiện.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Ngăn chặn hành vi mặc định và dừng lan truyền sự kiện', 'content' => 'Sử dụng `preventDefault()` và `stopPropagation()`.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: JavaScript Bất đồng bộ (Asynchronous JS)',
+                    'description' => 'Tìm hiểu cách JavaScript xử lý các tác vụ tốn thời gian mà không làm chặn giao diện người dùng.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Giới thiệu về Asynchronous JavaScript', 'content' => 'Khái niệm bất đồng bộ và tại sao cần thiết.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Callback Functions', 'content' => 'Sử dụng callback để xử lý các tác vụ bất đồng bộ.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Promises: Xử lý bất đồng bộ hiện đại', 'content' => 'Tạo và sử dụng Promise (`.then()`, `.catch()`, `.finally()`).', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Fetch API: Gọi API từ phía Frontend', 'content' => 'Gửi yêu cầu HTTP và nhận dữ liệu từ server.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Xây dựng ứng dụng Todo List',
+                    'description' => 'Áp dụng tất cả kiến thức đã học để xây dựng một ứng dụng quản lý công việc đơn giản.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Thiết kế giao diện HTML và CSS cho Todo List', 'content' => 'Xây dựng cấu trúc và kiểu dáng cơ bản.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Thêm chức năng thêm công việc mới', 'content' => 'Xử lý input và thêm item vào danh sách.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Thêm chức năng đánh dấu hoàn thành và xóa công việc', 'content' => 'Thao tác với các item trong danh sách.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Lưu trữ dữ liệu với Local Storage', 'content' => 'Lưu và tải danh sách công việc từ Local Storage.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'JavaScript Nâng Cao: ES6+ và Lập Trình Hướng Đối Tượng',
+            'description' => 'Khóa học này đi sâu vào các tính năng hiện đại của JavaScript (ES6+) và các khái niệm lập trình hướng đối tượng, giúp bạn viết code sạch, hiệu quả và dễ bảo trì.',
+            'price' => 650000.00,
+            'categoryIds' => [4, 2], // JavaScript, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về JavaScript cơ bản.',
+                'Hiểu biết về HTML và CSS.',
+            ],
+            'objectives' => [
+                'Thành thạo các tính năng ES6+ như Arrow Functions, Destructuring, Spread/Rest Operators.',
+                'Hiểu sâu về Scope, Closure, `this` keyword.',
+                'Áp dụng Lập trình Hướng Đối Tượng (OOP) với Classes và Prototypes.',
+                'Làm việc với Modules để tổ chức code.',
+                'Sử dụng `async/await` để xử lý bất đồng bộ một cách hiệu quả.',
+                'Hiểu về Event Loop và cơ chế hoạt động của JavaScript.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Các tính năng mới của ES6+ (ECMAScript 2015+)',
+                    'description' => 'Khám phá những cải tiến quan trọng trong JavaScript hiện đại.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: `let`, `const` và Block Scope', 'content' => 'Sự khác biệt giữa `var`, `let`, `const` và phạm vi của chúng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Arrow Functions', 'content' => 'Cú pháp gọn gàng hơn cho hàm và cách xử lý `this`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Template Literals', 'content' => 'Cách dễ dàng hơn để làm việc với chuỗi và biểu thức.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Destructuring Assignment (Array & Object)', 'content' => 'Trích xuất dữ liệu từ mảng và đối tượng một cách tiện lợi.', 'sortOrder' => 4],
+                        ['title' => 'Bài 1.5: Spread Operator và Rest Parameters', 'content' => 'Sử dụng `...` cho mảng, đối tượng và tham số hàm.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Scope, Closure và `this`',
+                    'description' => 'Tìm hiểu sâu về các khái niệm cốt lõi ảnh hưởng đến cách code JavaScript hoạt động.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Global, Function, Block Scope', 'content' => 'Phạm vi của biến trong JavaScript.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Closure: Hàm bên trong hàm và truy cập biến bên ngoài', 'content' => 'Hiểu về Closure và ứng dụng của nó.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: `this` keyword và ngữ cảnh thực thi', 'content' => 'Cách `this` thay đổi tùy thuộc vào cách hàm được gọi.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: `call()`, `apply()`, `bind()` để thay đổi ngữ cảnh `this`', 'content' => 'Các phương thức để kiểm soát `this`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Lập trình Hướng Đối Tượng (OOP) với JavaScript',
+                    'description' => 'Áp dụng các nguyên tắc OOP để xây dựng code có cấu trúc và dễ mở rộng.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Prototype Chain và Kế thừa dựa trên Prototype', 'content' => 'Cơ chế kế thừa thực sự của JavaScript.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Constructor Functions', 'content' => 'Tạo đối tượng bằng hàm khởi tạo.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: ES6 Classes: Cú pháp đường cú pháp cho Prototype', 'content' => 'Sử dụng `class`, `constructor`, `extends`, `super`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Encapsulation và Private fields (ES2022)', 'content' => 'Bảo vệ dữ liệu trong đối tượng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Modules trong JavaScript',
+                    'description' => 'Tổ chức code JavaScript thành các module để dễ quản lý và tái sử dụng.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Tại sao cần Modules?', 'content' => 'Vấn đề về Global Scope và giải pháp Modules.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Export và Import cơ bản', 'content' => 'Cách xuất và nhập các biến, hàm, class.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Default Export và Named Export', 'content' => 'Các loại export khác nhau và cách sử dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Dynamic Imports', 'content' => 'Tải module theo yêu cầu.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Xử lý Bất đồng bộ Nâng cao với `async/await`',
+                    'description' => 'Viết code bất đồng bộ rõ ràng và dễ đọc hơn bằng `async/await`.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu `async/await`', 'content' => 'Cú pháp và lợi ích của `async/await` so với Promises.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Hàm `async` và từ khóa `await`', 'content' => 'Cách sử dụng `async` và `await` để chờ Promise hoàn thành.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Xử lý lỗi với `try...catch` trong `async/await`', 'content' => 'Cách bắt lỗi trong code bất đồng bộ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: `Promise.all()` và `Promise.race()` với `async/await`', 'content' => 'Thực hiện nhiều Promise song song hoặc chờ Promise đầu tiên.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Event Loop và Concurrency Model',
+                    'description' => 'Hiểu cách JavaScript thực thi code và quản lý các tác vụ bất đồng bộ.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Call Stack, Web APIs, Callback Queue', 'content' => 'Các thành phần chính của Event Loop.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Cách Event Loop hoạt động', 'content' => 'Luồng thực thi của code JavaScript.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Microtasks và Macrotasks', 'content' => 'Sự khác biệt giữa Promise callbacks và setTimeout callbacks.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Các trường hợp phức tạp và lỗi thường gặp', 'content' => 'Phân tích các tình huống thực tế và cách tránh lỗi.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Xây dựng ứng dụng thời tiết đơn giản',
+                    'description' => 'Áp dụng kiến thức JavaScript nâng cao để tạo một ứng dụng thời tiết tương tác.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Thiết kế giao diện và cấu trúc HTML/CSS', 'content' => 'Chuẩn bị giao diện cho ứng dụng thời tiết.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Gọi API thời tiết với `fetch` và `async/await`', 'content' => 'Lấy dữ liệu thời tiết từ một API công khai.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Hiển thị dữ liệu thời tiết lên giao diện', 'content' => 'Cập nhật DOM với thông tin thời tiết nhận được.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Xử lý lỗi và hiển thị thông báo cho người dùng', 'content' => 'Đảm bảo ứng dụng hoạt động ổn định.', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Thêm chức năng tìm kiếm thành phố', 'content' => 'Cho phép người dùng tìm kiếm thời tiết theo tên thành phố.', 'sortOrder' => 5],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Xây Dựng Website Động Với HTML, CSS, JavaScript (Dự Án Thực Tế)',
+            'description' => 'Khóa học thực hành, tập trung vào việc kết hợp HTML, CSS và JavaScript để xây dựng các dự án web động, tương tác từ đầu đến cuối.',
+            'price' => 799000.00,
+            'categoryIds' => [2, 3, 4], // Lập trình Web, HTML & CSS, JavaScript
+            'requirements' => [
+                'Kiến thức cơ bản về HTML, CSS và JavaScript.',
+                'Mong muốn xây dựng các dự án thực tế.',
+            ],
+            'objectives' => [
+                'Thực hành kết hợp HTML, CSS, JavaScript để tạo ra các trang web hoàn chỉnh.',
+                'Xây dựng các thành phần UI tương tác như slideshow, tab, modal.',
+                'Làm việc với form validation phía client-side.',
+                'Tối ưu hóa hiệu suất và khả năng phản hồi của trang web.',
+                'Áp dụng các kỹ thuật debug hiệu quả.',
+                'Phát triển tư duy giải quyết vấn đề trong lập trình web frontend.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Thiết Lập Dự Án và Công Cụ',
+                    'description' => 'Chuẩn bị môi trường và các công cụ cần thiết cho quá trình phát triển web.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Lựa chọn Trình soạn thảo Code và Extensions', 'content' => 'Giới thiệu VS Code và các extension hữu ích.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cấu trúc thư mục dự án Frontend điển hình', 'content' => 'Tổ chức file HTML, CSS, JS một cách hợp lý.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Sử dụng Live Server để phát triển nhanh chóng', 'content' => 'Cài đặt và sử dụng Live Server trong VS Code.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Giới thiệu Git và GitHub cho quản lý phiên bản', 'content' => 'Khái niệm cơ bản về Git và cách tạo repository.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Dự án 1: Xây dựng Landing Page Responsive',
+                    'description' => 'Tạo một trang đích đẹp mắt và tương thích với mọi thiết bị.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Phân tích yêu cầu và thiết kế cấu trúc HTML', 'content' => 'Lên kế hoạch các section và nội dung của landing page.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Tạo Header, Navigation và Hero Section với Flexbox/Grid', 'content' => 'Xây dựng phần đầu trang và thanh điều hướng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Thiết kế các Feature Section và Call-to-Action', 'content' => 'Trình bày các tính năng và lời kêu gọi hành động.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Áp dụng Responsive Design với Media Queries', 'content' => 'Đảm bảo trang hiển thị tốt trên di động và máy tính bảng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Thêm hiệu ứng cuộn mượt (Smooth Scrolling) với JavaScript', 'content' => 'Cải thiện trải nghiệm người dùng khi điều hướng.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Dự án 2: Xây dựng Gallery ảnh tương tác',
+                    'description' => 'Tạo một thư viện ảnh với chức năng phóng to, thu nhỏ và chuyển ảnh.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Cấu trúc HTML và CSS cho Gallery', 'content' => 'Tạo các thumbnail và khu vực hiển thị ảnh lớn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Hiển thị ảnh lớn khi click thumbnail', 'content' => 'Sử dụng JavaScript để thay đổi nguồn ảnh.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Thêm nút Previous/Next để chuyển ảnh', 'content' => 'Xử lý sự kiện click để duyệt qua các ảnh.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Hiệu ứng phóng to ảnh (Lightbox/Modal) với JavaScript', 'content' => 'Tạo một modal overlay để hiển thị ảnh.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Dự án 3: Xây dựng Form Đăng Ký/Đăng Nhập với Validation',
+                    'description' => 'Thiết kế và triển khai một form xác thực dữ liệu phía client.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Thiết kế HTML và CSS cho Form', 'content' => 'Tạo các trường input, label, button.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Validation cơ bản với HTML5 attributes', 'content' => 'Sử dụng `required`, `type="email"`, `pattern`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Validation nâng cao với JavaScript', 'content' => 'Kiểm tra độ dài, định dạng email, mật khẩu phức tạp.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Hiển thị thông báo lỗi thân thiện cho người dùng', 'content' => 'Thêm các thông báo lỗi động bên cạnh các trường input.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Xử lý sự kiện `submit` và gửi dữ liệu (mock)', 'content' => 'Ngăn chặn submit mặc định và mô phỏng gửi dữ liệu.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Dự án 4: Xây dựng Trang Sản Phẩm Đơn giản',
+                    'description' => 'Tạo một trang hiển thị thông tin sản phẩm với các tính năng tương tác.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Cấu trúc HTML và CSS cho trang sản phẩm', 'content' => 'Bố cục thông tin sản phẩm, hình ảnh, giá cả.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Chuyển đổi hình ảnh sản phẩm khi click thumbnail', 'content' => 'Sử dụng JavaScript để thay đổi ảnh chính.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Thêm chức năng chọn số lượng sản phẩm', 'content' => 'Xử lý input số lượng và cập nhật tổng tiền (tạm thời).', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Thêm nút "Thêm vào giỏ hàng" (mock)', 'content' => 'Mô phỏng hành vi thêm sản phẩm vào giỏ hàng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Dự án 5: Xây dựng Simple Quiz App',
+                    'description' => 'Tạo một ứng dụng trắc nghiệm đơn giản với tính điểm.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Cấu trúc HTML cho câu hỏi và đáp án', 'content' => 'Tạo các phần tử cho câu hỏi, lựa chọn và nút submit.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Hiển thị câu hỏi và lựa chọn từ dữ liệu JavaScript', 'content' => 'Sử dụng mảng đối tượng để lưu trữ câu hỏi.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Xử lý logic tính điểm và hiển thị kết quả', 'content' => 'Kiểm tra đáp án và tính tổng điểm.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Thêm chức năng reset Quiz', 'content' => 'Cho phép người dùng chơi lại.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Tối ưu hóa và Triển khai',
+                    'description' => 'Các bước cuối cùng để tối ưu hóa hiệu suất và đưa website lên mạng.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Tối ưu hóa hình ảnh và tài nguyên web', 'content' => 'Nén ảnh, lazy loading.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Minify CSS và JavaScript', 'content' => 'Giảm kích thước file để tăng tốc độ tải trang.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Sử dụng CDN cho thư viện bên ngoài', 'content' => 'Lợi ích của CDN.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Triển khai website lên GitHub Pages', 'content' => 'Hướng dẫn từng bước để đưa dự án lên mạng.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'CSS Nâng Cao: Sass/SCSS và Kiến Trúc CSS',
+            'description' => 'Học cách viết CSS hiệu quả, dễ bảo trì và mở rộng bằng cách sử dụng Sass/SCSS và các mô hình kiến trúc CSS hiện đại như BEM, SMACSS.',
+            'price' => 599000.00,
+            'categoryIds' => [3, 2], // HTML & CSS, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về CSS cơ bản.',
+                'Hiểu biết về HTML.',
+            ],
+            'objectives' => [
+                'Cài đặt và sử dụng Sass/SCSS để viết CSS tiền xử lý.',
+                'Áp dụng các tính năng của Sass: biến, nested rules, mixins, extends, partials.',
+                'Hiểu và triển khai các kiến trúc CSS như BEM, SMACSS, OOCSS.',
+                'Viết CSS có tổ chức, dễ đọc và dễ bảo trì cho các dự án lớn.',
+                'Sử dụng các công cụ như Autoprefixer và CSS minifier.',
+                'Phát triển tư duy về quản lý CSS trong môi trường nhóm.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu CSS Preprocessors và Sass/SCSS',
+                    'description' => 'Tìm hiểu về CSS Preprocessors và bắt đầu với Sass/SCSS.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: CSS Preprocessors là gì? Tại sao cần chúng?', 'content' => 'Lợi ích của việc sử dụng các bộ tiền xử lý CSS.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Giới thiệu Sass/SCSS và sự khác biệt', 'content' => 'Cú pháp Sass và SCSS.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt Sass và Biên dịch SCSS thành CSS', 'content' => 'Cài đặt Node-Sass hoặc Dart-Sass và cách chạy lệnh biên dịch.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Tích hợp Sass vào quy trình phát triển (Webpack/Gulp)', 'content' => 'Sử dụng các task runner và module bundler.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Biến và Nested Rules trong Sass/SCSS',
+                    'description' => 'Sử dụng biến để quản lý giá trị và tổ chức code với nested rules.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Khai báo và sử dụng biến Sass (`$`)', 'content' => 'Định nghĩa màu sắc, font-size, spacing bằng biến.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Nested Rules: Tổ chức CSS lồng nhau', 'content' => 'Lồng các selector để phản ánh cấu trúc HTML.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: `&` Selector (Parent Selector)', 'content' => 'Tham chiếu đến selector cha trong nested rules.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Tránh lồng quá sâu và Best Practices', 'content' => 'Nguyên tắc để viết nested rules hiệu quả.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Mixins và Functions trong Sass/SCSS',
+                    'description' => 'Tái sử dụng các khối CSS và thực hiện các phép tính với Mixins và Functions.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Mixins: Tái sử dụng khối CSS', 'content' => 'Khai báo `@mixin` và sử dụng `@include`.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Mixins với tham số và giá trị mặc định', 'content' => 'Truyền giá trị động vào mixin.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Content Block trong Mixins (`@content`)', 'content' => 'Chèn nội dung động vào mixin.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Functions: Thực hiện các phép tính và trả về giá trị', 'content' => 'Khai báo `@function` và sử dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Extend/Inheritance và Partials trong Sass/SCSS',
+                    'description' => 'Tái sử dụng các thuộc tính CSS và tổ chức file với Extend và Partials.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Extend/Inheritance (`@extend`)', 'content' => 'Chia sẻ các thuộc tính CSS giữa các selector.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Placeholder Selectors (`%placeholder`)', 'content' => 'Sử dụng placeholder selector với `@extend`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Partials (`_filename.scss`): Tổ chức file Sass', 'content' => 'Chia nhỏ code CSS thành các file nhỏ hơn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Import Partials (`@import`)', 'content' => 'Nhập các partials vào file Sass chính.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Kiến trúc CSS: BEM (Block, Element, Modifier)',
+                    'description' => 'Học một trong những phương pháp đặt tên class phổ biến và hiệu quả nhất.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu BEM và các khái niệm', 'content' => 'Block, Element, Modifier và cách đặt tên.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Ví dụ thực tế về áp dụng BEM', 'content' => 'Đặt tên class cho các thành phần UI như button, card, navigation.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Lợi ích của BEM trong các dự án lớn', 'content' => 'Tính dễ đọc, dễ bảo trì và khả năng tái sử dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Kết hợp BEM với Sass/SCSS', 'content' => 'Sử dụng nested rules và `&` selector với BEM.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các Kiến trúc CSS khác và So sánh',
+                    'description' => 'Khám phá các mô hình kiến trúc CSS khác và so sánh chúng.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: SMACSS (Scalable and Modular Architecture for CSS)', 'content' => 'Base, Layout, Module, State, Theme.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: OOCSS (Object-Oriented CSS)', 'content' => 'Separation of structure and skin.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Utility-First CSS (Tailwind CSS)', 'content' => 'Giới thiệu về cách tiếp cận Utility-First.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: So sánh các kiến trúc CSS và khi nào sử dụng', 'content' => 'Ưu nhược điểm của từng phương pháp.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Refactor CSS với Sass và BEM',
+                    'description' => 'Áp dụng Sass và BEM để tổ chức lại CSS cho một dự án hiện có.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Phân tích CSS hiện có và xác định các vấn đề', 'content' => 'Tìm kiếm các đoạn code lặp lại, khó bảo trì.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Chuyển đổi CSS sang SCSS và sử dụng biến/mixin', 'content' => 'Tổ chức lại các giá trị lặp lại và khối code.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Áp dụng quy tắc đặt tên BEM cho các thành phần', 'content' => 'Đổi tên class để tuân thủ BEM.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Chia nhỏ file SCSS thành các partials', 'content' => 'Tạo cấu trúc thư mục SCSS hợp lý.', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Biên dịch và kiểm tra kết quả', 'content' => 'Đảm bảo CSS đã refactor hoạt động đúng.', 'sortOrder' => 5],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'JavaScript DOM Manipulation: Tương Tác Mạnh Mẽ Với Trang Web',
+            'description' => 'Khóa học này tập trung chuyên sâu vào việc thao tác với DOM bằng JavaScript, giúp bạn tạo ra các trang web động, tương tác cao mà không cần thư viện bên ngoài.',
+            'price' => 520000.00,
+            'categoryIds' => [4, 2], // JavaScript, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về HTML, CSS và JavaScript.',
+                'Hiểu biết về các khái niệm hàm, mảng, đối tượng trong JS.',
+            ],
+            'objectives' => [
+                'Thành thạo các phương thức chọn phần tử DOM.',
+                'Thay đổi nội dung, thuộc tính và kiểu dáng của phần tử.',
+                'Tạo, thêm, xóa, di chuyển các phần tử HTML động.',
+                'Xử lý hiệu quả các sự kiện người dùng và sự kiện trình duyệt.',
+                'Hiểu về Event Bubbling, Capturing và Event Delegation.',
+                'Xây dựng các thành phần UI tương tác như tab, accordion, modal, dropdown.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Ôn tập DOM và Các Phương thức chọn phần tử',
+                    'description' => 'Củng cố kiến thức về DOM và các cách để lấy phần tử HTML.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Cây DOM và tầm quan trọng của nó', 'content' => 'Mô hình cây của tài liệu HTML.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: `document.getElementById()` và `document.getElementsByClassName()`', 'content' => 'Chọn phần tử theo ID và Class.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: `document.getElementsByTagName()` và `document.getElementsByName()`', 'content' => 'Chọn phần tử theo tên thẻ và thuộc tính name.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: `document.querySelector()` và `document.querySelectorAll()`', 'content' => 'Sử dụng CSS Selector để chọn phần tử.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Thay đổi Nội dung và Thuộc tính của Phần tử',
+                    'description' => 'Học cách sửa đổi nội dung và các thuộc tính của thẻ HTML.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: `innerHTML`, `textContent`, `innerText`', 'content' => 'Sự khác biệt và cách sử dụng để thay đổi nội dung.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: `element.attribute` và `setAttribute()`, `getAttribute()`, `removeAttribute()`', 'content' => 'Truy cập và sửa đổi các thuộc tính HTML.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Làm việc với các thuộc tính dữ liệu (`data-* attributes`)', 'content' => 'Lưu trữ dữ liệu tùy chỉnh trên phần tử HTML.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Tạo và quản lý thuộc tính Class với `classList`', 'content' => 'Thêm, xóa, kiểm tra class (`add`, `remove`, `toggle`, `contains`).', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Thay đổi Kiểu dáng (CSS) với JavaScript',
+                    'description' => 'Điều khiển kiểu dáng của trang web thông qua JavaScript.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Truy cập và sửa đổi `element.style`', 'content' => 'Thay đổi CSS inline của phần tử.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Sử dụng `getComputedStyle()` để lấy giá trị CSS đã tính toán', 'content' => 'Đọc các giá trị CSS cuối cùng được áp dụng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Thêm/Xóa Class với `classList` để thay đổi kiểu dáng', 'content' => 'Phương pháp tốt nhất để thay đổi kiểu dáng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Tạo và quản lý CSS Variables (Custom Properties) với JavaScript', 'content' => 'Thay đổi các biến CSS động.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Thêm, Xóa, Di chuyển Phần tử DOM',
+                    'description' => 'Tạo và quản lý các phần tử HTML động.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: `document.createElement()`', 'content' => 'Tạo một phần tử HTML mới.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: `appendChild()`, `prepend()`, `insertBefore()`', 'content' => 'Thêm phần tử vào DOM.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: `removeChild()`, `replaceChild()`', 'content' => 'Xóa và thay thế phần tử.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: `cloneNode()` và `insertAdjacentHTML()`', 'content' => 'Sao chép phần tử và chèn HTML.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Xử lý sự kiện nâng cao và Event Delegation',
+                    'description' => 'Tối ưu hóa việc xử lý sự kiện và quản lý các sự kiện trên nhiều phần tử.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: `addEventListener()` và `removeEventListener()`', 'content' => 'Cách thêm và xóa các trình lắng nghe sự kiện.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Event Object và các thuộc tính quan trọng (`target`, `currentTarget`)', 'content' => 'Thông tin chi tiết về sự kiện.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Event Bubbling và Event Capturing', 'content' => 'Hiểu luồng sự kiện trong DOM.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Event Delegation: Xử lý sự kiện hiệu quả cho nhiều phần tử', 'content' => 'Gắn một trình lắng nghe cho nhiều phần tử con.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Các sự kiện Form: `input`, `change`, `focus`, `blur`', 'content' => 'Lắng nghe các sự kiện trên form input.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Dự án thực hành: Xây dựng Tabbed Interface',
+                    'description' => 'Tạo một giao diện tab tương tác hoàn chỉnh bằng HTML, CSS và JavaScript.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Cấu trúc HTML và CSS cho Tabbed Interface', 'content' => 'Thiết kế các nút tab và nội dung tab.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Logic hiển thị/ẩn nội dung tab với JavaScript', 'content' => 'Sử dụng `classList` để chuyển đổi trạng thái active.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Xử lý sự kiện click trên các nút tab', 'content' => 'Gắn event listener cho từng nút tab.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Tối ưu hóa với Event Delegation', 'content' => 'Sử dụng một event listener duy nhất cho tất cả các tab.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Xây dựng Accordion Component',
+                    'description' => 'Tạo một thành phần accordion có thể mở/đóng nội dung.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Cấu trúc HTML và CSS cho Accordion', 'content' => 'Thiết kế tiêu đề và nội dung có thể ẩn/hiện.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Logic mở/đóng nội dung với JavaScript', 'content' => 'Thay đổi `max-height` hoặc `display`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Xử lý sự kiện click trên tiêu đề accordion', 'content' => 'Gắn event listener cho các tiêu đề.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Đảm bảo chỉ một mục accordion được mở tại một thời điểm', 'content' => 'Quản lý trạng thái của các mục accordion.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'HTML5 & CSS3: Thiết Kế Web Hiện Đại Từ A-Z',
+            'description' => 'Khóa học toàn diện này bao gồm tất cả các tính năng mới nhất của HTML5 và CSS3, giúp bạn xây dựng các trang web hiện đại, tương tác và đẹp mắt.',
+            'price' => 680000.00,
+            'categoryIds' => [3, 2, 50], // HTML & CSS, Lập trình Web, Thiết kế Web
+            'requirements' => [
+                'Không yêu cầu kiến thức trước.',
+                'Máy tính có kết nối internet và trình duyệt web.',
+            ],
+            'objectives' => [
+                'Hiểu rõ các thẻ ngữ nghĩa mới trong HTML5.',
+                'Sử dụng CSS3 để tạo hiệu ứng hình ảnh, đổ bóng, gradient, border-radius.',
+                'Thiết kế bố cục linh hoạt với Flexbox và Grid.',
+                'Tạo các hiệu ứng chuyển động mượt mà với Transition và Animation.',
+                'Xây dựng các form HTML5 nâng cao với validation tích hợp.',
+                'Tối ưu hóa trang web cho các thiết bị di động (Responsive Design).',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Những thay đổi lớn trong HTML5',
+                    'description' => 'Khám phá các thẻ ngữ nghĩa mới và cải tiến trong HTML5.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Giới thiệu HTML5 và các lợi ích', 'content' => 'Tổng quan về phiên bản HTML mới nhất.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Thẻ ngữ nghĩa mới: `<header>`, `<nav>`, `<section>`, `<article>`, `<footer>`', 'content' => 'Xây dựng cấu trúc trang web rõ ràng hơn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Thẻ Media: `<audio>` và `<video>`', 'content' => 'Nhúng âm thanh và video trực tiếp vào HTML.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Canvas và SVG: Đồ họa trên Web', 'content' => 'Giới thiệu về vẽ đồ họa với Canvas và SVG.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Form HTML5 Nâng Cao',
+                    'description' => 'Tạo các biểu mẫu thông minh hơn với các loại input và thuộc tính mới.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Các loại input mới: `email`, `url`, `number`, `date`, `range`, `color`', 'content' => 'Sử dụng các loại input chuyên biệt.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Thuộc tính validation: `required`, `pattern`, `min`, `max`, `step`', 'content' => 'Xác thực dữ liệu ngay trên trình duyệt.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Thuộc tính `placeholder`, `autofocus`, `autocomplete`', 'content' => 'Cải thiện trải nghiệm người dùng với form.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Datalist và Output', 'content' => 'Tạo danh sách gợi ý và hiển thị kết quả tính toán.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: CSS3: Định dạng nâng cao',
+                    'description' => 'Làm đẹp trang web với các thuộc tính CSS3 mới.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Border-radius và Box-shadow', 'content' => 'Tạo góc bo tròn và hiệu ứng đổ bóng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Text-shadow và Word-wrap', 'content' => 'Tạo đổ bóng cho văn bản và ngắt từ.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Gradient (Linear & Radial)', 'content' => 'Tạo hiệu ứng chuyển màu cho nền.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Multiple Backgrounds', 'content' => 'Sử dụng nhiều hình nền trên cùng một phần tử.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: CSS3: Bố cục linh hoạt với Flexbox và Grid',
+                    'description' => 'Thiết kế bố cục hiện đại và phản hồi với các module mới của CSS3.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Ôn tập Flexbox và các thuộc tính chính', 'content' => 'Củng cố kiến thức về Flexbox cho bố cục một chiều.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Ôn tập CSS Grid và các thuộc tính chính', 'content' => 'Củng cố kiến thức về Grid cho bố cục hai chiều.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Kết hợp Flexbox và Grid trong một bố cục phức tạp', 'content' => 'Sử dụng cả hai để tạo layout đa dạng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Các trường hợp sử dụng phổ biến của Flexbox và Grid', 'content' => 'Áp dụng vào các thành phần UI thực tế.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: CSS3: Transition, Transform, Animation',
+                    'description' => 'Tạo các hiệu ứng động mượt mà và hấp dẫn cho giao diện người dùng.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Transition: Chuyển đổi trạng thái mượt mà', 'content' => 'Tạo hiệu ứng hover, focus.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: 2D Transforms: `translate`, `rotate`, `scale`, `skew`', 'content' => 'Biến đổi phần tử trong không gian 2D.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: 3D Transforms và Perspective', 'content' => 'Biến đổi phần tử trong không gian 3D và góc nhìn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Animation: Tạo hoạt ảnh phức tạp với `@keyframes`', 'content' => 'Định nghĩa và điều khiển các hoạt ảnh.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Responsive Web Design với HTML5 và CSS3',
+                    'description' => 'Thiết kế trang web thích ứng với mọi kích thước màn hình.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Nguyên tắc Responsive Design và Mobile-First', 'content' => 'Cách tiếp cận để xây dựng trang web đa thiết bị.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Media Queries nâng cao', 'content' => 'Sử dụng các điều kiện phức tạp hơn trong media queries.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Hình ảnh và Video Responsive', 'content' => 'Đảm bảo media hiển thị tối ưu trên mọi thiết bị.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Thiết kế Responsive cho Navbar và Menu', 'content' => 'Tạo menu hamburger cho di động.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Xây dựng Website cá nhân hiện đại',
+                    'description' => 'Áp dụng tất cả kiến thức HTML5 và CSS3 để tạo một website cá nhân đầy đủ tính năng.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Lên kế hoạch và thiết kế giao diện', 'content' => 'Phác thảo cấu trúc và phong cách của website.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Xây dựng cấu trúc HTML5 ngữ nghĩa', 'content' => 'Sử dụng các thẻ ngữ nghĩa mới nhất.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Áp dụng CSS3 cho kiểu dáng và hiệu ứng', 'content' => 'Sử dụng gradient, shadow, transition, animation.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Đảm bảo Responsive trên mọi thiết bị', 'content' => 'Kiểm tra và tối ưu hóa cho di động, tablet, desktop.', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Tối ưu hóa hiệu suất và triển khai', 'content' => 'Nén file, tối ưu hình ảnh và đưa lên hosting.', 'sortOrder' => 5],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'JavaScript cho Frontend Developers: Tương Tác API và AJAX',
+            'description' => 'Khóa học này tập trung vào việc sử dụng JavaScript để tương tác với các API bên ngoài, thực hiện các yêu cầu AJAX và xử lý dữ liệu động cho ứng dụng web.',
+            'price' => 620000.00,
+            'categoryIds' => [4, 2, 13], // JavaScript, Lập trình Web, Web APIs
+            'requirements' => [
+                'Kiến thức vững chắc về JavaScript cơ bản và DOM Manipulation.',
+                'Hiểu biết về HTML và CSS.',
+            ],
+            'objectives' => [
+                'Hiểu về khái niệm API, RESTful API và JSON.',
+                'Thực hiện các yêu cầu HTTP (GET, POST, PUT, DELETE) bằng Fetch API và XMLHttpRequest.',
+                'Xử lý dữ liệu JSON nhận được từ API.',
+                'Hiển thị dữ liệu động từ API lên giao diện người dùng.',
+                'Xử lý lỗi và hiển thị thông báo cho người dùng khi tương tác API.',
+                'Áp dụng các kỹ thuật bất đồng bộ (`async/await`) để quản lý luồng dữ liệu.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu API và Web Services',
+                    'description' => 'Tìm hiểu về cách các ứng dụng web giao tiếp với nhau.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: API là gì? Vai trò của API trong phát triển web', 'content' => 'Khái niệm API và tầm quan trọng của nó.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: RESTful API và các nguyên tắc thiết kế', 'content' => 'Hiểu về kiến trúc REST và các phương thức HTTP.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: JSON (JavaScript Object Notation)', 'content' => 'Định dạng dữ liệu phổ biến để trao đổi với API.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Giới thiệu các API công khai để thực hành', 'content' => 'Tìm kiếm và lựa chọn API miễn phí để luyện tập.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Fetch API: Gửi yêu cầu GET',
+                    'description' => 'Học cách lấy dữ liệu từ API bằng Fetch API.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Cú pháp cơ bản của Fetch API', 'content' => 'Sử dụng `fetch()` để gửi yêu cầu GET.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Xử lý Response: `.then()` và `.json()`', 'content' => 'Chuyển đổi phản hồi từ API sang JSON.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Xử lý lỗi với `.catch()`', 'content' => 'Bắt và xử lý các lỗi mạng hoặc lỗi API.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Hiển thị dữ liệu từ API lên trang web', 'content' => 'Thao tác DOM để hiển thị dữ liệu động.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Fetch API: Gửi yêu cầu POST, PUT, DELETE',
+                    'description' => 'Thực hiện các thao tác tạo, cập nhật, xóa dữ liệu thông qua API.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Gửi yêu cầu POST để tạo tài nguyên mới', 'content' => 'Sử dụng `method: \'POST\'` và `body` trong fetch.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Gửi yêu cầu PUT/PATCH để cập nhật tài nguyên', 'content' => 'Sự khác biệt giữa PUT và PATCH.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Gửi yêu cầu DELETE để xóa tài nguyên', 'content' => 'Thực hiện thao tác xóa dữ liệu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Thiết lập Header cho yêu cầu HTTP', 'content' => 'Sử dụng `headers` để gửi Content-Type, Authorization.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Xử lý Bất đồng bộ với `async/await` trong Fetch API',
+                    'description' => 'Viết code tương tác API rõ ràng và dễ đọc hơn.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu `async/await` cho Fetch API', 'content' => 'Cách sử dụng `async` và `await` để đơn giản hóa Promise chains.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Xử lý lỗi với `try...catch` trong `async/await`', 'content' => 'Bắt lỗi khi gọi API.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Thực hiện nhiều yêu cầu API song song với `Promise.all()`', 'content' => 'Tăng tốc độ tải dữ liệu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Hiển thị trạng thái tải (Loading State) và thông báo lỗi', 'content' => 'Cải thiện trải nghiệm người dùng khi chờ dữ liệu.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: XMLHttpRequest (XHR) và JSONP (Lịch sử và so sánh)',
+                    'description' => 'Tìm hiểu các phương pháp tương tác API cũ hơn và tại sao Fetch API tốt hơn.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu XMLHttpRequest', 'content' => 'Cách sử dụng XHR để gửi yêu cầu AJAX.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Các sự kiện của XHR: `onload`, `onerror`, `onprogress`', 'content' => 'Lắng nghe trạng thái của yêu cầu XHR.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: So sánh Fetch API và XMLHttpRequest', 'content' => 'Ưu nhược điểm của từng phương pháp.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: JSONP: Giải pháp cho vấn đề Cross-Origin (lịch sử)', 'content' => 'Cách JSONP hoạt động và hạn chế của nó.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Dự án thực hành: Ứng dụng Tìm kiếm Phim (Movie Search App)',
+                    'description' => 'Xây dựng một ứng dụng web để tìm kiếm và hiển thị thông tin phim từ một API.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Thiết kế giao diện HTML và CSS cho ứng dụng', 'content' => 'Tạo thanh tìm kiếm và khu vực hiển thị kết quả.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tích hợp API tìm kiếm phim (ví dụ: OMDB API)', 'content' => 'Đăng ký API Key và hiểu cấu trúc dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Gửi yêu cầu tìm kiếm và hiển thị kết quả', 'content' => 'Xử lý input của người dùng và gọi API.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Hiển thị chi tiết phim khi click vào kết quả', 'content' => 'Gửi yêu cầu API thứ hai để lấy thông tin chi tiết.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Ứng dụng Quản lý Blog đơn giản',
+                    'description' => 'Xây dựng một ứng dụng CRUD (Create, Read, Update, Delete) cho các bài viết blog sử dụng một API giả lập.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Thiết kế giao diện cho danh sách bài viết và form thêm/sửa', 'content' => 'Tạo các phần tử UI cần thiết.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Đọc danh sách bài viết từ API', 'content' => 'Gửi yêu cầu GET để lấy tất cả bài viết.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Thêm bài viết mới (POST)', 'content' => 'Gửi dữ liệu form lên API.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Sửa bài viết (PUT/PATCH) và Xóa bài viết (DELETE)', 'content' => 'Thực hiện các thao tác CRUD.', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Cập nhật giao diện sau mỗi thao tác (optimistic UI)', 'content' => 'Hiển thị thay đổi ngay lập tức.', 'sortOrder' => 5],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Thiết Kế Web Tối Ưu Cho Di Động (Mobile-First Design)',
+            'description' => 'Khóa học tập trung vào việc thiết kế và phát triển website theo phương pháp Mobile-First, đảm bảo trải nghiệm người dùng tốt nhất trên mọi thiết bị.',
+            'price' => 600000.00,
+            'categoryIds' => [50, 3, 2], // Thiết kế Web, HTML & CSS, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về HTML và CSS.',
+                'Hiểu biết về Responsive Design là một lợi thế.',
+            ],
+            'objectives' => [
+                'Hiểu rõ triết lý Mobile-First và lợi ích của nó.',
+                'Áp dụng các kỹ thuật CSS để tạo bố cục linh hoạt cho di động trước.',
+                'Sử dụng Media Queries hiệu quả để điều chỉnh giao diện cho màn hình lớn hơn.',
+                'Tối ưu hóa hình ảnh và tài nguyên cho hiệu suất di động.',
+                'Thiết kế các thành phần UI thân thiện với cảm ứng.',
+                'Kiểm tra và debug website trên các thiết bị di động thực tế và giả lập.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Mobile-First và Tầm quan trọng',
+                    'description' => 'Tìm hiểu về phương pháp Mobile-First và lý do nó trở thành tiêu chuẩn.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Mobile-First là gì? So sánh với Desktop-First', 'content' => 'Khái niệm và sự khác biệt giữa hai phương pháp.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Tại sao Mobile-First quan trọng trong kỷ nguyên di động?', 'content' => 'Thống kê sử dụng di động và lợi ích SEO.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Quy trình thiết kế Mobile-First', 'content' => 'Các bước từ wireframe đến code.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Thẻ Meta Viewport và vai trò của nó', 'content' => 'Thiết lập viewport đúng cách cho responsive.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Xây dựng Bố cục Mobile-First với CSS',
+                    'description' => 'Bắt đầu xây dựng giao diện từ kích thước màn hình nhỏ nhất.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Các thuộc tính CSS cơ bản cho Mobile-First', 'content' => 'Sử dụng `width: 100%`, `max-width`, `padding`, `margin`.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Flexbox cho bố cục Mobile-First', 'content' => 'Sử dụng Flexbox để sắp xếp các phần tử theo chiều dọc.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: CSS Grid cho bố cục Mobile-First', 'content' => 'Xây dựng grid đơn giản cho màn hình nhỏ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Điều chỉnh Typography cho di động', 'content' => 'Chọn font-size và line-height phù hợp.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Mở rộng giao diện cho Tablet và Desktop với Media Queries',
+                    'description' => 'Áp dụng Media Queries để điều chỉnh layout cho các màn hình lớn hơn.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Sử dụng `min-width` trong Media Queries', 'content' => 'Chỉ áp dụng CSS khi màn hình lớn hơn một kích thước nhất định.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Các breakpoint phổ biến cho Tablet và Desktop', 'content' => 'Xác định các điểm ngắt cho thiết kế.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Điều chỉnh bố cục Flexbox/Grid cho màn hình lớn', 'content' => 'Thay đổi `flex-direction`, `grid-template-columns`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Ẩn/Hiện các phần tử theo kích thước màn hình', 'content' => 'Sử dụng `display: none` hoặc `visibility: hidden`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Tối ưu hóa Hình ảnh và Hiệu suất cho Di động',
+                    'description' => 'Đảm bảo trang web tải nhanh và mượt mà trên thiết bị di động.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Tối ưu hóa kích thước và định dạng hình ảnh', 'content' => 'Sử dụng WebP, JPEG 2000, nén ảnh.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Thuộc tính `srcset` và `<picture>` cho hình ảnh responsive', 'content' => 'Hiển thị hình ảnh phù hợp với độ phân giải.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Lazy Loading hình ảnh và video', 'content' => 'Chỉ tải tài nguyên khi chúng xuất hiện trên màn hình.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Minify CSS và JavaScript cho tốc độ tải trang', 'content' => 'Giảm kích thước file.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Thiết kế Thành phần UI thân thiện với cảm ứng',
+                    'description' => 'Tạo các nút, menu và form dễ sử dụng trên màn hình cảm ứng.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Kích thước vùng chạm (Touch Target Size) tối thiểu', 'content' => 'Đảm bảo các nút và liên kết đủ lớn để chạm.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Thiết kế Navigation Bar Responsive (Hamburger Menu)', 'content' => 'Tạo menu ẩn/hiện cho di động.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Các loại input form thân thiện với di động', 'content' => 'Sử dụng `type="tel"`, `type="email"`, `type="number"`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Tránh sử dụng hiệu ứng hover trên di động', 'content' => 'Hành vi của hover trên màn hình cảm ứng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Kiểm tra và Debug trên Thiết bị Di động',
+                    'description' => 'Các công cụ và phương pháp để kiểm tra và sửa lỗi website trên di động.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Sử dụng Chrome DevTools Device Mode', 'content' => 'Giả lập các thiết bị di động trong trình duyệt.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Kiểm tra trên thiết bị di động thực tế', 'content' => 'Kết nối và debug qua USB.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Sử dụng BrowserStack hoặc CrossBrowserTesting', 'content' => 'Kiểm tra trên nhiều thiết bị và trình duyệt.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Các lỗi Responsive thường gặp và cách khắc phục', 'content' => 'Lỗi tràn nội dung, font quá nhỏ, khoảng trắng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Xây dựng Blog Responsive Mobile-First',
+                    'description' => 'Áp dụng toàn bộ kiến thức để xây dựng một trang blog hoàn chỉnh theo phương pháp Mobile-First.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Lên kế hoạch cấu trúc HTML và thiết kế Mobile-First', 'content' => 'Phác thảo layout cho màn hình di động.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Xây dựng Header, Navigation và Footer cho di động', 'content' => 'Tạo các thành phần chính của trang.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Thiết kế danh sách bài viết và trang chi tiết bài viết', 'content' => 'Đảm bảo nội dung dễ đọc trên màn hình nhỏ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Mở rộng giao diện cho Tablet và Desktop', 'content' => 'Sử dụng Media Queries để điều chỉnh layout.', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Tối ưu hóa hình ảnh và hiệu suất tổng thể', 'content' => 'Đảm bảo trang tải nhanh trên mọi thiết bị.', 'sortOrder' => 5],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'JavaScript ES6+ và Các Mẫu Thiết Kế (Design Patterns)',
+            'description' => 'Khóa học này đi sâu vào các tính năng hiện đại của JavaScript (ES6+) và cách áp dụng các mẫu thiết kế phổ biến để viết code mạnh mẽ, có cấu trúc và dễ bảo trì.',
+            'price' => 720000.00,
+            'categoryIds' => [4, 2], // JavaScript, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về JavaScript nâng cao (bao gồm Promise, async/await).',
+                'Hiểu biết về Lập trình Hướng Đối Tượng trong JS.',
+            ],
+            'objectives' => [
+                'Thành thạo các tính năng ES6+ ít phổ biến hơn nhưng mạnh mẽ (Generators, Iterators, Proxies).',
+                'Hiểu sâu về các mẫu thiết kế Creational, Structural, Behavioral.',
+                'Áp dụng các mẫu thiết kế như Singleton, Factory, Observer, Module, Facade, Strategy.',
+                'Viết code JavaScript có cấu trúc, dễ mở rộng và dễ kiểm thử.',
+                'Phân tích và lựa chọn mẫu thiết kế phù hợp cho các vấn đề lập trình.',
+                'Cải thiện kỹ năng giải quyết vấn đề và tư duy kiến trúc phần mềm.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Ôn tập ES6+ và các tính năng ít dùng nhưng mạnh mẽ',
+                    'description' => 'Củng cố kiến thức về ES6+ và khám phá thêm các tính năng nâng cao.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Set và Map: Cấu trúc dữ liệu mới', 'content' => 'Sử dụng Set cho tập hợp duy nhất và Map cho cặp key-value.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Generators và Iterators', 'content' => 'Tạo các hàm có thể tạm dừng và tiếp tục, duyệt qua các bộ sưu tập.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Proxies và Reflect API', 'content' => 'Tạo proxy cho đối tượng để chặn và tùy chỉnh các thao tác cơ bản.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Symbols: Kiểu dữ liệu nguyên thủy mới', 'content' => 'Tạo các thuộc tính đối tượng duy nhất.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Giới thiệu Design Patterns và Nguyên lý SOLID',
+                    'description' => 'Tìm hiểu về tầm quan trọng của Design Patterns và các nguyên lý thiết kế phần mềm.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Design Patterns là gì? Lợi ích và phân loại', 'content' => 'Creational, Structural, Behavioral patterns.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Nguyên lý SOLID trong JavaScript', 'content' => 'Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: DRY (Don\'t Repeat Yourself) và KISS (Keep It Simple, Stupid)', 'content' => 'Các nguyên tắc lập trình cơ bản.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Code Smells và Refactoring', 'content' => 'Nhận diện và cải thiện code kém chất lượng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Creational Design Patterns',
+                    'description' => 'Các mẫu thiết kế liên quan đến việc tạo đối tượng.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Singleton Pattern', 'content' => 'Đảm bảo chỉ có một thể hiện của một lớp.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Factory Pattern', 'content' => 'Tạo đối tượng mà không cần chỉ định rõ lớp cụ thể.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Abstract Factory Pattern', 'content' => 'Tạo các họ đối tượng liên quan mà không cần chỉ định lớp cụ thể.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Builder Pattern', 'content' => 'Xây dựng đối tượng phức tạp từng bước.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Structural Design Patterns',
+                    'description' => 'Các mẫu thiết kế liên quan đến cấu trúc và mối quan hệ giữa các đối tượng.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Adapter Pattern', 'content' => 'Cho phép các giao diện không tương thích làm việc cùng nhau.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Decorator Pattern', 'content' => 'Thêm chức năng mới vào đối tượng mà không thay đổi cấu trúc của nó.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Facade Pattern', 'content' => 'Cung cấp một giao diện đơn giản cho một hệ thống phức tạp.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Proxy Pattern', 'content' => 'Cung cấp một đối tượng thay thế hoặc giữ chỗ cho một đối tượng khác.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Behavioral Design Patterns',
+                    'description' => 'Các mẫu thiết kế liên quan đến giao tiếp và tương tác giữa các đối tượng.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Observer Pattern', 'content' => 'Định nghĩa một sự phụ thuộc một-nhiều giữa các đối tượng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Strategy Pattern', 'content' => 'Định nghĩa một họ các thuật toán, đóng gói từng thuật toán.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Command Pattern', 'content' => 'Đóng gói một yêu cầu dưới dạng một đối tượng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Iterator Pattern', 'content' => 'Cung cấp cách truy cập tuần tự các phần tử của một đối tượng tập hợp.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các Mẫu Thiết Kế Đặc Thù trong JavaScript',
+                    'description' => 'Các mẫu thiết kế thường được sử dụng trong môi trường JavaScript và Frontend.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Module Pattern (IIFE, CommonJS, ES Modules)', 'content' => 'Tổ chức code thành các module riêng biệt.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Revealing Module Pattern', 'content' => 'Một biến thể của Module Pattern.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Mediator Pattern', 'content' => 'Giảm sự phụ thuộc trực tiếp giữa các đối tượng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Publish/Subscribe Pattern', 'content' => 'Một biến thể của Observer Pattern.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Xây dựng Game "Simon Says" với Design Patterns',
+                    'description' => 'Áp dụng các mẫu thiết kế đã học để xây dựng một trò chơi "Simon Says" kinh điển.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Thiết kế cấu trúc game và các đối tượng chính', 'content' => 'Sử dụng các mẫu thiết kế để tổ chức code game.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Áp dụng Observer Pattern cho các sự kiện game', 'content' => 'Quản lý tương tác giữa các thành phần.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Sử dụng Module Pattern để đóng gói logic game', 'content' => 'Tạo các module riêng biệt cho UI, Game Logic, Sound.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Triển khai logic game và xử lý input người dùng', 'content' => 'Tạo chuỗi màu, kiểm tra input, tính điểm.', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Thêm hiệu ứng âm thanh và hình ảnh', 'content' => 'Cải thiện trải nghiệm người chơi.', 'sortOrder' => 5],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'HTML & CSS cho Người Mới Bắt Đầu: Xây Dựng Trang Web Đầu Tiên',
+            'description' => 'Khóa học dành cho những người chưa có kinh nghiệm về lập trình web, giúp bạn xây dựng trang web tĩnh đầu tiên của mình một cách dễ dàng và nhanh chóng.',
+            'price' => 399000.00,
+            'categoryIds' => [3, 2], // HTML & CSS, Lập trình Web
+            'requirements' => [
+                'Máy tính có kết nối internet.',
+                'Không yêu cầu kiến thức lập trình trước.',
+            ],
+            'objectives' => [
+                'Hiểu cấu trúc cơ bản của một trang HTML.',
+                'Sử dụng các thẻ HTML để tạo nội dung văn bản, hình ảnh, liên kết.',
+                'Áp dụng CSS để định dạng màu sắc, font chữ, bố cục đơn giản.',
+                'Xây dựng một trang web tĩnh cơ bản (ví dụ: trang giới thiệu bản thân).',
+                'Biết cách sử dụng các công cụ phát triển cơ bản của trình duyệt.',
+                'Hiểu về quy trình làm việc cơ bản của một Frontend Developer.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Làm quen với HTML',
+                    'description' => 'Những khái niệm đầu tiên về HTML và cách tạo một trang web đơn giản.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Web hoạt động như thế nào? HTML là gì?', 'content' => 'Giới thiệu về cách trình duyệt hiển thị trang web.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cấu trúc cơ bản của tài liệu HTML', 'content' => 'Thẻ `<html>`, `<head>`, `<body>` và `<!DOCTYPE html>`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Các thẻ tiêu đề (`<h1>`-`<h6>`) và đoạn văn (`<p>`)', 'content' => 'Cách tạo các khối văn bản cơ bản.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Thẻ liên kết (`<a>`) và hình ảnh (`<img>`)', 'content' => 'Cách thêm liên kết và hình ảnh vào trang.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Định dạng văn bản và danh sách trong HTML',
+                    'description' => 'Cách làm cho văn bản nổi bật và tổ chức thông tin bằng danh sách.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: In đậm, in nghiêng, gạch chân (`<strong>`, `<em>`, `<u>`)', 'content' => 'Các thẻ định dạng văn bản cơ bản.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Ngắt dòng (`<br>`) và đường kẻ ngang (`<hr>`)', 'content' => 'Kiểm soát bố cục văn bản.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Danh sách không thứ tự (`<ul>`, `<li>`)', 'content' => 'Tạo danh sách các mục không theo thứ tự.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Danh sách có thứ tự (`<ol>`, `<li>`)', 'content' => 'Tạo danh sách các mục theo thứ tự.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Giới thiệu CSS: Làm đẹp trang web',
+                    'description' => 'Học cách sử dụng CSS để thêm màu sắc, font chữ và bố cục cho trang web.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: CSS là gì? Vai trò của CSS', 'content' => 'Hiểu cách CSS tách biệt nội dung và kiểu dáng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Các cách nhúng CSS: Inline, Internal, External', 'content' => 'Phương pháp thêm CSS vào HTML.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Cú pháp CSS: Selector, Property, Value', 'content' => 'Cách viết các quy tắc CSS đơn giản.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Thay đổi màu sắc văn bản và nền (`color`, `background-color`)', 'content' => 'Làm cho trang web có màu sắc.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Định dạng font chữ và Box Model cơ bản',
+                    'description' => 'Kiểm soát kiểu chữ và hiểu mô hình hộp của các phần tử HTML.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Thuộc tính font chữ: `font-family`, `font-size`, `font-weight`', 'content' => 'Thay đổi kiểu, kích thước, độ đậm của chữ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Căn chỉnh văn bản (`text-align`)', 'content' => 'Căn trái, phải, giữa cho văn bản.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Box Model: Content, Padding, Border, Margin', 'content' => 'Hiểu cách các phần tử HTML chiếm không gian.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Sử dụng `padding` và `margin` để tạo khoảng cách', 'content' => 'Tạo khoảng cách bên trong và bên ngoài phần tử.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Bố cục đơn giản với CSS',
+                    'description' => 'Sắp xếp các phần tử trên trang web một cách cơ bản.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Thuộc tính `display`: `block`, `inline`, `inline-block`', 'content' => 'Cách các phần tử hiển thị và chiếm không gian.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Căn giữa phần tử Block (`margin: auto`)', 'content' => 'Cách căn giữa một khối nội dung.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Thuộc tính `float` để xếp chồng phần tử', 'content' => 'Sử dụng `float` để tạo bố cục cột đơn giản.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Clearfix để khắc phục lỗi `float`', 'content' => 'Cách xử lý các vấn đề với `float`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Dự án thực hành: Xây dựng trang giới thiệu bản thân',
+                    'description' => 'Áp dụng tất cả kiến thức đã học để tạo trang web đầu tiên của bạn.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Lên kế hoạch nội dung và cấu trúc HTML', 'content' => 'Phác thảo các phần của trang giới thiệu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Xây dựng phần Header và Giới thiệu bản thân', 'content' => 'Tạo tiêu đề, ảnh đại diện, đoạn văn giới thiệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Thêm phần Sở thích và Kỹ năng (dùng danh sách)', 'content' => 'Liệt kê các sở thích và kỹ năng cá nhân.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Định dạng trang web với CSS', 'content' => 'Áp dụng màu sắc, font chữ, khoảng cách.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Kiểm tra và hoàn thiện trang web', 'content' => 'Xem trước và sửa lỗi nhỏ.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Các công cụ cơ bản và Bước tiếp theo',
+                    'description' => 'Làm quen với các công cụ hữu ích và định hướng học tập tiếp theo.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Sử dụng Chrome DevTools để kiểm tra HTML/CSS', 'content' => 'Làm quen với công cụ phát triển của trình duyệt.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Giới thiệu trình soạn thảo code (VS Code)', 'content' => 'Cài đặt và làm quen với VS Code.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: HTML Validation và CSS Validation', 'content' => 'Kiểm tra lỗi cú pháp HTML và CSS.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Định hướng học JavaScript và Responsive Design', 'content' => 'Các bước tiếp theo để trở thành Frontend Developer.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'JavaScript cho Game Development: Xây Dựng Game Đơn Giản',
+            'description' => 'Khóa học này sẽ hướng dẫn bạn cách sử dụng JavaScript để tạo ra các trò chơi 2D đơn giản, từ việc vẽ trên Canvas đến xử lý logic game và tương tác người dùng.',
+            'price' => 750000.00,
+            'categoryIds' => [4, 20], // JavaScript, Lập trình Game
+            'requirements' => [
+                'Kiến thức vững chắc về JavaScript cơ bản và DOM Manipulation.',
+                'Hiểu biết về HTML và CSS.',
+            ],
+            'objectives' => [
+                'Sử dụng thẻ `<canvas>` để vẽ đồ họa 2D.',
+                'Xử lý input người dùng (phím, chuột) cho game.',
+                'Tạo vòng lặp game (game loop) để cập nhật và vẽ lại màn hình.',
+                'Phát triển logic game cơ bản: va chạm, điểm số, trạng thái game.',
+                'Xây dựng các trò chơi 2D đơn giản như Pong, Snake, Flappy Bird.',
+                'Tối ưu hóa hiệu suất game và xử lý animation mượt mà.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Game Development với JavaScript và Canvas',
+                    'description' => 'Tổng quan về phát triển game web và làm quen với Canvas API.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Game Development trên Web: Tổng quan', 'content' => 'Các công nghệ và thư viện phổ biến.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Thẻ `<canvas>` và Context 2D', 'content' => 'Thiết lập canvas và lấy context để vẽ.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Vẽ hình cơ bản: Hình chữ nhật, đường thẳng, hình tròn', 'content' => 'Sử dụng `fillRect`, `strokeRect`, `beginPath`, `arc`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Màu sắc, đường viền và chữ trên Canvas', 'content' => 'Thuộc tính `fillStyle`, `strokeStyle`, `font`, `fillText`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Xử lý Input và Vòng lặp Game (Game Loop)',
+                    'description' => 'Làm cho game tương tác với người chơi và cập nhật trạng thái liên tục.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Xử lý sự kiện bàn phím (`keydown`, `keyup`)', 'content' => 'Di chuyển nhân vật bằng phím.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Xử lý sự kiện chuột (`mousedown`, `mouseup`, `mousemove`)', 'content' => 'Tương tác với game bằng chuột.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Vòng lặp game: `requestAnimationFrame`', 'content' => 'Tạo vòng lặp để cập nhật logic và vẽ lại game.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Cập nhật trạng thái game (Update) và Vẽ (Draw)', 'content' => 'Tách biệt logic game và hiển thị.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Dự án Game 1: Pong Game',
+                    'description' => 'Xây dựng trò chơi Pong kinh điển với JavaScript và Canvas.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Thiết kế giao diện và các đối tượng game (vợt, bóng)', 'content' => 'Vẽ các hình cơ bản cho game Pong.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Logic di chuyển vợt người chơi và AI', 'content' => 'Kiểm soát vợt bằng phím và AI đơn giản.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Logic di chuyển bóng và va chạm với tường/vợt', 'content' => 'Tính toán quỹ đạo và phản xạ của bóng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Tính điểm và điều kiện thắng/thua', 'content' => 'Theo dõi điểm số và kết thúc game.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Dự án Game 2: Snake Game',
+                    'description' => 'Xây dựng trò chơi Rắn săn mồi với JavaScript và Canvas.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Thiết kế bản đồ và đối tượng rắn/mồi', 'content' => 'Vẽ lưới và các phần tử game.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Logic di chuyển rắn và điều khiển bằng phím', 'content' => 'Cập nhật vị trí các đốt của rắn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Logic ăn mồi và tăng chiều dài rắn', 'content' => 'Kiểm tra va chạm với mồi và cập nhật điểm.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Logic va chạm với tường và tự va chạm', 'content' => 'Xử lý điều kiện thua game.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Dự án Game 3: Flappy Bird (phiên bản đơn giản)',
+                    'description' => 'Xây dựng phiên bản đơn giản của trò chơi Flappy Bird.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Thiết kế nhân vật chim và các ống cống', 'content' => 'Vẽ các đối tượng game.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Logic trọng lực và nhảy của chim', 'content' => 'Điều khiển chim bằng click chuột/phím.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Logic tạo và di chuyển các ống cống', 'content' => 'Tạo các chướng ngại vật ngẫu nhiên.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Logic va chạm với ống cống và tính điểm', 'content' => 'Xử lý va chạm và cập nhật điểm số.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tối ưu hóa hiệu suất và Âm thanh trong Game',
+                    'description' => 'Cải thiện trải nghiệm người chơi bằng cách tối ưu game và thêm âm thanh.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Tối ưu hóa vẽ trên Canvas (clearRect, save/restore)', 'content' => 'Các kỹ thuật để tăng tốc độ vẽ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Sprite Sheets và Animation', 'content' => 'Sử dụng sprite sheets để tạo hoạt ảnh cho nhân vật.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Thêm âm thanh vào game với Audio API', 'content' => 'Phát hiệu ứng âm thanh và nhạc nền.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Quản lý trạng thái game (Start, Playing, Game Over)', 'content' => 'Tạo các màn hình khác nhau cho game.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Các khái niệm Game Development nâng cao',
+                    'description' => 'Giới thiệu các khái niệm và công cụ để phát triển game phức tạp hơn.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Giới thiệu Game Engines cho JavaScript (Phaser, PixiJS)', 'content' => 'Các thư viện giúp xây dựng game nhanh hơn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Collision Detection nâng cao', 'content' => 'Các thuật toán phát hiện va chạm phức tạp hơn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Quản lý Assets (hình ảnh, âm thanh)', 'content' => 'Cách tải và quản lý tài nguyên game.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Triển khai Game lên Web', 'content' => 'Đưa game của bạn lên mạng để mọi người chơi.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'JavaScript cho Web Animation và Hiệu Ứng Hình Ảnh',
+            'description' => 'Khóa học này khám phá cách sử dụng JavaScript để tạo ra các hiệu ứng động và tương tác hình ảnh phức tạp trên trang web, mang lại trải nghiệm người dùng sống động.',
+            'price' => 670000.00,
+            'categoryIds' => [4, 2, 50], // JavaScript, Lập trình Web, Thiết kế Web
+            'requirements' => [
+                'Kiến thức vững chắc về HTML, CSS và JavaScript cơ bản.',
+                'Hiểu biết về CSS Transition và Animation là một lợi thế.',
+            ],
+            'objectives' => [
+                'Sử dụng `requestAnimationFrame` để tạo hoạt ảnh mượt mà.',
+                'Thao tác CSS Properties với JavaScript để tạo hiệu ứng động.',
+                'Xây dựng các hiệu ứng cuộn (scroll effects) và Parallax.',
+                'Sử dụng Canvas API để tạo đồ họa động và hiệu ứng hạt.',
+                'Tích hợp các thư viện animation phổ biến như GSAP hoặc Anime.js.',
+                'Tối ưu hóa hiệu suất animation để tránh giật lag.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Nguyên lý Animation trên Web và `requestAnimationFrame`',
+                    'description' => 'Tìm hiểu cách trình duyệt vẽ hoạt ảnh và phương pháp tối ưu nhất.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Cách trình duyệt vẽ lại trang (Repaint, Reflow)', 'content' => 'Hiểu cơ chế hoạt động của trình duyệt.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Tại sao `requestAnimationFrame` tốt hơn `setInterval`', 'content' => 'Lợi ích của việc đồng bộ hóa với chu kỳ vẽ của trình duyệt.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cú pháp và cách sử dụng `requestAnimationFrame`', 'content' => 'Tạo vòng lặp hoạt ảnh cơ bản.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Tạo hoạt ảnh đơn giản với JavaScript và `requestAnimationFrame`', 'content' => 'Di chuyển phần tử, thay đổi kích thước.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Thao tác CSS Properties với JavaScript',
+                    'description' => 'Điều khiển các thuộc tính CSS bằng JavaScript để tạo hiệu ứng động.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Thay đổi `element.style` và `classList` cho animation', 'content' => 'Cách chuyển đổi class hoặc thay đổi style trực tiếp.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Sử dụng `transform` và `opacity` cho hiệu suất tốt', 'content' => 'Các thuộc tính không gây reflow/repaint.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Tạo các hàm easing tùy chỉnh (Custom Easing Functions)', 'content' => 'Làm cho hoạt ảnh mượt mà hơn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Animation theo đường dẫn (Path Animation)', 'content' => 'Di chuyển phần tử theo một đường cong.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Hiệu ứng cuộn (Scroll Effects) và Parallax',
+                    'description' => 'Tạo các hiệu ứng động dựa trên vị trí cuộn của trang.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Phát hiện vị trí cuộn (`window.scrollY`)', 'content' => 'Lấy vị trí cuộn hiện tại của trang.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Hiệu ứng xuất hiện khi cuộn (Scroll Reveal)', 'content' => 'Làm cho phần tử xuất hiện khi người dùng cuộn đến.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Parallax Scrolling cơ bản', 'content' => 'Tạo hiệu ứng các lớp di chuyển với tốc độ khác nhau.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Thêm hiệu ứng cuộn mượt cho các liên kết nội bộ', 'content' => 'Cải thiện trải nghiệm điều hướng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Canvas API cho Đồ họa Động và Hiệu ứng Hạt',
+                    'description' => 'Sử dụng Canvas để vẽ và tạo các hiệu ứng đồ họa phức tạp.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Ôn tập Canvas cơ bản và Context 2D', 'content' => 'Củng cố kiến thức về Canvas.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Vẽ và làm động các hình dạng phức tạp', 'content' => 'Tạo các hình dạng tùy chỉnh và làm chúng chuyển động.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Hiệu ứng hạt (Particle Effects) trên Canvas', 'content' => 'Tạo mưa, tuyết, pháo hoa bằng hạt.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Tương tác người dùng với Canvas (Mouse, Touch)', 'content' => 'Xử lý sự kiện trên Canvas để tạo hiệu ứng tương tác.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Thư viện Animation JavaScript: GSAP và Anime.js',
+                    'description' => 'Sử dụng các thư viện mạnh mẽ để tạo hoạt ảnh dễ dàng và hiệu quả hơn.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu GSAP (GreenSock Animation Platform)', 'content' => 'Lợi ích và cú pháp cơ bản của GSAP.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Tweens và Timelines trong GSAP', 'content' => 'Tạo hoạt ảnh đơn lẻ và chuỗi hoạt ảnh.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Giới thiệu Anime.js', 'content' => 'Một thư viện animation nhẹ và dễ sử dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: So sánh GSAP và Anime.js, khi nào sử dụng', 'content' => 'Ưu nhược điểm của từng thư viện.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tối ưu hóa hiệu suất Animation',
+                    'description' => 'Đảm bảo hoạt ảnh của bạn chạy mượt mà trên mọi thiết bị.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Tránh Reflow và Repaint', 'content' => 'Các thuộc tính CSS gây tốn kém hiệu suất.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Sử dụng `will-change` và Hardware Acceleration', 'content' => 'Kích hoạt tăng tốc phần cứng cho hoạt ảnh.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Debounce và Throttle cho các sự kiện', 'content' => 'Kiểm soát tần suất gọi hàm để tránh quá tải.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Kiểm tra hiệu suất với Chrome DevTools (Performance Tab)', 'content' => 'Phân tích và tìm điểm nghẽn hiệu suất.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Xây dựng Trang Landing Page với Animation',
+                    'description' => 'Áp dụng các kỹ thuật animation để tạo một trang landing page sống động và tương tác.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Thiết kế cấu trúc HTML và CSS cơ bản', 'content' => 'Chuẩn bị nền tảng cho animation.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Thêm hiệu ứng xuất hiện cho các phần tử khi cuộn', 'content' => 'Sử dụng Scroll Reveal hoặc custom JS.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Tạo hiệu ứng Parallax cho hình nền và các lớp', 'content' => 'Làm cho trang có chiều sâu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Áp dụng animation cho nút và biểu mẫu', 'content' => 'Tạo hiệu ứng khi hover, click.', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Tối ưu hóa hiệu suất và đảm bảo Responsive', 'content' => 'Kiểm tra và tinh chỉnh hoạt ảnh trên các thiết bị.', 'sortOrder' => 5],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'HTML & CSS cho UI Component Library',
+            'description' => 'Khóa học này hướng dẫn cách xây dựng các thành phần giao diện người dùng (UI Components) có thể tái sử dụng bằng HTML và CSS, tập trung vào tính mô đun và khả năng mở rộng.',
+            'price' => 640000.00,
+            'categoryIds' => [3, 49, 51], // HTML & CSS, Thiết kế, Thiết kế UI/UX
+            'requirements' => [
+                'Kiến thức vững chắc về HTML và CSS.',
+                'Hiểu biết về Flexbox và CSS Grid.',
+            ],
+            'objectives' => [
+                'Hiểu về khái niệm UI Components và lợi ích của chúng.',
+                'Thiết kế và xây dựng các thành phần UI cơ bản như Buttons, Cards, Forms, Navigation.',
+                'Áp dụng các nguyên tắc thiết kế như Atomic Design và BEM cho UI Components.',
+                'Sử dụng CSS Variables để quản lý chủ đề và tùy chỉnh dễ dàng.',
+                'Tạo các thành phần có khả năng phản hồi (Responsive Components).',
+                'Xây dựng một thư viện component đơn giản để tái sử dụng.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu UI Components và Thiết kế Mô đun',
+                    'description' => 'Tìm hiểu về tầm quan trọng của việc xây dựng các thành phần UI có thể tái sử dụng.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: UI Components là gì? Tại sao cần chúng?', 'content' => 'Lợi ích của việc chia nhỏ giao diện thành các thành phần.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Atomic Design: Nguyên lý phân cấp UI', 'content' => 'Atoms, Molecules, Organisms, Templates, Pages.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Tính mô đun và khả năng tái sử dụng trong CSS', 'content' => 'Viết CSS độc lập và không phụ thuộc.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Công cụ và môi trường phát triển cho UI Components', 'content' => 'Giới thiệu Storybook (tùy chọn) hoặc môi trường phát triển riêng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Xây dựng Component: Buttons',
+                    'description' => 'Thiết kế và triển khai các loại nút khác nhau.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Cấu trúc HTML cơ bản cho Button', 'content' => 'Thẻ `<button>` và `<a>` với vai trò nút.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Định dạng Button với CSS: Màu sắc, kích thước, bo góc', 'content' => 'Tạo các kiểu nút khác nhau (primary, secondary, outline).', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Hiệu ứng Hover và Active cho Button', 'content' => 'Tạo tương tác khi người dùng di chuột hoặc click.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Button với Icon và trạng thái Disabled', 'content' => 'Thêm icon và xử lý trạng thái không hoạt động.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Xây dựng Component: Cards',
+                    'description' => 'Thiết kế các thành phần Card đa năng để hiển thị nội dung.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Cấu trúc HTML cho Card: Hình ảnh, tiêu đề, mô tả, nút', 'content' => 'Tạo khung sườn cho Card.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Định dạng Card với CSS: Shadow, Border, Padding', 'content' => 'Làm đẹp Card và tạo hiệu ứng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Bố cục nội dung trong Card với Flexbox/Grid', 'content' => 'Sắp xếp các phần tử bên trong Card.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Card Responsive cho các kích thước màn hình', 'content' => 'Đảm bảo Card hiển thị tốt trên di động.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Xây dựng Component: Forms và Inputs',
+                    'description' => 'Thiết kế các trường nhập liệu và form có thể tái sử dụng.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Cấu trúc HTML cho Input và Label', 'content' => 'Tạo các trường input cơ bản.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Định dạng Input với CSS: Border, Padding, Focus State', 'content' => 'Làm đẹp input và hiệu ứng khi focus.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Các loại Input khác: Textarea, Select, Checkbox, Radio', 'content' => 'Thiết kế các loại input đa dạng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Form Layout với Flexbox/Grid', 'content' => 'Sắp xếp các trường input trong form.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Xây dựng Component: Navigation Bar và Dropdown Menu',
+                    'description' => 'Thiết kế thanh điều hướng và menu thả xuống phức tạp.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Cấu trúc HTML cho Navigation Bar', 'content' => 'Tạo danh sách liên kết cho thanh điều hướng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Định dạng Navigation Bar với Flexbox', 'content' => 'Sắp xếp các mục điều hướng theo chiều ngang.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Dropdown Menu với CSS (Hover/Focus)', 'content' => 'Tạo menu thả xuống khi di chuột hoặc focus.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Navigation Bar Responsive (Hamburger Menu)', 'content' => 'Thiết kế menu cho di động.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Quản lý Chủ đề và Tùy chỉnh với CSS Variables',
+                    'description' => 'Sử dụng biến CSS để tạo hệ thống chủ đề và dễ dàng tùy chỉnh components.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Giới thiệu CSS Variables (Custom Properties)', 'content' => 'Khai báo và sử dụng biến trong CSS.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tạo hệ thống chủ đề (Theming) với CSS Variables', 'content' => 'Thay đổi màu sắc, font chữ toàn bộ trang.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tùy chỉnh Component với CSS Variables', 'content' => 'Cho phép người dùng thay đổi thuộc tính của component.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Fallback cho CSS Variables và tính tương thích trình duyệt', 'content' => 'Đảm bảo hoạt động trên các trình duyệt cũ.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Xây dựng Thư viện UI Component đơn giản',
+                    'description' => 'Tổ chức các component đã xây dựng thành một thư viện có thể tái sử dụng.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Cấu trúc thư mục cho UI Component Library', 'content' => 'Cách tổ chức các file HTML, CSS của từng component.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Tài liệu hóa Component (Documentation)', 'content' => 'Viết hướng dẫn sử dụng cho từng component.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Tích hợp Component vào dự án khác', 'content' => 'Cách nhúng và sử dụng component trong các dự án web.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Tối ưu hóa và triển khai thư viện component', 'content' => 'Nén file và đưa lên CDN (tùy chọn).', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Giới thiệu Storybook để phát triển và tài liệu hóa components', 'content' => 'Sử dụng công cụ chuyên nghiệp cho component library.', 'sortOrder' => 5],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'JavaScript cho Frontend Performance Optimization',
+            'description' => 'Khóa học này tập trung vào các kỹ thuật tối ưu hóa hiệu suất JavaScript phía frontend, giúp trang web của bạn tải nhanh hơn và hoạt động mượt mà hơn.',
+            'price' => 700000.00,
+            'categoryIds' => [4, 2], // JavaScript, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về JavaScript cơ bản và DOM Manipulation.',
+                'Hiểu biết về HTML và CSS.',
+            ],
+            'objectives' => [
+                'Hiểu về các yếu tố ảnh hưởng đến hiệu suất frontend.',
+                'Tối ưu hóa tải tài nguyên JavaScript (defer, async, code splitting).',
+                'Giảm thiểu thao tác DOM và tối ưu hóa hoạt ảnh.',
+                'Áp dụng Debounce và Throttle để kiểm soát tần suất gọi hàm.',
+                'Sử dụng Web Workers để thực hiện các tác vụ nặng mà không chặn UI.',
+                'Phân tích hiệu suất bằng Chrome DevTools và các công cụ khác.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Hiệu suất Frontend và Các chỉ số quan trọng',
+                    'description' => 'Tìm hiểu về tầm quan trọng của hiệu suất web và các chỉ số đo lường.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Tại sao hiệu suất web lại quan trọng?', 'content' => 'Ảnh hưởng đến trải nghiệm người dùng, SEO, tỷ lệ chuyển đổi.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các chỉ số hiệu suất chính (Core Web Vitals)', 'content' => 'LCP, FID, CLS và ý nghĩa của chúng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Công cụ đo lường hiệu suất: Lighthouse, PageSpeed Insights', 'content' => 'Sử dụng các công cụ của Google để đánh giá.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Quy trình tối ưu hóa hiệu suất', 'content' => 'Các bước để cải thiện tốc độ trang web.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Tối ưu hóa tải JavaScript',
+                    'description' => 'Giảm thời gian tải và thực thi JavaScript.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Thuộc tính `defer` và `async` cho thẻ `<script>`', 'content' => 'Cách tải JavaScript mà không chặn render.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Code Splitting và Lazy Loading', 'content' => 'Chia nhỏ code và chỉ tải khi cần thiết.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Minification và Compression (Gzip/Brotli)', 'content' => 'Giảm kích thước file JavaScript.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Sử dụng CDN cho thư viện bên ngoài', 'content' => 'Tải thư viện nhanh hơn từ mạng phân phối nội dung.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Tối ưu hóa Thao tác DOM và Hoạt ảnh',
+                    'description' => 'Giảm chi phí của việc tương tác với DOM và tạo hoạt ảnh mượt mà.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giảm thiểu Reflow và Repaint', 'content' => 'Tránh các thao tác DOM gây tốn kém hiệu suất.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Batching DOM updates', 'content' => 'Nhóm các thay đổi DOM để thực hiện cùng lúc.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Sử dụng `transform` và `opacity` cho animation', 'content' => 'Các thuộc tính hiệu suất cao cho hoạt ảnh.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: `requestAnimationFrame` cho hoạt ảnh mượt mà', 'content' => 'Đồng bộ hóa với chu kỳ vẽ của trình duyệt.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Debounce và Throttle',
+                    'description' => 'Kiểm soát tần suất gọi hàm cho các sự kiện thường xuyên xảy ra.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Vấn đề của các sự kiện tần suất cao (resize, scroll, input)', 'content' => 'Tại sao cần kiểm soát tần suất gọi hàm.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Debounce Function', 'content' => 'Chỉ gọi hàm sau khi một khoảng thời gian không có sự kiện.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Throttle Function', 'content' => 'Giới hạn tần suất gọi hàm trong một khoảng thời gian nhất định.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Các trường hợp sử dụng thực tế của Debounce và Throttle', 'content' => 'Tìm kiếm, cuộn trang, resize cửa sổ.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Web Workers và Tác vụ nền',
+                    'description' => 'Thực hiện các tác vụ tính toán nặng mà không làm chặn luồng chính của UI.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu Web Workers và lợi ích', 'content' => 'Chạy JavaScript trong một luồng riêng biệt.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Tạo và giao tiếp với Web Worker', 'content' => 'Gửi và nhận tin nhắn giữa luồng chính và worker.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Các hạn chế của Web Workers', 'content' => 'Không thể truy cập DOM.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Trường hợp sử dụng Web Workers (tính toán phức tạp, xử lý ảnh)', 'content' => 'Các ví dụ thực tế.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Phân tích Hiệu suất với Chrome DevTools',
+                    'description' => 'Sử dụng các công cụ mạnh mẽ của trình duyệt để tìm và khắc phục các vấn đề hiệu suất.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Tab Performance: Ghi lại và phân tích luồng hoạt động', 'content' => 'Tìm kiếm các điểm nghẽn hiệu suất.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tab Network: Phân tích thời gian tải tài nguyên', 'content' => 'Kiểm tra kích thước file, thời gian tải.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tab Memory: Tìm kiếm rò rỉ bộ nhớ', 'content' => 'Phát hiện và khắc phục các vấn đề về bộ nhớ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Tab Audits (Lighthouse): Tự động kiểm tra và đề xuất tối ưu', 'content' => 'Sử dụng Lighthouse để có báo cáo chi tiết.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Tối ưu hóa một trang web hiện có',
+                    'description' => 'Áp dụng các kỹ thuật tối ưu hóa vào một dự án web thực tế để cải thiện hiệu suất.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Đánh giá hiệu suất ban đầu của trang web', 'content' => 'Sử dụng Lighthouse để có điểm số ban đầu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Tối ưu hóa tải JavaScript và CSS', 'content' => 'Sử dụng `defer`, `async`, minify.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Cải thiện hiệu suất DOM và animation', 'content' => 'Áp dụng `requestAnimationFrame`, `transform`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Triển khai Debounce/Throttle cho các sự kiện', 'content' => 'Tối ưu hóa các hàm gọi thường xuyên.', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Đánh giá lại hiệu suất và so sánh kết quả', 'content' => 'Xem sự cải thiện sau khi tối ưu.', 'sortOrder' => 5],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'HTML & CSS cho Email Marketing: Thiết Kế Email Responsive',
+            'description' => 'Khóa học này dạy bạn cách thiết kế và mã hóa các mẫu email HTML responsive, đảm bảo email hiển thị đẹp và đúng trên mọi ứng dụng và thiết bị email.',
+            'price' => 580000.00,
+            'categoryIds' => [3, 57, 61], // HTML & CSS, Digital Marketing, Email Marketing
+            'requirements' => [
+                'Kiến thức cơ bản về HTML và CSS.',
+                'Hiểu biết về Email Marketing là một lợi thế.',
+            ],
+            'objectives' => [
+                'Hiểu các hạn chế và quy tắc đặc biệt của HTML/CSS trong email.',
+                'Sử dụng bảng (tables) để xây dựng bố cục email.',
+                'Áp dụng CSS inline và nhúng để đảm bảo tương thích.',
+                'Thiết kế email responsive bằng Media Queries và kỹ thuật "hybrid".',
+                'Kiểm tra và debug email trên các ứng dụng email khác nhau.',
+                'Xây dựng các mẫu email marketing cơ bản có thể tái sử dụng.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu HTML Email và Các Thách Thức',
+                    'description' => 'Tìm hiểu về sự khác biệt giữa HTML email và HTML web, cũng như các hạn chế.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: HTML Email là gì? Tại sao nó khác HTML web?', 'content' => 'Sự phức tạp của việc thiết kế email.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các ứng dụng email và công cụ render (Email Clients)', 'content' => 'Outlook, Gmail, Apple Mail và cách chúng hiển thị email.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Các hạn chế của CSS trong email', 'content' => 'Những thuộc tính CSS không được hỗ trợ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Quy tắc vàng: Sử dụng bảng (tables) cho bố cục', 'content' => 'Tại sao tables vẫn là lựa chọn tốt nhất cho email.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Cấu trúc HTML Email cơ bản với Tables',
+                    'description' => 'Xây dựng khung sườn cho email bằng cách sử dụng các thẻ bảng.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Khung email cơ bản: `<table>`, `<tr>`, `<td>`', 'content' => 'Tạo cấu trúc chính của email.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Thiết lập `width`, `align`, `cellpadding`, `cellspacing` cho bảng', 'content' => 'Kiểm soát kích thước và khoảng cách.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Tạo các section (Header, Body, Footer) bằng tables lồng nhau', 'content' => 'Phân chia email thành các phần.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Thêm hình ảnh và văn bản vào cấu trúc bảng', 'content' => 'Chèn nội dung vào email.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Định dạng CSS cho Email: Inline và Nhúng',
+                    'description' => 'Áp dụng CSS để tạo kiểu cho email, đảm bảo tương thích tối đa.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: CSS Inline: Tại sao nó quan trọng trong email', 'content' => 'Cách chuyển đổi CSS sang inline.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: CSS nhúng trong `<head>`: `style` tag', 'content' => 'Sử dụng CSS nhúng cho các quy tắc chung.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Thuộc tính CSS an toàn cho email (Font, Color, Background)', 'content' => 'Các thuộc tính được hỗ trợ rộng rãi.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Thuộc tính `mso-` cho Outlook', 'content' => 'Các thuộc tính đặc biệt để khắc phục lỗi trên Outlook.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Thiết kế Email Responsive: Media Queries và Hybrid Approach',
+                    'description' => 'Làm cho email hiển thị tốt trên cả máy tính để bàn và thiết bị di động.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu Responsive Email Design', 'content' => 'Tại sao email cần responsive.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Sử dụng Media Queries trong email', 'content' => 'Áp dụng CSS khác nhau cho màn hình di động.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Kỹ thuật "Hybrid" hoặc "Sponge" cho email responsive', 'content' => 'Tạo email responsive mà không cần quá nhiều media queries.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Hình ảnh responsive trong email', 'content' => 'Đảm bảo hình ảnh co giãn đúng cách.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Các thành phần Email phổ biến và Best Practices',
+                    'description' => 'Xây dựng các thành phần email thường dùng và tuân thủ các nguyên tắc tốt nhất.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Nút Call-to-Action (CTA) trong email', 'content' => 'Thiết kế nút CTA nổi bật và click được.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Thanh điều hướng và menu trong email', 'content' => 'Tạo menu đơn giản cho email.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Chia cột và bố cục phức tạp hơn', 'content' => 'Sử dụng tables lồng nhau để tạo nhiều cột.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Footer email và thông tin bắt buộc', 'content' => 'Thêm thông tin liên hệ, unsubscribe link.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Kiểm tra và Debug Email HTML',
+                    'description' => 'Các công cụ và phương pháp để đảm bảo email hiển thị đúng trên mọi nền tảng.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Sử dụng Email Testing Tools (Email on Acid, Litmus)', 'content' => 'Kiểm tra email trên hàng trăm ứng dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Kiểm tra thủ công trên các ứng dụng email phổ biến', 'content' => 'Gửi email test đến các tài khoản khác nhau.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Các lỗi HTML Email thường gặp và cách khắc phục', 'content' => 'Lỗi hình ảnh, font, bố cục.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Inline CSS tools và Email Pre-header Text', 'content' => 'Công cụ hỗ trợ và tối ưu pre-header.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Dự án thực hành: Xây dựng Email Newsletter Responsive',
+                    'description' => 'Áp dụng tất cả kiến thức để tạo một mẫu email newsletter hoàn chỉnh và responsive.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Lên kế hoạch nội dung và bố cục cho Newsletter', 'content' => 'Phác thảo các section và thông điệp.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Xây dựng cấu trúc HTML bằng Tables', 'content' => 'Tạo khung sườn cho newsletter.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Áp dụng CSS Inline và Nhúng để tạo kiểu', 'content' => 'Định dạng màu sắc, font, hình ảnh.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Đảm bảo Responsive với Media Queries/Hybrid', 'content' => 'Kiểm tra và tối ưu cho di động.', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Kiểm tra trên các ứng dụng email và khắc phục lỗi', 'content' => 'Đảm bảo email hiển thị đúng trên mọi nền tảng.', 'sortOrder' => 5],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'ReactJS Cơ Bản: Từ Zero đến Anh Hùng',
+            'description' => 'Khóa học này cung cấp nền tảng vững chắc về ReactJS cho người mới bắt đầu, từ các khái niệm cơ bản đến xây dựng ứng dụng đầu tiên.',
+            'price' => 799000.00,
+            'categoryIds' => [5, 2], // ReactJS, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về HTML, CSS và JavaScript (ES6+).',
+                'Máy tính có kết nối internet và trình duyệt web.',
+                'Sẵn sàng học hỏi và thực hành lập trình.'
+            ],
+            'objectives' => [
+                'Hiểu rõ kiến trúc và nguyên lý hoạt động của ReactJS.',
+                'Thành thạo việc sử dụng JSX để mô tả giao diện người dùng.',
+                'Nắm vững khái niệm Components, Props và State.',
+                'Sử dụng React Hooks cơ bản như useState và useEffect.',
+                'Xây dựng các ứng dụng React đơn giản từ đầu.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu ReactJS và Cài đặt Môi trường',
+                    'description' => 'Tổng quan về ReactJS, tại sao nên học React và cách thiết lập môi trường phát triển.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: ReactJS là gì? Lịch sử và ưu điểm', 'content' => 'Nội dung chi tiết về định nghĩa, lịch sử và những lợi ích khi sử dụng ReactJS.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cài đặt Node.js và npm/yarn', 'content' => 'Hướng dẫn từng bước cài đặt Node.js và các công cụ quản lý gói cần thiết.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Sử dụng Create React App để khởi tạo dự án', 'content' => 'Cách nhanh chóng tạo một dự án React mới với Create React App.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu trúc thư mục cơ bản của dự án React', 'content' => 'Giải thích về các file và thư mục quan trọng trong một dự án React.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: JSX và Render Elements',
+                    'description' => 'Tìm hiểu về JSX, cú pháp đặc biệt của React, và cách React render các phần tử lên DOM.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: JSX là gì? Tại sao cần JSX?', 'content' => 'Giới thiệu về JSX, cú pháp giống XML/HTML trong JavaScript và lợi ích của nó.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Nhúng biểu thức JavaScript vào JSX', 'content' => 'Cách sử dụng dấu ngoặc nhọn {} để đưa biến, hàm vào JSX.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Điều kiện và vòng lặp trong JSX', 'content' => 'Thực hành render có điều kiện và lặp qua danh sách các phần tử.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Render Elements lên DOM với ReactDOM', 'content' => 'Cách React sử dụng ReactDOM để cập nhật giao diện người dùng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Components: Xây dựng các khối UI',
+                    'description' => 'Học cách tạo và sử dụng các React Component để xây dựng giao diện theo từng phần nhỏ.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Functional Components và Class Components', 'content' => 'So sánh và hướng dẫn tạo cả hai loại component.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Props: Truyền dữ liệu giữa các Component', 'content' => 'Cách truyền dữ liệu từ component cha xuống component con thông qua props.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Default Props và Prop Types', 'content' => 'Thiết lập giá trị mặc định và kiểm tra kiểu dữ liệu của props.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Children Props và Composition', 'content' => 'Sử dụng props.children và kỹ thuật composition để tạo component linh hoạt.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: State và Lifecycle (Class Components)',
+                    'description' => 'Quản lý dữ liệu thay đổi theo thời gian với State và hiểu vòng đời của Class Component.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: State là gì? Cập nhật State', 'content' => 'Giới thiệu về state, cách khởi tạo và cập nhật state trong Class Component.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Vòng đời của Class Component (Lifecycle Methods)', 'content' => 'Giải thích các phương thức componentDidMount, componentDidUpdate, componentWillUnmount.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Xử lý sự kiện trong React', 'content' => 'Cách thêm các trình xử lý sự kiện (event handlers) vào các phần tử JSX.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Form và Controlled Components', 'content' => 'Quản lý dữ liệu từ các trường input trong form với controlled components.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: React Hooks: useState và useEffect',
+                    'description' => 'Học cách sử dụng các React Hooks cơ bản để thêm tính năng state và lifecycle vào Functional Components.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu React Hooks và useState', 'content' => 'Lý do ra đời của Hooks và cách sử dụng useState để quản lý state trong functional components.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: useEffect: Thực hiện Side Effects', 'content' => 'Sử dụng useEffect để xử lý các tác vụ như gọi API, cập nhật DOM.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Cleanup Function trong useEffect', 'content' => 'Cách dọn dẹp các side effects để tránh rò rỉ bộ nhớ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Rules of Hooks và Custom Hooks', 'content' => 'Các quy tắc khi sử dụng Hooks và cách tạo Hooks tùy chỉnh để tái sử dụng logic.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Xây dựng ứng dụng đơn giản và Routing',
+                    'description' => 'Áp dụng kiến thức đã học để xây dựng một ứng dụng React hoàn chỉnh và thêm tính năng định tuyến.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Xây dựng ứng dụng Todo List cơ bản', 'content' => 'Thực hành xây dựng một ứng dụng quản lý công việc đơn giản.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Giới thiệu React Router DOM', 'content' => 'Cài đặt và cấu hình React Router để quản lý các tuyến đường (routes).', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tạo các trang và điều hướng', 'content' => 'Thiết lập các trang khác nhau và sử dụng Link, NavLink để điều hướng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Dynamic Routing và Nested Routes', 'content' => 'Xử lý các tuyến đường động và tạo các tuyến đường lồng nhau.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Tương tác với API và Fetching Data',
+                    'description' => 'Học cách lấy dữ liệu từ API bên ngoài và hiển thị trong ứng dụng React của bạn.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Giới thiệu về API và JSON', 'content' => 'Giải thích về API (Application Programming Interface) và định dạng dữ liệu JSON.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Sử dụng Fetch API để gọi dữ liệu', 'content' => 'Cách sử dụng Fetch API tích hợp sẵn trong trình duyệt để gửi yêu cầu HTTP.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Xử lý lỗi khi Fetching Data', 'content' => 'Các kỹ thuật xử lý lỗi khi gọi API, bao gồm try-catch và kiểm tra response status.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Hiển thị dữ liệu từ API trong Component', 'content' => 'Cách render dữ liệu đã lấy được từ API vào giao diện người dùng.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'React Hooks Nâng Cao và Context API',
+            'description' => 'Khóa học này đi sâu vào các React Hooks nâng cao và cách sử dụng Context API để quản lý trạng thái ứng dụng hiệu quả hơn.',
+            'price' => 950000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức vững chắc về ReactJS cơ bản và Functional Components.',
+                'Hiểu biết về useState và useEffect.',
+                'Kinh nghiệm xây dựng các ứng dụng React nhỏ.'
+            ],
+            'objectives' => [
+                'Thành thạo các Hooks nâng cao như useReducer, useCallback, useMemo, useRef.',
+                'Sử dụng Context API để quản lý trạng thái toàn cục mà không cần thư viện bên ngoài.',
+                'Tối ưu hiệu năng ứng dụng React bằng cách sử dụng đúng Hooks.',
+                'Xây dựng Custom Hooks để tái sử dụng logic trạng thái.',
+                'Hiểu rõ sự khác biệt và khi nào nên sử dụng các Hooks khác nhau.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Ôn tập Hooks cơ bản và giới thiệu Hooks nâng cao',
+                    'description' => 'Củng cố kiến thức về useState, useEffect và mở rộng sang các Hooks phức tạp hơn.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Tổng quan về React Hooks và lợi ích', 'content' => 'Nhắc lại về Hooks và lý do chúng được giới thiệu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các vấn đề khi quản lý state phức tạp với useState', 'content' => 'Phân tích những hạn chế của useState khi state trở nên lớn và phức tạp.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Giới thiệu useReducer Hook', 'content' => 'Khái niệm về useReducer, reducer function và dispatch action.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: So sánh useState và useReducer: Khi nào sử dụng?', 'content' => 'Phân tích ưu nhược điểm và trường hợp sử dụng phù hợp cho từng Hook.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: useReducer: Quản lý trạng thái phức tạp',
+                    'description' => 'Đi sâu vào useReducer để quản lý state phức tạp theo mô hình của Redux.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Cấu trúc và cách hoạt động của useReducer', 'content' => 'Cú pháp, tham số và ví dụ minh họa về useReducer.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Xây dựng ứng dụng Todo List với useReducer', 'content' => 'Thực hành xây dựng một ứng dụng quản lý công việc sử dụng useReducer.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Xử lý nhiều action và state lồng nhau', 'content' => 'Cách tổ chức reducer cho các action và state phức tạp hơn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: useReducer với Context API', 'content' => 'Kết hợp useReducer với Context để quản lý state toàn cục.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Context API: Truyền Props không cần Prop Drilling',
+                    'description' => 'Học cách sử dụng Context API để truyền dữ liệu qua nhiều cấp component mà không cần prop drilling.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Vấn đề Prop Drilling và giải pháp Context API', 'content' => 'Giải thích vấn đề prop drilling và cách Context API giải quyết nó.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Tạo Context và Provider', 'content' => 'Cách tạo một Context object và sử dụng Provider để cung cấp giá trị.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Sử dụng useContext Hook để tiêu thụ Context', 'content' => 'Cách truy cập giá trị từ Context trong functional components.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Cập nhật Context Value và Multiple Contexts', 'content' => 'Cách cập nhật giá trị Context và sử dụng nhiều Context trong một ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Hooks tối ưu hiệu năng: useCallback và useMemo',
+                    'description' => 'Tìm hiểu cách sử dụng useCallback và useMemo để ngăn chặn việc re-render không cần thiết và tối ưu hiệu năng.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Vấn đề re-render và React.memo', 'content' => 'Giải thích khi nào component re-render và cách React.memo giúp tối ưu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: useCallback Hook: Ghi nhớ hàm', 'content' => 'Cách sử dụng useCallback để ghi nhớ các hàm và tránh tạo lại chúng trên mỗi lần render.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: useMemo Hook: Ghi nhớ giá trị', 'content' => 'Cách sử dụng useMemo để ghi nhớ các giá trị tính toán phức tạp.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Khi nào nên sử dụng useCallback và useMemo?', 'content' => 'Các trường hợp sử dụng thực tế và những lưu ý khi áp dụng các Hooks này.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: useRef và useImperativeHandle',
+                    'description' => 'Tìm hiểu cách truy cập DOM elements hoặc lưu trữ giá trị không cần re-render với useRef và useImperativeHandle.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: useRef Hook: Truy cập DOM và lưu trữ giá trị', 'content' => 'Cách sử dụng useRef để tham chiếu đến các phần tử DOM hoặc lưu trữ các giá trị không thay đổi.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Ứng dụng của useRef trong thực tế', 'content' => 'Ví dụ về việc focus input, quản lý timer với useRef.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: useImperativeHandle: Tiếp xúc với Component con', 'content' => 'Cách sử dụng useImperativeHandle để expose các hàm từ component con ra component cha.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Forwarding Refs và useImperativeHandle', 'content' => 'Kết hợp forwarding refs với useImperativeHandle để tạo component linh hoạt.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Custom Hooks: Tái sử dụng logic',
+                    'description' => 'Học cách tạo các Custom Hooks để đóng gói và tái sử dụng logic trạng thái giữa các component.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Tại sao cần Custom Hooks? Nguyên tắc tạo Custom Hooks', 'content' => 'Lợi ích của Custom Hooks và các quy tắc khi tạo chúng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Xây dựng Custom Hook: useToggle', 'content' => 'Thực hành tạo một Custom Hook đơn giản để quản lý trạng thái bật/tắt.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Xây dựng Custom Hook: useFetch (fetching data)', 'content' => 'Tạo một Custom Hook để đơn giản hóa việc gọi API và quản lý trạng thái loading/error.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Các ví dụ Custom Hooks phức tạp hơn', 'content' => 'Xem xét các Custom Hooks thực tế khác như useLocalStorage, useDebounce.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'Quản Lý State với Redux Toolkit trong React',
+            'description' => 'Học cách quản lý trạng thái ứng dụng React một cách hiệu quả và có tổ chức bằng Redux Toolkit, công cụ được khuyến nghị để làm việc với Redux.',
+            'price' => 1050000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức vững chắc về ReactJS cơ bản (Functional Components và Hooks).',
+                'Hiểu biết về các khái niệm cơ bản của quản lý trạng thái (state management).',
+                'Sự sẵn sàng học hỏi về kiến trúc ứng dụng lớn.'
+            ],
+            'objectives' => [
+                'Hiểu rõ các nguyên lý của Redux và vai trò của Redux Toolkit.',
+                'Thiết lập Store, Reducers, Actions và Slices với Redux Toolkit.',
+                'Thực hiện các tác vụ bất đồng bộ (async actions) với Redux Thunk (hoặc Redux Saga).',
+                'Kết nối React Components với Redux Store bằng react-redux Hooks (useSelector, useDispatch).',
+                'Quản lý trạng thái ứng dụng phức tạp một cách có tổ chức và dễ bảo trì.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Redux và Redux Toolkit',
+                    'description' => 'Tổng quan về Redux, các vấn đề nó giải quyết và sự ra đời của Redux Toolkit.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Redux là gì? Các nguyên lý cốt lõi', 'content' => 'Giải thích về Single Source of Truth, State is Read-only, Changes are made with Pure Functions.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Vấn đề quản lý trạng thái trong ứng dụng lớn', 'content' => 'Phân tích các thách thức khi ứng dụng React phát triển lớn hơn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Redux Toolkit: Giải pháp đơn giản hóa Redux', 'content' => 'Giới thiệu Redux Toolkit, các công cụ nó cung cấp và lợi ích.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cài đặt Redux Toolkit và React-Redux', 'content' => 'Hướng dẫn cài đặt các thư viện cần thiết cho dự án React.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Thiết lập Redux Store và Slices',
+                    'description' => 'Học cách cấu hình Redux Store và tạo các Slices để tổ chức Reducers và Actions.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Cấu hình Redux Store với configureStore', 'content' => 'Cách tạo Redux Store và tích hợp các reducer.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Khái niệm Slice và createSlice', 'content' => 'Giải thích về Slice và cách sử dụng createSlice để định nghĩa reducer và action creators.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Định nghĩa State, Reducer và Action trong Slice', 'content' => 'Cách khai báo state ban đầu, các hàm reducer và cách tạo action.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Xuất Action Creators và Reducer từ Slice', 'content' => 'Cách export các action và reducer để sử dụng trong ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Kết nối React với Redux Store',
+                    'description' => 'Sử dụng các Hooks của react-redux để đọc dữ liệu từ Store và gửi Actions.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Provider Component', 'content' => 'Bọc ứng dụng React với Provider để cung cấp Store cho tất cả các component.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: useSelector Hook: Đọc dữ liệu từ Store', 'content' => 'Cách sử dụng useSelector để trích xuất dữ liệu từ Redux Store.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: useDispatch Hook: Gửi Actions', 'content' => 'Cách sử dụng useDispatch để gửi các action đến Redux Store.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Xây dựng ứng dụng Counter với Redux Toolkit', 'content' => 'Thực hành xây dựng một ứng dụng đếm đơn giản để hiểu luồng Redux.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Xử lý tác vụ bất đồng bộ với Redux Thunk',
+                    'description' => 'Học cách quản lý các side effects như gọi API trong Redux bằng Redux Thunk.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Vấn đề Side Effects trong Redux', 'content' => 'Tại sao cần middleware để xử lý các tác vụ bất đồng bộ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Giới thiệu Redux Thunk và createAsyncThunk', 'content' => 'Cách Redux Thunk cho phép dispatch hàm thay vì object và sử dụng createAsyncThunk.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Thực hiện Fetching Data với createAsyncThunk', 'content' => 'Ví dụ thực tế về việc gọi API và cập nhật state với createAsyncThunk.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Xử lý trạng thái Loading và Error', 'content' => 'Cách quản lý trạng thái loading và hiển thị thông báo lỗi trong ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Tổ chức code và Best Practices',
+                    'description' => 'Các phương pháp hay nhất để tổ chức code Redux Toolkit trong các ứng dụng lớn.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Tổ chức các Slices theo tính năng', 'content' => 'Cách nhóm các reducer và action liên quan vào cùng một slice.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Chia nhỏ Reducers và Selector Functions', 'content' => 'Tạo các selector để trích xuất dữ liệu một cách hiệu quả và tái sử dụng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Sử dụng Reselect để tối ưu Selector', 'content' => 'Giới thiệu Reselect để tạo memoized selectors và cải thiện hiệu năng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Debugging Redux Applications với Redux DevTools', 'content' => 'Sử dụng công cụ mở rộng trình duyệt để theo dõi state và actions.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Xây dựng ứng dụng E-commerce với Redux Toolkit',
+                    'description' => 'Áp dụng tất cả kiến thức đã học để xây dựng một phần của ứng dụng thương mại điện tử.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Thiết kế cấu trúc Store cho E-commerce', 'content' => 'Lên kế hoạch cho các slices như products, cart, auth.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Xây dựng Product Slice và hiển thị danh sách sản phẩm', 'content' => 'Tạo slice cho sản phẩm và fetch dữ liệu từ API.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Xây dựng Cart Slice: Thêm, xóa, cập nhật sản phẩm', 'content' => 'Triển khai logic giỏ hàng với Redux Toolkit.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Tích hợp User Authentication (mock API)', 'content' => 'Xử lý đăng nhập/đăng ký và lưu trữ token trong Redux.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'Xây Dựng Ứng Dụng React Toàn Diện với Next.js',
+            'description' => 'Khóa học này hướng dẫn xây dựng các ứng dụng React hiệu năng cao, tối ưu SEO và có khả năng mở rộng với Next.js, một framework React mạnh mẽ.',
+            'price' => 1100000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức vững chắc về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết về JavaScript (ES6+).',
+                'Kinh nghiệm làm việc với API.'
+            ],
+            'objectives' => [
+                'Hiểu rõ các khái niệm cốt lõi của Next.js: Server-Side Rendering (SSR), Static Site Generation (SSG), Incremental Static Regeneration (ISR).',
+                'Xây dựng các trang và định tuyến với File-system Routing.',
+                'Tối ưu hóa hình ảnh, font và script với các component tích hợp của Next.js.',
+                'Triển khai API Routes để tạo API backend ngay trong Next.js.',
+                'Tối ưu hóa hiệu năng và SEO cho ứng dụng React.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Next.js và các khái niệm cốt lõi',
+                    'description' => 'Tổng quan về Next.js, lợi ích của nó và các phương pháp render khác nhau.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Next.js là gì? Tại sao nên dùng Next.js?', 'content' => 'Giới thiệu Next.js, các tính năng chính và lợi ích so với React thuần.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Server-Side Rendering (SSR) và Client-Side Rendering (CSR)', 'content' => 'So sánh và phân biệt giữa SSR và CSR.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Static Site Generation (SSG) và Incremental Static Regeneration (ISR)', 'content' => 'Tìm hiểu về SSG, ISR và cách chúng tối ưu hiệu năng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cài đặt Next.js và khởi tạo dự án', 'content' => 'Hướng dẫn cài đặt và tạo dự án Next.js đầu tiên.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Định tuyến (Routing) trong Next.js',
+                    'description' => 'Học cách tạo các trang và quản lý định tuyến dựa trên hệ thống file.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: File-system Routing: Tạo trang và thư mục pages', 'content' => 'Cách Next.js tự động tạo route từ cấu trúc thư mục pages.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Dynamic Routes: Trang động với [slug]', 'content' => 'Xử lý các URL động để hiển thị nội dung chi tiết.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Nested Routes và Layouts', 'content' => 'Tạo các tuyến đường lồng nhau và sử dụng layouts chung cho nhiều trang.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Sử dụng Link Component và useRouter Hook', 'content' => 'Cách điều hướng giữa các trang trong Next.js.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Fetching Data trong Next.js',
+                    'description' => 'Các phương pháp lấy dữ liệu khác nhau trong Next.js (SSR, SSG, CSR).',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: getServerSideProps: Fetching dữ liệu trên Server', 'content' => 'Cách lấy dữ liệu trên server cho mỗi request với getServerSideProps.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: getStaticProps: Fetching dữ liệu khi Build', 'content' => 'Cách lấy dữ liệu tại thời điểm build với getStaticProps.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: getStaticPaths: Tạo các trang động tĩnh', 'content' => 'Sử dụng getStaticPaths để tạo các trang động với SSG.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Client-Side Data Fetching với SWR/React Query', 'content' => 'Cách lấy dữ liệu trên client sau khi trang đã được render.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: API Routes: Xây dựng Backend trong Next.js',
+                    'description' => 'Tạo các API endpoint ngay trong dự án Next.js để phục vụ dữ liệu cho frontend.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu API Routes và thư mục api', 'content' => 'Cách tạo các endpoint API trong Next.js.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Xây dựng API GET, POST, PUT, DELETE', 'content' => 'Thực hành tạo các API cơ bản để quản lý dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Xử lý Request và Response trong API Routes', 'content' => 'Cách đọc dữ liệu từ request và gửi response JSON.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Bảo mật API Routes và xác thực', 'content' => 'Các biện pháp bảo mật cơ bản cho API Routes.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Tối ưu hóa hiệu năng và SEO',
+                    'description' => 'Sử dụng các tính năng tích hợp của Next.js để cải thiện hiệu năng và tối ưu hóa cho công cụ tìm kiếm.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Tối ưu hình ảnh với next/image', 'content' => 'Cách sử dụng component Image để tự động tối ưu hình ảnh.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Tối ưu font và script với next/font và next/script', 'content' => 'Cách tải font và script một cách hiệu quả.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Meta Tags và SEO với next/head', 'content' => 'Cách quản lý meta tags và các yếu tố SEO khác cho từng trang.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Phân tích hiệu năng với Lighthouse', 'content' => 'Sử dụng công cụ Lighthouse để đánh giá và cải thiện hiệu năng ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai ứng dụng Next.js',
+                    'description' => 'Hướng dẫn cách triển khai ứng dụng Next.js lên các nền tảng hosting phổ biến.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Triển khai lên Vercel (nền tảng được khuyến nghị)', 'content' => 'Hướng dẫn từng bước triển khai ứng dụng Next.js lên Vercel.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Triển khai lên Netlify và Firebase Hosting', 'content' => 'Cách triển khai ứng dụng Next.js lên các nền tảng khác.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Cấu hình biến môi trường (Environment Variables)', 'content' => 'Cách quản lý các biến môi trường cho các môi trường phát triển và sản xuất.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Quản lý lỗi và Logging', 'content' => 'Các phương pháp xử lý lỗi và ghi log trong ứng dụng Next.js.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'Phát Triển Mobile với React Native',
+            'description' => 'Học cách xây dựng ứng dụng di động đa nền tảng (iOS và Android) chỉ với JavaScript và React Native.',
+            'price' => 1300000.00,
+            'categoryIds' => [17, 14], // React Native, Lập trình Mobile
+            'requirements' => [
+                'Kiến thức vững chắc về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết cơ bản về JavaScript (ES6+).',
+                'Máy tính có khả năng chạy Android Studio/Xcode (tùy chọn).'
+            ],
+            'objectives' => [
+                'Thiết lập môi trường phát triển React Native (Expo CLI và React Native CLI).',
+                'Xây dựng giao diện người dùng di động với các Component của React Native.',
+                'Quản lý trạng thái và dữ liệu trong ứng dụng di động.',
+                'Tương tác với API và xử lý dữ liệu bất đồng bộ.',
+                'Điều hướng giữa các màn hình và quản lý Navigation Stack.',
+                'Triển khai ứng dụng lên các kho ứng dụng (App Store, Google Play).'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu React Native và Thiết lập Môi trường',
+                    'description' => 'Tổng quan về React Native, ưu nhược điểm và cách cài đặt môi trường phát triển.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: React Native là gì? So sánh với Native và Hybrid', 'content' => 'Giải thích về React Native, kiến trúc và vị trí của nó trong phát triển di động.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cài đặt Expo CLI và khởi tạo dự án', 'content' => 'Hướng dẫn sử dụng Expo CLI để bắt đầu phát triển ứng dụng React Native nhanh chóng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt React Native CLI (Advanced)', 'content' => 'Hướng dẫn cài đặt môi trường React Native CLI cho các dự án phức tạp hơn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Chạy ứng dụng trên Emulator/Simulator và thiết bị thật', 'content' => 'Cách chạy và debug ứng dụng trên các thiết bị ảo và vật lý.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Các Component cơ bản của React Native',
+                    'description' => 'Tìm hiểu các thành phần UI cốt lõi của React Native để xây dựng giao diện di động.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: View, Text, Image: Các khối xây dựng cơ bản', 'content' => 'Sử dụng View cho layout, Text cho văn bản và Image cho hình ảnh.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: StyleSheet và Styling trong React Native', 'content' => 'Cách tạo và áp dụng style cho các component với StyleSheet.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: TextInput, Button, ScrollView: Các Component tương tác', 'content' => 'Sử dụng các component để nhận input từ người dùng và tạo vùng cuộn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: FlatList và SectionList: Hiển thị danh sách lớn', 'content' => 'Cách tối ưu việc hiển thị danh sách dữ liệu hiệu quả.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Quản lý State và Hooks trong React Native',
+                    'description' => 'Áp dụng các React Hooks để quản lý trạng thái và logic trong ứng dụng di động.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: useState và useEffect trong React Native', 'content' => 'Cách sử dụng useState để quản lý trạng thái và useEffect cho side effects.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Xử lý sự kiện chạm (Touch Events)', 'content' => 'Cách xử lý các sự kiện chạm như onPress, onLongPress.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Context API để quản lý trạng thái toàn cục', 'content' => 'Sử dụng Context API để chia sẻ dữ liệu giữa các component.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Xây dựng Custom Hooks cho React Native', 'content' => 'Tạo các Hooks tùy chỉnh để tái sử dụng logic trong ứng dụng di động.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Điều hướng (Navigation) trong React Native',
+                    'description' => 'Học cách quản lý việc chuyển đổi giữa các màn hình trong ứng dụng di động.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu React Navigation', 'content' => 'Tổng quan về thư viện React Navigation và các loại navigator.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Stack Navigator: Điều hướng dạng ngăn xếp', 'content' => 'Cách tạo và sử dụng Stack Navigator để chuyển đổi màn hình.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Tab Navigator và Drawer Navigator', 'content' => 'Sử dụng Tab Navigator cho các tab dưới cùng và Drawer Navigator cho menu bên.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Truyền tham số giữa các màn hình', 'content' => 'Cách gửi và nhận dữ liệu khi điều hướng giữa các màn hình.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Tương tác với API và Dữ liệu',
+                    'description' => 'Cách lấy dữ liệu từ API và lưu trữ dữ liệu cục bộ trong ứng dụng React Native.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Fetching Data với Fetch API hoặc Axios', 'content' => 'Cách gọi API để lấy dữ liệu từ backend.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Hiển thị dữ liệu từ API trong Component', 'content' => 'Cách render dữ liệu đã lấy được vào giao diện người dùng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Lưu trữ dữ liệu cục bộ với AsyncStorage', 'content' => 'Sử dụng AsyncStorage để lưu trữ dữ liệu đơn giản trên thiết bị.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Xử lý lỗi và trạng thái Loading', 'content' => 'Các kỹ thuật quản lý lỗi và hiển thị chỉ báo loading khi gọi API.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai ứng dụng React Native',
+                    'description' => 'Hướng dẫn đóng gói và phát hành ứng dụng React Native lên App Store và Google Play.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Đóng gói ứng dụng với Expo (Managed Workflow)', 'content' => 'Cách tạo bản dựng (build) ứng dụng với Expo.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Triển khai ứng dụng Android lên Google Play Store', 'content' => 'Các bước để chuẩn bị và tải ứng dụng lên Google Play.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Triển khai ứng dụng iOS lên Apple App Store', 'content' => 'Các bước để chuẩn bị và tải ứng dụng lên App Store (yêu cầu máy Mac).', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Cập nhật Over-the-Air (OTA) với Expo', 'content' => 'Cách cập nhật ứng dụng mà không cần người dùng tải lại từ kho ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'Kiểm Thử Ứng Dụng React với Jest và React Testing Library',
+            'description' => 'Học cách viết các bài kiểm thử hiệu quả cho ứng dụng React của bạn bằng Jest và React Testing Library, đảm bảo chất lượng và độ tin cậy của code.',
+            'price' => 880000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức cơ bản về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết về JavaScript (ES6+).',
+                'Sự quan tâm đến việc xây dựng phần mềm chất lượng.'
+            ],
+            'objectives' => [
+                'Hiểu rõ tầm quan trọng của kiểm thử trong phát triển React.',
+                'Thiết lập môi trường kiểm thử với Jest và React Testing Library.',
+                'Viết các bài kiểm thử đơn vị (unit tests) cho Components và Hooks.',
+                'Viết các bài kiểm thử tích hợp (integration tests) mô phỏng hành vi người dùng.',
+                'Mocking API calls và các module bên ngoài.',
+                'Sử dụng các phương pháp hay nhất để viết kiểm thử dễ đọc và dễ bảo trì.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Kiểm thử trong React',
+                    'description' => 'Tìm hiểu về các loại kiểm thử, tầm quan trọng của chúng và công cụ sẽ sử dụng.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Tại sao cần kiểm thử ứng dụng React?', 'content' => 'Giải thích lợi ích của việc kiểm thử: giảm lỗi, tăng độ tin cậy, dễ bảo trì.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các loại kiểm thử: Unit, Integration, E2E', 'content' => 'Phân biệt các loại kiểm thử và vai trò của từng loại.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Giới thiệu Jest và React Testing Library', 'content' => 'Tổng quan về Jest (test runner) và React Testing Library (công cụ kiểm thử React).', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cài đặt môi trường kiểm thử', 'content' => 'Hướng dẫn cài đặt Jest, React Testing Library và cấu hình dự án.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Kiểm thử Component với React Testing Library',
+                    'description' => 'Học cách viết các bài kiểm thử cho các React Component, tập trung vào hành vi người dùng.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Philosophy của React Testing Library', 'content' => 'Hiểu về nguyên tắc "test user behavior, not implementation details".', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Rendering Component và querying elements', 'content' => 'Cách render component và tìm kiếm các phần tử trong DOM ảo.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Firing Events: Mô phỏng tương tác người dùng', 'content' => 'Cách mô phỏng các sự kiện như click, change, submit.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Assertions với Jest Matchers', 'content' => 'Sử dụng các matcher của Jest để kiểm tra kết quả mong đợi.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Kiểm thử Hooks và Custom Hooks',
+                    'description' => 'Học cách viết kiểm thử cho các React Hooks và Custom Hooks của bạn.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Kiểm thử useState và useEffect', 'content' => 'Cách kiểm thử các component sử dụng useState và useEffect.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Kiểm thử Custom Hooks với @testing-library/react-hooks', 'content' => 'Sử dụng thư viện chuyên dụng để kiểm thử logic của Custom Hooks.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Mocking Hooks và Context', 'content' => 'Cách mock các Hooks hoặc Context khi chúng không phải là đối tượng kiểm thử chính.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Kiểm thử Side Effects và Async Operations', 'content' => 'Cách xử lý các tác vụ bất đồng bộ trong kiểm thử.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Mocking API Calls và External Modules',
+                    'description' => 'Học cách mock các lời gọi API và các module bên ngoài để kiểm thử độc lập.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu Mocking và tại sao cần Mocking', 'content' => 'Giải thích khái niệm mocking và lợi ích của nó trong kiểm thử.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Mocking Fetch API và Axios với Jest', 'content' => 'Cách giả lập các lời gọi HTTP để kiểm thử component tương tác với API.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Mocking Modules và Functions', 'content' => 'Cách mock các module hoặc hàm bên ngoài mà component của bạn phụ thuộc vào.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: SpyOn và Mock Implementation', 'content' => 'Sử dụng Jest.spyOn để theo dõi hàm và mockImplementation để thay đổi hành vi.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Kiểm thử Redux/Context API và React Router',
+                    'description' => 'Viết kiểm thử cho các component sử dụng Redux, Context API và React Router.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Kiểm thử Component kết nối với Redux Store', 'content' => 'Cách thiết lập Redux Store giả lập để kiểm thử các component Redux.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Kiểm thử Reducers và Actions trong Redux', 'content' => 'Viết unit tests cho các reducer và action creators.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Kiểm thử Component sử dụng Context API', 'content' => 'Cách tạo Provider và Consumer giả lập để kiểm thử Context.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Kiểm thử Component với React Router', 'content' => 'Cách kiểm thử các component sử dụng Link, NavLink và useRouter.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Best Practices và Debugging Kiểm thử',
+                    'description' => 'Các phương pháp hay nhất để viết kiểm thử chất lượng và cách debug khi kiểm thử thất bại.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Viết kiểm thử dễ đọc và dễ bảo trì', 'content' => 'Các nguyên tắc như AAA (Arrange, Act, Assert) và đặt tên kiểm thử rõ ràng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Debugging kiểm thử với console.log và debugger', 'content' => 'Cách tìm và sửa lỗi trong các bài kiểm thử.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Code Coverage và báo cáo kiểm thử', 'content' => 'Cách sử dụng Jest để tạo báo cáo về độ phủ code.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Tích hợp kiểm thử vào CI/CD', 'content' => 'Cách tự động chạy kiểm thử trong quy trình tích hợp liên tục/triển khai liên tục.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'Tối Ưu Hiệu Năng Ứng Dụng React',
+            'description' => 'Khóa học chuyên sâu về các kỹ thuật và công cụ để tối ưu hóa hiệu năng, giảm thời gian tải và cải thiện trải nghiệm người dùng cho ứng dụng React.',
+            'price' => 980000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức vững chắc về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết về JavaScript (ES6+) và cách hoạt động của trình duyệt.',
+                'Kinh nghiệm xây dựng các ứng dụng React vừa và lớn.'
+            ],
+            'objectives' => [
+                'Hiểu rõ các nguyên nhân gây ra vấn đề hiệu năng trong React.',
+                'Sử dụng React.memo, useCallback, useMemo để ngăn chặn re-render không cần thiết.',
+                'Tối ưu hóa việc tải code với Lazy Loading và Code Splitting.',
+                'Sử dụng React Profiler và Chrome DevTools để phân tích hiệu năng.',
+                'Áp dụng các kỹ thuật tối ưu hóa hình ảnh, font và tài nguyên khác.',
+                'Cải thiện trải nghiệm người dùng (UX) thông qua tối ưu hóa hiệu năng.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Hiểu về Hiệu năng trong React',
+                    'description' => 'Tổng quan về hiệu năng ứng dụng web và các yếu tố ảnh hưởng đến hiệu năng của React.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Các chỉ số hiệu năng quan trọng (Core Web Vitals)', 'content' => 'Giới thiệu LCP, FID, CLS và tầm quan trọng của chúng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cơ chế re-render của React và Virtual DOM', 'content' => 'Cách React quyết định khi nào và làm thế nào để cập nhật DOM.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Các nguyên nhân phổ biến gây giảm hiệu năng', 'content' => 'Xác định các vấn đề như re-render không cần thiết, tải tài nguyên lớn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Công cụ phân tích hiệu năng: React Profiler và Chrome DevTools', 'content' => 'Giới thiệu các công cụ giúp bạn tìm kiếm các vấn đề hiệu năng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Tối ưu hóa Re-render với Memoization',
+                    'description' => 'Sử dụng React.memo, useCallback và useMemo để kiểm soát việc re-render của component.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: React.memo: Ngăn chặn re-render cho Functional Components', 'content' => 'Cách sử dụng React.memo để ghi nhớ component và chỉ re-render khi props thay đổi.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: useCallback: Ghi nhớ hàm để tránh re-render con', 'content' => 'Cách sử dụng useCallback để đảm bảo hàm không bị tạo lại trên mỗi render.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: useMemo: Ghi nhớ giá trị tính toán', 'content' => 'Cách sử dụng useMemo để ghi nhớ kết quả của các phép tính phức tạp.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Khi nào nên và không nên sử dụng Memoization?', 'content' => 'Các trường hợp sử dụng tối ưu và những lưu ý để tránh over-optimization.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Lazy Loading và Code Splitting',
+                    'description' => 'Tải các phần của ứng dụng chỉ khi cần thiết để giảm thời gian tải ban đầu.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Code Splitting với React.lazy và Suspense', 'content' => 'Cách chia nhỏ bundle JavaScript và tải từng phần khi cần.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Lazy Loading Routes với React Router', 'content' => 'Tải các component của từng route chỉ khi người dùng truy cập route đó.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Dynamic Imports và Webpack Magic Comments', 'content' => 'Sử dụng import() động và các comment của Webpack để kiểm soát splitting.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Fallback UI và Error Boundaries', 'content' => 'Cách hiển thị UI dự phòng và xử lý lỗi khi lazy loading.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Tối ưu hóa hình ảnh và tài nguyên',
+                    'description' => 'Các kỹ thuật để tối ưu hóa hình ảnh, font và các tài nguyên khác để cải thiện tốc độ tải.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Định dạng hình ảnh hiệu quả (WebP, AVIF) và nén', 'content' => 'Sử dụng các định dạng hình ảnh hiện đại và công cụ nén.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Responsive Images và Lazy Loading Images', 'content' => 'Cách phục vụ hình ảnh phù hợp với kích thước màn hình và tải hình ảnh khi vào viewport.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Tối ưu Font và Icon', 'content' => 'Sử dụng font-display, preloading fonts và SVG icons.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Nén Gzip/Brotli và CDN', 'content' => 'Sử dụng nén dữ liệu và Content Delivery Network để tăng tốc độ phân phối.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Kỹ thuật tối ưu hóa nâng cao',
+                    'description' => 'Các kỹ thuật tối ưu hóa phức tạp hơn cho các ứng dụng React lớn.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Virtualized Lists (react-window, react-virtualized)', 'content' => 'Cách hiển thị danh sách lớn hiệu quả bằng cách chỉ render các phần tử trong viewport.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Server-Side Rendering (SSR) và Static Site Generation (SSG)', 'content' => 'Lợi ích của SSR/SSG đối với hiệu năng và SEO.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Web Workers để chạy tác vụ nặng', 'content' => 'Cách di chuyển các phép tính phức tạp ra khỏi main thread.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Sử dụng Service Workers và PWA', 'content' => 'Tạo Progressive Web Apps để cải thiện trải nghiệm offline và tốc độ tải.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Thực hành và Case Studies',
+                    'description' => 'Áp dụng các kỹ thuật tối ưu hóa vào một ứng dụng thực tế và phân tích các case study.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Phân tích và tối ưu một ứng dụng mẫu', 'content' => 'Thực hành tìm kiếm và khắc phục các vấn đề hiệu năng trong một ứng dụng có sẵn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tối ưu hóa việc fetch dữ liệu với SWR/React Query', 'content' => 'Sử dụng các thư viện quản lý dữ liệu để tối ưu hóa việc gọi API.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tối ưu hóa CSS và JavaScript Bundles', 'content' => 'Các kỹ thuật như PurgeCSS, Tree Shaking để giảm kích thước file.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Giám sát hiệu năng trong sản xuất', 'content' => 'Sử dụng các công cụ RUM (Real User Monitoring) để theo dõi hiệu năng trên người dùng thật.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'React và TypeScript: Xây Dựng Ứng Dụng Mạnh Mẽ',
+            'description' => 'Học cách sử dụng TypeScript để thêm kiểu dữ liệu tĩnh vào ứng dụng React, giúp tăng cường khả năng bảo trì, giảm lỗi và cải thiện trải nghiệm phát triển.',
+            'price' => 1000000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức vững chắc về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết cơ bản về TypeScript hoặc các ngôn ngữ có kiểu tĩnh.',
+                'Sẵn sàng học một ngôn ngữ mới để cải thiện chất lượng code.'
+            ],
+            'objectives' => [
+                'Hiểu rõ lợi ích của việc sử dụng TypeScript trong React.',
+                'Thiết lập môi trường phát triển React với TypeScript.',
+                'Định nghĩa các kiểu (types) và giao diện (interfaces) cho Props, State và Events.',
+                'Làm việc với TypeScript trong Functional Components và React Hooks.',
+                'Tích hợp TypeScript với các thư viện phổ biến như React Router, Redux.',
+                'Viết code React an toàn hơn, dễ đọc và dễ bảo trì hơn.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu TypeScript và tích hợp với React',
+                    'description' => 'Tổng quan về TypeScript, lợi ích khi dùng với React và cách thiết lập dự án.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: TypeScript là gì? Tại sao nên dùng TypeScript?', 'content' => 'Giới thiệu TypeScript, các tính năng chính và lý do nó phổ biến trong React.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Lợi ích của TypeScript trong ứng dụng React', 'content' => 'Giảm lỗi runtime, cải thiện refactoring, hỗ trợ IDE tốt hơn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Khởi tạo dự án React với TypeScript', 'content' => 'Sử dụng Create React App hoặc Vite để tạo dự án TypeScript.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu hình tsconfig.json cơ bản cho React', 'content' => 'Hiểu các tùy chọn cấu hình quan trọng trong file tsconfig.json.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Kiểu dữ liệu cơ bản và Interfaces/Types',
+                    'description' => 'Học cách định nghĩa các kiểu dữ liệu và sử dụng Interfaces/Types cho Props và State.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Các kiểu dữ liệu cơ bản trong TypeScript', 'content' => 'string, number, boolean, array, object, any, unknown, void, null, undefined.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Interfaces: Định nghĩa cấu trúc đối tượng', 'content' => 'Cách sử dụng interface để mô tả hình dạng của props và state.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Types: Tạo alias và Union Types', 'content' => 'Sử dụng type alias, union types và intersection types.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Generics: Tạo các kiểu linh hoạt', 'content' => 'Cách sử dụng generics để viết code có thể làm việc với nhiều kiểu dữ liệu khác nhau.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: TypeScript với Functional Components và Props',
+                    'description' => 'Áp dụng TypeScript vào Functional Components và định nghĩa kiểu cho Props.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Định nghĩa kiểu cho Props của Functional Component', 'content' => 'Cách sử dụng React.FC hoặc trực tiếp định nghĩa kiểu cho props.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Optional Props và Default Props', 'content' => 'Xử lý các props tùy chọn và thiết lập giá trị mặc định.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Typing Event Handlers', 'content' => 'Cách định nghĩa kiểu cho các hàm xử lý sự kiện trong React.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Children Props và Composition với TypeScript', 'content' => 'Cách định nghĩa kiểu cho props.children và các component lồng nhau.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: TypeScript với React Hooks',
+                    'description' => 'Sử dụng TypeScript để định nghĩa kiểu cho useState, useEffect, useReducer và các Hooks khác.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Typing useState Hook', 'content' => 'Cách định nghĩa kiểu cho state khi sử dụng useState.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Typing useEffect Hook', 'content' => 'Cách xử lý kiểu dữ liệu trong useEffect và các side effects.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Typing useReducer Hook', 'content' => 'Định nghĩa kiểu cho state, action và reducer function.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Typing useRef và Custom Hooks', 'content' => 'Cách sử dụng TypeScript với useRef và khi tạo Custom Hooks.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Tích hợp TypeScript với các thư viện phổ biến',
+                    'description' => 'Học cách làm việc với TypeScript khi sử dụng React Router, Redux và các thư viện khác.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Typing React Router DOM', 'content' => 'Cách sử dụng các kiểu có sẵn và định nghĩa kiểu cho params, location.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Typing Redux Toolkit Store, Slices và Actions', 'content' => 'Cách định nghĩa kiểu cho toàn bộ Redux Store và các phần của nó.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Typing API Responses và Data Models', 'content' => 'Cách định nghĩa kiểu cho dữ liệu nhận được từ API.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Sử dụng thư viện bên thứ ba với TypeScript', 'content' => 'Cách cài đặt các package @types/ và xử lý các thư viện không có kiểu.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Best Practices và Debugging TypeScript',
+                    'description' => 'Các phương pháp hay nhất để viết code React TypeScript chất lượng cao và cách debug lỗi.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Nguyên tắc thiết kế kiểu dữ liệu hiệu quả', 'content' => 'Các mẹo để tạo kiểu dữ liệu dễ bảo trì và mở rộng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Xử lý lỗi TypeScript và Debugging', 'content' => 'Cách đọc lỗi TypeScript và sử dụng các công cụ debug.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: ESLint và Prettier với TypeScript React', 'content' => 'Tích hợp các công cụ linting và formatting để duy trì code style.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Di chuyển dự án JavaScript React sang TypeScript', 'content' => 'Các bước và chiến lược để chuyển đổi một dự án hiện có sang TypeScript.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'Xây Dựng UI Component Library với React và Storybook',
+            'description' => 'Học cách thiết kế, phát triển và tài liệu hóa một thư viện các UI component có thể tái sử dụng, sử dụng React và Storybook.',
+            'price' => 1150000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức vững chắc về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết về HTML, CSS và JavaScript (ES6+).',
+                'Kinh nghiệm làm việc với các hệ thống thiết kế (Design Systems) là một lợi thế.'
+            ],
+            'objectives' => [
+                'Hiểu rõ lợi ích của việc xây dựng UI Component Library.',
+                'Thiết lập môi trường phát triển với React và Storybook.',
+                'Thiết kế và phát triển các UI component độc lập và có thể tái sử dụng.',
+                'Tài liệu hóa các component với Storybook, bao gồm Props, Events và States.',
+                'Kiểm thử các component một cách độc lập.',
+                'Đóng gói và xuất bản thư viện component để sử dụng trong các dự án khác.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu UI Component Library và Storybook',
+                    'description' => 'Tổng quan về thư viện UI component, lợi ích và vai trò của Storybook.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: UI Component Library là gì? Tại sao cần nó?', 'content' => 'Giải thích khái niệm, lợi ích của việc tái sử dụng UI và duy trì tính nhất quán.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Giới thiệu Storybook: Môi trường phát triển UI', 'content' => 'Tổng quan về Storybook, tính năng và cách nó giúp phát triển component.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt Storybook trong dự án React', 'content' => 'Hướng dẫn tích hợp Storybook vào một dự án React hiện có.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu trúc dự án cho Component Library', 'content' => 'Các cách tổ chức file và thư mục cho một thư viện component.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Phát triển các Component cơ bản',
+                    'description' => 'Bắt đầu xây dựng các UI component đơn giản như Button, Input, Card.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Xây dựng Component Button và các biến thể', 'content' => 'Tạo một component Button với các prop như size, variant, disabled.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Styling Component: CSS Modules, Styled-components, Tailwind CSS', 'content' => 'Các phương pháp styling component trong React.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Xây dựng Component Input và xử lý sự kiện', 'content' => 'Tạo một component Input với các prop như value, onChange, placeholder.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Xây dựng Component Card và Slotting Content', 'content' => 'Tạo một component Card linh hoạt để chứa nội dung khác.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Tài liệu hóa Component với Storybook',
+                    'description' => 'Học cách viết "stories" để hiển thị và tài liệu hóa các trạng thái khác nhau của component.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Viết Stories cơ bản cho Component', 'content' => 'Cách tạo file .stories.js và định nghĩa các trạng thái của component.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Args và Controls Addon', 'content' => 'Sử dụng Args để điều khiển props của component và Controls Addon để tương tác.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Actions Addon: Ghi lại sự kiện', 'content' => 'Cách ghi lại các sự kiện được kích hoạt bởi component trong Storybook.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Docs Addon: Tự động tạo tài liệu', 'content' => 'Sử dụng Docs Addon để tạo tài liệu tự động từ stories và JSDoc.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Kiểm thử Component Library',
+                    'description' => 'Viết các bài kiểm thử đơn vị và snapshot cho các UI component của bạn.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Kiểm thử Unit cho Component với Jest và RTL', 'content' => 'Cách viết kiểm thử cho các component một cách độc lập.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Kiểm thử Snapshot để theo dõi thay đổi UI', 'content' => 'Sử dụng snapshot testing để đảm bảo UI không thay đổi ngoài ý muốn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Kiểm thử tương tác với Storybook Play Function', 'content' => 'Sử dụng Play Function để mô phỏng tương tác người dùng trong Storybook.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Visual Regression Testing với Storybook và Chromatic', 'content' => 'Giới thiệu về kiểm thử hồi quy trực quan để phát hiện thay đổi UI.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Đóng gói và Xuất bản Component Library',
+                    'description' => 'Học cách đóng gói thư viện component của bạn và xuất bản nó lên npm.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Cấu hình Rollup/Webpack để đóng gói thư viện', 'content' => 'Cách sử dụng các công cụ đóng gói để tạo ra các bản build tối ưu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Xuất bản lên npm Registry', 'content' => 'Các bước để xuất bản package lên npm để các dự án khác có thể sử dụng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Quản lý phiên bản (Versioning) và Changelog', 'content' => 'Cách quản lý phiên bản của thư viện và ghi lại các thay đổi.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Sử dụng thư viện trong các dự án React khác', 'content' => 'Cách cài đặt và sử dụng component từ thư viện đã xuất bản.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tích hợp với Design Systems và Best Practices',
+                    'description' => 'Các phương pháp hay nhất để xây dựng và duy trì một thư viện component chất lượng cao.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Component-Driven Development (CDD)', 'content' => 'Phát triển component một cách độc lập và cô lập.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Atomic Design và tổ chức Component', 'content' => 'Áp dụng nguyên tắc Atomic Design để cấu trúc thư viện.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Accessibility (A11y) trong Component', 'content' => 'Đảm bảo các component có thể truy cập được cho mọi người dùng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Duy trì và phát triển thư viện component', 'content' => 'Các chiến lược để cập nhật và mở rộng thư viện theo thời gian.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'Triển Khai Ứng Dụng React lên Cloud (AWS/Firebase)',
+            'description' => 'Khóa học này hướng dẫn cách triển khai (deploy) ứng dụng React lên các nền tảng đám mây phổ biến như AWS S3/CloudFront và Firebase Hosting.',
+            'price' => 900000.00,
+            'categoryIds' => [5, 91], // ReactJS, Cloud Computing
+            'requirements' => [
+                'Kiến thức cơ bản về ReactJS và đã xây dựng được một ứng dụng React.',
+                'Tài khoản AWS (miễn phí) hoặc Firebase.',
+                'Hiểu biết cơ bản về dòng lệnh (CLI).'
+            ],
+            'objectives' => [
+                'Hiểu các khái niệm cơ bản về triển khai ứng dụng web lên đám mây.',
+                'Triển khai ứng dụng React tĩnh lên AWS S3 và phân phối với CloudFront.',
+                'Triển khai ứng dụng React lên Firebase Hosting.',
+                'Cấu hình tên miền tùy chỉnh và HTTPS cho ứng dụng.',
+                'Thiết lập CI/CD (Continuous Integration/Continuous Deployment) cho ứng dụng React.',
+                'Quản lý biến môi trường và tối ưu hóa cho môi trường sản xuất.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Triển khai Web và Cloud',
+                    'description' => 'Tổng quan về quá trình triển khai ứng dụng web và các dịch vụ đám mây.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Quy trình triển khai ứng dụng web', 'content' => 'Các bước từ code đến môi trường sản xuất.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Giới thiệu Cloud Computing và các mô hình dịch vụ (IaaS, PaaS, SaaS)', 'content' => 'Các khái niệm cơ bản về điện toán đám mây.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Tổng quan về AWS và Firebase cho Frontend', 'content' => 'Các dịch vụ của AWS (S3, CloudFront) và Firebase (Hosting) phù hợp với React.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Chuẩn bị ứng dụng React cho Production', 'content' => 'Tạo bản build tối ưu cho ứng dụng React.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Triển khai ứng dụng React lên AWS S3 và CloudFront',
+                    'description' => 'Hướng dẫn chi tiết cách host ứng dụng React tĩnh trên S3 và phân phối qua CloudFront.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Tạo S3 Bucket và cấu hình Static Website Hosting', 'content' => 'Cách tạo một bucket S3 và bật tính năng hosting website tĩnh.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Tải ứng dụng React lên S3', 'content' => 'Sử dụng AWS CLI hoặc Console để upload các file build.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Giới thiệu CloudFront: CDN và HTTPS', 'content' => 'Vai trò của CloudFront trong việc tăng tốc độ và bảo mật.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Cấu hình CloudFront Distribution cho S3', 'content' => 'Thiết lập CloudFront để phân phối nội dung từ S3.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Cấu hình tên miền tùy chỉnh và SSL/TLS với ACM', 'content' => 'Sử dụng Route 53 và AWS Certificate Manager.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Triển khai ứng dụng React lên Firebase Hosting',
+                    'description' => 'Hướng dẫn cách sử dụng Firebase Hosting để triển khai ứng dụng React một cách nhanh chóng và dễ dàng.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu Firebase Hosting và lợi ích', 'content' => 'Tổng quan về Firebase Hosting, tích hợp với các dịch vụ Firebase khác.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Cài đặt Firebase CLI và đăng nhập', 'content' => 'Hướng dẫn cài đặt công cụ dòng lệnh của Firebase.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Khởi tạo dự án Firebase và cấu hình Hosting', 'content' => 'Các bước để liên kết dự án React với Firebase.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Triển khai ứng dụng React lên Firebase Hosting', 'content' => 'Sử dụng lệnh `firebase deploy` để đưa ứng dụng lên mạng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Cấu hình tên miền tùy chỉnh cho Firebase Hosting', 'content' => 'Cách liên kết tên miền của bạn với Firebase Hosting.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Tích hợp CI/CD cho ứng dụng React',
+                    'description' => 'Thiết lập quy trình tự động hóa việc build và deploy ứng dụng React mỗi khi có thay đổi code.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu CI/CD và lợi ích', 'content' => 'Tầm quan trọng của tự động hóa trong quy trình phát triển phần mềm.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Thiết lập CI/CD với GitHub Actions cho AWS S3/CloudFront', 'content' => 'Tạo workflow để tự động deploy khi push code lên GitHub.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Thiết lập CI/CD với GitHub Actions cho Firebase Hosting', 'content' => 'Tự động hóa việc deploy Firebase với GitHub Actions.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Các công cụ CI/CD khác (GitLab CI, Jenkins)', 'content' => 'Tổng quan về các lựa chọn CI/CD khác.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Quản lý biến môi trường và tối ưu hóa Production',
+                    'description' => 'Cách xử lý các biến môi trường và các kỹ thuật tối ưu hóa cho môi trường sản xuất.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Quản lý biến môi trường trong React (.env files)', 'content' => 'Sử dụng các file .env để quản lý biến môi trường cục bộ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Biến môi trường trên AWS và Firebase', 'content' => 'Cách cấu hình biến môi trường trên các nền tảng đám mây.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Tối ưu hóa Bundle Size và Code Splitting', 'content' => 'Các kỹ thuật giảm kích thước file JavaScript và CSS.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Logging và Monitoring ứng dụng đã triển khai', 'content' => 'Cách theo dõi hiệu năng và lỗi của ứng dụng trên cloud.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai ứng dụng React với Backend (Next.js/Serverless)',
+                    'description' => 'Tổng quan về việc triển khai các ứng dụng React có backend tích hợp hoặc sử dụng kiến trúc serverless.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Triển khai Next.js lên Vercel/AWS Amplify', 'content' => 'Cách triển khai các ứng dụng Next.js full-stack.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Serverless Functions (AWS Lambda, Firebase Functions)', 'content' => 'Sử dụng các hàm serverless cho các tác vụ backend.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tích hợp Database (DynamoDB, Firestore)', 'content' => 'Kết nối ứng dụng React với các cơ sở dữ liệu trên cloud.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Quản lý Authentication (Cognito, Firebase Auth)', 'content' => 'Triển khai xác thực người dùng trên nền tảng đám mây.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'React Router V6: Quản lý Định Tuyến Hiện Đại',
+            'description' => 'Khóa học chuyên sâu về React Router phiên bản 6, hướng dẫn cách quản lý định tuyến hiệu quả, xây dựng giao diện người dùng phức tạp với các tính năng mới nhất.',
+            'price' => 850000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức cơ bản về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết về JavaScript (ES6+).',
+                'Kinh nghiệm làm việc với các ứng dụng Single Page Application (SPA).'
+            ],
+            'objectives' => [
+                'Nắm vững các khái niệm và cú pháp mới của React Router V6.',
+                'Thiết lập và quản lý các tuyến đường (routes) phức tạp.',
+                'Sử dụng các Hooks mới như `useRoutes`, `useNavigate`, `useParams`.',
+                'Triển khai Nested Routes và Layouts hiệu quả.',
+                'Xử lý các lỗi 404 và Redirects.',
+                'Tối ưu hóa hiệu năng và trải nghiệm người dùng với React Router V6.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu React Router V6 và những thay đổi',
+                    'description' => 'Tổng quan về React Router V6, các cải tiến và lý do nâng cấp.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: React Router là gì? Lịch sử và phiên bản V6', 'content' => 'Tổng quan về thư viện định tuyến phổ biến nhất cho React.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Những thay đổi chính trong React Router V6', 'content' => 'Tập trung vào cú pháp mới, Hooks và các tính năng được cải thiện.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt và thiết lập dự án với React Router V6', 'content' => 'Hướng dẫn cài đặt và cấu hình ban đầu cho dự án React.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: BrowserRouter và Routes Component', 'content' => 'Cách bọc ứng dụng và định nghĩa các tuyến đường chính.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Định nghĩa Routes và Elements',
+                    'description' => 'Học cách khai báo các tuyến đường và liên kết chúng với các React Component.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Route Component và thuộc tính element', 'content' => 'Cách sử dụng Route để ánh xạ URL với Component.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Index Routes: Tuyến đường mặc định', 'content' => 'Cách định nghĩa tuyến đường mặc định cho một nhóm tuyến đường.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Dynamic Routes và useParams Hook', 'content' => 'Xử lý các tuyến đường động và trích xuất tham số từ URL.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Wildcard Routes và No Match Route (404)', 'content' => 'Cách xử lý các URL không khớp và hiển thị trang 404.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Điều hướng (Navigation) và Hooks',
+                    'description' => 'Sử dụng các Hooks mới của React Router V6 để điều hướng và truy cập thông tin định tuyến.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Link và NavLink Component', 'content' => 'Cách tạo các liên kết điều hướng trong ứng dụng React.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: useNavigate Hook: Điều hướng bằng lập trình', 'content' => 'Cách sử dụng useNavigate để chuyển hướng người dùng bằng code.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: useLocation Hook: Truy cập thông tin URL', 'content' => 'Cách lấy thông tin về URL hiện tại và query parameters.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: useSearchParams Hook: Quản lý Query Parameters', 'content' => 'Cách đọc và cập nhật query parameters trong URL.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Nested Routes và Layouts',
+                    'description' => 'Xây dựng các tuyến đường lồng nhau và sử dụng layouts chung cho nhiều trang.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Khái niệm Nested Routes và Outlet Component', 'content' => 'Cách tổ chức các tuyến đường con và render chúng trong component cha.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Tạo Layout Component chung', 'content' => 'Thiết kế các layout như header, footer, sidebar cho nhiều trang.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Sử dụng useMatch Hook để kiểm tra tuyến đường', 'content' => 'Cách kiểm tra xem một tuyến đường có khớp với URL hiện tại hay không.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: useResolvedPath Hook và Path Matching', 'content' => 'Hiểu cách React Router giải quyết và khớp các đường dẫn.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Authentication và Protected Routes',
+                    'description' => 'Cách bảo vệ các tuyến đường yêu cầu xác thực người dùng.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu Protected Routes', 'content' => 'Tại sao cần bảo vệ một số tuyến đường và các phương pháp thực hiện.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Tạo Auth Context và Provider', 'content' => 'Sử dụng Context API để quản lý trạng thái xác thực người dùng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Xây dựng PrivateRoute Component', 'content' => 'Tạo một component để kiểm tra xác thực trước khi render nội dung.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Redirects và Login Flow', 'content' => 'Điều hướng người dùng đến trang đăng nhập nếu chưa xác thực.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tối ưu hóa và Best Practices',
+                    'description' => 'Các kỹ thuật tối ưu hóa hiệu năng và các phương pháp hay nhất khi sử dụng React Router V6.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Lazy Loading Routes với React.lazy và Suspense', 'content' => 'Tải các component của route chỉ khi cần để giảm bundle size.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Sử dụng useRoutes Hook cho cấu hình tuyến đường tập trung', 'content' => 'Cách định nghĩa tất cả các tuyến đường trong một object duy nhất.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Error Boundaries với React Router', 'content' => 'Xử lý lỗi xảy ra trong quá trình render route.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Testing React Router Components', 'content' => 'Cách viết kiểm thử cho các component sử dụng React Router.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'Xây Dựng Ứng Dụng React với Firebase (Authentication & Firestore)',
+            'description' => 'Khóa học thực hành xây dựng ứng dụng React full-stack bằng cách tích hợp Firebase cho xác thực người dùng và lưu trữ dữ liệu với Firestore.',
+            'price' => 1250000.00,
+            'categoryIds' => [5, 91, 96], // ReactJS, Cloud Computing, Database Management
+            'requirements' => [
+                'Kiến thức cơ bản về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết về JavaScript (ES6+).',
+                'Tài khoản Google (để sử dụng Firebase).'
+            ],
+            'objectives' => [
+                'Thiết lập dự án Firebase và tích hợp với ứng dụng React.',
+                'Triển khai xác thực người dùng với Firebase Authentication (Email/Password, Google Sign-in).',
+                'Lưu trữ và truy xuất dữ liệu từ Cloud Firestore (NoSQL database).',
+                'Thực hiện các thao tác CRUD (Create, Read, Update, Delete) với Firestore.',
+                'Quản lý trạng thái người dùng và dữ liệu trong ứng dụng React.',
+                'Xây dựng một ứng dụng web có khả năng tương tác với backend Firebase.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Firebase và Thiết lập Dự án',
+                    'description' => 'Tổng quan về Firebase, các dịch vụ chính và cách khởi tạo dự án.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Firebase là gì? Các dịch vụ cốt lõi', 'content' => 'Giới thiệu Firebase, bao gồm Authentication, Firestore, Hosting, Storage.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Tạo dự án Firebase và liên kết với ứng dụng React', 'content' => 'Hướng dẫn tạo dự án trên Firebase Console và thêm Firebase SDK vào React.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cấu hình Firebase trong ứng dụng React', 'content' => 'Khởi tạo Firebase app và các dịch vụ cần thiết.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Firebase CLI và các lệnh cơ bản', 'content' => 'Cài đặt và sử dụng Firebase CLI để quản lý dự án.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Firebase Authentication: Xác thực người dùng',
+                    'description' => 'Triển khai các phương thức xác thực người dùng phổ biến với Firebase Auth.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Giới thiệu Firebase Authentication', 'content' => 'Tổng quan về Firebase Auth và các phương thức đăng nhập.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Đăng ký và Đăng nhập với Email/Password', 'content' => 'Cách tạo tài khoản và xác thực người dùng bằng email và mật khẩu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Đăng nhập với Google Sign-in', 'content' => 'Tích hợp đăng nhập bằng tài khoản Google.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Quản lý trạng thái người dùng (onAuthStateChanged)', 'content' => 'Theo dõi trạng thái đăng nhập của người dùng trong ứng dụng React.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Đăng xuất và Reset mật khẩu', 'content' => 'Triển khai tính năng đăng xuất và khôi phục mật khẩu.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Cloud Firestore: Cơ sở dữ liệu NoSQL',
+                    'description' => 'Lưu trữ và quản lý dữ liệu linh hoạt với Cloud Firestore.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu Cloud Firestore: Collection, Document, Data Types', 'content' => 'Khái niệm cơ bản về Firestore và cách tổ chức dữ liệu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Thêm dữ liệu (Add Document) và Cập nhật dữ liệu (Update Document)', 'content' => 'Cách ghi dữ liệu mới và sửa đổi dữ liệu hiện có trong Firestore.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Đọc dữ liệu (Get Document) và Query Collection', 'content' => 'Cách truy xuất một document cụ thể hoặc một tập hợp các document.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Xóa dữ liệu (Delete Document) và Xóa Collection', 'content' => 'Cách xóa document và các lưu ý khi xóa collection.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Realtime Updates với onSnapshot', 'content' => 'Cách lắng nghe thay đổi dữ liệu trong thời gian thực.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Xây dựng ứng dụng CRUD với React và Firestore',
+                    'description' => 'Áp dụng kiến thức về Firestore để xây dựng một ứng dụng quản lý dữ liệu cơ bản.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Thiết kế cấu trúc dữ liệu cho ứng dụng Todo List', 'content' => 'Lên kế hoạch cho collection và document trong Firestore.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Hiển thị danh sách Todos từ Firestore', 'content' => 'Fetch và render danh sách công việc trong React.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Thêm mới và Cập nhật Todo', 'content' => 'Triển khai form để thêm và sửa đổi công việc.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Xóa Todo và trạng thái hoàn thành', 'content' => 'Thực hiện chức năng xóa và đánh dấu công việc đã hoàn thành.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Bảo mật dữ liệu với Firestore Security Rules',
+                    'description' => 'Học cách bảo vệ dữ liệu trong Firestore bằng cách viết các quy tắc bảo mật.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu Firestore Security Rules', 'content' => 'Tầm quan trọng của security rules và cú pháp cơ bản.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Quy tắc đọc và ghi dữ liệu cơ bản', 'content' => 'Cho phép/từ chối truy cập dữ liệu dựa trên xác thực.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Quy tắc dựa trên người dùng (User-based Rules)', 'content' => 'Cho phép người dùng chỉ truy cập dữ liệu của chính họ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Kiểm thử Security Rules với Firebase Emulator', 'content' => 'Sử dụng emulator để kiểm tra các quy tắc bảo mật trước khi deploy.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các dịch vụ Firebase khác và Triển khai',
+                    'description' => 'Tổng quan về các dịch vụ Firebase khác và cách triển khai ứng dụng React với Firebase Hosting.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Firebase Storage: Lưu trữ file', 'content' => 'Cách lưu trữ hình ảnh và các file khác trong Firebase.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Firebase Functions: Backend Serverless', 'content' => 'Sử dụng Cloud Functions để chạy code backend mà không cần quản lý server.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Triển khai ứng dụng React lên Firebase Hosting', 'content' => 'Các bước để đưa ứng dụng React của bạn lên mạng với Firebase Hosting.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Tích hợp CI/CD với Firebase Hosting và GitHub Actions', 'content' => 'Tự động hóa quá trình deploy ứng dụng React.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'React Context API và useReducer: Giải pháp quản lý State',
+            'description' => 'Khóa học này tập trung vào việc sử dụng React Context API và useReducer Hook để xây dựng một giải pháp quản lý trạng thái hiệu quả, thay thế cho Redux trong nhiều trường hợp.',
+            'price' => 920000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức vững chắc về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết về JavaScript (ES6+).',
+                'Mong muốn tìm hiểu các giải pháp quản lý trạng thái thay thế Redux.'
+            ],
+            'objectives' => [
+                'Hiểu rõ vấn đề "prop drilling" và cách Context API giải quyết nó.',
+                'Thành thạo việc sử dụng `createContext`, `Provider`, `useContext`.',
+                'Nắm vững `useReducer` để quản lý trạng thái phức tạp.',
+                'Kết hợp Context API và `useReducer` để xây dựng Store toàn cục.',
+                'Tối ưu hóa hiệu năng khi sử dụng Context và `useReducer`.',
+                'Xây dựng các Custom Hooks để đóng gói logic quản lý trạng thái.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Quản lý State và Prop Drilling',
+                    'description' => 'Tìm hiểu về các thách thức khi quản lý trạng thái trong React và giới thiệu Context API.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: State Management trong React: Tổng quan', 'content' => 'Các cách quản lý trạng thái trong React và khi nào cần giải pháp phức tạp hơn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Vấn đề Prop Drilling và tác động của nó', 'content' => 'Giải thích hiện tượng truyền props qua nhiều cấp component và những bất tiện.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Giới thiệu Context API: Giải pháp cho Prop Drilling', 'content' => 'Tổng quan về Context API và cách nó giúp chia sẻ dữ liệu dễ dàng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Khi nào nên sử dụng Context API?', 'content' => 'Các trường hợp sử dụng phù hợp cho Context API so với các giải pháp khác.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Context API: Truyền dữ liệu qua cây Component',
+                    'description' => 'Học cách tạo và sử dụng Context để truyền dữ liệu xuống các component con.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: createContext: Tạo Context Object', 'content' => 'Cách khởi tạo một Context mới với giá trị mặc định.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Provider Component: Cung cấp giá trị Context', 'content' => 'Cách bọc các component cần truy cập Context bằng Provider.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: useContext Hook: Tiêu thụ giá trị Context', 'content' => 'Cách truy cập giá trị từ Context trong functional components.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Cập nhật giá trị Context và Multiple Contexts', 'content' => 'Cách thay đổi giá trị Context và sử dụng nhiều Context trong một ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: useReducer: Quản lý trạng thái phức tạp',
+                    'description' => 'Đi sâu vào useReducer để xử lý các hành động và cập nhật trạng thái theo một cách có tổ chức.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu useReducer Hook và mô hình Reducer', 'content' => 'Khái niệm về reducer function, action và dispatch.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Cấu trúc và cách hoạt động của useReducer', 'content' => 'Cú pháp và ví dụ minh họa về cách useReducer hoạt động.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Xây dựng ứng dụng Counter với useReducer', 'content' => 'Thực hành xây dựng một ứng dụng đếm để hiểu luồng useReducer.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Xử lý nhiều action và state lồng nhau với useReducer', 'content' => 'Cách tổ chức reducer cho các action và state phức tạp hơn.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Kết hợp Context API và useReducer',
+                    'description' => 'Xây dựng một giải pháp quản lý trạng thái toàn cục mạnh mẽ bằng cách kết hợp hai Hooks này.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Xây dựng Global Store với Context và useReducer', 'content' => 'Cách tạo một Context để chia sẻ state và dispatch function.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Tạo Provider Component cho Global Store', 'content' => 'Bọc ứng dụng bằng Provider để cung cấp state và dispatch.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Tiêu thụ Global State và Dispatch Actions', 'content' => 'Cách truy cập state và gửi actions từ bất kỳ component nào.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Xây dựng ứng dụng Todo List với Context và useReducer', 'content' => 'Thực hành xây dựng một ứng dụng quản lý công việc hoàn chỉnh.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Tối ưu hóa hiệu năng và Custom Hooks',
+                    'description' => 'Các kỹ thuật tối ưu hóa khi sử dụng Context và useReducer, và cách tạo Custom Hooks.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Vấn đề re-render khi sử dụng Context', 'content' => 'Hiểu các trường hợp Context gây re-render không mong muốn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Tối ưu hóa với useCallback và useMemo trong Context', 'content' => 'Cách sử dụng các Hooks này để ngăn chặn re-render không cần thiết.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Xây dựng Custom Hooks cho Context và useReducer', 'content' => 'Tạo các Hooks tùy chỉnh để đóng gói logic quản lý trạng thái.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: So sánh với Redux và khi nào nên chọn giải pháp nào', 'content' => 'Phân tích ưu nhược điểm của Context/useReducer so với Redux.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các trường hợp sử dụng nâng cao và Best Practices',
+                    'description' => 'Áp dụng Context và useReducer trong các tình huống phức tạp hơn và các phương pháp hay nhất.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Quản lý Side Effects trong Context/useReducer', 'content' => 'Cách xử lý các tác vụ bất đồng bộ như gọi API.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tích hợp với TypeScript', 'content' => 'Thêm kiểu dữ liệu tĩnh vào Context và useReducer.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Phân chia Contexts cho các tính năng khác nhau', 'content' => 'Cách tổ chức nhiều Context để tránh Context quá lớn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Debugging Context và useReducer', 'content' => 'Các công cụ và kỹ thuật để debug các vấn đề về trạng thái.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'React Query: Quản lý Dữ liệu Server-Side',
+            'description' => 'Khóa học này tập trung vào React Query (hay TanStack Query), một thư viện mạnh mẽ để quản lý, đồng bộ hóa và lưu trữ dữ liệu server-side trong ứng dụng React.',
+            'price' => 1080000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức vững chắc về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết về JavaScript (ES6+) và cách gọi API.',
+                'Kinh nghiệm làm việc với các ứng dụng có tương tác nhiều với backend.'
+            ],
+            'objectives' => [
+                'Hiểu rõ các vấn đề khi quản lý dữ liệu server-side trong React.',
+                'Thiết lập và sử dụng React Query để fetch dữ liệu.',
+                'Quản lý trạng thái loading, error, success một cách tự động.',
+                'Thực hiện các thao tác mutation (POST, PUT, DELETE) và invalidate cache.',
+                'Tối ưu hóa hiệu năng ứng dụng bằng cách tận dụng cache và background re-fetching.',
+                'Sử dụng các tính năng nâng cao của React Query như pagination, infinite scroll.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu React Query và Quản lý Dữ liệu Server-Side',
+                    'description' => 'Tổng quan về các thách thức khi quản lý dữ liệu từ server và giải pháp của React Query.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Vấn đề quản lý dữ liệu server-side trong React', 'content' => 'Các thách thức như loading state, error handling, caching, re-fetching.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Giới thiệu React Query (TanStack Query) và lợi ích', 'content' => 'Tổng quan về thư viện, các tính năng chính và cách nó đơn giản hóa việc quản lý dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt và thiết lập QueryClientProvider', 'content' => 'Hướng dẫn cài đặt React Query và cấu hình Provider cho ứng dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Các khái niệm cốt lõi: Query, Query Key, Query Client', 'content' => 'Hiểu về các thành phần chính của React Query.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Fetching Dữ liệu với useQuery Hook',
+                    'description' => 'Học cách sử dụng useQuery để lấy dữ liệu từ API và quản lý các trạng thái liên quan.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: useQuery Hook: Fetching dữ liệu cơ bản', 'content' => 'Cách sử dụng useQuery để gọi API và nhận dữ liệu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Trạng thái Loading, Error, Success', 'content' => 'Cách React Query tự động quản lý các trạng thái này.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Query Keys: Định danh và quản lý cache', 'content' => 'Tầm quan trọng của Query Keys trong việc caching và re-fetching.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Tùy chọn cấu hình useQuery (staleTime, cacheTime, refetchOnWindowFocus)', 'content' => 'Các tùy chọn để kiểm soát hành vi caching và re-fetching.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Mutations: Ghi dữ liệu lên Server',
+                    'description' => 'Học cách sử dụng useMutation để thực hiện các thao tác POST, PUT, DELETE lên server.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: useMutation Hook: Thực hiện các Side Effects', 'content' => 'Cách sử dụng useMutation để gửi dữ liệu lên server.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Xử lý trạng thái Loading, Error, Success cho Mutations', 'content' => 'Quản lý các trạng thái khi thực hiện mutation.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Invalidation Queries: Cập nhật cache sau Mutation', 'content' => 'Cách sử dụng `queryClient.invalidateQueries` để làm mới dữ liệu sau khi thay đổi.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Optimistic Updates: Cập nhật UI ngay lập tức', 'content' => 'Cách cập nhật giao diện người dùng trước khi nhận phản hồi từ server.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Tối ưu hóa hiệu năng và các tính năng nâng cao',
+                    'description' => 'Sử dụng các tính năng nâng cao của React Query để cải thiện hiệu năng và trải nghiệm người dùng.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Pagination và Infinite Scroll', 'content' => 'Cách triển khai phân trang và cuộn vô hạn với React Query.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Dependent Queries và Parallel Queries', 'content' => 'Cách thực hiện các query phụ thuộc và chạy nhiều query song song.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Prefetching Queries: Tải dữ liệu trước', 'content' => 'Cách tải dữ liệu trước khi người dùng cần để cải thiện tốc độ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Query Invalidation Strategies', 'content' => 'Các chiến lược nâng cao để làm mới cache dữ liệu.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: React Query Devtools và Best Practices',
+                    'description' => 'Sử dụng công cụ Devtools để debug và các phương pháp hay nhất khi dùng React Query.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: React Query Devtools: Gỡ lỗi và giám sát', 'content' => 'Cách sử dụng Devtools để xem trạng thái cache và các query.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Tổ chức code với React Query', 'content' => 'Cách cấu trúc các query và mutation trong dự án lớn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Xử lý lỗi tập trung và Retry Logic', 'content' => 'Cách xử lý lỗi một cách nhất quán và cấu hình retry.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: So sánh với Redux Thunk/Saga và Context API', 'content' => 'Khi nào nên chọn React Query so với các giải pháp quản lý trạng thái khác.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Xây dựng ứng dụng thực tế với React Query',
+                    'description' => 'Áp dụng tất cả kiến thức đã học để xây dựng một phần của ứng dụng web thực tế.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Xây dựng Blog App: Fetching Posts', 'content' => 'Sử dụng useQuery để lấy danh sách bài viết từ API.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Thêm, Sửa, Xóa Post với useMutation', 'content' => 'Triển khai các thao tác CRUD cho bài viết.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Hiển thị chi tiết Post và Comments', 'content' => 'Fetch dữ liệu chi tiết và các bình luận liên quan.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Tối ưu hóa trải nghiệm người dùng với prefetching và optimistic updates', 'content' => 'Áp dụng các kỹ thuật nâng cao để cải thiện UX.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'Xây Dựng Ứng Dụng React SSR với Remix',
+            'description' => 'Khóa học này khám phá Remix, một framework React full-stack mới nổi, giúp bạn xây dựng các ứng dụng web hiệu năng cao với Server-Side Rendering (SSR) và các tính năng web standards.',
+            'price' => 1200000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức vững chắc về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết về JavaScript (ES6+), HTML Forms và Web Standards.',
+                'Kinh nghiệm làm việc với API.'
+            ],
+            'objectives' => [
+                'Hiểu rõ kiến trúc và triết lý của Remix.',
+                'Xây dựng các tuyến đường và layout với File-system Routing của Remix.',
+                'Quản lý dữ liệu với Loaders và Mutations (Actions).',
+                'Sử dụng Forms và Transitions để tạo trải nghiệm người dùng mượt mà.',
+                'Tối ưu hóa hiệu năng và SEO với các tính năng SSR của Remix.',
+                'Triển khai ứng dụng Remix lên các nền tảng hosting.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Remix và Triết lý Web Standards',
+                    'description' => 'Tổng quan về Remix, sự khác biệt so với các framework khác và tầm quan trọng của Web Standards.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Remix là gì? Tại sao Remix ra đời?', 'content' => 'Giới thiệu về Remix, lịch sử và những vấn đề nó giải quyết.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Triết lý Web Standards và Progressive Enhancement', 'content' => 'Cách Remix tận dụng các chuẩn web và xây dựng ứng dụng có khả năng hoạt động ngay cả khi JavaScript tắt.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt và khởi tạo dự án Remix', 'content' => 'Hướng dẫn tạo dự án Remix và cấu trúc thư mục cơ bản.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: So sánh Remix với Next.js và các framework khác', 'content' => 'Phân tích điểm mạnh và điểm yếu của Remix so với các đối thủ.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Định tuyến (Routing) và Layouts trong Remix',
+                    'description' => 'Học cách tạo các tuyến đường và quản lý bố cục ứng dụng với hệ thống định tuyến của Remix.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: File-system Routing: Tạo trang và thư mục routes', 'content' => 'Cách Remix tự động tạo route từ cấu trúc thư mục routes.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Nested Routes và Layouts', 'content' => 'Tạo các tuyến đường lồng nhau và sử dụng layouts chung cho nhiều trang.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Dynamic Segments và Splat Routes', 'content' => 'Xử lý các URL động và các tuyến đường linh hoạt.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Link Component và useNavigate Hook', 'content' => 'Cách điều hướng giữa các trang trong Remix.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Loaders: Fetching Dữ liệu trên Server',
+                    'description' => 'Học cách lấy dữ liệu trên server trước khi render component với Loaders.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Khái niệm Loader Function', 'content' => 'Cách Loader chạy trên server và cung cấp dữ liệu cho component.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Sử dụng useLoaderData Hook', 'content' => 'Cách truy cập dữ liệu từ Loader trong React Component.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Xử lý lỗi trong Loaders và CatchBoundary', 'content' => 'Cách quản lý lỗi khi fetching dữ liệu và hiển thị UI lỗi.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Header và Cookies trong Loaders', 'content' => 'Cách thiết lập header và làm việc với cookies trong Loader.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Actions: Xử lý Mutations và Forms',
+                    'description' => 'Học cách xử lý các thao tác ghi dữ liệu (mutations) thông qua Actions và HTML Forms.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Khái niệm Action Function', 'content' => 'Cách Action chạy trên server để xử lý các request POST, PUT, DELETE.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Tích hợp với HTML Forms và useActionData', 'content' => 'Cách gửi dữ liệu từ form và nhận phản hồi từ Action.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: useTransition Hook: Quản lý trạng thái chuyển đổi', 'content' => 'Cách hiển thị trạng thái loading khi gửi form hoặc điều hướng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Redirects và Revalidation sau Action', 'content' => 'Cách chuyển hướng người dùng và làm mới dữ liệu sau khi Action hoàn tất.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Tối ưu hóa hiệu năng và SEO với Remix',
+                    'description' => 'Sử dụng các tính năng tích hợp của Remix để cải thiện hiệu năng và tối ưu hóa cho công cụ tìm kiếm.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: SSR và Hydration trong Remix', 'content' => 'Cách Remix render trên server và sau đó "hydrate" trên client.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Meta Tags và SEO với Remix', 'content' => 'Cách quản lý meta tags và các yếu tố SEO khác cho từng route.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Resource Routes và Tối ưu tài nguyên', 'content' => 'Cách tạo các tuyến đường để phục vụ các tài nguyên tĩnh hoặc API.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Error Boundaries và Catch Boundaries', 'content' => 'Xử lý lỗi một cách mạnh mẽ ở các cấp độ khác nhau.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai ứng dụng Remix và Best Practices',
+                    'description' => 'Hướng dẫn cách triển khai ứng dụng Remix và các phương pháp hay nhất.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Triển khai Remix lên Vercel/Netlify/Fly.io', 'content' => 'Các bước để đưa ứng dụng Remix lên các nền tảng hosting phổ biến.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Cấu hình biến môi trường và Secrets', 'content' => 'Cách quản lý các biến môi trường cho môi trường phát triển và sản xuất.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tích hợp Database và ORM (Prisma)', 'content' => 'Cách kết nối Remix với cơ sở dữ liệu và sử dụng ORM.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Authentication trong Remix', 'content' => 'Triển khai xác thực người dùng trong ứng dụng Remix.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'React Native Expo: Xây Dựng Ứng Dụng Đa Nền Tảng Nhanh Chóng',
+            'description' => 'Khóa học thực hành chuyên sâu về Expo, một framework và nền tảng giúp bạn xây dựng, triển khai và lặp lại ứng dụng React Native một cách nhanh chóng và hiệu quả.',
+            'price' => 1180000.00,
+            'categoryIds' => [17, 14],
+            'requirements' => [
+                'Kiến thức cơ bản về ReactJS và React Native.',
+                'Hiểu biết về JavaScript (ES6+).',
+                'Máy tính có kết nối internet và điện thoại thông minh để test (tùy chọn).'
+            ],
+            'objectives' => [
+                'Thiết lập môi trường phát triển React Native với Expo CLI.',
+                'Sử dụng các API của Expo để truy cập tính năng thiết bị (camera, location, notifications).',
+                'Xây dựng giao diện người dùng và điều hướng trong ứng dụng Expo.',
+                'Quản lý trạng thái và dữ liệu trong ứng dụng Expo.',
+                'Tối ưu hóa hiệu năng và kích thước bundle của ứng dụng Expo.',
+                'Triển khai ứng dụng Expo lên các kho ứng dụng (App Store, Google Play) và cập nhật OTA.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Expo và Hệ sinh thái',
+                    'description' => 'Tổng quan về Expo, lợi ích của nó và cách nó đơn giản hóa việc phát triển React Native.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Expo là gì? So sánh với React Native CLI', 'content' => 'Giải thích về Expo, các tính năng chính và khi nào nên dùng Expo.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cài đặt Expo CLI và khởi tạo dự án', 'content' => 'Hướng dẫn cài đặt công cụ dòng lệnh của Expo và tạo dự án mới.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Chạy ứng dụng trên Expo Go App và Web', 'content' => 'Cách xem và debug ứng dụng trên điện thoại và trình duyệt web.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu trúc dự án Expo và app.json', 'content' => 'Hiểu về cấu trúc file và cách cấu hình ứng dụng với app.json.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Các API của Expo và tính năng thiết bị',
+                    'description' => 'Học cách sử dụng các API tích hợp của Expo để truy cập các tính năng gốc của thiết bị.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Expo Location: Truy cập vị trí người dùng', 'content' => 'Cách lấy tọa độ GPS và xử lý quyền truy cập vị trí.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Expo Camera: Chụp ảnh và quay video', 'content' => 'Sử dụng Camera API để tích hợp chức năng chụp ảnh/video.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Expo Notifications: Gửi thông báo đẩy', 'content' => 'Cách gửi và nhận push notifications trong ứng dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Expo ImagePicker và MediaLibrary', 'content' => 'Chọn hình ảnh từ thư viện và quản lý phương tiện.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Các API phổ biến khác (Permissions, FileSystem, etc.)', 'content' => 'Tổng quan về các API hữu ích khác của Expo.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Xây dựng Giao diện và Điều hướng với Expo Router',
+                    'description' => 'Thiết kế UI và quản lý định tuyến trong ứng dụng Expo của bạn.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Các Component UI của React Native trong Expo', 'content' => 'Sử dụng View, Text, Image, Button, FlatList, v.v.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Styling và Layout với Flexbox', 'content' => 'Cách tạo bố cục linh hoạt và đẹp mắt với Flexbox.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Giới thiệu Expo Router: File-system based Routing', 'content' => 'Cách Expo Router tự động tạo route từ cấu trúc file.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Nested Routes và Layouts trong Expo Router', 'content' => 'Tạo các tuyến đường lồng nhau và sử dụng layouts chung.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Dynamic Routes và Search Params', 'content' => 'Xử lý các URL động và query parameters.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Quản lý State và Dữ liệu trong Expo',
+                    'description' => 'Các phương pháp quản lý trạng thái và tương tác với dữ liệu trong ứng dụng Expo.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: useState và useEffect trong Expo Components', 'content' => 'Cách sử dụng các React Hooks cơ bản.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Context API để quản lý trạng thái toàn cục', 'content' => 'Sử dụng Context để chia sẻ dữ liệu giữa các component.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Tương tác với API: Fetching Data', 'content' => 'Cách gọi API để lấy dữ liệu từ backend.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Lưu trữ dữ liệu cục bộ với Expo SecureStore/AsyncStorage', 'content' => 'Cách lưu trữ dữ liệu an toàn và không an toàn trên thiết bị.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Tối ưu hóa và Debugging ứng dụng Expo',
+                    'description' => 'Các kỹ thuật để cải thiện hiệu năng và tìm lỗi trong ứng dụng Expo.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Tối ưu hóa hiệu năng ứng dụng Expo', 'content' => 'Các mẹo để giảm kích thước bundle và cải thiện tốc độ tải.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Debugging ứng dụng Expo với Chrome DevTools', 'content' => 'Cách sử dụng công cụ phát triển của Chrome để debug React Native.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Sử dụng Sentry để theo dõi lỗi', 'content' => 'Tích hợp Sentry để ghi lại và phân tích lỗi trong môi trường sản xuất.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Tối ưu hóa hình ảnh và tài nguyên', 'content' => 'Các kỹ thuật nén hình ảnh và sử dụng các định dạng hiệu quả.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai và Cập nhật ứng dụng Expo',
+                    'description' => 'Hướng dẫn đóng gói và phát hành ứng dụng Expo lên các kho ứng dụng và cập nhật OTA.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Tạo bản dựng (Build) ứng dụng với EAS Build', 'content' => 'Cách sử dụng Expo Application Services (EAS) để tạo bản dựng cho iOS và Android.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Triển khai lên Google Play Store và Apple App Store', 'content' => 'Các bước để phát hành ứng dụng lên các kho ứng dụng chính.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Cập nhật Over-the-Air (OTA) với EAS Update', 'content' => 'Cách cập nhật ứng dụng mà không cần người dùng tải lại từ kho ứng dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: CI/CD cho ứng dụng Expo với GitHub Actions', 'content' => 'Tự động hóa quá trình build và deploy ứng dụng Expo.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'React Native cho Người Mới Bắt Đầu: Xây Dựng Ứng Dụng Thực Tế',
+            'description' => 'Khóa học này được thiết kế cho những người mới hoàn toàn với React Native, hướng dẫn từng bước xây dựng các ứng dụng di động thực tế từ đầu.',
+            'price' => 1099000.00,
+            'categoryIds' => [17, 14],
+            'requirements' => [
+                'Kiến thức cơ bản về JavaScript (ES6+).',
+                'Hiểu biết về HTML và CSS là một lợi thế.',
+                'Máy tính có kết nối internet.'
+            ],
+            'objectives' => [
+                'Thiết lập môi trường phát triển React Native (Expo CLI).',
+                'Hiểu các khái niệm cơ bản của React Native: Components, Props, State.',
+                'Xây dựng giao diện người dùng di động với các Component cốt lõi.',
+                'Quản lý trạng thái và tương tác người dùng.',
+                'Điều hướng giữa các màn hình trong ứng dụng.',
+                'Tương tác với API để lấy và hiển thị dữ liệu.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Bắt đầu với React Native và Expo',
+                    'description' => 'Giới thiệu về React Native và cách thiết lập môi trường phát triển nhanh chóng với Expo.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: React Native là gì? Lợi ích và ứng dụng', 'content' => 'Tổng quan về React Native và tại sao nó là lựa chọn tốt cho phát triển di động.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cài đặt Expo CLI và Expo Go App', 'content' => 'Hướng dẫn từng bước cài đặt công cụ và ứng dụng trên điện thoại.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Khởi tạo dự án React Native đầu tiên', 'content' => 'Tạo và chạy ứng dụng "Hello World" trên thiết bị của bạn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu trúc dự án cơ bản và Debugging', 'content' => 'Tìm hiểu về các file và thư mục chính, cách debug ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Các Component UI cơ bản',
+                    'description' => 'Làm quen với các thành phần giao diện người dùng cốt lõi của React Native.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: View và Text: Các khối xây dựng chính', 'content' => 'Sử dụng View để tạo layout và Text để hiển thị văn bản.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Styling trong React Native với StyleSheet', 'content' => 'Cách áp dụng CSS-like styles cho các component.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Image Component: Hiển thị hình ảnh', 'content' => 'Cách sử dụng hình ảnh từ local và từ URL.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Button và TouchableOpacity: Xử lý tương tác', 'content' => 'Tạo các nút và xử lý sự kiện chạm.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: State và Props trong React Native',
+                    'description' => 'Học cách quản lý dữ liệu thay đổi và truyền dữ liệu giữa các component.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Props: Truyền dữ liệu giữa các Component', 'content' => 'Cách truyền dữ liệu từ component cha xuống con.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: State với useState Hook', 'content' => 'Cách quản lý trạng thái nội bộ của component.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Xử lý Input người dùng với TextInput', 'content' => 'Cách tạo các trường nhập liệu và lấy giá trị từ người dùng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Xây dựng ứng dụng Counter đơn giản', 'content' => 'Thực hành xây dựng một ứng dụng đếm để hiểu State và Props.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Danh sách và Cuộn (Lists and Scrolling)',
+                    'description' => 'Hiển thị các danh sách dữ liệu lớn một cách hiệu quả trong ứng dụng di động.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: ScrollView: Component cuộn cơ bản', 'content' => 'Cách làm cho nội dung có thể cuộn được.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: FlatList: Hiển thị danh sách lớn hiệu quả', 'content' => 'Cách sử dụng FlatList để render các danh sách dài.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: KeyExtractor và ItemSeparatorComponent', 'content' => 'Các thuộc tính quan trọng của FlatList để tối ưu và tùy chỉnh.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Xây dựng ứng dụng Todo List cơ bản', 'content' => 'Áp dụng FlatList để hiển thị danh sách công việc.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Điều hướng (Navigation) giữa các màn hình',
+                    'description' => 'Học cách chuyển đổi giữa các màn hình khác nhau trong ứng dụng di động.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu React Navigation', 'content' => 'Tổng quan về thư viện React Navigation và các loại navigator.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Stack Navigator: Điều hướng dạng ngăn xếp', 'content' => 'Cách tạo và sử dụng Stack Navigator để chuyển đổi màn hình.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Truyền tham số giữa các màn hình', 'content' => 'Cách gửi và nhận dữ liệu khi điều hướng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Xây dựng ứng dụng Recipe App với Navigation', 'content' => 'Thực hành tạo ứng dụng hiển thị danh sách công thức và chi tiết.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tương tác với API và Fetching Data',
+                    'description' => 'Cách lấy dữ liệu từ các dịch vụ web bên ngoài và hiển thị trong ứng dụng.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Giới thiệu về API và JSON', 'content' => 'Giải thích về API và định dạng dữ liệu JSON.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Sử dụng Fetch API để gọi dữ liệu', 'content' => 'Cách gửi yêu cầu HTTP để lấy dữ liệu từ API.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Xử lý trạng thái Loading và Error', 'content' => 'Cách hiển thị chỉ báo loading và thông báo lỗi khi gọi API.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Hiển thị dữ liệu từ API trong ứng dụng', 'content' => 'Cách render dữ liệu đã lấy được vào giao diện người dùng.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'React Performance Patterns: Tối Ưu Hóa Render',
+            'description' => 'Khóa học này đi sâu vào các mẫu thiết kế và kỹ thuật nâng cao để tối ưu hóa hiệu năng render của ứng dụng React, đảm bảo trải nghiệm người dùng mượt mà và phản hồi nhanh.',
+            'price' => 1020000.00,
+            'categoryIds' => [5, 2],
+            'requirements' => [
+                'Kiến thức vững chắc về ReactJS (Functional Components và Hooks).',
+                'Hiểu biết sâu về cơ chế re-render của React và Virtual DOM.',
+                'Kinh nghiệm làm việc với các ứng dụng React có vấn đề về hiệu năng.'
+            ],
+            'objectives' => [
+                'Nắm vững các nguyên nhân gây ra re-render không cần thiết.',
+                'Áp dụng các kỹ thuật memoization (React.memo, useCallback, useMemo) một cách hiệu quả.',
+                'Sử dụng Context API và useReducer để tối ưu hóa re-render của Context Consumers.',
+                'Triển khai Lazy Loading và Code Splitting để giảm thời gian tải ban đầu.',
+                'Sử dụng React Profiler và các công cụ DevTools để phân tích và gỡ lỗi hiệu năng.',
+                'Áp dụng các mẫu thiết kế như Compound Components, Render Props để tối ưu render.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Hiểu Sâu về Re-render trong React',
+                    'description' => 'Phân tích chi tiết cơ chế re-render của React và các yếu tố kích hoạt nó.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Cơ chế render và Reconciliation của React', 'content' => 'Hiểu về Virtual DOM, diffing algorithm và quá trình cập nhật DOM.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các yếu tố kích hoạt Re-render: State, Props, Context', 'content' => 'Khi nào một component re-render và tại sao.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Vấn đề Re-render không cần thiết (Unnecessary Re-renders)', 'content' => 'Xác định các trường hợp component re-render mà không có thay đổi dữ liệu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Công cụ phân tích: React Profiler và Chrome DevTools Performance', 'content' => 'Cách sử dụng các công cụ để xác định nguyên nhân re-render.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Memoization: Ngăn chặn Re-render không cần thiết',
+                    'description' => 'Các kỹ thuật sử dụng React.memo, useCallback, useMemo để kiểm soát việc re-render.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: React.memo: Ghi nhớ Functional Components', 'content' => 'Cách sử dụng React.memo để chỉ re-render component khi props thay đổi.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: useCallback Hook: Ghi nhớ hàm để tránh re-render con', 'content' => 'Cách sử dụng useCallback để ổn định các hàm callback truyền xuống component con.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: useMemo Hook: Ghi nhớ giá trị tính toán', 'content' => 'Cách sử dụng useMemo để tránh tính toán lại các giá trị phức tạp.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Khi nào nên sử dụng Memoization và những cạm bẫy', 'content' => 'Các trường hợp sử dụng tối ưu và những lỗi thường gặp khi lạm dụng memoization.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Tối ưu hóa Context API và useReducer',
+                    'description' => 'Các chiến lược để giảm thiểu re-render khi sử dụng Context API và useReducer.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Vấn đề re-render của Context Consumers', 'content' => 'Khi giá trị Context thay đổi, tất cả consumers sẽ re-render.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Chia nhỏ Contexts theo tính năng', 'content' => 'Cách tạo nhiều Context nhỏ hơn để giảm thiểu re-render.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Sử dụng useMemo với Context Provider Value', 'content' => 'Cách ghi nhớ giá trị truyền vào Context Provider.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Tối ưu hóa useReducer với useCallback cho dispatch', 'content' => 'Cách đảm bảo dispatch function không thay đổi trên mỗi render.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Lazy Loading và Code Splitting',
+                    'description' => 'Tải các phần của ứng dụng chỉ khi cần thiết để giảm thời gian tải ban đầu và cải thiện hiệu năng.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Code Splitting với React.lazy và Suspense', 'content' => 'Cách chia nhỏ bundle JavaScript và tải từng phần khi cần.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Lazy Loading Routes với React Router', 'content' => 'Tải các component của từng route chỉ khi người dùng truy cập route đó.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Dynamic Imports và Webpack Magic Comments', 'content' => 'Sử dụng import() động và các comment của Webpack để kiểm soát splitting.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Fallback UI và Error Boundaries cho Lazy Loading', 'content' => 'Cách hiển thị UI dự phòng và xử lý lỗi khi lazy loading.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Các Mẫu Thiết Kế Tối Ưu Render',
+                    'description' => 'Áp dụng các mẫu thiết kế để xây dựng component linh hoạt và hiệu quả hơn.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Compound Components Pattern', 'content' => 'Cách xây dựng các component hoạt động cùng nhau nhưng linh hoạt.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Render Props Pattern', 'content' => 'Cách chia sẻ logic giữa các component thông qua props là hàm.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Higher-Order Components (HOCs) cho tối ưu hiệu năng', 'content' => 'Cách sử dụng HOCs để thêm logic tối ưu hóa vào component.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Sử dụng Key Prop hiệu quả trong danh sách', 'content' => 'Tầm quan trọng của key trong việc tối ưu render danh sách.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tối ưu hóa render nâng cao và Case Studies',
+                    'description' => 'Các kỹ thuật phức tạp hơn và phân tích các trường hợp thực tế về tối ưu hiệu năng.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Virtualized Lists (react-window, react-virtualized)', 'content' => 'Hiển thị danh sách lớn hiệu quả bằng cách chỉ render các phần tử trong viewport.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Debouncing và Throttling các sự kiện', 'content' => 'Cách kiểm soát tần suất gọi hàm để tránh re-render quá mức.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Sử dụng useDeferredValue và useTransition (React 18+)', 'content' => 'Các Hooks mới để ưu tiên các cập nhật UI và tránh blocking.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Phân tích và tối ưu hóa một ứng dụng React thực tế', 'content' => 'Thực hành áp dụng các kỹ thuật đã học vào một dự án có sẵn.', 'sortOrder' => 4],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'title' => 'VueJS Toàn Diện 2025: Xây Dựng Ứng Dụng Web Mạnh Mẽ',
+            'description' => 'Học cách xây dựng các ứng dụng web động và tương tác cao với VueJS, từ cơ bản đến nâng cao, bao gồm Vue Router, Vuex, và Composition API.',
+            'price' => 999000.00,
+            'categoryIds' => [6, 2], // VueJS, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về HTML, CSS và JavaScript (ES6+).',
+                'Máy tính có Node.js và npm/yarn đã cài đặt.',
+                'Sự kiên nhẫn và sẵn sàng thực hành.'
+            ],
+            'objectives' => [
+                'Nắm vững kiến thức về VueJS Core: Components, Props, State, Events.',
+                'Sử dụng Vue Router để xây dựng Single Page Applications (SPAs).',
+                'Quản lý trạng thái ứng dụng với Vuex.',
+                'Áp dụng Composition API để tổ chức mã tốt hơn.',
+                'Tương tác với API backend và xử lý dữ liệu.',
+                'Triển khai ứng dụng VueJS lên môi trường production.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu VueJS và Cài đặt Môi trường',
+                    'description' => 'Tổng quan về VueJS, so sánh với các framework khác và hướng dẫn cài đặt môi trường phát triển.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: VueJS là gì? Tại sao nên học Vue?', 'content' => 'Giới thiệu về VueJS, ưu điểm và các trường hợp sử dụng phù hợp.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cài đặt Node.js, npm/yarn và Vue CLI', 'content' => 'Hướng dẫn chi tiết cách cài đặt các công cụ cần thiết để bắt đầu với VueJS.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Tạo dự án Vue đầu tiên với Vue CLI', 'content' => 'Thực hành tạo một dự án Vue cơ bản và khám phá cấu trúc thư mục.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Chạy và debug ứng dụng Vue', 'content' => 'Cách khởi động ứng dụng và sử dụng Vue Devtools để debug.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Cú pháp cơ bản và Data Binding',
+                    'description' => 'Tìm hiểu về cú pháp template của Vue, data binding và các chỉ thị (directives) cơ bản.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Cú pháp Interpolation và Raw HTML', 'content' => 'Sử dụng `{{ }}` để hiển thị dữ liệu và `v-html` để render HTML thô.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Data Binding một chiều với `v-bind`', 'content' => 'Gắn kết dữ liệu từ instance Vue vào các thuộc tính HTML.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Data Binding hai chiều với `v-model`', 'content' => 'Tạo liên kết hai chiều giữa input form và dữ liệu Vue.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Xử lý sự kiện với `v-on`', 'content' => 'Lắng nghe và phản ứng với các sự kiện của người dùng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Các chỉ thị điều kiện `v-if`, `v-else-if`, `v-else`, `v-show`', 'content' => 'Hiển thị hoặc ẩn các phần tử dựa trên điều kiện.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Vòng lặp với `v-for`', 'content' => 'Render danh sách các phần tử từ một mảng dữ liệu.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Components: Xây dựng giao diện tái sử dụng',
+                    'description' => 'Học cách tạo và sử dụng các component để xây dựng giao diện người dùng theo mô hình module.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Khái niệm Component trong Vue', 'content' => 'Hiểu về vai trò và lợi ích của component trong phát triển ứng dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Tạo và đăng ký Local/Global Components', 'content' => 'Các cách định nghĩa và sử dụng component trong Vue.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Truyền dữ liệu xuống với Props', 'content' => 'Cách truyền dữ liệu từ component cha xuống component con sử dụng props.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Truyền dữ liệu lên với Custom Events', 'content' => 'Cách component con giao tiếp với component cha thông qua sự kiện tùy chỉnh.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Slot: Phân phối nội dung linh hoạt', 'content' => 'Sử dụng slot để tạo component có nội dung động.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Dynamic Components và Keep-Alive', 'content' => 'Chuyển đổi giữa các component một cách linh hoạt và giữ trạng thái.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Quản lý trạng thái với Vuex',
+                    'description' => 'Tìm hiểu về Vuex, một thư viện quản lý trạng thái tập trung cho các ứng dụng Vue lớn.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu Vuex và vấn đề quản lý trạng thái', 'content' => 'Tại sao cần Vuex trong các ứng dụng lớn và kiến trúc Flux/Redux.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Core Concepts: State, Getters, Mutations, Actions, Modules', 'content' => 'Hiểu rõ các thành phần cốt lõi của Vuex và vai trò của chúng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Thiết lập Store và truy cập State/Getters', 'content' => 'Cách tạo Vuex store và lấy dữ liệu từ state.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Thay đổi State với Mutations', 'content' => 'Sử dụng mutations để thực hiện thay đổi đồng bộ vào state.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Thực hiện các tác vụ bất đồng bộ với Actions', 'content' => 'Cách actions gọi mutations và xử lý logic bất đồng bộ.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Tổ chức Store với Modules', 'content' => 'Chia nhỏ store thành các module để quản lý dễ dàng hơn.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Định tuyến với Vue Router',
+                    'description' => 'Xây dựng các ứng dụng Single Page Application (SPA) với khả năng định tuyến mạnh mẽ của Vue Router.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu Vue Router và SPA', 'content' => 'Hiểu về khái niệm SPA và vai trò của Vue Router.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Cài đặt và cấu hình Vue Router cơ bản', 'content' => 'Thiết lập router instance và định nghĩa các route đầu tiên.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Navigation: `<router-link>` và programmatic navigation', 'content' => 'Cách chuyển đổi giữa các route bằng link và code JavaScript.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Dynamic Route Matching và Nested Routes', 'content' => 'Tạo route động với tham số và route lồng nhau.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Route Guards: Bảo vệ các route', 'content' => 'Sử dụng navigation guards để kiểm soát quyền truy cập route.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Lazy Loading Routes', 'content' => 'Tối ưu hiệu suất bằng cách tải route theo yêu cầu.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Composition API và Vue 3',
+                    'description' => 'Khám phá Composition API, một cách tiếp cận mới để tổ chức code trong Vue 3, mang lại sự linh hoạt và khả năng tái sử dụng cao hơn.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Giới thiệu Composition API và các vấn đề giải quyết', 'content' => 'Hiểu lý do ra đời của Composition API và lợi ích của nó so với Options API.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: `setup()` function và Reactive State (`ref`, `reactive`)', 'content' => 'Sử dụng `setup` để khai báo logic và quản lý trạng thái phản ứng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Computed Properties và Watchers với Composition API', 'content' => 'Tạo các thuộc tính tính toán và theo dõi sự thay đổi của dữ liệu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Lifecycle Hooks trong Composition API', 'content' => 'Sử dụng các hook như `onMounted`, `onUpdated`, `onUnmounted`.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Reusable Logic với Composable Functions', 'content' => 'Tạo và tái sử dụng các hàm logic trong các component khác nhau.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Cung cấp và tiêm (Provide/Inject) với Composition API', 'content' => 'Cách chia sẻ dữ liệu giữa các component không liên quan trực tiếp.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 7: Tương tác API và Xử lý dữ liệu',
+                    'description' => 'Học cách gửi yêu cầu HTTP đến API backend, xử lý dữ liệu nhận được và hiển thị trên giao diện.',
+                    'sortOrder' => 7,
+                    'lessons' => [
+                        ['title' => 'Bài 7.1: Giới thiệu về API RESTful và HTTP requests', 'content' => 'Hiểu các phương thức HTTP (GET, POST, PUT, DELETE) và cách API hoạt động.', 'sortOrder' => 1],
+                        ['title' => 'Bài 7.2: Sử dụng `fetch` API để gọi API', 'content' => 'Cách gửi yêu cầu GET, POST cơ bản với `fetch`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 7.3: Sử dụng thư viện Axios để gọi API', 'content' => 'Cài đặt và sử dụng Axios, một thư viện phổ biến để xử lý HTTP requests.', 'sortOrder' => 3],
+                        ['title' => 'Bài 7.4: Xử lý lỗi và hiển thị trạng thái loading', 'content' => 'Cách bắt lỗi từ API và hiển thị thông báo cho người dùng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 7.5: Tối ưu hóa API calls: caching và debounce', 'content' => 'Các kỹ thuật để cải thiện hiệu suất khi gọi API.', 'sortOrder' => 5],
+                        ['title' => 'Bài 7.6: Xử lý dữ liệu phức tạp từ API', 'content' => 'Cách parse và hiển thị dữ liệu JSON lồng nhau.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Xây Dựng Ứng Dụng E-commerce với VueJS và Firebase',
+            'description' => 'Học cách xây dựng một ứng dụng thương mại điện tử đầy đủ tính năng sử dụng VueJS cho frontend và Firebase làm backend.',
+            'price' => 1200000.00,
+            'categoryIds' => [6, 2, 91], // VueJS, Lập trình Web, Cloud Computing (AWS, Azure, GCP)
+            'requirements' => [
+                'Kiến thức vững chắc về VueJS cơ bản.',
+                'Hiểu biết về JavaScript (ES6+).',
+                'Tài khoản Firebase (miễn phí).'
+            ],
+            'objectives' => [
+                'Thiết lập dự án VueJS với Firebase.',
+                'Quản lý xác thực người dùng với Firebase Authentication.',
+                'Lưu trữ và truy xuất dữ liệu sản phẩm với Firestore.',
+                'Xây dựng giỏ hàng và quy trình thanh toán.',
+                'Triển khai ứng dụng lên Firebase Hosting.',
+                'Sử dụng Firebase Storage để lưu trữ hình ảnh sản phẩm.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Firebase và Thiết lập Dự án',
+                    'description' => 'Tổng quan về Firebase và cách tích hợp nó vào ứng dụng VueJS.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Firebase là gì? Các dịch vụ chính', 'content' => 'Giới thiệu về Firebase, Firestore, Authentication, Hosting, Storage.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Tạo dự án Firebase và kết nối với VueJS', 'content' => 'Hướng dẫn từng bước tạo dự án trên console Firebase và thêm SDK vào Vue.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cấu hình và khởi tạo Firebase trong ứng dụng Vue', 'content' => 'Thiết lập các biến môi trường và khởi tạo Firebase app.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Quy tắc bảo mật Firebase cơ bản', 'content' => 'Tìm hiểu về Firebase Security Rules cho Firestore và Storage.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Xác thực Người dùng với Firebase Authentication',
+                    'description' => 'Triển khai tính năng đăng ký, đăng nhập và quản lý người dùng.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Đăng ký và Đăng nhập bằng Email/Mật khẩu', 'content' => 'Sử dụng `createUserWithEmailAndPassword` và `signInWithEmailAndPassword`.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Đăng nhập bằng Google và các nhà cung cấp khác', 'content' => 'Tích hợp đăng nhập OAuth với Google Provider.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Quản lý trạng thái đăng nhập và Đăng xuất', 'content' => 'Sử dụng `onAuthStateChanged` và `signOut`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Đặt lại mật khẩu và cập nhật hồ sơ người dùng', 'content' => 'Triển khai tính năng reset password và update profile.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Bảo vệ Route với Firebase Auth', 'content' => 'Sử dụng navigation guards để kiểm tra trạng thái đăng nhập.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Tích hợp Firebase Auth với Vuex', 'content' => 'Lưu trữ trạng thái người dùng trong Vuex store.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Cơ sở dữ liệu NoSQL với Cloud Firestore',
+                    'description' => 'Lưu trữ và truy xuất dữ liệu sản phẩm, đơn hàng một cách hiệu quả.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu Firestore: Collections và Documents', 'content' => 'Hiểu cấu trúc dữ liệu của Firestore và cách tổ chức dữ liệu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Thêm, Đọc, Cập nhật, Xóa dữ liệu (CRUD)', 'content' => 'Thực hành các thao tác cơ bản với Firestore: `addDoc`, `getDoc`, `updateDoc`, `deleteDoc`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Truy vấn dữ liệu: `where`, `orderBy`, `limit`', 'content' => 'Cách lọc, sắp xếp và giới hạn kết quả truy vấn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Lắng nghe thay đổi dữ liệu theo thời gian thực', 'content' => 'Sử dụng `onSnapshot` để nhận cập nhật dữ liệu ngay lập tức.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Xử lý dữ liệu lồng nhau và Subcollections', 'content' => 'Cách tổ chức dữ liệu phức tạp trong Firestore.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Phân trang và tải thêm dữ liệu', 'content' => 'Triển khai tính năng phân trang cho danh sách sản phẩm.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Xây dựng Danh sách Sản phẩm và Chi tiết Sản phẩm',
+                    'description' => 'Thiết kế giao diện hiển thị sản phẩm và trang chi tiết sản phẩm.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Thiết kế Component Product Card', 'content' => 'Tạo component hiển thị thông tin cơ bản của sản phẩm.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Hiển thị danh sách sản phẩm từ Firestore', 'content' => 'Truy vấn và render danh sách sản phẩm trên trang chủ.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Tạo trang chi tiết sản phẩm động', 'content' => 'Sử dụng Vue Router để tạo route cho từng sản phẩm và hiển thị chi tiết.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Thêm sản phẩm vào giỏ hàng', 'content' => 'Triển khai logic thêm sản phẩm vào giỏ hàng (sử dụng Vuex).', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Quản lý số lượng sản phẩm trong giỏ hàng', 'content' => 'Cập nhật số lượng và xóa sản phẩm khỏi giỏ hàng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Hiển thị tổng tiền và số lượng trong giỏ hàng', 'content' => 'Tính toán và hiển thị tổng giá trị giỏ hàng.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Giỏ hàng và Quy trình Thanh toán',
+                    'description' => 'Hoàn thiện chức năng giỏ hàng và mô phỏng quy trình thanh toán.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Thiết kế trang Giỏ hàng', 'content' => 'Giao diện hiển thị các sản phẩm trong giỏ hàng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Cập nhật số lượng và xóa sản phẩm trong giỏ hàng', 'content' => 'Tương tác với giỏ hàng để chỉnh sửa.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Tính toán tổng tiền và chi phí vận chuyển', 'content' => 'Logic tính toán tổng số tiền cần thanh toán.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Tạo trang Thanh toán (Checkout)', 'content' => 'Giao diện nhập thông tin giao hàng và thanh toán.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Lưu trữ đơn hàng vào Firestore', 'content' => 'Ghi thông tin đơn hàng vào cơ sở dữ liệu sau khi thanh toán.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Hiển thị lịch sử đơn hàng của người dùng', 'content' => 'Truy vấn và hiển thị các đơn hàng đã đặt của người dùng.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tải lên Hình ảnh với Firebase Storage và Triển khai',
+                    'description' => 'Học cách lưu trữ hình ảnh sản phẩm và triển khai ứng dụng lên môi trường thực tế.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Giới thiệu Firebase Storage', 'content' => 'Vai trò của Firebase Storage trong ứng dụng e-commerce.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tải lên hình ảnh sản phẩm lên Storage', 'content' => 'Sử dụng `put` và `getDownloadURL` để upload và lấy link ảnh.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Hiển thị hình ảnh từ Firebase Storage', 'content' => 'Cách render hình ảnh đã tải lên trong ứng dụng Vue.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Cập nhật và xóa hình ảnh', 'content' => 'Các thao tác quản lý hình ảnh trên Firebase Storage.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Chuẩn bị ứng dụng VueJS cho Production', 'content' => 'Các bước tối ưu hóa và build ứng dụng Vue.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Triển khai ứng dụng lên Firebase Hosting', 'content' => 'Hướng dẫn chi tiết cách deploy ứng dụng Vue lên Firebase Hosting.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'VueJS Nâng Cao: Tối Ưu Hiệu Suất và Kỹ Thuật Hiện Đại',
+            'description' => 'Khóa học dành cho những ai đã có kiến thức cơ bản về VueJS và muốn đi sâu vào các kỹ thuật tối ưu hiệu suất, quản lý state phức tạp và các pattern nâng cao.',
+            'price' => 1100000.00,
+            'categoryIds' => [6, 2], // VueJS, Lập trình Web
+            'requirements' => [
+                'Nắm vững VueJS cơ bản (Components, Props, State, Vue Router, Vuex).',
+                'Kinh nghiệm làm việc với JavaScript (ES6+).',
+                'Sự quan tâm đến hiệu suất và kiến trúc ứng dụng.'
+            ],
+            'objectives' => [
+                'Tối ưu hóa hiệu suất render của ứng dụng VueJS.',
+                'Hiểu sâu về Reacivity System của Vue.',
+                'Sử dụng Render Functions và JSX để tạo component linh hoạt.',
+                'Áp dụng các Design Patterns trong VueJS.',
+                'Xử lý lỗi và quản lý state phức tạp hiệu quả.',
+                'Viết Unit Tests và Integration Tests cho ứng dụng Vue.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Hệ thống Reactivity của Vue',
+                    'description' => 'Đi sâu vào cách Vue theo dõi các thay đổi dữ liệu và cập nhật DOM.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Vue Reactivity trong Options API (Vue 2)', 'content' => 'Cách Vue sử dụng `Object.defineProperty` để theo dõi dữ liệu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Vue Reactivity trong Composition API (Vue 3)', 'content' => 'Sử dụng Proxy để theo dõi thay đổi dữ liệu mạnh mẽ hơn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Khi nào Reactivity hoạt động và không hoạt động', 'content' => 'Các trường hợp cần lưu ý khi làm việc với dữ liệu phản ứng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: `nextTick` và cập nhật DOM', 'content' => 'Cách đảm bảo DOM đã được cập nhật sau khi thay đổi dữ liệu.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Tối ưu hóa Hiệu suất Render',
+                    'description' => 'Các kỹ thuật để làm cho ứng dụng Vue của bạn chạy nhanh hơn và mượt mà hơn.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Virtual DOM và Reconciliation Algorithm', 'content' => 'Hiểu cách Vue so sánh và cập nhật DOM hiệu quả.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Sử dụng `v-once` và `v-memo` để tối ưu render', 'content' => 'Ngăn chặn các component render lại không cần thiết.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Lazy Loading Components và Code Splitting', 'content' => 'Tải component theo yêu cầu để giảm kích thước bundle ban đầu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Tối ưu hóa danh sách lớn với `v-for` và `key`', 'content' => 'Đảm bảo hiệu suất khi render hàng ngàn item trong danh sách.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Debounce và Throttle cho các sự kiện', 'content' => 'Kiểm soát tần suất thực thi của các hàm xử lý sự kiện.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Tối ưu hóa hình ảnh và tài nguyên tĩnh', 'content' => 'Các kỹ thuật nén ảnh và sử dụng CDN.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Render Functions và JSX',
+                    'description' => 'Sử dụng Render Functions và JSX để có quyền kiểm soát cao hơn trong việc render component.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Khi nào nên sử dụng Render Functions?', 'content' => 'Các trường hợp sử dụng Render Functions thay vì template.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Cú pháp Render Functions cơ bản', 'content' => 'Cách tạo VNodes và render component bằng JavaScript.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Sử dụng JSX trong Vue', 'content' => 'Tích hợp JSX để viết Render Functions dễ đọc hơn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Functional Components với Render Functions', 'content' => 'Tạo các component không trạng thái, hiệu suất cao.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Render Scoped Slots với Render Functions', 'content' => 'Tạo các slot động và phức tạp.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Tối ưu hóa Render Functions với `v-once` và `v-memo`', 'content' => 'Áp dụng các kỹ thuật tối ưu vào Render Functions.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Quản lý State Phức tạp và Global State',
+                    'description' => 'Các chiến lược để quản lý trạng thái ứng dụng lớn và phức tạp.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Các Pattern quản lý State ngoài Vuex', 'content' => 'Sử dụng Provide/Inject, Event Bus, và các thư viện khác.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Vuex Nâng Cao: Namespacing và Plugins', 'content' => 'Tổ chức Vuex store lớn và mở rộng chức năng với plugins.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Xử lý Side Effects trong Vuex Actions', 'content' => 'Quản lý các tác vụ bất đồng bộ phức tạp trong Vuex.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Sử dụng Pinia làm giải pháp quản lý State hiện đại', 'content' => 'Giới thiệu Pinia, một thư viện quản lý state nhẹ và mạnh mẽ cho Vue 3.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Tích hợp Pinia với Composition API', 'content' => 'Cách sử dụng Pinia stores trong các composable functions.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Persist State: Lưu trữ trạng thái ứng dụng', 'content' => 'Cách lưu trữ trạng thái Vuex/Pinia vào Local Storage.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Testing trong VueJS',
+                    'description' => 'Học cách viết Unit Tests và Integration Tests để đảm bảo chất lượng code.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu Testing trong VueJS', 'content' => 'Các loại hình testing (Unit, Integration, E2E) và công cụ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Cài đặt Vue Test Utils và Jest', 'content' => 'Thiết lập môi trường testing cho dự án Vue.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Viết Unit Tests cho Components', 'content' => 'Cách test các props, events, computed properties của component.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Mocking Dependencies và Global Objects', 'content' => 'Cách cô lập các test và mock các API bên ngoài.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Integration Tests với Vue Router và Vuex', 'content' => 'Test sự tương tác giữa các component và store/router.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Code Coverage và CI/CD cho Testing', 'content' => 'Đo lường độ bao phủ code và tích hợp testing vào quy trình CI/CD.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai và Tối ưu hóa Production',
+                    'description' => 'Các bước cuối cùng để đưa ứng dụng VueJS của bạn lên môi trường thực tế và tối ưu hiệu suất.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Build ứng dụng Vue cho Production', 'content' => 'Sử dụng `vue-cli-service build` và các tùy chọn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tối ưu hóa kích thước Bundle', 'content' => 'Phân tích bundle và giảm kích thước file JavaScript.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Server-Side Rendering (SSR) với Nuxt.js', 'content' => 'Giới thiệu về SSR và lợi ích của nó cho SEO và hiệu suất.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Triển khai ứng dụng Vue lên Netlify/Vercel', 'content' => 'Hướng dẫn deploy ứng dụng tĩnh lên các nền tảng hosting miễn phí.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Triển khai ứng dụng Vue lên Nginx/Apache', 'content' => 'Cấu hình web server để phục vụ ứng dụng Vue.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Giám sát hiệu suất ứng dụng (APM)', 'content' => 'Sử dụng các công cụ để theo dõi hiệu suất ứng dụng sau khi triển khai.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Mastering Vue 3: From Zero to Advanced Applications',
+            'description' => 'A comprehensive course to master Vue 3, including Composition API, Teleport, Suspense, and building complex, performant web applications.',
+            'price' => 1050000.00,
+            'categoryIds' => [6, 2], // VueJS, Lập trình Web
+            'requirements' => [
+                'Basic understanding of JavaScript and HTML/CSS.',
+                'Familiarity with command line tools.'
+            ],
+            'objectives' => [
+                'Understand the core concepts of Vue 3 and its new features.',
+                'Become proficient with the Composition API for better code organization.',
+                'Build reusable components and manage application state effectively.',
+                'Implement routing and global state management using Vue Router and Pinia.',
+                'Integrate with backend APIs and handle asynchronous operations.',
+                'Deploy Vue 3 applications to production environments.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chapter 1: Vue 3 Fundamentals and Setup',
+                    'description' => 'Introduction to Vue 3, its architecture, and setting up your development environment.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Lesson 1.1: What\'s new in Vue 3?', 'content' => 'Overview of key changes and improvements in Vue 3.', 'sortOrder' => 1],
+                        ['title' => 'Lesson 1.2: Setting up your Vue 3 project with Vite', 'content' => 'Fast project setup using Vite, the recommended build tool for Vue 3.', 'sortOrder' => 2],
+                        ['title' => 'Lesson 1.3: Understanding the Vue 3 Application Instance', 'content' => 'How to create and mount a Vue 3 application.', 'sortOrder' => 3],
+                        ['title' => 'Lesson 1.4: Template Syntax and Directives in Vue 3', 'content' => 'Reviewing `v-bind`, `v-on`, `v-if`, `v-for`, and `v-model`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chapter 2: Deep Dive into Composition API',
+                    'description' => 'Mastering the new way to write and organize your Vue components.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Lesson 2.1: `setup()` function and its context', 'content' => 'Understanding the entry point for Composition API logic.', 'sortOrder' => 1],
+                        ['title' => 'Lesson 2.2: Reactive State with `ref` and `reactive`', 'content' => 'Creating reactive data using `ref` for primitives and `reactive` for objects.', 'sortOrder' => 2],
+                        ['title' => 'Lesson 2.3: Computed Properties and Watchers in Composition API', 'content' => 'Deriving state and reacting to state changes.', 'sortOrder' => 3],
+                        ['title' => 'Lesson 2.4: Lifecycle Hooks with Composition API', 'content' => 'Using `onMounted`, `onUpdated`, `onUnmounted` etc.', 'sortOrder' => 4],
+                        ['title' => 'Lesson 2.5: Creating Reusable Logic with Composables', 'content' => 'Building custom hooks for shared functionality.', 'sortOrder' => 5],
+                        ['title' => 'Lesson 2.6: Provide/Inject with Composition API', 'content' => 'Passing data down the component tree without prop drilling.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chapter 3: Advanced Components and Slots',
+                    'description' => 'Exploring powerful component features for flexible and dynamic UIs.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Lesson 3.1: Dynamic Components and `KeepAlive`', 'content' => 'Switching between components and preserving their state.', 'sortOrder' => 1],
+                        ['title' => 'Lesson 3.2: Render Functions and JSX in Vue 3', 'content' => 'Programmatic component rendering for advanced scenarios.', 'sortOrder' => 2],
+                        ['title' => 'Lesson 3.3: Scoped Slots and their usage', 'content' => 'Passing data from child to parent via slots.', 'sortOrder' => 3],
+                        ['title' => 'Lesson 3.4: Teleport: Rendering content elsewhere in the DOM', 'content' => 'Moving parts of your component to different DOM locations (e.g., modals).', 'sortOrder' => 4],
+                        ['title' => 'Lesson 3.5: Custom Directives in Vue 3', 'content' => 'Creating reusable DOM manipulation logic.', 'sortOrder' => 5],
+                        ['title' => 'Lesson 3.6: Async Components and Suspense', 'content' => 'Handling asynchronous component loading and fallback content.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chapter 4: State Management with Pinia',
+                    'description' => 'The new recommended state management library for Vue 3.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Lesson 4.1: Introduction to Pinia and its advantages', 'content' => 'Why Pinia is the preferred state management solution for Vue 3.', 'sortOrder' => 1],
+                        ['title' => 'Lesson 4.2: Defining and using Pinia Stores', 'content' => 'Creating and accessing stores in your components.', 'sortOrder' => 2],
+                        ['title' => 'Lesson 4.3: State, Getters, Actions in Pinia', 'content' => 'Understanding the core concepts of Pinia stores.', 'sortOrder' => 3],
+                        ['title' => 'Lesson 4.4: Modifying State and Asynchronous Actions', 'content' => 'How to update state and handle async operations in Pinia.', 'sortOrder' => 4],
+                        ['title' => 'Lesson 4.5: Store Plugins and Extensibility', 'content' => 'Extending Pinia functionality with plugins (e.g., persistence).', 'sortOrder' => 5],
+                        ['title' => 'Lesson 4.6: Migrating from Vuex to Pinia', 'content' => 'Guidance for transitioning existing Vuex projects to Pinia.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chapter 5: Vue Router 4 and Advanced Routing',
+                    'description' => 'Implementing robust navigation and dynamic routing in Vue 3 applications.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Lesson 5.1: Vue Router 4 Fundamentals', 'content' => 'Setting up and configuring the router in Vue 3.', 'sortOrder' => 1],
+                        ['title' => 'Lesson 5.2: Programmatic Navigation and Route Parameters', 'content' => 'Navigating with JavaScript and handling dynamic route segments.', 'sortOrder' => 2],
+                        ['title' => 'Lesson 5.3: Nested Routes and Named Views', 'content' => 'Creating complex routing structures and multiple views per route.', 'sortOrder' => 3],
+                        ['title' => 'Lesson 5.4: Navigation Guards: Global, Per-Route, In-Component', 'content' => 'Controlling access and behavior during navigation.', 'sortOrder' => 4],
+                        ['title' => 'Lesson 5.5: Route Meta Fields and Data Fetching', 'content' => 'Adding custom data to routes and fetching data before rendering.', 'sortOrder' => 5],
+                        ['title' => 'Lesson 5.6: Scroll Behavior and Transitions', 'content' => 'Customizing scroll position and adding page transitions.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chapter 6: Building and Deploying Vue 3 Applications',
+                    'description' => 'Optimizing your Vue 3 application for production and deploying it.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Lesson 6.1: Vite Build Process and Optimization', 'content' => 'Understanding how Vite builds your application for production.', 'sortOrder' => 1],
+                        ['title' => 'Lesson 6.2: Performance Best Practices in Vue 3', 'content' => 'Tips for writing efficient Vue 3 code.', 'sortOrder' => 2],
+                        ['title' => 'Lesson 6.3: Deploying to Static Hosting (Netlify, Vercel, Firebase Hosting)', 'content' => 'Step-by-step guide for deploying your SPA.', 'sortOrder' => 3],
+                        ['title' => 'Lesson 6.4: Server-Side Rendering (SSR) with Nuxt 3', 'content' => 'Introduction to Nuxt 3 for SEO and performance benefits.', 'sortOrder' => 4],
+                        ['title' => 'Lesson 6.5: Progressive Web Apps (PWAs) with Vue', 'content' => 'Making your Vue app installable and offline-capable.', 'sortOrder' => 5],
+                        ['title' => 'Lesson 6.6: Monitoring and Analytics for Vue Apps', 'content' => 'Tools for tracking application performance and user behavior.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Xây Dựng Dashboard Quản Lý với VueJS và Chart.js',
+            'description' => 'Học cách tạo các bảng điều khiển quản lý dữ liệu trực quan và tương tác cao sử dụng VueJS và thư viện Chart.js.',
+            'price' => 850000.00,
+            'categoryIds' => [6, 2, 44], // VueJS, Lập trình Web, Khoa học dữ liệu
+            'requirements' => [
+                'Kiến thức cơ bản về VueJS và JavaScript.',
+                'Hiểu biết về HTML/CSS.',
+                'Sự quan tâm đến trực quan hóa dữ liệu.'
+            ],
+            'objectives' => [
+                'Thiết kế và xây dựng giao diện dashboard responsive.',
+                'Tích hợp Chart.js để tạo các loại biểu đồ khác nhau (bar, line, pie).',
+                'Xử lý và hiển thị dữ liệu động từ API lên biểu đồ.',
+                'Tạo các widget và component tái sử dụng cho dashboard.',
+                'Triển khai tính năng lọc và sắp xếp dữ liệu.',
+                'Tối ưu hóa hiệu suất render biểu đồ và dữ liệu lớn.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Dashboard và Thiết lập Dự án Vue',
+                    'description' => 'Tổng quan về các loại dashboard và khởi tạo dự án Vue cho dashboard.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Dashboard là gì? Vai trò và các loại phổ biến', 'content' => 'Khái niệm dashboard, các ví dụ thực tế và lợi ích.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Lựa chọn Framework UI cho Dashboard (Vuetify, Quasar, Element Plus)', 'content' => 'So sánh và chọn một framework UI phù hợp.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Khởi tạo dự án Vue với Vite/Vue CLI và tích hợp UI Framework', 'content' => 'Thiết lập dự án và cài đặt thư viện UI.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Thiết kế Layout cơ bản cho Dashboard', 'content' => 'Xây dựng cấu trúc layout chính cho dashboard.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Tích hợp Chart.js và Biểu đồ Cơ bản',
+                    'description' => 'Học cách thêm Chart.js vào ứng dụng Vue và tạo các biểu đồ đầu tiên.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Giới thiệu Chart.js và Vue-Chartjs', 'content' => 'Tổng quan về Chart.js và wrapper Vue-Chartjs.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Cài đặt Vue-Chartjs và tạo biểu đồ cột (Bar Chart)', 'content' => 'Hướng dẫn cài đặt và vẽ biểu đồ cột đơn giản.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Tạo biểu đồ đường (Line Chart) và biểu đồ tròn (Pie Chart)', 'content' => 'Thực hành vẽ các loại biểu đồ phổ biến khác.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Tùy chỉnh Options và Styling cho biểu đồ', 'content' => 'Thay đổi màu sắc, font, tiêu đề, tooltip của biểu đồ.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Xử lý sự kiện trên biểu đồ (click, hover)', 'content' => 'Lắng nghe tương tác của người dùng với biểu đồ.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Cập nhật dữ liệu biểu đồ động', 'content' => 'Thay đổi dữ liệu biểu đồ theo thời gian thực.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Tải dữ liệu từ API và Hiển thị lên Biểu đồ',
+                    'description' => 'Kết nối dashboard với API backend để hiển thị dữ liệu thực tế.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu API mẫu cho Dashboard', 'content' => 'Sử dụng một API giả hoặc tự tạo để lấy dữ liệu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Sử dụng Axios để gọi API và xử lý dữ liệu', 'content' => 'Thực hành gọi API và chuyển đổi dữ liệu cho Chart.js.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Hiển thị trạng thái loading và lỗi khi gọi API', 'content' => 'Cải thiện trải nghiệm người dùng trong quá trình tải dữ liệu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Tái cấu trúc code để quản lý API calls hiệu quả', 'content' => 'Tạo các service hoặc composable để gọi API.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Xử lý dữ liệu đa dạng cho các loại biểu đồ khác nhau', 'content' => 'Ánh xạ dữ liệu từ API vào cấu trúc dữ liệu của Chart.js.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Refresh dữ liệu định kỳ và theo yêu cầu', 'content' => 'Tự động cập nhật biểu đồ sau một khoảng thời gian hoặc khi người dùng yêu cầu.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Xây dựng các Widget và Component Dashboard',
+                    'description' => 'Tạo các khối UI tái sử dụng cho dashboard của bạn.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Thiết kế Component Card và Statistic Card', 'content' => 'Tạo các card hiển thị số liệu thống kê quan trọng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Component Bảng dữ liệu (Data Table) với phân trang và tìm kiếm', 'content' => 'Xây dựng bảng hiển thị dữ liệu dạng bảng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Component Bộ lọc dữ liệu (Date Range Picker, Dropdown)', 'content' => 'Thêm các bộ lọc để người dùng tùy chỉnh dữ liệu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Tích hợp Map Component (nếu cần)', 'content' => 'Hiển thị dữ liệu trên bản đồ (ví dụ: Google Maps API).', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Xây dựng Reusable Chart Components', 'content' => 'Tạo các component biểu đồ có thể tái sử dụng với props.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Quản lý trạng thái Widget với Vuex/Pinia', 'content' => 'Lưu trữ và chia sẻ trạng thái của các widget.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Tương tác và Tối ưu hóa Dashboard',
+                    'description' => 'Cải thiện trải nghiệm người dùng và hiệu suất của dashboard.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Đồng bộ hóa dữ liệu giữa các biểu đồ và widget', 'content' => 'Khi một bộ lọc thay đổi, các biểu đồ khác cũng cập nhật.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Tối ưu hóa hiệu suất render biểu đồ với dữ liệu lớn', 'content' => 'Các kỹ thuật để xử lý hàng ngàn điểm dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Responsive Design cho Dashboard', 'content' => 'Đảm bảo dashboard hiển thị tốt trên mọi kích thước màn hình.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Xuất dữ liệu biểu đồ và bảng ra file (CSV, PDF)', 'content' => 'Thêm chức năng export dữ liệu.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Xử lý quyền truy cập và bảo mật dữ liệu', 'content' => 'Bảo vệ các API endpoint và dữ liệu nhạy cảm.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Logging và Monitoring Dashboard', 'content' => 'Theo dõi lỗi và hiệu suất của dashboard sau khi triển khai.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai Dashboard và Các Tính năng Nâng Cao',
+                    'description' => 'Đưa dashboard lên môi trường production và khám phá các tính năng bổ sung.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Build và Deploy Dashboard lên Hosting', 'content' => 'Các bước cuối cùng để deploy ứng dụng Vue dashboard.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tích hợp Real-time Data (WebSockets/Firebase Realtime Database)', 'content' => 'Cập nhật dữ liệu trên dashboard theo thời gian thực.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tích hợp Dashboard với Backend API thực tế', 'content' => 'Kết nối với một backend API hoàn chỉnh (Node.js, Laravel, etc.).', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Xây dựng tính năng tùy chỉnh Dashboard cho người dùng', 'content' => 'Cho phép người dùng sắp xếp lại hoặc ẩn/hiện các widget.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Internationalization (i18n) cho Dashboard', 'content' => 'Hỗ trợ đa ngôn ngữ cho dashboard.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Bảo trì và Nâng cấp Dashboard', 'content' => 'Các chiến lược để duy trì và phát triển dashboard trong tương lai.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'VueJS cho Người Mới Bắt Đầu: Học Nhanh, Làm Thật',
+            'description' => 'Khóa học lý tưởng cho những người chưa có kinh nghiệm về VueJS, tập trung vào các khái niệm cốt lõi và thực hành xây dựng các dự án nhỏ.',
+            'price' => 650000.00,
+            'categoryIds' => [6, 2], // VueJS, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về HTML, CSS và JavaScript.',
+                'Máy tính có kết nối internet.'
+            ],
+            'objectives' => [
+                'Hiểu rõ kiến trúc và nguyên lý hoạt động của VueJS.',
+                'Xây dựng các component Vue đơn giản và tương tác.',
+                'Sử dụng các chỉ thị Vue để điều khiển DOM.',
+                'Quản lý trạng thái cơ bản trong ứng dụng Vue.',
+                'Tạo ứng dụng SPA với Vue Router.',
+                'Hoàn thành các dự án thực tế nhỏ để củng cố kiến thức.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Bắt đầu với VueJS',
+                    'description' => 'Giới thiệu tổng quan và cách thiết lập dự án Vue đầu tiên.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: VueJS là gì và tại sao nó phổ biến?', 'content' => 'Tổng quan về VueJS và những lợi ích khi sử dụng nó.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cài đặt Vue CLI và tạo dự án mới', 'content' => 'Hướng dẫn chi tiết cách cài đặt công cụ và tạo dự án Vue.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cấu trúc một dự án Vue cơ bản', 'content' => 'Khám phá các file và thư mục quan trọng trong một dự án Vue.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Chạy ứng dụng Vue đầu tiên của bạn', 'content' => 'Cách khởi động và xem ứng dụng Vue trên trình duyệt.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Cú pháp Template và Data Binding',
+                    'description' => 'Làm quen với cách Vue hiển thị dữ liệu và tương tác với DOM.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Hiển thị dữ liệu với Interpolation `{{ }}`', 'content' => 'Cách nhúng dữ liệu JavaScript vào HTML.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Gắn kết thuộc tính HTML với `v-bind`', 'content' => 'Thay đổi động các thuộc tính của thẻ HTML.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Xử lý sự kiện với `v-on`', 'content' => 'Phản ứng với các hành động của người dùng như click, submit.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Data Binding hai chiều với `v-model` cho form input', 'content' => 'Liên kết dữ liệu giữa input và state một cách tự động.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Các chỉ thị điều kiện `v-if`, `v-else`, `v-show`', 'content' => 'Hiển thị hoặc ẩn các phần tử dựa trên điều kiện.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Render danh sách với `v-for`', 'content' => 'Lặp qua mảng dữ liệu để tạo danh sách các phần tử.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Components: Nền tảng của ứng dụng Vue',
+                    'description' => 'Học cách chia ứng dụng thành các khối nhỏ, tái sử dụng được gọi là component.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu về Components và lợi ích của chúng', 'content' => 'Hiểu tại sao component lại quan trọng trong phát triển ứng dụng hiện đại.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Tạo Component đơn file (`.vue`)', 'content' => 'Cấu trúc của một file `.vue` (template, script, style).', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Truyền dữ liệu từ cha xuống con với Props', 'content' => 'Cách component cha gửi dữ liệu đến component con.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Giao tiếp từ con lên cha với Custom Events', 'content' => 'Cách component con thông báo cho component cha về các sự kiện.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Slot: Chèn nội dung linh hoạt vào Component', 'content' => 'Sử dụng slot để tạo component có thể tùy chỉnh nội dung bên trong.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Bài tập thực hành: Xây dựng Component Todo Item', 'content' => 'Áp dụng kiến thức để tạo một component thực tế.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Quản lý Trạng thái và Computed Properties',
+                    'description' => 'Cách quản lý dữ liệu trong ứng dụng Vue và tạo các thuộc tính tính toán.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: State trong Vue Components', 'content' => 'Cách khai báo và quản lý dữ liệu cục bộ trong component.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Computed Properties: Dữ liệu tính toán hiệu quả', 'content' => 'Cách tạo các thuộc tính được tính toán dựa trên dữ liệu hiện có.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Watchers: Theo dõi sự thay đổi của dữ liệu', 'content' => 'Khi nào nên sử dụng watchers để phản ứng với thay đổi dữ liệu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Bài tập: Xây dựng ứng dụng Đếm số', 'content' => 'Thực hành quản lý state và computed properties.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Global State Management (giới thiệu Vuex/Pinia)', 'content' => 'Tổng quan về cách quản lý trạng thái toàn cục cho ứng dụng lớn.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Sử dụng Provide/Inject để chia sẻ dữ liệu', 'content' => 'Một cách đơn giản để chia sẻ dữ liệu giữa các component không liên quan trực tiếp.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Định tuyến với Vue Router',
+                    'description' => 'Biến ứng dụng Vue của bạn thành một Single Page Application (SPA) với nhiều trang.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu về Single Page Application (SPA) và Vue Router', 'content' => 'Hiểu về SPA và vai trò của thư viện định tuyến.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Cài đặt và cấu hình Vue Router cơ bản', 'content' => 'Thêm Vue Router vào dự án và định nghĩa các route đầu tiên.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Tạo các liên kết điều hướng với `<router-link>`', 'content' => 'Cách chuyển đổi giữa các trang trong ứng dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Dynamic Route Matching và Nested Routes', 'content' => 'Tạo các route linh hoạt và route lồng nhau.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Programmatic Navigation', 'content' => 'Chuyển đổi route bằng code JavaScript.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Bài tập: Xây dựng ứng dụng Blog đơn giản với Router', 'content' => 'Thực hành tạo các trang và điều hướng.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tương tác với API và Triển khai',
+                    'description' => 'Học cách lấy dữ liệu từ backend và đưa ứng dụng của bạn lên mạng.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Giới thiệu về API và HTTP Requests', 'content' => 'Hiểu cách ứng dụng frontend giao tiếp với backend.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Sử dụng `fetch` API để gọi dữ liệu', 'content' => 'Cách gửi yêu cầu GET và hiển thị dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Sử dụng thư viện Axios để đơn giản hóa API calls', 'content' => 'Cài đặt và sử dụng Axios cho các yêu cầu HTTP.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Xử lý lỗi và trạng thái loading khi gọi API', 'content' => 'Cải thiện trải nghiệm người dùng trong quá trình tải dữ liệu.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Build ứng dụng Vue cho Production', 'content' => 'Các bước để tối ưu hóa và đóng gói ứng dụng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Triển khai ứng dụng Vue lên Netlify/Vercel', 'content' => 'Hướng dẫn deploy ứng dụng Vue của bạn lên môi trường hosting miễn phí.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Xây Dựng Ứng Dụng Mạng Xã Hội với VueJS và GraphQL',
+            'description' => 'Khóa học chuyên sâu về việc xây dựng một ứng dụng mạng xã hội hiện đại, sử dụng VueJS cho frontend và GraphQL để quản lý dữ liệu linh hoạt.',
+            'price' => 1500000.00,
+            'categoryIds' => [6, 2, 13], // VueJS, Lập trình Web, Web APIs
+            'requirements' => [
+                'Kiến thức vững chắc về VueJS (Composition API/Options API).',
+                'Hiểu biết về JavaScript (ES6+) và API RESTful.',
+                'Sự quan tâm đến kiến trúc GraphQL.'
+            ],
+            'objectives' => [
+                'Hiểu rõ kiến trúc và lợi ích của GraphQL.',
+                'Thiết lập Apollo Client trong ứng dụng VueJS.',
+                'Thực hiện các truy vấn (Queries) và thay đổi (Mutations) GraphQL.',
+                'Quản lý xác thực người dùng và ủy quyền với GraphQL.',
+                'Xây dựng các tính năng mạng xã hội (bài đăng, bình luận, follow).',
+                'Sử dụng Subscriptions để cập nhật dữ liệu thời gian thực.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu GraphQL và Apollo',
+                    'description' => 'Tổng quan về GraphQL, so sánh với REST và cách tích hợp Apollo Client vào VueJS.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: GraphQL là gì? Tại sao nên sử dụng GraphQL?', 'content' => 'Khái niệm, ưu điểm và các trường hợp sử dụng của GraphQL.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: So sánh GraphQL với REST API', 'content' => 'Phân tích sự khác biệt và lợi ích của từng kiến trúc.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Giới thiệu Apollo Client và cách hoạt động', 'content' => 'Tổng quan về Apollo Client và vai trò của nó trong ứng dụng Vue.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Thiết lập Apollo Client trong dự án VueJS', 'content' => 'Hướng dẫn cài đặt và cấu hình Apollo Client.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Queries: Lấy dữ liệu với GraphQL',
+                    'description' => 'Học cách viết và thực hiện các truy vấn GraphQL để lấy dữ liệu từ server.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Cú pháp Queries cơ bản trong GraphQL', 'content' => 'Cách định nghĩa các trường cần lấy và tham số.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Sử dụng `useQuery` Hook (Composition API) hoặc `apollo` option (Options API)', 'content' => 'Thực hiện truy vấn dữ liệu trong component Vue.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Variables: Truyền tham số động vào Queries', 'content' => 'Cách sử dụng biến để làm cho truy vấn linh hoạt hơn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Fragments: Tái sử dụng các phần của Query', 'content' => 'Tổ chức các truy vấn lớn thành các phần nhỏ hơn.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Aliases và Directives trong Queries', 'content' => 'Đổi tên trường và sử dụng `@include`, `@skip`.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Fetch Policy và Caching trong Apollo Client', 'content' => 'Kiểm soát cách Apollo Client lưu trữ và lấy dữ liệu từ cache.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Mutations: Thay đổi dữ liệu với GraphQL',
+                    'description' => 'Học cách gửi các yêu cầu thay đổi dữ liệu (tạo, cập nhật, xóa) đến server GraphQL.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Cú pháp Mutations cơ bản trong GraphQL', 'content' => 'Cách định nghĩa các thao tác thay đổi dữ liệu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Sử dụng `useMutation` Hook hoặc `apollo` option cho Mutations', 'content' => 'Thực hiện các thay đổi dữ liệu trong component Vue.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Cập nhật Cache sau khi Mutation', 'content' => 'Cách Apollo Client tự động hoặc thủ công cập nhật cache sau khi thay đổi dữ liệu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Optimistic UI Updates', 'content' => 'Cải thiện trải nghiệm người dùng bằng cách hiển thị thay đổi ngay lập tức.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Xử lý lỗi và hiển thị thông báo', 'content' => 'Cách bắt lỗi từ GraphQL server và hiển thị cho người dùng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: File Upload với GraphQL', 'content' => 'Cách tải lên hình ảnh hoặc file khác thông qua GraphQL.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Xác thực và Ủy quyền với GraphQL',
+                    'description' => 'Triển khai hệ thống đăng ký, đăng nhập và kiểm soát quyền truy cập.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Chiến lược Xác thực trong ứng dụng GraphQL', 'content' => 'Sử dụng JWT (JSON Web Tokens) với GraphQL.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Đăng ký và Đăng nhập người dùng', 'content' => 'Tạo Mutations để xử lý đăng ký và đăng nhập.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Lưu trữ và truyền JWT với Apollo Client', 'content' => 'Cách gửi token xác thực trong mỗi yêu cầu GraphQL.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Bảo vệ Route với Navigation Guards và Auth State', 'content' => 'Kiểm tra quyền truy cập trước khi vào một route.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Ủy quyền (Authorization) trong GraphQL', 'content' => 'Cách server GraphQL kiểm tra quyền của người dùng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Refresh Tokens và Session Management', 'content' => 'Quản lý phiên đăng nhập dài hạn.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Xây dựng các Tính năng Mạng Xã Hội',
+                    'description' => 'Triển khai các chức năng cốt lõi của một ứng dụng mạng xã hội.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Tạo và Hiển thị Bài đăng (Posts)', 'content' => 'Xây dựng giao diện và logic cho việc tạo và hiển thị bài đăng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Thích (Likes) và Bình luận (Comments) cho Bài đăng', 'content' => 'Triển khai chức năng tương tác với bài đăng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Chức năng Theo dõi (Follow/Unfollow) người dùng', 'content' => 'Xây dựng mối quan hệ giữa các người dùng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Trang Hồ sơ người dùng (User Profile)', 'content' => 'Hiển thị thông tin và các bài đăng của người dùng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Tính năng Tìm kiếm người dùng và bài đăng', 'content' => 'Triển khai chức năng tìm kiếm với GraphQL.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Notifications và Real-time Updates', 'content' => 'Sử dụng Subscriptions để nhận thông báo tức thì.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Subscriptions: Dữ liệu thời gian thực',
+                    'description' => 'Học cách sử dụng GraphQL Subscriptions để xây dựng các tính năng thời gian thực.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Giới thiệu GraphQL Subscriptions và WebSockets', 'content' => 'Hiểu về Subscriptions và cách chúng hoạt động với WebSockets.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Thiết lập WebSocket Link cho Apollo Client', 'content' => 'Cấu hình Apollo Client để hỗ trợ Subscriptions.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tạo Subscription để lắng nghe bài đăng mới', 'content' => 'Thực hành tạo Subscription để nhận thông báo khi có bài đăng mới.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Cập nhật UI với dữ liệu từ Subscription', 'content' => 'Cách hiển thị dữ liệu thời gian thực trên giao diện.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Subscriptions cho Bình luận và Likes', 'content' => 'Triển khai các tính năng tương tác thời gian thực khác.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Tối ưu hóa hiệu suất Subscriptions và Debugging', 'content' => 'Các kỹ thuật để đảm bảo Subscriptions hoạt động hiệu quả.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Nuxt.js Toàn Tập: Xây Dựng Ứng Dụng Vue Mạnh Mẽ với SSR/SSG',
+            'description' => 'Học cách xây dựng các ứng dụng VueJS mạnh mẽ, tối ưu SEO và hiệu suất với Nuxt.js, bao gồm Server-Side Rendering (SSR) và Static Site Generation (SSG).',
+            'price' => 1300000.00,
+            'categoryIds' => [6, 2], // VueJS, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về VueJS (Composition API/Options API).',
+                'Hiểu biết về JavaScript (ES6+) và Node.js.'
+            ],
+            'objectives' => [
+                'Hiểu rõ kiến trúc và lợi ích của Nuxt.js (SSR, SSG, SPA).',
+                'Thiết lập dự án Nuxt.js và cấu hình cơ bản.',
+                'Sử dụng hệ thống định tuyến dựa trên file của Nuxt.',
+                'Quản lý trạng thái với Pinia trong Nuxt.',
+                'Fetch dữ liệu hiệu quả với `useAsyncData` và `useFetch`.',
+                'Triển khai ứng dụng Nuxt.js lên các nền tảng hosting.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Nuxt.js và Khái niệm cốt lõi',
+                    'description' => 'Tổng quan về Nuxt.js, các chế độ render và lợi ích của nó.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Nuxt.js là gì? Tại sao cần Nuxt?', 'content' => 'Giới thiệu về Nuxt.js, các tính năng chính và lợi ích cho SEO/hiệu suất.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các chế độ Render: SPA, SSR, SSG (Static Site Generation)', 'content' => 'Phân biệt và hiểu rõ khi nào sử dụng từng chế độ.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt Nuxt.js và tạo dự án đầu tiên', 'content' => 'Hướng dẫn khởi tạo dự án Nuxt 3 với `nuxi init`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu trúc thư mục Nuxt.js cơ bản', 'content' => 'Khám phá các thư mục `pages`, `components`, `layouts`, `assets`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Định tuyến và Views trong Nuxt.js',
+                    'description' => 'Sử dụng hệ thống định tuyến dựa trên file của Nuxt để xây dựng các trang.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Hệ thống định tuyến dựa trên file (`pages` directory)', 'content' => 'Tự động tạo route từ cấu trúc thư mục.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Dynamic Routes và Catch-all Routes', 'content' => 'Tạo route động với tham số và xử lý các route không tồn tại.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Nested Routes và Layouts', 'content' => 'Tạo các route lồng nhau và sử dụng layouts để chia sẻ giao diện.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Navigation với `<NuxtLink>` và `navigateTo`', 'content' => 'Cách điều hướng giữa các trang trong Nuxt.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Middleware: Bảo vệ và xử lý Route', 'content' => 'Sử dụng middleware để kiểm soát quyền truy cập và logic trước khi vào trang.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Custom Error Page', 'content' => 'Thiết kế trang lỗi 404 và các lỗi khác.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Quản lý State với Pinia trong Nuxt.js',
+                    'description' => 'Tích hợp Pinia để quản lý trạng thái toàn cục trong ứng dụng Nuxt.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu Pinia và tích hợp vào Nuxt', 'content' => 'Cài đặt và cấu hình Pinia trong dự án Nuxt 3.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Định nghĩa và sử dụng Pinia Stores', 'content' => 'Cách tạo và truy cập các store trong component và composable.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: State, Getters, Actions trong Pinia Stores', 'content' => 'Hiểu rõ các thành phần cốt lõi của Pinia.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Server-Side State Hydration với Pinia', 'content' => 'Đảm bảo trạng thái được đồng bộ giữa server và client.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Modules và tổ chức Pinia Stores lớn', 'content' => 'Chia nhỏ store thành các module để quản lý dễ dàng hơn.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Persist State với Pinia Plugin', 'content' => 'Lưu trữ trạng thái Pinia vào Local Storage.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Data Fetching trong Nuxt.js',
+                    'description' => 'Các chiến lược hiệu quả để tải dữ liệu trong ứng dụng Nuxt.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu `useAsyncData` và `useFetch`', 'content' => 'Các composable chính để lấy dữ liệu bất đồng bộ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Fetching data on Server-Side (SSR)', 'content' => 'Cách dữ liệu được tải trước khi trang được render trên server.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Client-Side Data Fetching', 'content' => 'Tải dữ liệu sau khi trang đã render trên client.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Xử lý lỗi và trạng thái Loading', 'content' => 'Hiển thị thông báo lỗi và loading state cho người dùng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Refreshing Data và Caching', 'content' => 'Cập nhật dữ liệu và quản lý cache hiệu quả.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Tích hợp API bên ngoài (REST/GraphQL)', 'content' => 'Kết nối Nuxt với các API backend khác nhau.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: SEO và Tối ưu hóa Hiệu suất với Nuxt.js',
+                    'description' => 'Tận dụng các tính năng của Nuxt để cải thiện SEO và tốc độ tải trang.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Meta Tags và SEO cơ bản trong Nuxt', 'content' => 'Sử dụng `useHead` để quản lý meta tags động.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Tối ưu hóa hình ảnh với Nuxt Image', 'content' => 'Sử dụng module Nuxt Image để xử lý hình ảnh hiệu quả.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Code Splitting và Lazy Loading', 'content' => 'Giảm kích thước bundle và tải tài nguyên theo yêu cầu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Web Vitals và Core Web Vitals', 'content' => 'Hiểu các chỉ số hiệu suất web quan trọng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Caching và CDN cho tài nguyên tĩnh', 'content' => 'Sử dụng cache và CDN để tăng tốc độ tải trang.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Server-Side Rendering (SSR) và SEO', 'content' => 'Lợi ích của SSR đối với việc index của công cụ tìm kiếm.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai Nuxt.js và Các Tính năng Nâng Cao',
+                    'description' => 'Đưa ứng dụng Nuxt lên môi trường production và khám phá các tính năng bổ sung.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Triển khai Nuxt.js ở chế độ SSR (Node.js Server)', 'content' => 'Deploy ứng dụng Nuxt lên các nền tảng như Vercel, Netlify, Heroku.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Triển khai Nuxt.js ở chế độ SSG (Static Hosting)', 'content' => 'Tạo các file HTML tĩnh và deploy lên bất kỳ static host nào.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tích hợp Authentication trong Nuxt.js', 'content' => 'Sử dụng các module auth hoặc tự triển khai xác thực.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Nuxt Modules và Extensibility', 'content' => 'Khám phá hệ sinh thái module của Nuxt và cách tạo module riêng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Testing Nuxt.js Applications', 'content' => 'Các công cụ và chiến lược để test ứng dụng Nuxt.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Nâng cấp từ Nuxt 2 lên Nuxt 3', 'content' => 'Hướng dẫn di chuyển các dự án cũ lên phiên bản Nuxt mới nhất.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'VueJS và TypeScript: Xây Dựng Ứng Dụng An Toàn và Dễ Bảo Trì',
+            'description' => 'Học cách kết hợp sức mạnh của VueJS với TypeScript để xây dựng các ứng dụng frontend có khả năng mở rộng, dễ bảo trì và ít lỗi hơn.',
+            'price' => 1000000.00,
+            'categoryIds' => [6, 2], // VueJS, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về VueJS (Vue 2 hoặc Vue 3).',
+                'Hiểu biết cơ bản về TypeScript hoặc mong muốn học.',
+                'Kinh nghiệm với JavaScript (ES6+).'
+            ],
+            'objectives' => [
+                'Hiểu lợi ích của việc sử dụng TypeScript với VueJS.',
+                'Thiết lập dự án VueJS với TypeScript.',
+                'Sử dụng TypeScript trong Options API và Composition API.',
+                'Định nghĩa types và interfaces cho props, state, events.',
+                'Tích hợp TypeScript với Vuex/Pinia và Vue Router.',
+                'Viết code VueJS sạch, an toàn và dễ đọc với TypeScript.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu TypeScript và Lợi ích với VueJS',
+                    'description' => 'Tổng quan về TypeScript và tại sao nó là một công cụ mạnh mẽ cho các dự án Vue.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: TypeScript là gì? Tại sao nên dùng TypeScript?', 'content' => 'Khái niệm, các tính năng chính và lợi ích của TypeScript.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Lợi ích của TypeScript khi kết hợp với VueJS', 'content' => 'Cải thiện khả năng bảo trì, phát hiện lỗi sớm, tự động hoàn thành code.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt TypeScript và thiết lập dự án Vue', 'content' => 'Hướng dẫn cấu hình dự án Vue với TypeScript (Vue CLI/Vite).', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu hình `tsconfig.json` cho dự án Vue', 'content' => 'Các tùy chọn quan trọng trong file cấu hình TypeScript.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: TypeScript trong Options API (Vue 2/3)',
+                    'description' => 'Cách sử dụng TypeScript với Options API cho các dự án Vue hiện có hoặc mới.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Typing Props và Data', 'content' => 'Định nghĩa kiểu dữ liệu cho props và dữ liệu trong component.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Typing Computed Properties và Methods', 'content' => 'Gán kiểu cho các thuộc tính tính toán và phương thức.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Typing Events và Emits', 'content' => 'Định nghĩa kiểu cho các sự kiện tùy chỉnh được phát ra.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Sử dụng Class-Style Components với `vue-property-decorator`', 'content' => 'Viết component Vue theo phong cách class với TypeScript.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Mixins và TypeScript', 'content' => 'Cách sử dụng mixins an toàn với TypeScript.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Xử lý `this` context trong Options API với TypeScript', 'content' => 'Đảm bảo `this` được gán kiểu đúng trong component.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: TypeScript trong Composition API (Vue 3)',
+                    'description' => 'Sử dụng TypeScript để khai thác tối đa sức mạnh của Composition API.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Typing `ref`, `reactive`, `computed`, `watch`', 'content' => 'Định nghĩa kiểu cho các hàm reactivity cốt lõi.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Typing Props trong Composition API với `defineProps`', 'content' => 'Cách định nghĩa kiểu cho props một cách gọn gàng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Typing Emits trong Composition API với `defineEmits`', 'content' => 'Đảm bảo các sự kiện phát ra có kiểu đúng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Typing Slots trong Composition API', 'content' => 'Định nghĩa kiểu cho các slot được sử dụng trong component.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Typing Custom Composables', 'content' => 'Cách tạo các composable an toàn kiểu dữ liệu.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Generic Components với TypeScript', 'content' => 'Tạo các component có thể làm việc với nhiều kiểu dữ liệu khác nhau.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Tích hợp TypeScript với Vuex/Pinia',
+                    'description' => 'Quản lý trạng thái ứng dụng một cách an toàn kiểu dữ liệu với TypeScript.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Typing Vuex Store (Vue 2/3)', 'content' => 'Định nghĩa kiểu cho State, Getters, Mutations, Actions trong Vuex.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Sử dụng `createNamespacedHelpers` với TypeScript', 'content' => 'Cách ánh xạ các helper Vuex an toàn kiểu dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Typing Pinia Stores (Vue 3)', 'content' => 'Định nghĩa kiểu cho State, Getters, Actions trong Pinia.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Sử dụng Pinia Composables với TypeScript', 'content' => 'Tích hợp Pinia stores vào các composable functions.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Xử lý Asynchronous Operations với TypeScript trong Store', 'content' => 'Đảm bảo các tác vụ bất đồng bộ được gán kiểu đúng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Best Practices cho State Management với TS', 'content' => 'Các mẹo để viết code quản lý trạng thái sạch và an toàn kiểu dữ liệu.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: TypeScript với Vue Router và API Calls',
+                    'description' => 'Đảm bảo an toàn kiểu dữ liệu cho định tuyến và tương tác với API.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Typing Route Parameters và Query Strings', 'content' => 'Định nghĩa kiểu cho các tham số và query trong route.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Typing Navigation Guards', 'content' => 'Đảm bảo các navigation guards được gán kiểu đúng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Typing API Responses và Request Payloads', 'content' => 'Định nghĩa kiểu cho dữ liệu gửi/nhận từ API.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Sử dụng Axios với TypeScript', 'content' => 'Cấu hình Axios để làm việc hiệu quả với TypeScript.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Xử lý lỗi API an toàn kiểu dữ liệu', 'content' => 'Cách bắt và xử lý lỗi từ API với TypeScript.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Tạo Custom Hooks/Composables cho API Calls', 'content' => 'Xây dựng các hàm tái sử dụng để gọi API với TypeScript.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các Kỹ thuật Nâng Cao và Best Practices',
+                    'description' => 'Đi sâu vào các kỹ thuật TypeScript nâng cao và các thực hành tốt nhất trong dự án Vue.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Generics trong TypeScript cho Vue', 'content' => 'Sử dụng generics để tạo code linh hoạt và tái sử dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Decorators và Metaprogramming (Vue 2 Class Components)', 'content' => 'Khám phá cách sử dụng decorators.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Type Guards và Type Assertions', 'content' => 'Các kỹ thuật để làm việc với các kiểu không rõ ràng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Tổ chức file và cấu trúc dự án TypeScript/Vue', 'content' => 'Cách sắp xếp code để dễ bảo trì.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Linting và Formatting với ESLint/Prettier cho TypeScript', 'content' => 'Thiết lập công cụ để đảm bảo chất lượng code.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Migrating từ JavaScript sang TypeScript trong dự án Vue', 'content' => 'Chiến lược để chuyển đổi một dự án hiện có.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Xây Dựng Game Web Đơn Giản với VueJS và Canvas',
+            'description' => 'Học cách tạo các trò chơi web tương tác đơn giản bằng cách kết hợp VueJS để quản lý UI và Canvas API để vẽ đồ họa.',
+            'price' => 750000.00,
+            'categoryIds' => [6, 2, 20], // VueJS, Lập trình Web, Lập trình Game
+            'requirements' => [
+                'Kiến thức cơ bản về VueJS và JavaScript.',
+                'Hiểu biết về HTML Canvas API (hoặc sẵn sàng học).',
+                'Sự sáng tạo và hứng thú với game development.'
+            ],
+            'objectives' => [
+                'Hiểu cách VueJS và Canvas API hoạt động cùng nhau.',
+                'Vẽ các hình dạng, văn bản và hình ảnh lên Canvas.',
+                'Xử lý tương tác người dùng (input) trong game.',
+                'Tạo vòng lặp game và cập nhật trạng thái game.',
+                'Xây dựng các game nhỏ như Flappy Bird, Pong, hoặc Snake.',
+                'Quản lý trạng thái game với Vuex/Pinia.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Game Development với VueJS & Canvas',
+                    'description' => 'Tổng quan về việc kết hợp VueJS và Canvas để phát triển game web.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Tại sao dùng VueJS và Canvas cho game web?', 'content' => 'Ưu điểm của sự kết hợp này và các loại game phù hợp.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Giới thiệu HTML Canvas API cơ bản', 'content' => 'Cách tạo thẻ canvas và lấy context 2D.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Thiết lập dự án Vue và Component Canvas', 'content' => 'Khởi tạo dự án Vue và tạo một component chứa canvas.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Vẽ các hình dạng cơ bản (hình chữ nhật, tròn, đường thẳng) lên Canvas', 'content' => 'Sử dụng `fillRect`, `strokeRect`, `arc`, `lineTo`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Vẽ và Xóa trên Canvas',
+                    'description' => 'Các kỹ thuật vẽ đồ họa và quản lý việc cập nhật màn hình game.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Vẽ văn bản và hình ảnh lên Canvas', 'content' => 'Sử dụng `fillText`, `drawImage` để thêm văn bản và hình ảnh.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Xóa Canvas và cập nhật màn hình', 'content' => 'Sử dụng `clearRect` để xóa phần tử và chuẩn bị cho frame mới.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Vòng lặp Game: `requestAnimationFrame`', 'content' => 'Hiểu về vòng lặp game và cách sử dụng `requestAnimationFrame` để tối ưu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Quản lý Assets (hình ảnh, âm thanh)', 'content' => 'Cách tải và sử dụng các tài nguyên trong game.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Tối ưu hóa hiệu suất vẽ Canvas', 'content' => 'Các mẹo để tránh giật lag khi vẽ nhiều đối tượng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Bài tập: Tạo một hình ảnh di chuyển trên Canvas', 'content' => 'Thực hành vẽ và di chuyển một đối tượng đơn giản.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Xử lý Input Người dùng và Logic Game',
+                    'description' => 'Cách game phản ứng với tương tác của người chơi và các quy tắc game.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Xử lý sự kiện bàn phím (`keydown`, `keyup`)', 'content' => 'Lắng nghe các phím bấm để điều khiển game.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Xử lý sự kiện chuột (`click`, `mousemove`)', 'content' => 'Tương tác với game bằng chuột.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Cập nhật trạng thái Game Object', 'content' => 'Thay đổi vị trí, tốc độ, điểm số của các đối tượng trong game.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Phát hiện va chạm (Collision Detection)', 'content' => 'Cách kiểm tra xem hai đối tượng có va chạm với nhau không.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Quản lý điểm số và trạng thái Game Over', 'content' => 'Theo dõi điểm số và kết thúc game.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Bài tập: Xây dựng game Pong cơ bản', 'content' => 'Áp dụng kiến thức để tạo game Pong với hai người chơi.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Quản lý Trạng thái Game với Vuex/Pinia',
+                    'description' => 'Sử dụng các thư viện quản lý trạng thái để tổ chức dữ liệu game.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Tại sao cần quản lý trạng thái game tập trung?', 'content' => 'Vấn đề của việc quản lý state phân tán trong game phức tạp.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Thiết lập Vuex/Pinia Store cho Game', 'content' => 'Cấu hình store để lưu trữ trạng thái game (điểm, vị trí người chơi, v.v.).', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Lưu trữ Game State (player position, score, game status)', 'content' => 'Cách định nghĩa state và getters trong store.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Mutations: Thay đổi trạng thái game an toàn', 'content' => 'Sử dụng mutations để cập nhật state một cách đồng bộ.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Actions: Xử lý logic game và tác vụ bất đồng bộ', 'content' => 'Cách actions gọi mutations và xử lý logic phức tạp hơn.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Kết nối Component Canvas với Vuex/Pinia', 'content' => 'Cách component Canvas đọc và cập nhật trạng thái từ store.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Phát triển Game Flappy Bird với VueJS',
+                    'description' => 'Xây dựng một phiên bản đơn giản của game Flappy Bird để củng cố kiến thức.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Phân tích và thiết kế Game Flappy Bird', 'content' => 'Xác định các đối tượng (chim, ống, nền) và quy tắc game.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Vẽ Chim và xử lý trọng lực', 'content' => 'Tạo đối tượng chim và áp dụng vật lý cơ bản.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Tạo và di chuyển các ống (Pipes)', 'content' => 'Sinh ra các cặp ống và làm cho chúng di chuyển.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Phát hiện va chạm giữa Chim và Ống/Nền', 'content' => 'Kiểm tra va chạm để kết thúc game.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Tính điểm và Game Over Screen', 'content' => 'Cập nhật điểm số và hiển thị màn hình kết thúc game.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Thêm hiệu ứng âm thanh và nhạc nền', 'content' => 'Cải thiện trải nghiệm game với âm thanh.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các Kỹ thuật Game Nâng Cao và Triển khai',
+                    'description' => 'Khám phá các khái niệm game development nâng cao và cách đưa game của bạn lên mạng.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Sprite Sheets và Animation', 'content' => 'Sử dụng sprite sheets để tạo hoạt ảnh cho nhân vật.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Particle Systems cho hiệu ứng đặc biệt', 'content' => 'Tạo các hiệu ứng như nổ, khói, lửa.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tích hợp Gamepad API', 'content' => 'Cho phép người chơi điều khiển game bằng gamepad.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Tối ưu hóa hiệu suất cho game phức tạp', 'content' => 'Các kỹ thuật để đảm bảo game chạy mượt mà.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Build và Triển khai Game Web', 'content' => 'Đóng gói và deploy game lên các nền tảng hosting.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Giới thiệu các Game Engine dựa trên Vue (tùy chọn)', 'content' => 'Khám phá các thư viện/framework chuyên dụng cho game dev với Vue.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'VueJS và Tailwind CSS: Xây Dựng Giao Diện Nhanh Chóng và Đẹp Mắt',
+            'description' => 'Học cách kết hợp VueJS với Tailwind CSS để xây dựng các giao diện người dùng hiện đại, responsive và tùy chỉnh cao một cách nhanh chóng.',
+            'price' => 800000.00,
+            'categoryIds' => [6, 2, 50], // VueJS, Lập trình Web, Thiết kế Web
+            'requirements' => [
+                'Kiến thức cơ bản về HTML, CSS và VueJS.',
+                'Hiểu biết về khái niệm Utility-First CSS.'
+            ],
+            'objectives' => [
+                'Hiểu rõ triết lý Utility-First của Tailwind CSS.',
+                'Thiết lập dự án VueJS với Tailwind CSS.',
+                'Sử dụng các lớp tiện ích của Tailwind để tạo kiểu cho component Vue.',
+                'Xây dựng giao diện responsive với Tailwind breakpoints.',
+                'Tùy chỉnh cấu hình Tailwind CSS.',
+                'Tối ưu hóa Tailwind CSS cho production.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Tailwind CSS và Tích hợp với VueJS',
+                    'description' => 'Tổng quan về Tailwind CSS, triết lý Utility-First và cách cài đặt vào dự án Vue.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Tailwind CSS là gì? Triết lý Utility-First', 'content' => 'Khái niệm, ưu điểm và nhược điểm của Tailwind CSS.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: So sánh Tailwind với các Framework CSS khác (Bootstrap, Bulma)', 'content' => 'Phân tích sự khác biệt và khi nào nên dùng Tailwind.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt Tailwind CSS trong dự án Vue (Vite/Vue CLI)', 'content' => 'Hướng dẫn chi tiết các bước cài đặt và cấu hình PostCSS.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu hình file `tailwind.config.js` cơ bản', 'content' => 'Khám phá các tùy chọn cấu hình chính của Tailwind.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Các Lớp Tiện ích (Utility Classes) Cơ bản',
+                    'description' => 'Làm quen với các lớp tiện ích phổ biến nhất của Tailwind để tạo kiểu nhanh chóng.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Typography: Font size, weight, color, text alignment', 'content' => 'Sử dụng các lớp để kiểm soát văn bản.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Spacing: Padding và Margin', 'content' => 'Cách sử dụng `p-`, `m-` để tạo khoảng cách.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Sizing: Width và Height', 'content' => 'Kiểm soát kích thước của các phần tử.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Colors và Backgrounds', 'content' => 'Áp dụng màu sắc cho văn bản và nền.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Flexbox và Grid: Xây dựng Layout', 'content' => 'Sử dụng `flex`, `grid` để tạo bố cục responsive.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Borders, Shadows, Rounded Corners', 'content' => 'Thêm viền, bóng, bo góc cho các phần tử.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Responsive Design với Tailwind Breakpoints',
+                    'description' => 'Học cách xây dựng giao diện thích ứng với các kích thước màn hình khác nhau.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu Responsive Design và Mobile-First', 'content' => 'Các nguyên tắc cơ bản của thiết kế responsive.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Các Breakpoints mặc định của Tailwind CSS (sm, md, lg, xl, 2xl)', 'content' => 'Hiểu các điểm ngắt và cách chúng hoạt động.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Áp dụng Utility Classes theo Breakpoints', 'content' => 'Thay đổi kiểu dáng dựa trên kích thước màn hình.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Ẩn/Hiển thị phần tử theo Breakpoints', 'content' => 'Sử dụng `hidden`, `block` với các tiền tố responsive.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Thiết kế Layout Responsive với Flexbox/Grid', 'content' => 'Xây dựng các bố cục phức tạp thích ứng tốt.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Bài tập: Xây dựng Responsive Navbar và Card Layout', 'content' => 'Thực hành tạo các thành phần UI responsive.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Tùy chỉnh Tailwind CSS và Plugins',
+                    'description' => 'Mở rộng và tùy chỉnh Tailwind CSS để phù hợp với thương hiệu và yêu cầu dự án của bạn.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Tùy chỉnh Theme: Colors, Fonts, Spacing', 'content' => 'Thay đổi các giá trị mặc định trong `tailwind.config.js`.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Thêm Custom Utility Classes', 'content' => 'Tạo các lớp tiện ích riêng của bạn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Sử dụng `@apply` để trích xuất Components', 'content' => 'Tạo các component CSS từ các lớp tiện ích.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Tích hợp Plugins của Tailwind CSS', 'content' => 'Sử dụng các plugin chính thức (Forms, Typography).', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Viết Custom Plugins cho Tailwind', 'content' => 'Tạo plugin riêng để mở rộng Tailwind.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Quản lý Variants và States (hover, focus, active)', 'content' => 'Tạo kiểu cho các trạng thái tương tác của phần tử.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Xây Dựng Component Vue với Tailwind CSS',
+                    'description' => 'Cách áp dụng Tailwind CSS một cách hiệu quả trong các component Vue.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Áp dụng Tailwind Classes trực tiếp trong Template Vue', 'content' => 'Cách sử dụng các lớp tiện ích trong JSX/template.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Sử dụng Props để điều khiển Styling động', 'content' => 'Thay đổi kiểu dáng component dựa trên props.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Conditional Classes và Class Binding', 'content' => 'Thêm/xóa lớp dựa trên điều kiện.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Scoped Styles và Tailwind CSS', 'content' => 'Cách sử dụng scoped styles mà không xung đột với Tailwind.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Xây dựng các Component UI phức tạp (Modal, Dropdown, Tabs)', 'content' => 'Áp dụng Tailwind để tạo các component tương tác.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Tích hợp Icon Libraries (Font Awesome, Lucide) với Tailwind', 'content' => 'Sử dụng các thư viện icon trong dự án Vue/Tailwind.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tối ưu hóa Production và Best Practices',
+                    'description' => 'Các kỹ thuật để đảm bảo Tailwind CSS hoạt động hiệu quả nhất trong môi trường production.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: PurgeCSS/JIT Mode: Giảm kích thước file CSS', 'content' => 'Cách loại bỏ CSS không sử dụng để tối ưu hóa.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tối ưu hóa hiệu suất render Vue với Tailwind', 'content' => 'Các mẹo để đảm bảo ứng dụng chạy mượt mà.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Atomic Design và Tailwind CSS', 'content' => 'Kết hợp Tailwind với nguyên tắc Atomic Design.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Quản lý CSS trong các dự án lớn', 'content' => 'Các chiến lược để tổ chức CSS khi dự án phát triển.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Debugging Tailwind CSS Issues', 'content' => 'Cách tìm và sửa lỗi khi sử dụng Tailwind.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Triển khai ứng dụng Vue/Tailwind lên Production', 'content' => 'Các bước cuối cùng để deploy ứng dụng.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'VueJS và Quasar Framework: Xây Dựng Ứng Dụng Đa Nền Tảng',
+            'description' => 'Học cách xây dựng các ứng dụng web, mobile (Android/iOS), desktop và PWA từ một codebase duy nhất với VueJS và Quasar Framework.',
+            'price' => 1400000.00,
+            'categoryIds' => [6, 2, 14], // VueJS, Lập trình Web, Lập trình Mobile
+            'requirements' => [
+                'Kiến thức cơ bản về VueJS và JavaScript.',
+                'Hiểu biết về HTML/CSS.',
+                'Sự quan tâm đến phát triển đa nền tảng.'
+            ],
+            'objectives' => [
+                'Hiểu kiến trúc và lợi ích của Quasar Framework.',
+                'Thiết lập dự án Quasar và các chế độ build (SPA, PWA, SSR, Electron, Cordova/Capacitor).',
+                'Sử dụng các Component UI của Quasar để xây dựng giao diện.',
+                'Tích hợp các tính năng di động (camera, GPS) với Capacitor.',
+                'Xây dựng và triển khai ứng dụng cho nhiều nền tảng.',
+                'Tối ưu hóa hiệu suất và trải nghiệm người dùng trên đa nền tảng.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Quasar Framework và Phát triển Đa Nền tảng',
+                    'description' => 'Tổng quan về Quasar, khả năng đa nền tảng và cách thiết lập dự án.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Quasar Framework là gì? Ưu điểm nổi bật', 'content' => 'Giới thiệu về Quasar, các tính năng chính và lợi ích của việc sử dụng nó.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các Chế độ Build của Quasar (SPA, PWA, SSR, Electron, Cordova/Capacitor)', 'content' => 'Hiểu rõ các loại đầu ra mà Quasar có thể tạo ra.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt Quasar CLI và tạo dự án Quasar đầu tiên', 'content' => 'Hướng dẫn chi tiết cách khởi tạo một dự án Quasar.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu trúc thư mục dự án Quasar', 'content' => 'Khám phá các thư mục quan trọng như `src/pages`, `src/layouts`, `src/components`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Components UI của Quasar',
+                    'description' => 'Làm quen và sử dụng các component UI phong phú của Quasar để xây dựng giao diện.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Các Component Layout cơ bản (QLayout, QHeader, QDrawer, QPage)', 'content' => 'Xây dựng cấu trúc layout chính của ứng dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Các Component Form Input (QInput, QSelect, QCheckbox, QToggle)', 'content' => 'Tạo các form tương tác với người dùng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Buttons, Icons và Spinners', 'content' => 'Sử dụng các nút, biểu tượng và hiệu ứng loading.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Cards, Lists và Tables', 'content' => 'Hiển thị dữ liệu một cách có tổ chức.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Dialogs, Modals và Notifications', 'content' => 'Tạo các cửa sổ pop-up và thông báo cho người dùng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Responsive Design với Quasar Grid và Utility Classes', 'content' => 'Thiết kế giao diện thích ứng với mọi kích thước màn hình.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Quản lý State và Routing trong Quasar',
+                    'description' => 'Tích hợp Vuex/Pinia và Vue Router để quản lý trạng thái và điều hướng trong ứng dụng Quasar.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Quản lý State với Vuex/Pinia trong Quasar', 'content' => 'Thiết lập và sử dụng Vuex/Pinia cho trạng thái ứng dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Hệ thống Routing của Quasar (Vue Router)', 'content' => 'Sử dụng Vue Router để tạo các trang và điều hướng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Dynamic Routes và Nested Routes', 'content' => 'Tạo các route linh hoạt và route lồng nhau.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Navigation Guards và Middleware', 'content' => 'Bảo vệ các route và thực hiện logic trước khi vào trang.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Quasar Store Modules và Boot Files', 'content' => 'Tổ chức store và chạy code khi ứng dụng khởi động.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Tích hợp API và Data Fetching', 'content' => 'Cách gọi API và hiển thị dữ liệu trong ứng dụng Quasar.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Xây Dựng Ứng Dụng Mobile với Capacitor/Cordova',
+                    'description' => 'Biến ứng dụng Quasar của bạn thành ứng dụng di động native.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu Capacitor/Cordova và cách tích hợp vào Quasar', 'content' => 'Hiểu về các nền tảng hybrid và cách Quasar hỗ trợ chúng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Cài đặt Android Studio/Xcode và các công cụ cần thiết', 'content' => 'Chuẩn bị môi trường phát triển di động.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Xây dựng và chạy ứng dụng Quasar trên thiết bị/emulator Android', 'content' => 'Các bước để build và test trên Android.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Xây dựng và chạy ứng dụng Quasar trên thiết bị/emulator iOS', 'content' => 'Các bước để build và test trên iOS.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Sử dụng các Plugin Capacitor để truy cập tính năng Native (Camera, GPS, Notifications)', 'content' => 'Cách truy cập các tính năng của thiết bị di động.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Debugging và Tối ưu hóa hiệu suất ứng dụng Mobile', 'content' => 'Các kỹ thuật để debug và cải thiện hiệu suất trên di động.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Xây Dựng PWA và Ứng Dụng Desktop với Electron',
+                    'description' => 'Khám phá các chế độ build khác của Quasar để tạo PWA và ứng dụng desktop.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu Progressive Web Apps (PWA) và lợi ích', 'content' => 'Hiểu về PWA và cách Quasar hỗ trợ nó.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Cấu hình và Build ứng dụng Quasar thành PWA', 'content' => 'Các bước để tạo một PWA có thể cài đặt và offline.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Giới thiệu Electron và cách tích hợp vào Quasar', 'content' => 'Xây dựng ứng dụng desktop với Electron.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Xây dựng và chạy ứng dụng Quasar trên Desktop (Electron)', 'content' => 'Các bước để build và test ứng dụng desktop.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Tương tác với hệ điều hành và File System trong Electron', 'content' => 'Cách ứng dụng desktop có thể truy cập các tính năng của OS.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Tối ưu hóa và Đóng gói ứng dụng Desktop', 'content' => 'Các kỹ thuật để tạo installer và tối ưu hiệu suất.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai và Tối ưu hóa Đa Nền tảng',
+                    'description' => 'Đưa ứng dụng Quasar của bạn lên môi trường production và các kỹ thuật nâng cao.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Build và Deploy ứng dụng Quasar lên Web Hosting', 'content' => 'Các bước để deploy SPA, PWA, SSR lên các nền tảng hosting.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Triển khai ứng dụng Mobile lên Google Play Store và Apple App Store', 'content' => 'Quy trình xuất bản ứng dụng di động.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Cập nhật ứng dụng Over-the-Air (OTA) cho PWA/Mobile', 'content' => 'Cách cập nhật ứng dụng mà không cần cài đặt lại.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Internationalization (i18n) trong Quasar', 'content' => 'Hỗ trợ đa ngôn ngữ cho ứng dụng đa nền tảng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Testing ứng dụng Quasar trên các nền tảng', 'content' => 'Các chiến lược kiểm thử cho ứng dụng đa nền tảng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Bảo trì và Nâng cấp ứng dụng Quasar', 'content' => 'Các chiến lược để duy trì và phát triển ứng dụng trong tương lai.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'VueJS và Vite: Phát Triển Nhanh Chóng và Hiện Đại',
+            'description' => 'Học cách sử dụng Vite, một công cụ build frontend thế hệ mới, để phát triển các ứng dụng VueJS nhanh hơn và hiệu quả hơn.',
+            'price' => 700000.00,
+            'categoryIds' => [6, 2], // VueJS, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về VueJS và JavaScript (ES6+).',
+                'Hiểu biết về các công cụ build (Webpack, Parcel) là một lợi thế.'
+            ],
+            'objectives' => [
+                'Hiểu rõ sự khác biệt và lợi ích của Vite so với các công cụ build truyền thống.',
+                'Thiết lập dự án VueJS với Vite.',
+                'Tận dụng Hot Module Replacement (HMR) cực nhanh của Vite.',
+                'Cấu hình và tùy chỉnh Vite.',
+                'Tối ưu hóa ứng dụng VueJS cho production với Vite.',
+                'Sử dụng các tính năng nâng cao của Vite như Plugin API.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Vite và Hệ sinh thái Frontend',
+                    'description' => 'Tổng quan về Vite, các vấn đề mà nó giải quyết và vị trí của nó trong hệ sinh thái frontend.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Vite là gì? Tại sao Vite ra đời?', 'content' => 'Khái niệm, các vấn đề của Webpack và giải pháp của Vite.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: So sánh Vite với Webpack và Vue CLI', 'content' => 'Phân tích ưu nhược điểm và khi nào nên chọn Vite.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt Vite và tạo dự án Vue đầu tiên', 'content' => 'Hướng dẫn chi tiết cách khởi tạo dự án Vue 3 với Vite.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu trúc dự án Vite và file `vite.config.js`', 'content' => 'Khám phá các file và thư mục quan trọng, cấu hình cơ bản.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Phát Triển Nhanh Chóng với Vite',
+                    'description' => 'Tận dụng các tính năng của Vite để có trải nghiệm phát triển nhanh và mượt mà.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Hot Module Replacement (HMR) siêu tốc', 'content' => 'Cách HMR của Vite hoạt động và lợi ích của nó.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Tối ưu hóa Pre-bundling Dependencies', 'content' => 'Cách Vite xử lý các dependency để tăng tốc độ tải trang.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Xử lý CSS, PostCSS và Sass trong Vite', 'content' => 'Cách Vite hỗ trợ các preprocessor CSS.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Import Assets (hình ảnh, fonts, SVG) trong Vite', 'content' => 'Cách quản lý và sử dụng các tài nguyên tĩnh.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Environment Variables và Mode trong Vite', 'content' => 'Quản lý các biến môi trường cho các môi trường khác nhau.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Debugging ứng dụng Vue/Vite', 'content' => 'Sử dụng trình duyệt devtools để debug hiệu quả.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Cấu hình và Tùy chỉnh Vite',
+                    'description' => 'Mở rộng và điều chỉnh hành vi của Vite để phù hợp với yêu cầu dự án.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Các tùy chọn cấu hình chính trong `vite.config.js`', 'content' => 'Khám phá các tùy chọn như `server`, `build`, `plugins`.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Sử dụng Vite Plugins cho Vue', 'content' => 'Cài đặt và cấu hình `@vitejs/plugin-vue`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Viết Custom Vite Plugins', 'content' => 'Cách tạo plugin riêng để mở rộng chức năng của Vite.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Alias và Path Resolution', 'content' => 'Cấu hình alias để import module dễ dàng hơn.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Cấu hình Proxy Server cho API calls', 'content' => 'Thiết lập proxy để tránh lỗi CORS khi gọi API.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Tích hợp Linting và Formatting (ESLint, Prettier)', 'content' => 'Thiết lập công cụ để đảm bảo chất lượng code.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Tối ưu hóa Production với Vite',
+                    'description' => 'Các kỹ thuật để đóng gói và tối ưu hóa ứng dụng Vue của bạn cho môi trường production.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Build ứng dụng Vue cho Production với Vite', 'content' => 'Sử dụng `vite build` và các tùy chọn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Code Splitting và Lazy Loading', 'content' => 'Giảm kích thước bundle và tải tài nguyên theo yêu cầu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Tree Shaking và Dead Code Elimination', 'content' => 'Cách Vite loại bỏ code không sử dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Tối ưu hóa hình ảnh và tài nguyên tĩnh', 'content' => 'Nén ảnh và sử dụng các định dạng hiệu quả.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Minification và Compression', 'content' => 'Nén file JavaScript, CSS, HTML để giảm kích thước.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Phân tích Bundle với Vite Visualizer', 'content' => 'Công cụ để trực quan hóa kích thước bundle.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Các Tính năng Nâng Cao của Vite và Vue',
+                    'description' => 'Khám phá các tính năng mạnh mẽ khác của Vite và cách chúng tương tác với Vue.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: SSR (Server-Side Rendering) với Vite và Vue', 'content' => 'Cấu hình SSR cho ứng dụng Vue với Vite.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Multi-Page Applications (MPA) trong Vite', 'content' => 'Xây dựng ứng dụng với nhiều trang HTML.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Web Workers và Vite', 'content' => 'Sử dụng Web Workers để chạy các tác vụ nặng trên background.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Tích hợp Testing Frameworks (Vitest, Cypress) với Vite', 'content' => 'Thiết lập môi trường testing cho dự án Vite.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Sử dụng Vite với các Framework khác (React, Svelte)', 'content' => 'Vite không chỉ dành cho Vue.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Migrating từ Vue CLI/Webpack sang Vite', 'content' => 'Chiến lược để chuyển đổi một dự án hiện có sang Vite.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai và Bảo trì Ứng Dụng Vue/Vite',
+                    'description' => 'Đưa ứng dụng của bạn lên môi trường production và các chiến lược bảo trì.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Triển khai ứng dụng Vite lên Netlify/Vercel', 'content' => 'Hướng dẫn deploy lên các nền tảng hosting tĩnh.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Triển khai lên Firebase Hosting hoặc GitHub Pages', 'content' => 'Các lựa chọn hosting phổ biến khác.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Cấu hình CI/CD cho dự án Vite', 'content' => 'Tự động hóa quá trình build và deploy.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Giám sát hiệu suất ứng dụng sau triển khai', 'content' => 'Sử dụng các công cụ APM để theo dõi hiệu suất.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Quản lý Dependencies và Cập nhật Vite', 'content' => 'Cách giữ cho các thư viện và Vite luôn được cập nhật.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Cộng đồng và Tài nguyên học tập Vite', 'content' => 'Các nguồn tài nguyên hữu ích để tiếp tục học hỏi.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'VueJS và D3.js: Trực Quan Hóa Dữ Liệu Tương Tác',
+            'description' => 'Học cách kết hợp VueJS với thư viện D3.js để tạo ra các biểu đồ và trực quan hóa dữ liệu động, tương tác cao trên web.',
+            'price' => 1150000.00,
+            'categoryIds' => [6, 2, 44], // VueJS, Lập trình Web, Khoa học dữ liệu
+            'requirements' => [
+                'Kiến thức cơ bản về VueJS và JavaScript (ES6+).',
+                'Hiểu biết về HTML/CSS và SVG.',
+                'Sự quan tâm đến trực quan hóa dữ liệu.'
+            ],
+            'objectives' => [
+                'Hiểu các nguyên tắc cơ bản của D3.js.',
+                'Tích hợp D3.js vào các component VueJS.',
+                'Vẽ các loại biểu đồ cơ bản (bar, line, scatter) với D3.',
+                'Tạo các biểu đồ tương tác (tooltip, zoom, pan).',
+                'Xử lý và ánh xạ dữ liệu từ API vào biểu đồ D3.',
+                'Tối ưu hóa hiệu suất cho trực quan hóa dữ liệu lớn.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu D3.js và Thiết lập Vue Project',
+                    'description' => 'Tổng quan về D3.js và cách khởi tạo dự án Vue để tích hợp D3.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: D3.js là gì? Tại sao D3.js quan trọng trong trực quan hóa dữ liệu?', 'content' => 'Khái niệm, các tính năng chính và ứng dụng của D3.js.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: So sánh D3.js với Chart.js và các thư viện biểu đồ khác', 'content' => 'Ưu nhược điểm của D3.js và khi nào nên sử dụng nó.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt D3.js trong dự án Vue', 'content' => 'Hướng dẫn cài đặt D3.js và các dependency cần thiết.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Tạo Component Vue để chứa SVG/Canvas cho D3', 'content' => 'Thiết lập component Vue để D3 có thể vẽ lên.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Các Khái niệm Cơ bản của D3.js',
+                    'description' => 'Làm quen với các thành phần cốt lõi của D3.js để thao tác DOM và dữ liệu.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Selections: Chọn và thao tác các phần tử DOM', 'content' => 'Sử dụng `d3.select` và `d3.selectAll`.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Data Binding: Gắn dữ liệu vào các phần tử DOM', 'content' => 'Sử dụng `data()`, `enter()`, `exit()`, `join()` để liên kết dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Scales: Ánh xạ dữ liệu sang không gian trực quan', 'content' => 'Sử dụng `scaleLinear`, `scaleBand`, `scaleTime` để chuyển đổi dữ liệu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Axes: Tạo trục cho biểu đồ', 'content' => 'Sử dụng `d3.axisBottom`, `d3.axisLeft` để vẽ các trục.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Transitions: Tạo hiệu ứng chuyển động mượt mà', 'content' => 'Sử dụng `transition()` để animate các thay đổi.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Shapes: Vẽ các hình dạng cơ bản (rect, circle, path)', 'content' => 'Sử dụng các generator hình dạng của D3.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Xây Dựng Biểu Đồ Cơ Bản với Vue và D3',
+                    'description' => 'Thực hành tạo các loại biểu đồ phổ biến bằng cách kết hợp Vue và D3.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Xây dựng Biểu đồ Cột (Bar Chart) đơn giản', 'content' => 'Vẽ biểu đồ cột từ một tập dữ liệu nhỏ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Xây dựng Biểu đồ Đường (Line Chart)', 'content' => 'Vẽ biểu đồ đường để hiển thị xu hướng dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Xây dựng Biểu đồ Phân tán (Scatter Plot)', 'content' => 'Hiển thị mối quan hệ giữa hai biến.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Xây dựng Biểu đồ Tròn (Pie Chart) và Donut Chart', 'content' => 'Vẽ biểu đồ hình tròn để hiển thị tỷ lệ.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Tối ưu hóa việc cập nhật biểu đồ trong Vue Lifecycle', 'content' => 'Đảm bảo biểu đồ được cập nhật đúng cách khi dữ liệu thay đổi.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Component hóa biểu đồ D3 trong Vue', 'content' => 'Tạo các component Vue có thể tái sử dụng cho từng loại biểu đồ.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Trực Quan Hóa Dữ Liệu Tương Tác',
+                    'description' => 'Thêm các tính năng tương tác để người dùng có thể khám phá dữ liệu.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Thêm Tooltip cho biểu đồ', 'content' => 'Hiển thị thông tin chi tiết khi hover qua các phần tử.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Zoom và Pan trên biểu đồ', 'content' => 'Cho phép người dùng phóng to và di chuyển biểu đồ.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Xử lý sự kiện Click và Highlight phần tử', 'content' => 'Phản ứng với các click chuột và làm nổi bật các điểm dữ liệu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Brush: Chọn vùng dữ liệu', 'content' => 'Sử dụng brush để chọn một phạm vi dữ liệu.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Filtering và Sorting dữ liệu tương tác', 'content' => 'Cho phép người dùng lọc và sắp xếp dữ liệu trên biểu đồ.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Tạo Dashboard với nhiều biểu đồ tương tác', 'content' => 'Kết hợp nhiều biểu đồ D3 trong một dashboard Vue.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Tải Dữ liệu và Các Loại Biểu Đồ Nâng Cao',
+                    'description' => 'Làm việc với dữ liệu thực tế và khám phá các loại biểu đồ phức tạp hơn.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Tải dữ liệu từ CSV/JSON với D3.js', 'content' => 'Sử dụng `d3.csv` và `d3.json` để tải dữ liệu.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Xử lý và tiền xử lý dữ liệu cho D3', 'content' => 'Chuyển đổi dữ liệu thô sang định dạng phù hợp với D3.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Xây dựng Biểu đồ Treemap', 'content' => 'Trực quan hóa dữ liệu phân cấp.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Xây dựng Biểu đồ Force-Directed Graph', 'content' => 'Hiển thị mối quan hệ giữa các nút.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Xây dựng Biểu đồ Choropleth Map (bản đồ nhiệt)', 'content' => 'Trực quan hóa dữ liệu địa lý.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Tích hợp D3 với Vuex/Pinia cho Data Management', 'content' => 'Quản lý trạng thái dữ liệu biểu đồ trong store.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tối ưu hóa Hiệu suất và Best Practices',
+                    'description' => 'Các kỹ thuật để đảm bảo trực quan hóa dữ liệu của bạn chạy mượt mà và hiệu quả.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Tối ưu hóa render với D3 và Canvas (thay vì SVG)', 'content' => 'Khi nào nên sử dụng Canvas cho hiệu suất tốt hơn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Sử dụng Web Workers cho xử lý dữ liệu nặng', 'content' => 'Chạy các tác vụ tính toán phức tạp trên background.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Debounce và Throttle cho các sự kiện tương tác', 'content' => 'Kiểm soát tần suất cập nhật biểu đồ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Quản lý bộ nhớ và tránh rò rỉ bộ nhớ', 'content' => 'Các mẹo để viết code D3 hiệu quả.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Testing các Component Vue/D3', 'content' => 'Cách viết test cho các biểu đồ và tương tác.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Triển khai ứng dụng Vue/D3 và các công cụ giám sát', 'content' => 'Đưa ứng dụng lên production và theo dõi hiệu suất.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'VueJS và Web Components: Xây Dựng Component Độc Lập',
+            'description' => 'Học cách đóng gói các component Vue của bạn thành Web Components độc lập, có thể sử dụng ở bất kỳ đâu, bất kể framework.',
+            'price' => 950000.00,
+            'categoryIds' => [6, 2], // VueJS, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về VueJS và JavaScript (ES6+).',
+                'Hiểu biết về HTML/CSS và DOM API.'
+            ],
+            'objectives' => [
+                'Hiểu rõ các tiêu chuẩn của Web Components (Custom Elements, Shadow DOM, HTML Templates).',
+                'Sử dụng Vue CLI/Vite để build component Vue thành Web Components.',
+                'Truyền dữ liệu và xử lý sự kiện giữa Web Component và môi trường bên ngoài.',
+                'Đóng gói các component Vue phức tạp thành Web Components.',
+                'Sử dụng Web Components trong các dự án không phải Vue (React, Angular, Vanilla JS).',
+                'Các trường hợp sử dụng và hạn chế của Web Components với Vue.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Web Components và Vue',
+                    'description' => 'Tổng quan về Web Components và lý do nên kết hợp chúng với VueJS.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Web Components là gì? Các tiêu chuẩn chính', 'content' => 'Giới thiệu Custom Elements, Shadow DOM, HTML Templates, ES Modules.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Lợi ích của Web Components và các trường hợp sử dụng', 'content' => 'Tái sử dụng component độc lập framework, xây dựng Design Systems.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Tại sao kết hợp VueJS với Web Components?', 'content' => 'Sử dụng Vue để xây dựng logic và Shadow DOM để đóng gói UI.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Thiết lập dự án Vue để build thành Web Components', 'content' => 'Sử dụng Vue CLI hoặc Vite để cấu hình build.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Custom Elements: Tạo các thẻ HTML tùy chỉnh',
+                    'description' => 'Học cách định nghĩa và sử dụng các phần tử HTML tùy chỉnh của riêng bạn.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Định nghĩa Custom Elements với `customElements.define()`', 'content' => 'Cách tạo một thẻ HTML mới.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Lifecycle Callbacks của Custom Elements', 'content' => 'Các phương thức như `connectedCallback`, `disconnectedCallback`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Attributes và Properties trong Custom Elements', 'content' => 'Cách truyền dữ liệu vào Custom Elements.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Xử lý Events trong Custom Elements', 'content' => 'Cách phát ra và lắng nghe sự kiện từ Custom Elements.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Sử dụng Custom Elements trong HTML và JavaScript', 'content' => 'Cách nhúng và tương tác với Custom Elements.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Bài tập: Tạo một Simple Custom Button', 'content' => 'Thực hành tạo một Custom Element cơ bản.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Shadow DOM: Đóng gói CSS và HTML',
+                    'description' => 'Hiểu về Shadow DOM để tạo các component tự chứa, không bị ảnh hưởng bởi CSS bên ngoài.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu Shadow DOM và lợi ích của nó', 'content' => 'Cách Shadow DOM tạo ra một cây DOM riêng biệt và cô lập CSS.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Gắn Shadow Root vào Custom Element', 'content' => 'Sử dụng `attachShadow()` để tạo Shadow Root.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Styling Shadow DOM: CSS Scoping', 'content' => 'Cách CSS bên trong Shadow DOM không ảnh hưởng ra ngoài và ngược lại.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Sử dụng CSS Variables để tùy chỉnh Shadow DOM', 'content' => 'Cách cho phép tùy chỉnh style từ bên ngoài Shadow DOM.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Slots trong Shadow DOM', 'content' => 'Sử dụng slot để phân phối nội dung vào Shadow DOM.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Best Practices khi sử dụng Shadow DOM', 'content' => 'Các mẹo để làm việc hiệu quả với Shadow DOM.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Build Component Vue thành Web Components',
+                    'description' => 'Sử dụng các công cụ của Vue để đóng gói component Vue thành các Web Components.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Sử dụng `@vue/web-component-wrapper` (Vue 2) hoặc `defineCustomElement` (Vue 3)', 'content' => 'Các phương pháp để chuyển đổi component Vue.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Truyền Props và Lắng nghe Events với Web Components', 'content' => 'Cách giao tiếp giữa Web Component và ứng dụng chủ.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Xử lý Slots và Scoped Styles khi build thành Web Components', 'content' => 'Đảm bảo các tính năng của Vue hoạt động đúng trong Web Component.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Đóng gói Vuex/Pinia Store vào Web Component (nếu cần)', 'content' => 'Các chiến lược để quản lý trạng thái trong Web Component.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Build và tối ưu hóa kích thước bundle của Web Components', 'content' => 'Các bước để tạo ra các file Web Component nhỏ gọn.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Bài tập: Đóng gói Vue Counter Component thành Web Component', 'content' => 'Thực hành chuyển đổi một component Vue đơn giản.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Sử dụng Web Components trong các Framework khác',
+                    'description' => 'Học cách nhúng và tương tác với Web Components được tạo từ Vue trong các dự án React, Angular, hoặc Vanilla JS.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Nhúng Web Components vào HTML tĩnh', 'content' => 'Cách sử dụng Web Components trong một trang HTML thông thường.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Sử dụng Web Components trong dự án React', 'content' => 'Cách truyền props và lắng nghe events trong React.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Sử dụng Web Components trong dự án Angular', 'content' => 'Tích hợp Web Components vào ứng dụng Angular.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Sử dụng Web Components trong Vanilla JavaScript', 'content' => 'Tương tác trực tiếp với Web Components bằng JS thuần.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Các vấn đề tương thích và giải pháp (Polyfills)', 'content' => 'Xử lý các vấn đề tương thích trình duyệt cũ.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Bài tập: Tích hợp Web Component vào một dự án React/Angular', 'content' => 'Thực hành sử dụng Web Component trong một framework khác.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các Trường hợp Sử dụng Nâng Cao và Best Practices',
+                    'description' => 'Khám phá các ứng dụng phức tạp hơn của Web Components và các thực hành tốt nhất.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Xây dựng Design System với Web Components', 'content' => 'Tạo một thư viện component có thể tái sử dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Server-Side Rendering (SSR) với Web Components', 'content' => 'Cách Web Components hoạt động với SSR.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Web Components và SEO', 'content' => 'Ảnh hưởng của Web Components đến khả năng index của công cụ tìm kiếm.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Testing Web Components', 'content' => 'Các chiến lược để test các Web Components độc lập.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Quản lý Dependencies trong Web Components', 'content' => 'Cách quản lý các thư viện bên trong Web Component.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Tương lai của Web Components và VueJS', 'content' => 'Các xu hướng và phát triển mới trong lĩnh vực này.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'VueJS và Firebase Realtime Database: Ứng Dụng Thời Gian Thực',
+            'description' => 'Học cách xây dựng các ứng dụng web với khả năng đồng bộ dữ liệu thời gian thực bằng VueJS và Firebase Realtime Database.',
+            'price' => 900000.00,
+            'categoryIds' => [6, 2, 91], // VueJS, Lập trình Web, Cloud Computing
+            'requirements' => [
+                'Kiến thức cơ bản về VueJS và JavaScript (ES6+).',
+                'Tài khoản Firebase (miễn phí).'
+            ],
+            'objectives' => [
+                'Hiểu rõ sự khác biệt giữa Firebase Realtime Database và Firestore.',
+                'Thiết lập Firebase Realtime Database trong dự án VueJS.',
+                'Thực hiện các thao tác CRUD (Create, Read, Update, Delete) dữ liệu thời gian thực.',
+                'Xây dựng ứng dụng chat hoặc ứng dụng cộng tác đơn giản.',
+                'Quản lý xác thực người dùng với Firebase Authentication.',
+                'Triển khai các quy tắc bảo mật cho Realtime Database.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Firebase Realtime Database và Thiết lập',
+                    'description' => 'Tổng quan về Realtime Database, so sánh với Firestore và cách tích hợp vào VueJS.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Firebase Realtime Database là gì? Ưu điểm', 'content' => 'Khái niệm, cấu trúc dữ liệu dạng cây JSON và lợi ích của Realtime Database.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: So sánh Realtime Database với Cloud Firestore', 'content' => 'Khi nào nên dùng Realtime Database và khi nào dùng Firestore.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Tạo dự án Firebase và kết nối với VueJS', 'content' => 'Hướng dẫn chi tiết cách khởi tạo dự án Firebase và thêm SDK vào Vue.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu hình và khởi tạo Realtime Database trong ứng dụng Vue', 'content' => 'Thiết lập các biến môi trường và khởi tạo database instance.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Đọc và Ghi Dữ liệu Thời Gian Thực',
+                    'description' => 'Học cách thực hiện các thao tác cơ bản để tương tác với Realtime Database.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Ghi dữ liệu với `set()` và `update()`', 'content' => 'Cách thêm và cập nhật dữ liệu vào database.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Thêm dữ liệu vào danh sách với `push()`', 'content' => 'Tạo ID duy nhất và thêm item vào danh sách.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Đọc dữ liệu một lần với `get()`', 'content' => 'Lấy dữ liệu tại một thời điểm nhất định.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Lắng nghe thay đổi dữ liệu với `onValue()`', 'content' => 'Nhận cập nhật dữ liệu theo thời gian thực.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Xóa dữ liệu với `remove()`', 'content' => 'Cách xóa các node dữ liệu trong database.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Cấu trúc dữ liệu cho ứng dụng thời gian thực', 'content' => 'Các mẹo để tổ chức dữ liệu hiệu quả trong Realtime Database.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Truy vấn và Lọc Dữ liệu',
+                    'description' => 'Học cách truy vấn và lọc dữ liệu từ Realtime Database để lấy thông tin cụ thể.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Sắp xếp dữ liệu với `orderByChild()` và `orderByValue()`', 'content' => 'Cách sắp xếp các bản ghi theo thuộc tính hoặc giá trị.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Lọc dữ liệu với `equalTo()`, `startAt()`, `endAt()`', 'content' => 'Cách lọc các bản ghi dựa trên điều kiện.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Giới hạn số lượng kết quả với `limitToFirst()` và `limitToLast()`', 'content' => 'Cách lấy một số lượng bản ghi nhất định.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Truy vấn lồng nhau và Denormalization', 'content' => 'Các kỹ thuật để xử lý dữ liệu phức tạp trong Realtime Database.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Xử lý dữ liệu offline và đồng bộ hóa', 'content' => 'Cách Realtime Database hoạt động khi không có kết nối mạng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Tối ưu hóa truy vấn và tránh đọc dữ liệu lớn', 'content' => 'Các mẹo để cải thiện hiệu suất truy vấn.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Xây Dựng Ứng Dụng Chat Đơn Giản',
+                    'description' => 'Áp dụng kiến thức để xây dựng một ứng dụng chat với khả năng nhắn tin thời gian thực.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Thiết kế cấu trúc dữ liệu cho ứng dụng chat', 'content' => 'Tổ chức dữ liệu tin nhắn, phòng chat, người dùng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Hiển thị danh sách phòng chat và tin nhắn', 'content' => 'Tạo giao diện và đọc dữ liệu từ database.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Gửi tin nhắn mới và hiển thị tức thì', 'content' => 'Cách thêm tin nhắn vào database và cập nhật UI.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Hiển thị trạng thái "đang gõ" (typing indicator)', 'content' => 'Thêm tính năng hiển thị khi người dùng đang gõ tin nhắn.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Quản lý người dùng trong phòng chat', 'content' => 'Thêm/xóa người dùng khỏi phòng chat.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Bài tập: Xây dựng tính năng Private Messaging', 'content' => 'Mở rộng ứng dụng chat với tin nhắn riêng tư.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Xác thực và Quy tắc Bảo mật',
+                    'description' => 'Bảo vệ dữ liệu trong Realtime Database bằng cách sử dụng Firebase Authentication và Security Rules.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Tích hợp Firebase Authentication với VueJS', 'content' => 'Sử dụng đăng nhập Email/Password, Google Auth.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Viết Quy tắc Bảo mật cho Realtime Database', 'content' => 'Cách định nghĩa quyền đọc/ghi dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Kiểm tra quyền truy cập dựa trên người dùng đăng nhập', 'content' => 'Sử dụng `auth` object trong Security Rules.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Kiểm tra dữ liệu hợp lệ trước khi ghi', 'content' => 'Sử dụng `newData` và `data` trong Security Rules.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Các ví dụ quy tắc bảo mật cho ứng dụng chat/cộng tác', 'content' => 'Áp dụng quy tắc cho các trường hợp thực tế.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Debugging Quy tắc Bảo mật Firebase', 'content' => 'Sử dụng Firebase Simulator để kiểm tra quy tắc.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các Kỹ thuật Nâng Cao và Triển khai',
+                    'description' => 'Khám phá các tính năng nâng cao và cách đưa ứng dụng lên môi trường production.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Tích hợp Vuex/Pinia với Realtime Database', 'content' => 'Quản lý trạng thái dữ liệu thời gian thực trong store.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Xử lý dữ liệu lớn và phân trang', 'content' => 'Các chiến lược để làm việc với lượng lớn dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Sử dụng Firebase Functions (Cloud Functions) với Realtime Database', 'content' => 'Tạo các backend logic cho ứng dụng thời gian thực.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Triển khai ứng dụng VueJS với Realtime Database lên Firebase Hosting', 'content' => 'Các bước để deploy ứng dụng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Giám sát hiệu suất và sử dụng Firebase Analytics', 'content' => 'Theo dõi hiệu suất và hành vi người dùng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Bảo trì và Nâng cấp ứng dụng Firebase Realtime Database', 'content' => 'Các chiến lược để duy trì và phát triển ứng dụng.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'VueJS và Three.js: Xây Dựng Ứng Dụng 3D trên Web',
+            'description' => 'Học cách tạo các cảnh 3D tương tác, mô hình hóa và hoạt ảnh trên trình duyệt bằng VueJS và thư viện Three.js.',
+            'price' => 1600000.00,
+            'categoryIds' => [6, 2], // VueJS, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về VueJS và JavaScript (ES6+).',
+                'Hiểu biết về HTML/CSS và WebGL (hoặc sẵn sàng học).',
+                'Sự quan tâm đến đồ họa 3D và hoạt ảnh.'
+            ],
+            'objectives' => [
+                'Hiểu các khái niệm cơ bản của đồ họa 3D (Scene, Camera, Renderer, Mesh, Geometry, Material).',
+                'Thiết lập Three.js trong dự án VueJS.',
+                'Tạo và hiển thị các đối tượng 3D cơ bản (cube, sphere, plane).',
+                'Thực hiện hoạt ảnh (animations) và tương tác với các đối tượng 3D.',
+                'Tải và sử dụng các mô hình 3D (GLTF, OBJ).',
+                'Tối ưu hóa hiệu suất cho các cảnh 3D phức tạp.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Three.js và Khái niệm 3D Cơ bản',
+                    'description' => 'Tổng quan về Three.js và các thành phần cốt lõi trong đồ họa 3D.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Three.js là gì? Tại sao dùng Three.js cho 3D trên Web?', 'content' => 'Giới thiệu về Three.js và khả năng của nó.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các khái niệm cốt lõi: Scene, Camera, Renderer', 'content' => 'Hiểu vai trò của từng thành phần trong việc tạo cảnh 3D.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt Three.js trong dự án VueJS', 'content' => 'Hướng dẫn tích hợp Three.js vào một component Vue.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Tạo Canvas và khởi tạo Renderer', 'content' => 'Thiết lập WebGLRenderer và gắn nó vào DOM.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Tạo và Hiển thị Đối tượng 3D Cơ bản',
+                    'description' => 'Học cách tạo các hình dạng 3D đơn giản và thêm chúng vào cảnh.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Geometry: Tạo các hình dạng 3D (BoxGeometry, SphereGeometry)', 'content' => 'Định nghĩa hình dạng của đối tượng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Material: Định nghĩa bề mặt của đối tượng (MeshBasicMaterial, MeshStandardMaterial)', 'content' => 'Áp dụng màu sắc, kết cấu và thuộc tính vật liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Mesh: Kết hợp Geometry và Material', 'content' => 'Tạo đối tượng 3D hoàn chỉnh.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Thêm đối tượng vào Scene', 'content' => 'Cách đưa các Mesh vào cảnh 3D.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Vị trí, Xoay và Tỷ lệ của đối tượng', 'content' => 'Thay đổi transform của đối tượng 3D.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Bài tập: Tạo một cảnh với Cube và Sphere', 'content' => 'Thực hành tạo và hiển thị các đối tượng cơ bản.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Ánh sáng và Hoạt ảnh trong Scene 3D',
+                    'description' => 'Thêm ánh sáng để làm cho cảnh trông thực tế hơn và tạo hoạt ảnh cho các đối tượng.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Các loại Ánh sáng (AmbientLight, DirectionalLight, PointLight)', 'content' => 'Hiểu các loại ánh sáng khác nhau và cách chúng ảnh hưởng đến cảnh.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Thêm Shadows (Bóng đổ)', 'content' => 'Cấu hình ánh sáng và vật liệu để tạo bóng đổ.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Vòng lặp Render và `requestAnimationFrame`', 'content' => 'Cách cập nhật và render cảnh liên tục.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Hoạt ảnh cơ bản: Xoay và Di chuyển đối tượng', 'content' => 'Tạo hoạt ảnh đơn giản cho các Mesh.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Sử dụng `Clock` để quản lý thời gian hoạt ảnh', 'content' => 'Đảm bảo hoạt ảnh mượt mà trên mọi thiết bị.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Bài tập: Tạo một Cube xoay trong không gian 3D', 'content' => 'Thực hành tạo hoạt ảnh cho một đối tượng.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Tương tác Người dùng và Điều khiển Camera',
+                    'description' => 'Cho phép người dùng tương tác với cảnh 3D và điều khiển góc nhìn.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Raycasting: Phát hiện click/hover trên đối tượng 3D', 'content' => 'Cách kiểm tra xem người dùng đã click vào đối tượng nào.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: OrbitControls: Điều khiển Camera bằng chuột', 'content' => 'Sử dụng thư viện OrbitControls để di chuyển camera.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Xử lý sự kiện bàn phím để di chuyển đối tượng', 'content' => 'Điều khiển đối tượng 3D bằng phím mũi tên.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Responsive 3D Scene: Thay đổi kích thước theo cửa sổ', 'content' => 'Đảm bảo cảnh 3D thích ứng với kích thước màn hình.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Post-processing Effects (hiệu ứng hậu kỳ)', 'content' => 'Thêm các hiệu ứng như bloom, anti-aliasing.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Tích hợp Three.js với Vuex/Pinia để quản lý Game State', 'content' => 'Lưu trữ trạng thái của cảnh 3D trong store.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Tải Mô hình 3D và Textures',
+                    'description' => 'Học cách nhập các mô hình 3D từ các phần mềm thiết kế và áp dụng textures.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Các định dạng mô hình 3D phổ biến (GLTF, OBJ, FBX)', 'content' => 'Giới thiệu về các định dạng file 3D.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Sử dụng GLTFLoader để tải mô hình GLTF', 'content' => 'Cách tải và hiển thị mô hình GLTF trong Three.js.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Tải và áp dụng Textures cho đối tượng', 'content' => 'Sử dụng `TextureLoader` để thêm hình ảnh lên bề mặt.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Hoạt ảnh mô hình 3D (Animation Mixer)', 'content' => 'Điều khiển các hoạt ảnh có sẵn trong mô hình.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Xử lý lỗi khi tải mô hình và tài nguyên', 'content' => 'Cách bắt lỗi và hiển thị thông báo cho người dùng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Bài tập: Tải và hiển thị một mô hình 3D đơn giản', 'content' => 'Thực hành nhập một mô hình bên ngoài.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các Kỹ thuật 3D Nâng Cao và Tối ưu hóa',
+                    'description' => 'Đi sâu vào các kỹ thuật đồ họa 3D phức tạp hơn và cách tối ưu hiệu suất.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Physically Based Rendering (PBR) và Environment Maps', 'content' => 'Tạo cảnh 3D trông thực tế hơn với PBR.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Custom Shaders với GLSL', 'content' => 'Viết shader tùy chỉnh để tạo hiệu ứng đồ họa độc đáo.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tối ưu hóa hiệu suất cho các cảnh 3D lớn', 'content' => 'Các kỹ thuật như instancing, frustum culling.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Collision Detection trong 3D', 'content' => 'Phát hiện va chạm giữa các đối tượng 3D.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Tích hợp Physics Engine (Cannon.js) với Three.js', 'content' => 'Thêm vật lý thực tế vào cảnh 3D.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Triển khai ứng dụng Vue/Three.js lên Production', 'content' => 'Các bước để deploy ứng dụng 3D trên web.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'VueJS và WebSockets: Xây Dựng Ứng Dụng Real-time',
+            'description' => 'Học cách xây dựng các ứng dụng web với khả năng giao tiếp hai chiều, thời gian thực bằng VueJS và WebSockets.',
+            'price' => 1000000.00,
+            'categoryIds' => [6, 2, 13], // VueJS, Lập trình Web, Web APIs
+            'requirements' => [
+                'Kiến thức cơ bản về VueJS và JavaScript (ES6+).',
+                'Hiểu biết về HTTP và API RESTful.',
+                'Sự quan tâm đến ứng dụng thời gian thực.'
+            ],
+            'objectives' => [
+                'Hiểu rõ sự khác biệt giữa HTTP và WebSockets.',
+                'Thiết lập WebSocket server và client trong VueJS.',
+                'Gửi và nhận dữ liệu thời gian thực qua WebSocket.',
+                'Xây dựng ứng dụng chat, game đa người chơi hoặc bảng vẽ cộng tác.',
+                'Xử lý kết nối, ngắt kết nối và lỗi WebSocket.',
+                'Tích hợp WebSockets với Vuex/Pinia để quản lý trạng thái.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu WebSockets và Ứng dụng Real-time',
+                    'description' => 'Tổng quan về WebSockets và các trường hợp sử dụng cho ứng dụng thời gian thực.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Ứng dụng Real-time là gì? Tại sao cần WebSockets?', 'content' => 'Khái niệm, các ví dụ thực tế và lợi ích của giao tiếp thời gian thực.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: So sánh WebSockets với HTTP Polling và Server-Sent Events', 'content' => 'Phân tích các phương pháp giao tiếp client-server.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cấu trúc cơ bản của WebSocket Connection', 'content' => 'Hiểu về handshake, frame và message.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Thiết lập WebSocket Server (Node.js/ws)', 'content' => 'Hướng dẫn tạo một WebSocket server đơn giản.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Xây Dựng WebSocket Client với VueJS',
+                    'description' => 'Học cách kết nối từ ứng dụng Vue đến WebSocket server và gửi/nhận tin nhắn.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Khởi tạo WebSocket Client trong Vue Component', 'content' => 'Sử dụng `WebSocket` API để tạo kết nối.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Các sự kiện của WebSocket: `onopen`, `onmessage`, `onclose`, `onerror`', 'content' => 'Lắng nghe các sự kiện quan trọng của kết nối.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Gửi tin nhắn từ Client đến Server (`ws.send()`)', 'content' => 'Cách gửi dữ liệu từ Vue app đến WebSocket server.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Nhận tin nhắn từ Server và cập nhật UI', 'content' => 'Xử lý dữ liệu nhận được và hiển thị trên giao diện.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.5: Xử lý JSON data qua WebSocket', 'content' => 'Gửi và nhận dữ liệu dạng JSON.', 'sortOrder' => 5],
+                        ['title' => 'Bài 2.6: Tái kết nối tự động khi mất kết nối', 'content' => 'Triển khai logic để tự động kết nối lại WebSocket.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Xây Dựng Ứng Dụng Chat Real-time',
+                    'description' => 'Áp dụng kiến thức WebSockets để xây dựng một ứng dụng chat đa người dùng.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Thiết kế cấu trúc dữ liệu cho ứng dụng chat', 'content' => 'Tổ chức dữ liệu tin nhắn, người dùng, phòng chat.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Hiển thị danh sách tin nhắn và gửi tin nhắn mới', 'content' => 'Giao diện chat và chức năng gửi/nhận tin.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Quản lý người dùng online/offline', 'content' => 'Sử dụng WebSockets để theo dõi trạng thái người dùng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Tạo và tham gia các phòng chat', 'content' => 'Cho phép người dùng tạo và tham gia các kênh chat khác nhau.', 'sortOrder' => 4],
+                        ['title' => 'Bài 3.5: Gửi tin nhắn riêng tư (Private Messaging)', 'content' => 'Mở rộng ứng dụng với chức năng chat riêng.', 'sortOrder' => 5],
+                        ['title' => 'Bài 3.6: Thêm tính năng "đang gõ" (typing indicator)', 'content' => 'Hiển thị khi người dùng khác đang gõ tin nhắn.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Tích hợp WebSockets với Vuex/Pinia',
+                    'description' => 'Quản lý trạng thái dữ liệu thời gian thực một cách hiệu quả trong store.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Tại sao cần quản lý WebSocket State trong Store?', 'content' => 'Vấn đề của việc quản lý kết nối và dữ liệu WebSocket phân tán.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Thiết lập Vuex/Pinia Store cho WebSocket', 'content' => 'Lưu trữ trạng thái kết nối, tin nhắn, người dùng online.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Mutations để cập nhật trạng thái kết nối và dữ liệu', 'content' => 'Cách mutations xử lý các sự kiện từ WebSocket.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Actions để gửi tin nhắn và xử lý logic', 'content' => 'Cách actions gọi `ws.send()` và các logic liên quan.', 'sortOrder' => 4],
+                        ['title' => 'Bài 4.5: Xử lý lỗi và ngắt kết nối trong Store', 'content' => 'Quản lý các trường hợp lỗi và tái kết nối.', 'sortOrder' => 5],
+                        ['title' => 'Bài 4.6: Tạo Composable/Plugin cho WebSocket trong Vue 3', 'content' => 'Tái sử dụng logic WebSocket trong các component.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Xây Dựng Game Đa Người Chơi Đơn Giản',
+                    'description' => 'Áp dụng WebSockets để tạo một trò chơi tương tác giữa nhiều người chơi.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Thiết kế Game Logic và State cho game đa người chơi', 'content' => 'Xác định các đối tượng game, trạng thái người chơi, quy tắc.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Đồng bộ hóa vị trí người chơi và đối tượng game', 'content' => 'Gửi và nhận dữ liệu vị trí qua WebSocket.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Xử lý Input của người chơi và cập nhật trên Server', 'content' => 'Cách server nhận input và broadcast đến các client khác.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Phát hiện va chạm và logic Game Over', 'content' => 'Xử lý va chạm trên server và thông báo đến client.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Quản lý phòng game và người tham gia', 'content' => 'Cho phép người chơi tạo/tham gia phòng game.', 'sortOrder' => 5],
+                        ['title' => 'Bài 5.6: Tối ưu hóa hiệu suất cho game Real-time', 'content' => 'Các kỹ thuật để giảm độ trễ và đảm bảo game mượt mà.', 'sortOrder' => 6],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các Kỹ thuật Nâng Cao và Triển khai',
+                    'description' => 'Khám phá các tính năng nâng cao của WebSockets và cách đưa ứng dụng lên môi trường production.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Sử dụng Socket.IO thay vì Native WebSocket', 'content' => 'Giới thiệu Socket.IO và các tính năng bổ sung.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Triển khai WebSocket Server (Node.js) lên Production', 'content' => 'Các bước để deploy WebSocket server.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Load Balancing và Scalability cho WebSocket Servers', 'content' => 'Cách xử lý lượng lớn kết nối WebSocket.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Bảo mật WebSocket Connections (WSS, Authentication)', 'content' => 'Sử dụng SSL/TLS và xác thực người dùng.', 'sortOrder' => 4],
+                        ['title' => 'Bài 6.5: Giám sát hiệu suất ứng dụng Real-time', 'content' => 'Các công cụ để theo dõi hiệu suất WebSocket.', 'sortOrder' => 5],
+                        ['title' => 'Bài 6.6: Tích hợp WebSockets với các dịch vụ Backend khác', 'content' => 'Kết nối WebSocket với cơ sở dữ liệu hoặc API khác.', 'sortOrder' => 6],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Cơ Bản: Xây dựng ứng dụng web đầu tiên',
+            'description' => 'Khóa học này cung cấp kiến thức nền tảng vững chắc về Angular, giúp bạn xây dựng các ứng dụng web tương tác từ đầu.',
+            'price' => 750000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về HTML, CSS, JavaScript (ES6+).',
+                'Cài đặt Node.js và npm/yarn.'
+            ],
+            'objectives' => [
+                'Nắm vững kiến trúc Angular và các khái niệm cốt lõi.',
+                'Tạo và quản lý Components, Modules, Services.',
+                'Sử dụng Data Binding, Event Binding và Directives.',
+                'Triển khai Routing và Navigation trong ứng dụng.',
+                'Tương tác với API backend bằng HttpClient.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Angular và Thiết lập Môi trường',
+                    'description' => 'Tổng quan về Angular và các bước chuẩn bị môi trường phát triển.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Angular là gì? Lợi ích và ứng dụng', 'content' => 'Giới thiệu tổng quan về framework Angular, các tính năng nổi bật và lý do nên sử dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cài đặt Node.js, npm và Angular CLI', 'content' => 'Hướng dẫn chi tiết cách cài đặt các công cụ cần thiết cho phát triển Angular.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Tạo dự án Angular đầu tiên với Angular CLI', 'content' => 'Thực hành tạo một dự án Angular mới và chạy thử ứng dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu trúc thư mục dự án Angular', 'content' => 'Giải thích cấu trúc file và thư mục chuẩn của một dự án Angular.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Components, Templates và Data Binding',
+                    'description' => 'Tìm hiểu về các thành phần cơ bản nhất của ứng dụng Angular.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Components - Khối xây dựng của Angular', 'content' => 'Khái niệm về Component, cách tạo và sử dụng trong ứng dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Templates và cú pháp Angular (Interpolation)', 'content' => 'Sử dụng HTML template và cú pháp interpolation để hiển thị dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Property Binding và Event Binding', 'content' => 'Cách truyền dữ liệu một chiều (input) và xử lý sự kiện (output) giữa các component.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Two-Way Data Binding với ngModel', 'content' => 'Tìm hiểu về Two-Way Data Binding và cách sử dụng ngModel.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Directives và Pipes',
+                    'description' => 'Khám phá cách thay đổi hành vi và hiển thị dữ liệu trong Angular.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Structural Directives: *ngIf, *ngFor', 'content' => 'Điều khiển hiển thị phần tử DOM dựa trên điều kiện và lặp qua danh sách.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Attribute Directives: ngClass, ngStyle', 'content' => 'Thay đổi thuộc tính CSS của phần tử DOM một cách động.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Custom Directives', 'content' => 'Tạo các directive tùy chỉnh để mở rộng chức năng của HTML.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Pipes: Chuyển đổi dữ liệu hiển thị', 'content' => 'Sử dụng các pipe có sẵn và tạo pipe tùy chỉnh để định dạng dữ liệu.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Services và Dependency Injection',
+                    'description' => 'Quản lý logic nghiệp vụ và chia sẻ dữ liệu giữa các component.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu Services trong Angular', 'content' => 'Vai trò của Service trong việc tách biệt logic và tái sử dụng code.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Dependency Injection (DI) trong Angular', 'content' => 'Hiểu cơ chế DI và cách Angular cung cấp các dependency.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Tạo và sử dụng Custom Services', 'content' => 'Thực hành tạo một service và inject nó vào component.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Singleton Services và Providers', 'content' => 'Đảm bảo chỉ có một instance của service và cách cấu hình providers.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Routing và Navigation',
+                    'description' => 'Xây dựng ứng dụng Single Page Application (SPA) với nhiều trang.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Khái niệm Routing trong SPA', 'content' => 'Tại sao cần routing và cách nó hoạt động trong Angular.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Cấu hình Routes cơ bản', 'content' => 'Định nghĩa các route và liên kết chúng với component.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Navigation và Route Parameters', 'content' => 'Điều hướng giữa các trang và truyền dữ liệu qua URL.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Child Routes và Lazy Loading Modules', 'content' => 'Tổ chức route phức tạp và tối ưu hiệu suất với lazy loading.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tương tác với Backend (HttpClient)',
+                    'description' => 'Học cách gửi và nhận dữ liệu từ API bên ngoài.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Giới thiệu HttpClient Module', 'content' => 'Cách sử dụng HttpClient để thực hiện các yêu cầu HTTP.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Thực hiện GET Requests', 'content' => 'Lấy dữ liệu từ server bằng phương thức GET.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Thực hiện POST, PUT, DELETE Requests', 'content' => 'Gửi dữ liệu lên server và cập nhật/xóa tài nguyên.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Xử lý lỗi HTTP và Interceptors', 'content' => 'Cách bắt lỗi từ server và sử dụng Interceptors để xử lý yêu cầu/phản hồi toàn cục.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Nâng Cao: Quản lý trạng thái và Reactive Programming',
+            'description' => 'Khóa học chuyên sâu về các kỹ thuật Angular nâng cao, bao gồm quản lý trạng thái với NgRx và lập trình phản ứng với RxJS.',
+            'price' => 950000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Đã hoàn thành khóa Angular Cơ Bản hoặc có kiến thức tương đương.',
+                'Hiểu biết về JavaScript ES6+ và TypeScript.'
+            ],
+            'objectives' => [
+                'Thành thạo RxJS để xử lý các luồng dữ liệu bất đồng bộ.',
+                'Triển khai quản lý trạng thái với NgRx (Store, Actions, Reducers, Effects).',
+                'Tối ưu hóa hiệu suất ứng dụng Angular.',
+                'Viết Unit Tests và Integration Tests cho ứng dụng Angular.',
+                'Sử dụng Formly hoặc các thư viện form nâng cao.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu RxJS và Lập trình phản ứng',
+                    'description' => 'Tìm hiểu về thư viện RxJS và các khái niệm cơ bản của lập trình phản ứng.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Lập trình phản ứng là gì? Giới thiệu RxJS', 'content' => 'Khái niệm lập trình phản ứng và vai trò của RxJS trong Angular.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Observables, Observers và Subscriptions', 'content' => 'Hiểu các thành phần cốt lõi của RxJS và cách chúng hoạt động.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Operators phổ biến trong RxJS (map, filter, tap)', 'content' => 'Sử dụng các operator để biến đổi và lọc dữ liệu từ Observables.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Subjects và Multicasting', 'content' => 'Các loại Subject và cách chia sẻ Observables giữa nhiều Observers.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Quản lý trạng thái với NgRx (Redux Pattern)',
+                    'description' => 'Áp dụng kiến trúc Redux để quản lý trạng thái ứng dụng một cách nhất quán.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Giới thiệu NgRx và Redux Pattern', 'content' => 'Tổng quan về NgRx, các thành phần chính và lợi ích của việc sử dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Actions và Reducers', 'content' => 'Định nghĩa các hành động và cách Reducer xử lý chúng để thay đổi trạng thái.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Store và Selectors', 'content' => 'Tương tác với Store để gửi Actions và lấy dữ liệu trạng thái bằng Selectors.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Effects: Xử lý side effects bất đồng bộ', 'content' => 'Sử dụng Effects để quản lý các tác vụ bất đồng bộ như gọi API.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Tối ưu hóa hiệu suất ứng dụng Angular',
+                    'description' => 'Các kỹ thuật để cải thiện tốc độ và hiệu quả của ứng dụng Angular.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Change Detection Strategy (OnPush)', 'content' => 'Tối ưu hóa quá trình phát hiện thay đổi để giảm số lần render lại component.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Lazy Loading Modules và Components', 'content' => 'Tải các module và component khi cần thiết để giảm thời gian tải ban đầu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Ahead-of-Time (AOT) Compilation', 'content' => 'Biên dịch ứng dụng trước khi triển khai để tăng tốc độ khởi động.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Tối ưu hóa Bundle Size và Webpack', 'content' => 'Các kỹ thuật giảm kích thước file bundle và cấu hình Webpack.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Forms nâng cao và Validation',
+                    'description' => 'Xây dựng các biểu mẫu phức tạp với validation mạnh mẽ trong Angular.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Reactive Forms: Form Group và Form Control', 'content' => 'Sử dụng Reactive Forms để tạo các biểu mẫu động và mạnh mẽ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Built-in Validators và Custom Validators', 'content' => 'Áp dụng các quy tắc validation có sẵn và tạo quy tắc tùy chỉnh.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Dynamic Forms và Form Arrays', 'content' => 'Xây dựng các biểu mẫu có thể thay đổi cấu trúc linh hoạt.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Thư viện Formly cho Dynamic Forms', 'content' => 'Giới thiệu và sử dụng Formly để tạo các biểu mẫu phức tạp dễ dàng hơn.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Testing trong Angular',
+                    'description' => 'Học cách viết Unit Tests và Integration Tests để đảm bảo chất lượng code.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu Testing trong Angular (Karma, Jasmine)', 'content' => 'Tổng quan về các công cụ và phương pháp testing trong Angular.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Viết Unit Tests cho Components', 'content' => 'Thực hành viết test cho các component riêng lẻ.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Viết Unit Tests cho Services và Pipes', 'content' => 'Kiểm thử logic nghiệp vụ trong services và chức năng của pipes.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Integration Tests và End-to-End Tests (Protractor/Cypress)', 'content' => 'Kiểm thử sự tương tác giữa các thành phần và luồng người dùng cuối.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai và Best Practices',
+                    'description' => 'Các bước để triển khai ứng dụng Angular và các thực hành tốt nhất trong phát triển.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Build và Triển khai ứng dụng Angular', 'content' => 'Các lệnh build và cách chuẩn bị ứng dụng để triển khai lên server.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Server-Side Rendering (SSR) với Angular Universal', 'content' => 'Cải thiện SEO và hiệu suất tải ban đầu với SSR.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Progressive Web Apps (PWA) trong Angular', 'content' => 'Biến ứng dụng Angular thành PWA để cải thiện trải nghiệm người dùng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Angular Best Practices và Coding Style', 'content' => 'Các quy tắc và khuyến nghị để viết code Angular sạch, dễ bảo trì và hiệu quả.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Xây dựng RESTful API với Angular và Node.js (MEAN Stack)',
+            'description' => 'Học cách phát triển ứng dụng full-stack sử dụng Angular cho frontend và Node.js/Express cho backend, với MongoDB làm cơ sở dữ liệu.',
+            'price' => 1100000.00,
+            'categoryIds' => [7, 12, 2], // Angular, NodeJS, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về Angular và JavaScript.',
+                'Hiểu biết về Node.js và MongoDB (hoặc sẵn sàng học).'
+            ],
+            'objectives' => [
+                'Thiết lập môi trường phát triển MEAN Stack.',
+                'Xây dựng RESTful API với Node.js và Express.',
+                'Kết nối và tương tác với MongoDB.',
+                'Sử dụng Angular HttpClient để gọi API backend.',
+                'Triển khai xác thực người dùng (Authentication) và ủy quyền (Authorization).'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu MEAN Stack và Thiết lập môi trường',
+                    'description' => 'Tổng quan về MEAN Stack và các bước chuẩn bị cho dự án full-stack.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: MEAN Stack là gì? Ưu điểm và ứng dụng', 'content' => 'Giải thích các thành phần của MEAN Stack và lợi ích khi sử dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cài đặt Node.js, npm, MongoDB và Angular CLI', 'content' => 'Hướng dẫn cài đặt tất cả các công cụ cần thiết cho MEAN Stack.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Khởi tạo dự án Angular Frontend', 'content' => 'Tạo một dự án Angular mới sẽ là frontend của ứng dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Khởi tạo dự án Node.js/Express Backend', 'content' => 'Thiết lập một dự án Node.js với Express làm framework backend.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Xây dựng RESTful API với Node.js và Express',
+                    'description' => 'Thiết kế và triển khai các endpoint API cho ứng dụng.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Giới thiệu Express.js và Middleware', 'content' => 'Các khái niệm cơ bản của Express và cách sử dụng middleware.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Thiết kế RESTful API (GET, POST, PUT, DELETE)', 'content' => 'Nguyên tắc thiết kế API theo chuẩn REST và các phương thức HTTP.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Xây dựng các Route và Controller', 'content' => 'Định nghĩa các route và logic xử lý yêu cầu trong controller.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Xử lý CORS và Error Handling', 'content' => 'Thiết lập Cross-Origin Resource Sharing và quản lý lỗi trong API.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Tương tác với MongoDB (Mongoose)',
+                    'description' => 'Lưu trữ và truy xuất dữ liệu từ cơ sở dữ liệu NoSQL MongoDB.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu MongoDB và Mongoose ODM', 'content' => 'Khái niệm về MongoDB và cách Mongoose giúp tương tác với nó.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Định nghĩa Schema và Model với Mongoose', 'content' => 'Tạo các schema để định nghĩa cấu trúc dữ liệu và model để tương tác.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Thực hiện các thao tác CRUD (Create, Read, Update, Delete)', 'content' => 'Viết code để thêm, đọc, cập nhật và xóa dữ liệu trong MongoDB.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Querying và Filtering dữ liệu', 'content' => 'Các kỹ thuật truy vấn và lọc dữ liệu phức tạp trong MongoDB.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Kết nối Angular Frontend với Node.js Backend',
+                    'description' => 'Thiết lập giao tiếp giữa ứng dụng Angular và API backend.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Sử dụng Angular HttpClient để gọi API', 'content' => 'Cách Angular HttpClient được sử dụng để gửi yêu cầu HTTP đến backend.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Xây dựng Services trong Angular để tương tác API', 'content' => 'Tạo các Angular Service để đóng gói logic gọi API.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Hiển thị dữ liệu từ API lên Angular UI', 'content' => 'Đổ dữ liệu nhận được từ backend vào giao diện người dùng Angular.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Gửi dữ liệu từ Angular Form lên API', 'content' => 'Cách thu thập dữ liệu từ form Angular và gửi lên backend để lưu trữ.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Xác thực (Authentication) và Ủy quyền (Authorization)',
+                    'description' => 'Bảo mật ứng dụng bằng cách quản lý người dùng và quyền truy cập.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu JWT (JSON Web Tokens)', 'content' => 'Khái niệm về JWT và vai trò của nó trong xác thực không trạng thái.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Đăng ký và Đăng nhập người dùng trên Backend', 'content' => 'Triển khai các endpoint API cho việc đăng ký và đăng nhập.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Lưu trữ và sử dụng JWT trên Frontend (Angular)', 'content' => 'Cách Angular lưu trữ token và gửi kèm trong các yêu cầu API.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Middleware bảo vệ Route trên Backend', 'content' => 'Tạo middleware để kiểm tra token và bảo vệ các route API.', 'sortOrder' => 4],
+                        ['title' => 'Bài 5.5: Route Guards trong Angular cho Authorization', 'content' => 'Sử dụng Angular Route Guards để kiểm soát quyền truy cập frontend.', 'sortOrder' => 5],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai ứng dụng MEAN Stack',
+                    'description' => 'Các bước để đưa ứng dụng MEAN Stack lên môi trường production.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Chuẩn bị ứng dụng cho Production', 'content' => 'Các cấu hình và tối ưu hóa cần thiết trước khi triển khai.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Triển khai Backend lên Heroku/AWS Elastic Beanstalk', 'content' => 'Hướng dẫn triển khai ứng dụng Node.js backend lên các nền tảng đám mây.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Triển khai Frontend lên Netlify/Firebase Hosting', 'content' => 'Hướng dẫn triển khai ứng dụng Angular frontend lên các dịch vụ hosting tĩnh.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Cấu hình biến môi trường và Domain', 'content' => 'Quản lý các biến môi trường và cấu hình domain cho ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Material: Xây dựng giao diện đẹp và đáp ứng',
+            'description' => 'Học cách sử dụng thư viện Angular Material để tạo ra các giao diện người dùng chuyên nghiệp, đẹp mắt và có khả năng đáp ứng trên mọi thiết bị.',
+            'price' => 600000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về Angular (Components, Modules, Services).',
+                'Hiểu biết về HTML và CSS.'
+            ],
+            'objectives' => [
+                'Cài đặt và cấu hình Angular Material trong dự án.',
+                'Sử dụng các component Material Design phổ biến (Button, Card, Form Controls).',
+                'Tùy chỉnh theme và màu sắc của Material Design.',
+                'Xây dựng giao diện đáp ứng (Responsive Design) với Angular Material.',
+                'Tích hợp các component phức tạp như Data Table, Dialogs, Snackbar.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Angular Material và Thiết lập',
+                    'description' => 'Tổng quan về Angular Material và các bước để tích hợp vào dự án Angular.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Angular Material là gì? Lợi ích và triết lý Material Design', 'content' => 'Giới thiệu về thư viện Angular Material và các nguyên tắc thiết kế Material Design của Google.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Cài đặt và cấu hình Angular Material', 'content' => 'Hướng dẫn từng bước cài đặt và import các module Material cần thiết vào ứng dụng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Sử dụng Material Icon và Typography', 'content' => 'Tích hợp các icon của Material Design và cấu hình typography cho ứng dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Tổng quan về các Material Components', 'content' => 'Giới thiệu các loại component chính mà Angular Material cung cấp.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Các Component cơ bản và Layout',
+                    'description' => 'Làm việc với các component Material Design phổ biến để xây dựng giao diện.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Buttons, Icons và Indicators', 'content' => 'Sử dụng các loại button, icon và các chỉ báo tải (spinner, progress bar).', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Cards và Lists', 'content' => 'Tạo các khối nội dung (card) và danh sách (list) đẹp mắt.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Navigation (Toolbar, Sidenav, Menu)', 'content' => 'Xây dựng các thành phần điều hướng như thanh công cụ, menu bên và dropdown menu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Tabs và Stepper', 'content' => 'Sử dụng tabs để tổ chức nội dung và stepper cho các quy trình nhiều bước.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Form Controls và Validation',
+                    'description' => 'Xây dựng các biểu mẫu với các control Material Design và validation.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Input Fields và Textarea', 'content' => 'Sử dụng các trường nhập liệu Material Design và tùy chỉnh.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Select, Checkbox và Radio Buttons', 'content' => 'Tạo các control chọn lựa và nhóm lựa chọn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Datepicker và Slider', 'content' => 'Tích hợp bộ chọn ngày và thanh trượt để nhập liệu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Form Validation với Material Design', 'content' => 'Hiển thị thông báo lỗi validation một cách thân thiện với người dùng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Data Display và Interactions',
+                    'description' => 'Hiển thị dữ liệu phức tạp và quản lý tương tác người dùng.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Data Table (mat-table): Hiển thị dữ liệu dạng bảng', 'content' => 'Sử dụng mat-table để tạo bảng dữ liệu có phân trang, sắp xếp, lọc.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Paginator, Sort Header và Filter', 'content' => 'Tích hợp các tính năng phân trang, sắp xếp và lọc cho bảng dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Dialogs (mat-dialog): Hộp thoại tương tác', 'content' => 'Tạo và quản lý các hộp thoại modal để tương tác với người dùng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Snackbar (mat-snackbar): Thông báo nhanh', 'content' => 'Hiển thị các thông báo ngắn gọn, không chặn người dùng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Theming và Responsive Design',
+                    'description' => 'Tùy chỉnh giao diện và đảm bảo ứng dụng hoạt động tốt trên mọi kích thước màn hình.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Theming trong Angular Material', 'content' => 'Tạo và áp dụng các theme tùy chỉnh cho ứng dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Custom Palettes và Typography', 'content' => 'Định nghĩa bảng màu và kiểu chữ riêng cho theme.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Responsive Layout với Flex Layout Module', 'content' => 'Sử dụng Angular Flex Layout để xây dựng giao diện đáp ứng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Media Queries và Breakpoints trong Angular Material', 'content' => 'Áp dụng các kỹ thuật responsive CSS với Material Design.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các Component nâng cao và Best Practices',
+                    'description' => 'Khám phá các component phức tạp hơn và các thực hành tốt nhất khi sử dụng Angular Material.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Autocomplete và Chips', 'content' => 'Sử dụng autocomplete cho trường nhập liệu và chips để hiển thị các mục đã chọn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Expansion Panel và Bottom Sheet', 'content' => 'Tạo các panel có thể mở rộng và các bảng điều khiển từ dưới lên.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Drag and Drop (CDK)', 'content' => 'Tích hợp chức năng kéo thả vào ứng dụng bằng Angular CDK.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices khi sử dụng Angular Material', 'content' => 'Các mẹo và thủ thuật để sử dụng Angular Material hiệu quả và tối ưu.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Testing: Kiểm thử ứng dụng Angular hiệu quả',
+            'description' => 'Khóa học toàn diện về kiểm thử trong Angular, từ unit testing đến end-to-end testing, giúp bạn xây dựng ứng dụng chất lượng cao.',
+            'price' => 800000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về Angular cơ bản.',
+                'Hiểu biết về JavaScript và TypeScript.'
+            ],
+            'objectives' => [
+                'Hiểu các loại kiểm thử và tầm quan trọng của chúng.',
+                'Viết Unit Tests cho Components, Services, Pipes, Directives.',
+                'Sử dụng Karma và Jasmine framework.',
+                'Thực hiện Integration Tests cho các module.',
+                'Viết End-to-End Tests với Cypress hoặc Protractor (tùy chọn).'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Kiểm thử trong Angular',
+                    'description' => 'Tổng quan về kiểm thử phần mềm và vai trò của nó trong phát triển Angular.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Tại sao cần kiểm thử? Các loại kiểm thử', 'content' => 'Giải thích tầm quan trọng của testing và phân loại các phương pháp kiểm thử.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Giới thiệu Karma và Jasmine', 'content' => 'Các công cụ chính được sử dụng để chạy và viết unit test trong Angular.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cấu hình môi trường kiểm thử Angular', 'content' => 'Các file cấu hình và thiết lập cần thiết cho testing trong dự án Angular.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Chạy Unit Tests và đọc kết quả', 'content' => 'Cách chạy các test và hiểu báo cáo kết quả từ Karma.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Unit Testing Components',
+                    'description' => 'Học cách viết unit test cho các thành phần giao diện người dùng (Components).',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Test Bed và Component Fixture', 'content' => 'Sử dụng Test Bed để tạo môi trường test và Component Fixture để tương tác với component.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Testing Component Logic', 'content' => 'Viết test cho các phương thức và thuộc tính của component.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Testing Component Templates (DOM interaction)', 'content' => 'Kiểm thử sự tương tác giữa component và template của nó.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Mocking Dependencies và Services', 'content' => 'Cách tạo mock cho các service và dependency để cô lập component khi test.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Unit Testing Services, Pipes và Directives',
+                    'description' => 'Mở rộng kỹ năng kiểm thử sang các loại thành phần khác của Angular.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Testing Services (synchronous và asynchronous)', 'content' => 'Viết test cho các service, bao gồm cả các service gọi API bất đồng bộ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Testing Pipes', 'content' => 'Kiểm thử chức năng của các pipe trong việc biến đổi dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Testing Directives', 'content' => 'Viết test cho các directive, đảm bảo chúng thay đổi DOM như mong đợi.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Spies và Mocking HTTP Requests', 'content' => 'Sử dụng Jasmine spies để theo dõi hàm và mock các yêu cầu HTTP.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Integration Testing và Router Testing',
+                    'description' => 'Kiểm thử sự tương tác giữa nhiều thành phần và chức năng routing.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Integration Testing Components with Services', 'content' => 'Kiểm thử sự phối hợp giữa component và service mà nó sử dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Testing Parent-Child Component Interaction', 'content' => 'Kiểm thử cách các component cha-con giao tiếp với nhau qua @Input và @Output.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Testing Angular Router', 'content' => 'Viết test để đảm bảo routing hoạt động chính xác và điều hướng đúng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Debugging Tests trong Angular', 'content' => 'Các kỹ thuật để tìm và sửa lỗi trong các bài test.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: End-to-End (E2E) Testing với Cypress',
+                    'description' => 'Kiểm thử toàn bộ luồng người dùng của ứng dụng từ đầu đến cuối.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giới thiệu E2E Testing và Cypress', 'content' => 'Khái niệm E2E testing và lý do chọn Cypress làm công cụ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Cài đặt và cấu hình Cypress', 'content' => 'Hướng dẫn cài đặt Cypress vào dự án Angular.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Viết E2E Tests cơ bản (login, navigation)', 'content' => 'Thực hành viết các kịch bản test cho các luồng người dùng chính.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Intercepting HTTP Requests trong Cypress', 'content' => 'Cách mock và kiểm soát các yêu cầu HTTP trong E2E tests.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Test Coverage và Best Practices',
+                    'description' => 'Đo lường mức độ kiểm thử và áp dụng các thực hành tốt nhất.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Đo lường Test Coverage', 'content' => 'Sử dụng công cụ để xem tỷ lệ code đã được kiểm thử.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Viết Testable Code', 'content' => 'Các nguyên tắc để viết code dễ dàng kiểm thử hơn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tích hợp Testing vào CI/CD Pipeline', 'content' => 'Tự động hóa quá trình kiểm thử trong quy trình phát triển liên tục.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Các mẹo và thủ thuật khi kiểm thử Angular', 'content' => 'Những lời khuyên hữu ích để viết test hiệu quả và bảo trì.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Universal: Xây dựng ứng dụng SSR và SEO-friendly',
+            'description' => 'Khóa học tập trung vào Server-Side Rendering (SSR) với Angular Universal để cải thiện hiệu suất, SEO và trải nghiệm người dùng.',
+            'price' => 850000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về Angular cơ bản.',
+                'Hiểu biết về Node.js và khái niệm SSR.'
+            ],
+            'objectives' => [
+                'Hiểu lợi ích của SSR và Angular Universal.',
+                'Thiết lập Angular Universal trong dự án hiện có.',
+                'Tối ưu hóa ứng dụng Angular cho SSR.',
+                'Triển khai ứng dụng Universal lên môi trường production.',
+                'Xử lý các vấn đề phổ biến khi làm việc với SSR.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Server-Side Rendering (SSR) và Angular Universal',
+                    'description' => 'Tổng quan về SSR và cách Angular Universal giúp cải thiện ứng dụng Angular.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: SSR là gì? Tại sao cần SSR cho SPA?', 'content' => 'Giải thích khái niệm SSR và các vấn đề mà nó giải quyết cho Single Page Applications.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Giới thiệu Angular Universal', 'content' => 'Vai trò của Angular Universal trong việc thực hiện SSR cho Angular.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Lợi ích của SSR: SEO, hiệu suất, UX', 'content' => 'Phân tích các ưu điểm chính khi sử dụng SSR trong ứng dụng Angular.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Kiến trúc Angular Universal', 'content' => 'Hiểu cách Angular Universal hoạt động với Node.js server.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Thiết lập Angular Universal',
+                    'description' => 'Các bước để thêm Angular Universal vào một dự án Angular hiện có.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Thêm Angular Universal vào dự án', 'content' => 'Sử dụng Angular CLI để tích hợp Universal vào ứng dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Cấu hình Server-Side Rendering', 'content' => 'Thiết lập các file server.ts và main.server.ts.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Chạy ứng dụng Universal ở chế độ phát triển', 'content' => 'Cách kiểm tra ứng dụng Universal trên môi trường local.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Phân biệt Browser và Server Context', 'content' => 'Hiểu sự khác biệt giữa môi trường trình duyệt và môi trường server khi chạy ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Tối ưu hóa ứng dụng cho SSR',
+                    'description' => 'Các kỹ thuật để đảm bảo ứng dụng hoạt động tốt và hiệu quả với SSR.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Xử lý DOM API và Window/Document Object', 'content' => 'Cách xử lý các API chỉ có trên trình duyệt khi chạy trên server.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: State Transfer API', 'content' => 'Truyền trạng thái từ server sang client để tránh tải lại dữ liệu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Pre-rendering và Static Site Generation (SSG)', 'content' => 'Tạo các trang HTML tĩnh trước khi triển khai để tối ưu SEO và hiệu suất.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Tối ưu hóa hiệu suất tải ban đầu', 'content' => 'Các chiến lược để giảm thời gian tải trang đầu tiên với SSR.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Quản lý Metadata và SEO',
+                    'description' => 'Cải thiện khả năng tối ưu hóa công cụ tìm kiếm (SEO) cho ứng dụng Angular.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Sử dụng Meta service để quản lý thẻ meta', 'content' => 'Thêm và cập nhật các thẻ meta động cho từng trang.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Title service để quản lý tiêu đề trang', 'content' => 'Thiết lập tiêu đề động cho các trang trong ứng dụng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Open Graph và Twitter Cards', 'content' => 'Tối ưu hóa hiển thị khi chia sẻ ứng dụng trên mạng xã hội.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Sitemap và Robots.txt cho ứng dụng SSR', 'content' => 'Tạo sitemap và cấu hình robots.txt để hướng dẫn công cụ tìm kiếm.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Triển khai ứng dụng Angular Universal',
+                    'description' => 'Các bước để triển khai ứng dụng SSR lên các nền tảng hosting.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Triển khai lên Node.js server (Express)', 'content' => 'Cấu hình và triển khai ứng dụng Universal lên một server Node.js.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Triển khai lên Firebase Hosting với Cloud Functions', 'content' => 'Sử dụng Firebase để host ứng dụng Universal và Cloud Functions cho SSR.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Triển khai lên Vercel/Netlify (SSR/SSG)', 'content' => 'Các tùy chọn triển khai trên các nền tảng tối ưu cho frontend.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Debugging ứng dụng Universal trên Production', 'content' => 'Các công cụ và kỹ thuật để gỡ lỗi ứng dụng SSR đã triển khai.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các trường hợp nâng cao và Best Practices',
+                    'description' => 'Xử lý các tình huống phức tạp và áp dụng các thực hành tốt nhất cho Angular Universal.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Xử lý Authentication và Authorization với SSR', 'content' => 'Cách quản lý xác thực người dùng trong môi trường SSR.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Internationalization (i18n) với SSR', 'content' => 'Triển khai đa ngôn ngữ cho ứng dụng Universal.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tích hợp Analytics và Tag Managers', 'content' => 'Thêm các công cụ phân tích và quản lý thẻ vào ứng dụng SSR.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices và các vấn đề thường gặp với Universal', 'content' => 'Những lời khuyên để tối ưu hóa và khắc phục sự cố khi làm việc với Angular Universal.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular PWA: Xây dựng Progressive Web Apps',
+            'description' => 'Học cách biến ứng dụng Angular của bạn thành Progressive Web App (PWA) để mang lại trải nghiệm giống như ứng dụng di động.',
+            'price' => 700000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về Angular.',
+                'Hiểu biết về JavaScript Promises và Service Workers.'
+            ],
+            'objectives' => [
+                'Hiểu các nguyên tắc và lợi ích của PWA.',
+                'Thêm khả năng PWA vào ứng dụng Angular hiện có.',
+                'Sử dụng Service Workers để caching và offline support.',
+                'Triển khai Push Notifications và Add to Home Screen.',
+                'Tối ưu hóa hiệu suất và độ tin cậy của PWA.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Progressive Web Apps (PWA)',
+                    'description' => 'Tổng quan về PWA và các tính năng cốt lõi của nó.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: PWA là gì? Tại sao PWA lại quan trọng?', 'content' => 'Định nghĩa PWA, các tính năng chính và lợi ích cho người dùng và nhà phát triển.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các nguyên tắc cốt lõi của PWA (Manifest, Service Worker, HTTPS)', 'content' => 'Giải thích các thành phần cơ bản tạo nên một PWA.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: So sánh PWA với Native Apps và Responsive Web Apps', 'content' => 'Điểm khác biệt và ưu nhược điểm của PWA so với các loại ứng dụng khác.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Công cụ kiểm tra PWA (Lighthouse)', 'content' => 'Sử dụng Lighthouse để đánh giá mức độ PWA của ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Thêm PWA vào ứng dụng Angular',
+                    'description' => 'Các bước để biến một ứng dụng Angular thông thường thành PWA.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Sử dụng Angular CLI để thêm PWA functionality', 'content' => 'Dùng lệnh `ng add @angular/pwa` để tích hợp PWA vào dự án.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Web App Manifest (manifest.webmanifest)', 'content' => 'Cấu hình file manifest để định nghĩa thông tin ứng dụng, icon, splash screen.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Service Worker trong Angular', 'content' => 'Giới thiệu về Service Worker và cách Angular tự động tạo ra nó.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Cấu hình ngsw-config.json cho Service Worker', 'content' => 'Tùy chỉnh chiến lược caching và các tài nguyên cần cache.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Caching và Offline Support với Service Worker',
+                    'description' => 'Đảm bảo ứng dụng hoạt động ngay cả khi không có kết nối mạng.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Chiến lược caching: Cache-first, Network-first', 'content' => 'Các phương pháp caching dữ liệu và tài nguyên ứng dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Caching Assets và Data', 'content' => 'Lưu trữ các file tĩnh và dữ liệu API để sử dụng offline.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Xử lý cập nhật ứng dụng (Service Worker updates)', 'content' => 'Cách Service Worker quản lý việc cập nhật phiên bản mới của ứng dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Xử lý lỗi khi offline', 'content' => 'Hiển thị thông báo thân thiện khi người dùng mất kết nối mạng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Push Notifications',
+                    'description' => 'Gửi thông báo đẩy đến người dùng để giữ chân họ và tăng tương tác.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu Push Notifications và Web Push API', 'content' => 'Khái niệm về thông báo đẩy và cách chúng hoạt động trên web.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Đăng ký Push Notifications trên Frontend (Angular)', 'content' => 'Yêu cầu quyền và đăng ký người dùng nhận thông báo.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Gửi Push Notifications từ Backend', 'content' => 'Sử dụng một server backend để gửi thông báo đến các subscription.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Xử lý Push Events trên Service Worker', 'content' => 'Cách Service Worker nhận và hiển thị thông báo đẩy.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Add to Home Screen và các tính năng khác',
+                    'description' => 'Kích hoạt tính năng cài đặt ứng dụng và khám phá các API PWA khác.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Kích hoạt Add to Home Screen (A2HS)', 'content' => 'Hướng dẫn người dùng cài đặt PWA lên màn hình chính của thiết bị.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Tùy chỉnh trải nghiệm A2HS', 'content' => 'Thay đổi icon, tên ứng dụng và splash screen.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Background Sync API', 'content' => 'Đồng bộ hóa dữ liệu trong nền khi có kết nối mạng trở lại.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Credential Management API và Web Share API', 'content' => 'Sử dụng các API PWA nâng cao để cải thiện trải nghiệm người dùng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai và Tối ưu hóa PWA',
+                    'description' => 'Các bước để triển khai PWA và các thực hành tốt nhất để đạt hiệu suất cao.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Triển khai PWA lên Production', 'content' => 'Các bước chuẩn bị và triển khai ứng dụng PWA lên server.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tối ưu hóa hiệu suất PWA (Performance Audits)', 'content' => 'Sử dụng Lighthouse và các công cụ khác để cải thiện tốc độ và hiệu quả.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Debugging Service Workers', 'content' => 'Các kỹ thuật để gỡ lỗi Service Worker và các vấn đề liên quan đến PWA.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices cho Angular PWA', 'content' => 'Những lời khuyên để xây dựng PWA mạnh mẽ, đáng tin cậy và có khả năng tương tác cao.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Security: Bảo mật ứng dụng Angular',
+            'description' => 'Khóa học này bao gồm các kỹ thuật và thực hành tốt nhất để bảo mật ứng dụng Angular khỏi các lỗ hổng phổ biến.',
+            'price' => 900000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về Angular và lập trình web.',
+                'Hiểu biết về các khái niệm bảo mật web cơ bản (XSS, CSRF).'
+            ],
+            'objectives' => [
+                'Hiểu các lỗ hổng bảo mật phổ biến trong ứng dụng web.',
+                'Áp dụng các biện pháp phòng ngừa XSS, CSRF, Injection Attacks.',
+                'Triển khai xác thực và ủy quyền an toàn trong Angular.',
+                'Bảo mật dữ liệu và giao tiếp với backend.',
+                'Sử dụng các công cụ và thực hành tốt nhất để tăng cường bảo mật.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Bảo mật ứng dụng Web và Angular',
+                    'description' => 'Tổng quan về các mối đe dọa bảo mật phổ biến và cách Angular hỗ trợ bảo mật.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Các lỗ hổng bảo mật web phổ biến (OWASP Top 10)', 'content' => 'Giới thiệu các loại tấn công web thường gặp như XSS, CSRF, SQL Injection.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Tầm quan trọng của bảo mật Frontend', 'content' => 'Tại sao bảo mật frontend lại quan trọng và vai trò của Angular.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Các tính năng bảo mật tích hợp của Angular', 'content' => 'Angular bảo vệ ứng dụng khỏi các lỗ hổng như thế nào.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Security Headers và Content Security Policy (CSP)', 'content' => 'Cấu hình các header bảo mật để tăng cường an toàn cho ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Phòng chống Cross-Site Scripting (XSS)',
+                    'description' => 'Các biện pháp để ngăn chặn tấn công XSS trong ứng dụng Angular.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: XSS là gì? Các loại tấn công XSS', 'content' => 'Giải thích về XSS và cách kẻ tấn công khai thác lỗ hổng này.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Angular Sanitization và DomSanitizer', 'content' => 'Cách Angular tự động làm sạch dữ liệu và khi nào cần DomSanitizer.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Contextual Escaping và Trusted Types', 'content' => 'Các kỹ thuật bảo vệ chống lại XSS dựa trên ngữ cảnh.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Ngăn chặn XSS qua User Input và Third-Party Libraries', 'content' => 'Cách xử lý dữ liệu nhập từ người dùng và sử dụng thư viện bên thứ ba an toàn.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Phòng chống Cross-Site Request Forgery (CSRF)',
+                    'description' => 'Bảo vệ ứng dụng khỏi các yêu cầu giả mạo từ phía client.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: CSRF là gì? Cách tấn công CSRF hoạt động', 'content' => 'Giải thích về CSRF và các kịch bản tấn công điển hình.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Synchronizer Token Pattern (CSRF Tokens)', 'content' => 'Sử dụng CSRF token để xác minh tính hợp lệ của yêu cầu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Same-Site Cookies và Double Submit Cookie', 'content' => 'Các phương pháp bảo vệ khác chống lại CSRF.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Triển khai CSRF Protection trong Angular và Backend', 'content' => 'Cách Angular và backend phối hợp để ngăn chặn CSRF.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Xác thực (Authentication) và Ủy quyền (Authorization)',
+                    'description' => 'Triển khai các cơ chế bảo mật cho người dùng trong ứng dụng Angular.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Các phương pháp Authentication (Token-based, Session-based)', 'content' => 'So sánh các phương pháp xác thực và lựa chọn phù hợp cho Angular.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: JWT (JSON Web Tokens) trong Angular', 'content' => 'Cách Angular sử dụng và quản lý JWT để xác thực người dùng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Route Guards cho Authorization', 'content' => 'Sử dụng Guards để bảo vệ các route dựa trên quyền của người dùng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Role-Based Access Control (RBAC) trong Angular', 'content' => 'Triển khai RBAC để quản lý quyền truy cập chi tiết cho các chức năng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Bảo mật dữ liệu và Giao tiếp với Backend',
+                    'description' => 'Đảm bảo an toàn cho dữ liệu khi truyền tải và lưu trữ.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: HTTPS/SSL/TLS: Mã hóa giao tiếp', 'content' => 'Tầm quan trọng của HTTPS và cách cấu hình để bảo mật dữ liệu truyền tải.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Input Validation (Frontend và Backend)', 'content' => 'Xác thực dữ liệu đầu vào ở cả frontend và backend để ngăn chặn injection attacks.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Storing Sensitive Data (Local Storage, Cookies)', 'content' => 'Các phương pháp lưu trữ dữ liệu nhạy cảm một cách an toàn trên client.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Xử lý lỗi bảo mật và Logging', 'content' => 'Ghi log các sự kiện bảo mật và xử lý lỗi một cách an toàn.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các vấn đề bảo mật nâng cao và Best Practices',
+                    'description' => 'Khám phá các mối đe dọa phức tạp hơn và các thực hành tốt nhất để tăng cường bảo mật.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Clickjacking và UI Redressing', 'content' => 'Hiểu về tấn công clickjacking và các biện pháp phòng ngừa.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Open Redirects và SSRF', 'content' => 'Ngăn chặn các lỗ hổng chuyển hướng mở và Server-Side Request Forgery.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Quản lý Dependencies và Vulnerability Scanning', 'content' => 'Quét các thư viện bên thứ ba để tìm lỗ hổng bảo mật.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Security Audits và Penetration Testing', 'content' => 'Thực hiện kiểm tra bảo mật định kỳ cho ứng dụng Angular.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Forms: Từ Template-driven đến Reactive Forms',
+            'description' => 'Khóa học chuyên sâu về việc xây dựng và quản lý các biểu mẫu trong Angular, từ đơn giản đến phức tạp, sử dụng cả Template-driven và Reactive Forms.',
+            'price' => 650000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về Angular Components và Data Binding.',
+                'Hiểu biết về HTML Forms và JavaScript.'
+            ],
+            'objectives' => [
+                'Hiểu sự khác biệt giữa Template-driven và Reactive Forms.',
+                'Xây dựng các biểu mẫu đơn giản với Template-driven Forms.',
+                'Thành thạo Reactive Forms (FormGroup, FormControl, FormArray).',
+                'Triển khai Validation (built-in và custom) cho cả hai loại form.',
+                'Tạo các biểu mẫu động và phức tạp.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Angular Forms',
+                    'description' => 'Tổng quan về Angular Forms và các phương pháp xây dựng biểu mẫu.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Tại sao cần Angular Forms? Các loại Forms', 'content' => 'Tầm quan trọng của form trong ứng dụng web và giới thiệu hai loại form chính.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: So sánh Template-driven và Reactive Forms', 'content' => 'Phân tích ưu nhược điểm của từng loại form để lựa chọn phù hợp.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cấu hình FormsModule và ReactiveFormsModule', 'content' => 'Các module cần import để sử dụng các loại form trong Angular.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Trạng thái của Form Controls (valid, invalid, touched, dirty)', 'content' => 'Hiểu các trạng thái của input field và cách sử dụng chúng để hiển thị UI.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Template-driven Forms',
+                    'description' => 'Xây dựng biểu mẫu bằng cách sử dụng các directive trong template HTML.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Tạo Form với ngForm và ngModel', 'content' => 'Sử dụng `ngModel` để tạo các input field và `ngForm` để quản lý toàn bộ form.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Built-in Validators trong Template-driven Forms', 'content' => 'Áp dụng các validator có sẵn như `required`, `minlength`, `maxlength`, `pattern`.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Hiển thị thông báo lỗi Validation', 'content' => 'Cách hiển thị các thông báo lỗi thân thiện với người dùng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Submit Form và lấy dữ liệu', 'content' => 'Xử lý sự kiện submit form và truy cập dữ liệu đã nhập.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Reactive Forms - FormControl và FormGroup',
+                    'description' => 'Xây dựng biểu mẫu bằng cách định nghĩa cấu trúc trong code TypeScript.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu Reactive Forms và FormControl', 'content' => 'Khái niệm Reactive Forms và cách tạo một `FormControl` để quản lý một input field.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: FormGroup: Nhóm các Form Controls', 'content' => 'Sử dụng `FormGroup` để tổ chức các `FormControl` thành một nhóm logic.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Kết nối FormGroup với HTML Template', 'content' => 'Cách liên kết cấu trúc form đã định nghĩa trong TypeScript với template HTML.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Cập nhật giá trị Form (setValue, patchValue)', 'content' => 'Các phương thức để gán giá trị cho toàn bộ form hoặc một phần của form.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Reactive Forms - Validation và FormArray',
+                    'description' => 'Thêm validation mạnh mẽ và xử lý các trường hợp lặp lại trong biểu mẫu.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Built-in Validators trong Reactive Forms', 'content' => 'Áp dụng các validator có sẵn trực tiếp trong định nghĩa `FormControl`.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Custom Validators (Synchronous và Asynchronous)', 'content' => 'Tạo các validator tùy chỉnh để kiểm tra logic phức tạp hơn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: FormArray: Xử lý danh sách các Form Controls/Groups', 'content' => 'Sử dụng `FormArray` để quản lý các trường lặp lại như danh sách item.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Dynamic Forms với FormArray', 'content' => 'Xây dựng các biểu mẫu có thể thêm/xóa các trường động.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Form Builder và Formly (Dynamic Forms)',
+                    'description' => 'Sử dụng các công cụ hỗ trợ để xây dựng biểu mẫu dễ dàng và linh hoạt hơn.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Form Builder: Đơn giản hóa việc tạo Reactive Forms', 'content' => 'Sử dụng `FormBuilder` để tạo `FormGroup` và `FormControl` một cách ngắn gọn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Giới thiệu Formly: Xây dựng Dynamic Forms', 'content' => 'Khái niệm về Formly và cách nó giúp tạo các biểu mẫu động dựa trên cấu hình JSON.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Cấu hình Formly Fields và Validators', 'content' => 'Định nghĩa các trường form và quy tắc validation bằng cấu hình Formly.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Custom Formly Field Types', 'content' => 'Tạo các loại trường tùy chỉnh để mở rộng khả năng của Formly.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Tương tác Form và Best Practices',
+                    'description' => 'Các kỹ thuật nâng cao và lời khuyên để xây dựng form hiệu quả.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Xử lý Form Submission và Reset', 'content' => 'Các phương pháp gửi dữ liệu form và đặt lại form.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Form Controls trong Components lồng nhau', 'content' => 'Quản lý form khi các input controls nằm trong các component con.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Reactive Form vs Template-driven Form: Khi nào nên dùng loại nào?', 'content' => 'Phân tích sâu hơn để đưa ra quyết định lựa chọn loại form phù hợp cho từng trường hợp.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices cho Angular Forms', 'content' => 'Những lời khuyên để viết code form sạch, dễ bảo trì và hiệu quả.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular RxJS: Lập trình phản ứng với Observables',
+            'description' => 'Khóa học chuyên sâu về RxJS, thư viện lập trình phản ứng không thể thiếu trong Angular, giúp bạn xử lý các luồng dữ liệu bất đồng bộ một cách hiệu quả.',
+            'price' => 780000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về JavaScript (ES6+) và TypeScript.',
+                'Hiểu biết về Angular cơ bản là một lợi thế.'
+            ],
+            'objectives' => [
+                'Hiểu các khái niệm cốt lõi của lập trình phản ứng và RxJS.',
+                'Làm việc thành thạo với Observables, Observers và Subscriptions.',
+                'Sử dụng các Operators phổ biến để biến đổi và kết hợp dữ liệu.',
+                'Quản lý Side Effects và xử lý lỗi trong các luồng dữ liệu.',
+                'Áp dụng RxJS vào các tình huống thực tế trong ứng dụng Angular.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Lập trình phản ứng và RxJS',
+                    'description' => 'Tổng quan về lập trình phản ứng và lý do RxJS là công cụ mạnh mẽ trong Angular.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Lập trình phản ứng là gì? Tại sao cần RxJS?', 'content' => 'Định nghĩa lập trình phản ứng và các vấn đề mà RxJS giúp giải quyết.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Khái niệm Observables, Observers và Subscriptions', 'content' => 'Hiểu ba thành phần cốt lõi của RxJS và cách chúng tương tác.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Tạo Observables (of, from, interval, fromEvent)', 'content' => 'Các cách khác nhau để tạo ra các luồng dữ liệu Observable.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Unsubscribing và quản lý memory leaks', 'content' => 'Quan trọng của việc hủy đăng ký để tránh rò rỉ bộ nhớ.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Operators cơ bản (Transformation và Filtering)',
+                    'description' => 'Sử dụng các operator để biến đổi và lọc dữ liệu từ Observables.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Transformation Operators: map, pluck, switchMap', 'content' => 'Biến đổi dữ liệu trong luồng Observable.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Filtering Operators: filter, take, debounceTime', 'content' => 'Lọc các giá trị không mong muốn từ luồng Observable.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Combination Operators: concat, merge, forkJoin', 'content' => 'Kết hợp nhiều Observables thành một luồng duy nhất.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Error Handling Operators: catchError, retry', 'content' => 'Cách xử lý lỗi trong các luồng dữ liệu phản ứng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Subjects và Multicasting',
+                    'description' => 'Khám phá các loại Subject và cách chia sẻ Observables giữa nhiều Observers.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu Subjects: Observable và Observer', 'content' => 'Subject là gì và cách nó hoạt động như cả Observable và Observer.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: BehaviorSubject, ReplaySubject và AsyncSubject', 'content' => 'Sự khác biệt và trường hợp sử dụng của từng loại Subject.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Multicasting với Subjects và share/publish operators', 'content' => 'Cách chia sẻ một Observable giữa nhiều người đăng ký.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Sử dụng Subjects để quản lý trạng thái đơn giản', 'content' => 'Áp dụng Subjects để tạo một cơ chế quản lý trạng thái nhẹ.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Higher-Order Observables và Flattening Operators',
+                    'description' => 'Xử lý các Observable bên trong Observable và các operator liên quan.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Khái niệm Higher-Order Observables', 'content' => 'Khi một Observable phát ra các Observable khác.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: switchMap: Xử lý các yêu cầu HTTP liên tiếp', 'content' => 'Sử dụng `switchMap` để hủy các yêu cầu cũ khi có yêu cầu mới.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: mergeMap/flatMap: Xử lý các yêu cầu song song', 'content' => 'Sử dụng `mergeMap` để xử lý nhiều yêu cầu cùng lúc.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: concatMap và exhaustMap', 'content' => 'Sự khác biệt và trường hợp sử dụng của `concatMap` và `exhaustMap`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: RxJS trong Angular (HttpClient, Forms, Router)',
+                    'description' => 'Áp dụng RxJS vào các module và tính năng của Angular.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: RxJS với Angular HttpClient', 'content' => 'Cách HttpClient trả về Observables và cách xử lý chúng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: RxJS với Reactive Forms', 'content' => 'Sử dụng Observables để theo dõi thay đổi giá trị và trạng thái của form.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: RxJS với Angular Router', 'content' => 'Lấy thông tin từ router (params, queryParams) bằng Observables.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Sử dụng AsyncPipe trong Templates', 'content' => 'Cách sử dụng `AsyncPipe` để tự động đăng ký/hủy đăng ký Observables trong template.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Best Practices và Debugging RxJS',
+                    'description' => 'Các thực hành tốt nhất và kỹ thuật gỡ lỗi khi làm việc với RxJS.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Quản lý Subscriptions hiệu quả (takeUntil, takeWhile)', 'content' => 'Các operator để tự động hủy đăng ký và tránh memory leaks.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Debugging RxJS Observables (tap, finalize)', 'content' => 'Sử dụng `tap` và `finalize` để theo dõi luồng dữ liệu và gỡ lỗi.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Hot vs Cold Observables', 'content' => 'Sự khác biệt giữa Hot và Cold Observables và ý nghĩa của chúng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: RxJS Best Practices và Anti-Patterns', 'content' => 'Những lời khuyên để viết code RxJS sạch, hiệu quả và tránh các lỗi phổ biến.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Schematics: Tự động hóa phát triển',
+            'description' => 'Khóa học này sẽ hướng dẫn bạn cách tạo và sử dụng Angular Schematics để tự động hóa các tác vụ lặp đi lặp lại trong phát triển ứng dụng Angular.',
+            'price' => 720000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về Angular và TypeScript.',
+                'Hiểu biết cơ bản về Node.js và npm.'
+            ],
+            'objectives' => [
+                'Hiểu về Angular Schematics và lợi ích của chúng.',
+                'Tạo Schematic Collection và Schematics cơ bản.',
+                'Làm việc với File System (Tree, Rule, SchematicContext).',
+                'Sử dụng Schematics để tạo code, sửa đổi file và thêm dependencies.',
+                'Phát triển Schematics phức tạp và chia sẻ chúng.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Angular Schematics',
+                    'description' => 'Tổng quan về Schematics và cách chúng giúp tăng năng suất phát triển Angular.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Angular Schematics là gì? Tại sao cần Schematics?', 'content' => 'Định nghĩa Schematics và lợi ích của việc tự động hóa code generation.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Kiến trúc Schematics: Collection, Schematic, Rule', 'content' => 'Các thành phần chính của một Schematic và cách chúng tương tác.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Sử dụng Schematics có sẵn của Angular CLI', 'content' => 'Thực hành các lệnh `ng generate component`, `ng generate service`, v.v.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cài đặt và chạy Custom Schematics', 'content' => 'Cách sử dụng các schematic được tạo bởi cộng đồng hoặc của riêng bạn.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Tạo Schematic Collection đầu tiên',
+                    'description' => 'Các bước để khởi tạo một dự án Schematic và tạo schematic đầu tiên.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Khởi tạo Schematic Workspace', 'content' => 'Sử dụng lệnh `schematics blank` để tạo một workspace mới cho schematics.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Cấu trúc Schematic Collection', 'content' => 'Hiểu các file và thư mục trong một schematic collection.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Tạo Schematic cơ bản với `schematics schematic`', 'content' => 'Thực hành tạo một schematic đơn giản chỉ in ra thông báo.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Chạy Schematic cục bộ (local)', 'content' => 'Cách kiểm tra schematic của bạn trong quá trình phát triển.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Tương tác với File System (Tree và Rule)',
+                    'description' => 'Học cách đọc, tạo và sửa đổi các file trong dự án Angular bằng Schematics.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Khái niệm Tree và Rule', 'content' => 'Tree là gì và cách Rule biến đổi Tree để tạo ra các thay đổi.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Tạo file và thư mục mới (template, url, apply, move)', 'content' => 'Sử dụng các hàm từ `@angular-devkit/schematics` để tạo cấu trúc file.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Sửa đổi nội dung file (forEach, applyToUpdateBuffer)', 'content' => 'Cách đọc và chỉnh sửa nội dung của các file hiện có.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Xử lý lỗi và Rollback', 'content' => 'Đảm bảo các thay đổi được thực hiện an toàn và có thể hoàn tác.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Schematics nâng cao: Options và Prompts',
+                    'description' => 'Tạo các schematic linh hoạt hơn bằng cách nhận đầu vào từ người dùng.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Định nghĩa Schematic Options (schema.json)', 'content' => 'Sử dụng `schema.json` để định nghĩa các tham số đầu vào cho schematic.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Xử lý Options trong Rule', 'content' => 'Cách truy cập và sử dụng các giá trị option trong logic của schematic.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Prompts: Hỏi người dùng để lấy thông tin', 'content' => 'Sử dụng `inquirer` để tạo các câu hỏi tương tác với người dùng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Validation và Default Values cho Options', 'content' => 'Thêm các quy tắc validation và giá trị mặc định cho các option.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Schematics cho các tác vụ phức tạp',
+                    'description' => 'Áp dụng Schematics để tự động hóa các tác vụ như thêm dependencies, cập nhật file JSON.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Thêm Dependencies vào package.json', 'content' => 'Sử dụng các helper function để thêm các gói npm vào dự án.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Cập nhật file JSON (tsconfig.json, angular.json)', 'content' => 'Cách sửa đổi các file cấu hình JSON của dự án Angular.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Chạy các Schematic khác từ bên trong Schematic của bạn', 'content' => 'Tạo các schematic phức tạp bằng cách kết hợp nhiều schematic nhỏ hơn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Schematics cho Migration và Updates', 'content' => 'Sử dụng Schematics để tự động hóa quá trình nâng cấp phiên bản Angular.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai và Best Practices',
+                    'description' => 'Các bước để đóng gói và chia sẻ Schematics của bạn, cùng với các thực hành tốt nhất.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Đóng gói Schematic Collection', 'content' => 'Chuẩn bị schematic để publish lên npm.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Publish Schematic lên npm', 'content' => 'Hướng dẫn chi tiết cách publish schematic collection của bạn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Testing Schematics', 'content' => 'Viết test cho schematics để đảm bảo chúng hoạt động đúng như mong đợi.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices và các mẹo khi phát triển Schematics', 'content' => 'Những lời khuyên để tạo ra các schematic mạnh mẽ, dễ sử dụng và bảo trì.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Nâng Cao: Web Components và Micro Frontends',
+            'description' => 'Khóa học này khám phá cách sử dụng Angular để xây dựng Web Components và kiến trúc Micro Frontends, cho phép phát triển ứng dụng lớn theo mô hình phân tán.',
+            'price' => 1000000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về Angular và JavaScript/TypeScript.',
+                'Hiểu biết về kiến trúc ứng dụng lớn.'
+            ],
+            'objectives' => [
+                'Hiểu khái niệm Web Components và cách Angular Elements hoạt động.',
+                'Tạo và sử dụng Angular Components như Web Components.',
+                'Nắm vững kiến trúc Micro Frontends và lợi ích của nó.',
+                'Triển khai Micro Frontends với Angular (Webpack Module Federation/Nx).',
+                'Xử lý giao tiếp và chia sẻ dữ liệu giữa các Micro Frontends.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Web Components và Angular Elements',
+                    'description' => 'Tổng quan về Web Components và cách Angular hỗ trợ tạo ra chúng.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Web Components là gì? Các tiêu chuẩn', 'content' => 'Giới thiệu về Custom Elements, Shadow DOM, HTML Templates, ES Modules.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Lợi ích của Web Components trong phát triển ứng dụng', 'content' => 'Khả năng tái sử dụng, độc lập framework và khả năng tương tác.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Angular Elements: Biến Component thành Web Component', 'content' => 'Cách Angular Elements cho phép đóng gói Angular Component thành Custom Element.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cài đặt và sử dụng Angular Elements', 'content' => 'Các bước để thêm Angular Elements vào dự án và chuyển đổi component.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Xây dựng và sử dụng Angular Web Components',
+                    'description' => 'Thực hành tạo và tích hợp Angular Components dưới dạng Web Components.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Tạo Custom Element từ Angular Component', 'content' => 'Sử dụng `createCustomElement` để đăng ký component thành Custom Element.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Truyền dữ liệu (Input) và Xử lý sự kiện (Output)', 'content' => 'Cách truyền props và lắng nghe sự kiện từ Custom Element.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.3: Triển khai Angular Web Components độc lập', 'content' => 'Build Angular Elements thành một bundle JavaScript độc lập để sử dụng ở bất kỳ đâu.', 'sortOrder' => 4],
+                        ['title' => 'Bài 2.4: Sử dụng Angular Web Components trong các Framework khác', 'content' => 'Tích hợp Custom Element vào ứng dụng React, Vue hoặc Vanilla JS.', 'sortOrder' => 2],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Giới thiệu Micro Frontends',
+                    'description' => 'Tìm hiểu về kiến trúc Micro Frontends và lợi ích của nó cho các ứng dụng lớn.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Micro Frontends là gì? Tại sao cần Micro Frontends?', 'content' => 'Định nghĩa Micro Frontends và các vấn đề mà nó giải quyết trong phát triển frontend.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Lợi ích của Micro Frontends (độc lập, khả năng mở rộng)', 'content' => 'Phân tích các ưu điểm về phát triển độc lập, triển khai và mở rộng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Các chiến lược tích hợp Micro Frontends (Build-time, Run-time)', 'content' => 'Các phương pháp khác nhau để kết hợp các Micro Frontend thành một ứng dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Thách thức khi triển khai Micro Frontends', 'content' => 'Các vấn đề cần cân nhắc như giao tiếp, chia sẻ code, quản lý trạng thái.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Triển khai Micro Frontends với Webpack Module Federation',
+                    'description' => 'Sử dụng tính năng của Webpack 5 để xây dựng kiến trúc Micro Frontends.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu Webpack Module Federation', 'content' => 'Tính năng mới của Webpack 5 cho phép chia sẻ code giữa các ứng dụng độc lập.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Cấu hình Module Federation trong Angular', 'content' => 'Thiết lập `webpack.config.js` để định nghĩa remote và expose modules.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Tạo Host Application và Remote Applications', 'content' => 'Xây dựng ứng dụng chính (host) và các ứng dụng con (remote).', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Tải động các Micro Frontends', 'content' => 'Cách host application tải và hiển thị các remote application.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Giao tiếp và Chia sẻ dữ liệu trong Micro Frontends',
+                    'description' => 'Các chiến lược để các Micro Frontend có thể giao tiếp và chia sẻ tài nguyên.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Giao tiếp giữa các Micro Frontends (Custom Events, Pub/Sub)', 'content' => 'Các phương pháp để các ứng dụng con trao đổi thông tin.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Chia sẻ code và Dependencies', 'content' => 'Cách tối ưu kích thước bundle bằng cách chia sẻ các thư viện chung.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Quản lý trạng thái chia sẻ (Shared State)', 'content' => 'Các giải pháp để quản lý trạng thái chung giữa các Micro Frontend.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Xử lý Routing và Navigation trong Micro Frontends', 'content' => 'Đảm bảo điều hướng liền mạch giữa các ứng dụng con.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai và Best Practices cho Micro Frontends',
+                    'description' => 'Các bước để triển khai kiến trúc Micro Frontends và các thực hành tốt nhất.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Triển khai Micro Frontends (Nginx, AWS S3/CloudFront)', 'content' => 'Các phương pháp triển khai các ứng dụng Micro Frontend.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: CI/CD cho kiến trúc Micro Frontends', 'content' => 'Thiết lập quy trình tích hợp và triển khai liên tục cho nhiều repository.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Monitoring và Logging trong Micro Frontends', 'content' => 'Cách theo dõi hiệu suất và ghi log lỗi trong môi trường phân tán.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices và các công cụ hỗ trợ (Nx Workspace)', 'content' => 'Những lời khuyên và công cụ để quản lý các dự án Micro Frontend phức tạp.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Performance: Tối ưu hóa hiệu suất ứng dụng',
+            'description' => 'Khóa học này cung cấp các kỹ thuật và công cụ để phân tích, tối ưu hóa hiệu suất tải, render và tương tác của ứng dụng Angular.',
+            'price' => 880000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về Angular cơ bản.',
+                'Hiểu biết về JavaScript và các khái niệm về hiệu suất web.'
+            ],
+            'objectives' => [
+                'Phân tích hiệu suất ứng dụng Angular bằng các công cụ DevTools.',
+                'Tối ưu hóa Change Detection Strategy (OnPush).',
+                'Giảm kích thước bundle với Lazy Loading và Tree-shaking.',
+                'Cải thiện thời gian render với Virtual Scrolling và TrackBy.',
+                'Xử lý hiệu quả các tác vụ bất đồng bộ và tránh memory leaks.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Hiệu suất ứng dụng Angular',
+                    'description' => 'Tổng quan về hiệu suất web và cách nó ảnh hưởng đến ứng dụng Angular.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Tầm quan trọng của hiệu suất web', 'content' => 'Ảnh hưởng của hiệu suất đến trải nghiệm người dùng và SEO.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Các chỉ số hiệu suất chính (LCP, FID, CLS)', 'content' => 'Hiểu các Core Web Vitals và cách chúng được đo lường.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Công cụ phân tích hiệu suất (Lighthouse, Chrome DevTools)', 'content' => 'Sử dụng các công cụ để kiểm tra và đánh giá hiệu suất ứng dụng Angular.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Các yếu tố ảnh hưởng đến hiệu suất Angular', 'content' => 'Những nguyên nhân phổ biến gây chậm trễ trong ứng dụng Angular.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Tối ưu hóa Change Detection',
+                    'description' => 'Kiểm soát quá trình phát hiện thay đổi để cải thiện hiệu suất render.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Change Detection trong Angular là gì?', 'content' => 'Cơ chế hoạt động của Change Detection và khi nào nó được kích hoạt.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: ChangeDetectionStrategy.OnPush', 'content' => 'Sử dụng chiến lược OnPush để giảm số lần kiểm tra thay đổi.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Immutable Data và Pure Pipes', 'content' => 'Làm việc với dữ liệu bất biến để tận dụng hiệu quả OnPush.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: NgZone và chạy code bên ngoài Zone', 'content' => 'Kiểm soát khi nào Angular kích hoạt Change Detection bằng cách chạy code bên ngoài Zone.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Giảm kích thước Bundle và Tối ưu hóa tải',
+                    'description' => 'Các kỹ thuật để giảm dung lượng file tải về và tăng tốc độ khởi động ứng dụng.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Lazy Loading Modules và Components', 'content' => 'Tải các phần của ứng dụng chỉ khi chúng thực sự cần thiết.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Tree-shaking và Dead Code Elimination', 'content' => 'Loại bỏ code không sử dụng để giảm kích thước bundle.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Ahead-of-Time (AOT) Compilation', 'content' => 'Biên dịch ứng dụng trước khi triển khai để tăng tốc độ tải và render.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Tối ưu hóa Assets (hình ảnh, font, CSS)', 'content' => 'Nén và tối ưu hóa các tài nguyên tĩnh để giảm thời gian tải.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Tối ưu hóa Rendering và UI Responsiveness',
+                    'description' => 'Cải thiện tốc độ hiển thị giao diện và đảm bảo ứng dụng phản hồi nhanh chóng.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Virtual Scrolling (Angular CDK)', 'content' => 'Hiển thị danh sách lớn hiệu quả bằng cách chỉ render các mục hiển thị trên màn hình.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: TrackBy Function với *ngFor', 'content' => 'Tối ưu hóa hiệu suất của `*ngFor` khi làm việc với danh sách động.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Sử dụng Pure Pipes và Memoization', 'content' => 'Tránh tính toán lại không cần thiết với Pure Pipes và kỹ thuật memoization.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Xử lý các tác vụ nặng trên Web Workers', 'content' => 'Chuyển các tính toán phức tạp sang Web Workers để không chặn UI thread.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Quản lý Memory và Debugging hiệu suất',
+                    'description' => 'Phát hiện và khắc phục các vấn đề rò rỉ bộ nhớ và hiệu suất.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Memory Leaks trong ứng dụng Angular', 'content' => 'Các nguyên nhân phổ biến gây rò rỉ bộ nhớ và cách phát hiện.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Debugging Memory Leaks với Chrome DevTools', 'content' => 'Sử dụng Memory tab trong DevTools để phân tích và khắc phục rò rỉ.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Quản lý Subscriptions RxJS để tránh rò rỉ', 'content' => 'Các kỹ thuật `takeUntil`, `takeWhile`, `async` pipe để hủy đăng ký an toàn.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Profiling Angular Applications', 'content' => 'Sử dụng Performance tab trong DevTools để phân tích thời gian chạy và tìm điểm nghẽn.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Triển khai và Best Practices cho hiệu suất',
+                    'description' => 'Các bước để triển khai ứng dụng Angular hiệu suất cao và các thực hành tốt nhất.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Server-Side Rendering (SSR) và Pre-rendering', 'content' => 'Sử dụng SSR để cải thiện thời gian tải ban đầu và SEO.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Progressive Web Apps (PWA) cho hiệu suất và độ tin cậy', 'content' => 'Biến ứng dụng thành PWA để cải thiện trải nghiệm người dùng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: CDN và HTTP Caching', 'content' => 'Sử dụng CDN và cấu hình caching để phân phối tài nguyên nhanh chóng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices và các công cụ tự động hóa hiệu suất', 'content' => 'Những lời khuyên tổng thể và các công cụ để duy trì hiệu suất cao.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Animations: Tạo hiệu ứng động mượt mà',
+            'description' => 'Khóa học này sẽ hướng dẫn bạn cách sử dụng Angular Animations để thêm các hiệu ứng chuyển động đẹp mắt và mượt mà vào ứng dụng của bạn.',
+            'price' => 580000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về Angular và CSS.',
+                'Hiểu biết về các khái niệm animation cơ bản.'
+            ],
+            'objectives' => [
+                'Hiểu các khái niệm cơ bản của Angular Animations.',
+                'Tạo các hiệu ứng transition giữa các trạng thái.',
+                'Sử dụng keyframes để tạo animation phức tạp.',
+                'Thực hiện animation cho các phần tử vào/ra khỏi DOM.',
+                'Tạo các animation có thể tái sử dụng và tùy chỉnh.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Angular Animations',
+                    'description' => 'Tổng quan về Angular Animations và cách nó hoạt động.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Tại sao cần Animation trong ứng dụng web?', 'content' => 'Lợi ích của animation trong việc cải thiện trải nghiệm người dùng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Kiến trúc Angular Animations (States, Transitions)', 'content' => 'Các khái niệm cơ bản: trạng thái, chuyển đổi, timeline.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cấu hình BrowserAnimationsModule', 'content' => 'Các bước cần thiết để kích hoạt Angular Animations trong dự án.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Tổng quan về các hàm animation (trigger, state, transition, animate)', 'content' => 'Các hàm chính để định nghĩa animation trong Angular.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Basic State-based Animations',
+                    'description' => 'Tạo các hiệu ứng chuyển động đơn giản dựa trên trạng thái của phần tử.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Định nghĩa States (state function)', 'content' => 'Cách định nghĩa các trạng thái trực quan cho một phần tử.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Tạo Transitions (transition function)', 'content' => 'Xác định cách phần tử chuyển từ trạng thái này sang trạng thái khác.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Sử dụng animate function (duration, delay, easing)', 'content' => 'Kiểm soát thời gian, độ trễ và tốc độ của animation.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Gắn Animation vào Component Template', 'content' => 'Áp dụng animation trigger vào các phần tử HTML trong template.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Enter and Leave Animations (*:enter, *:leave)',
+                    'description' => 'Tạo hiệu ứng khi phần tử được thêm vào hoặc xóa khỏi DOM.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Giới thiệu Enter và Leave Animations', 'content' => 'Cách tạo hiệu ứng cho các phần tử xuất hiện và biến mất.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Sử dụng *:enter và *:leave aliases', 'content' => 'Các alias đặc biệt để định nghĩa transition cho việc thêm/xóa phần tử.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Void State và Wildcard State (*)', 'content' => 'Hiểu về trạng thái `void` và `*` trong animation.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Animation cho ngIf và ngFor', 'content' => 'Áp dụng enter/leave animation cho các phần tử được quản lý bởi `*ngIf` và `*ngFor`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Keyframes và Animation Callbacks',
+                    'description' => 'Tạo các animation phức tạp hơn và lắng nghe các sự kiện animation.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Keyframes: Tạo chuỗi các bước Animation', 'content' => 'Sử dụng `keyframes` để định nghĩa nhiều bước trong một animation.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Grouping Animations (group function)', 'content' => 'Kết hợp nhiều animation song song hoặc nối tiếp.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Animation Callbacks (start, done)', 'content' => 'Lắng nghe các sự kiện khi animation bắt đầu hoặc kết thúc.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Sử dụng Query và Stagger', 'content' => 'Chọn các phần tử con để áp dụng animation và tạo hiệu ứng xếp lớp.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Reusable Animations và Router Animations',
+                    'description' => 'Tạo các animation có thể tái sử dụng và áp dụng cho các chuyển đổi route.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Tạo Reusable Animations', 'content' => 'Đóng gói các animation thành các hàm để dễ dàng tái sử dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Router Animations: Chuyển đổi giữa các Route', 'content' => 'Tạo hiệu ứng chuyển động khi điều hướng giữa các trang.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Cấu hình Router Animation trong App Component', 'content' => 'Thiết lập animation cho `router-outlet` trong component gốc.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Các ví dụ Router Animation phổ biến (slide, fade)', 'content' => 'Thực hành các hiệu ứng chuyển trang thường gặp.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Nâng cao và Best Practices',
+                    'description' => 'Các kỹ thuật phức tạp hơn và lời khuyên để sử dụng Angular Animations hiệu quả.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Animation Control (disable, pause, play)', 'content' => 'Kiểm soát animation bằng cách tạm dừng, phát lại hoặc vô hiệu hóa.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Performance Considerations for Animations', 'content' => 'Các mẹo để đảm bảo animation mượt mà và không gây giật lag.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Debugging Angular Animations', 'content' => 'Các công cụ và kỹ thuật để gỡ lỗi animation trong Angular.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices cho Angular Animations', 'content' => 'Những lời khuyên để tạo animation đẹp mắt, hiệu quả và dễ bảo trì.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular NgRx: Xây dựng ứng dụng với State Management',
+            'description' => 'Khóa học này cung cấp kiến thức chuyên sâu về quản lý trạng thái trong ứng dụng Angular bằng thư viện NgRx, dựa trên kiến trúc Redux.',
+            'price' => 920000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về Angular cơ bản.',
+                'Hiểu biết về RxJS và các khái niệm lập trình phản ứng.'
+            ],
+            'objectives' => [
+                'Hiểu kiến trúc Redux và cách NgRx triển khai nó.',
+                'Sử dụng Store, Actions, Reducers, Selectors và Effects.',
+                'Quản lý trạng thái ứng dụng một cách tập trung và dự đoán được.',
+                'Xử lý các side effects bất đồng bộ một cách hiệu quả.',
+                'Tích hợp NgRx vào các ứng dụng Angular thực tế.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu State Management và NgRx',
+                    'description' => 'Tổng quan về quản lý trạng thái trong ứng dụng front-end và vai trò của NgRx.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: State Management là gì? Tại sao cần nó?', 'content' => 'Các vấn đề khi quản lý trạng thái trong ứng dụng lớn và giải pháp.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Giới thiệu Redux Pattern và NgRx', 'content' => 'Kiến trúc Redux và cách NgRx triển khai các nguyên tắc của nó.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Các thành phần cốt lõi của NgRx (Store, Actions, Reducers, Effects, Selectors)', 'content' => 'Tổng quan về vai trò của từng thành phần trong NgRx.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cài đặt và cấu hình NgRx Store', 'content' => 'Các bước để thêm NgRx vào dự án Angular và thiết lập Store.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Actions và Reducers',
+                    'description' => 'Định nghĩa các hành động và cách chúng thay đổi trạng thái ứng dụng.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Actions: Mô tả các sự kiện', 'content' => 'Cách định nghĩa Action để mô tả các sự kiện xảy ra trong ứng dụng.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Reducers: Thay đổi trạng thái', 'content' => 'Cách Reducer nhận Action và tạo ra trạng thái mới (immutable updates).', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Feature Reducers và Root Reducer', 'content' => 'Tổ chức Reducer theo từng feature và kết hợp chúng thành Root Reducer.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Sử dụng createAction và createReducer', 'content' => 'Các helper function của NgRx để tạo Action và Reducer một cách dễ dàng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Store và Selectors',
+                    'description' => 'Tương tác với Store để gửi Actions và truy xuất dữ liệu trạng thái.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Dispatching Actions từ Components', 'content' => 'Cách component gửi Action đến Store để thay đổi trạng thái.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Selectors: Truy xuất dữ liệu từ Store', 'content' => 'Sử dụng Selectors để lấy các phần của trạng thái một cách hiệu quả.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Sử dụng createSelector và memoization', 'content' => 'Tạo các selector có khả năng ghi nhớ để tối ưu hiệu suất.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Kết nối Components với Store (async pipe)', 'content' => 'Cách component hiển thị dữ liệu từ Store bằng `async` pipe.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Effects: Xử lý Side Effects bất đồng bộ',
+                    'description' => 'Quản lý các tác vụ bất đồng bộ như gọi API, tương tác với Local Storage.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu Effects và vai trò của chúng', 'content' => 'Khi nào cần sử dụng Effects và cách chúng giải quyết các side effects.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Tạo Effects với createEffect', 'content' => 'Cách định nghĩa một Effect để lắng nghe Action và thực hiện tác vụ bất đồng bộ.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Xử lý HTTP Requests trong Effects (switchMap, catchError)', 'content' => 'Thực hiện các cuộc gọi API và xử lý lỗi trong Effects.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Các loại Effects khác (optimistic updates, debouncing)', 'content' => 'Các trường hợp sử dụng nâng cao của Effects.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: NgRx Entity và Router Store',
+                    'description' => 'Các module bổ trợ của NgRx để quản lý dữ liệu và tích hợp với Router.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: NgRx Entity: Quản lý Collection dữ liệu', 'content' => 'Sử dụng NgRx Entity để quản lý các collection dữ liệu hiệu quả.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Adapter và Selectors với NgRx Entity', 'content' => 'Cách sử dụng Entity Adapter và các selector được tạo sẵn.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: NgRx Router Store: Đồng bộ hóa Router State', 'content' => 'Lưu trữ trạng thái của Angular Router trong NgRx Store.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Sử dụng Router Selectors và Custom Serializer', 'content' => 'Truy xuất thông tin router từ Store và tùy chỉnh cách serialize URL.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Testing NgRx và Best Practices',
+                    'description' => 'Kiểm thử các thành phần NgRx và áp dụng các thực hành tốt nhất.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Testing Actions và Reducers', 'content' => 'Viết unit test cho Actions và Reducers để đảm bảo tính đúng đắn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Testing Selectors', 'content' => 'Kiểm thử các selector để đảm bảo chúng trả về dữ liệu chính xác.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Testing Effects (Marble Testing)', 'content' => 'Sử dụng Marble Testing để kiểm thử các Effects bất đồng bộ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: NgRx Best Practices và Folder Structure', 'content' => 'Những lời khuyên để tổ chức code NgRx và tối ưu hóa hiệu suất.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular i18n: Quốc tế hóa ứng dụng đa ngôn ngữ',
+            'description' => 'Khóa học này hướng dẫn bạn cách quốc tế hóa (i18n) ứng dụng Angular, cho phép hỗ trợ nhiều ngôn ngữ và định dạng khu vực khác nhau.',
+            'price' => 680000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về Angular và HTML.',
+                'Hiểu biết về các khái niệm đa ngôn ngữ.'
+            ],
+            'objectives' => [
+                'Hiểu các khái niệm về quốc tế hóa và bản địa hóa.',
+                'Sử dụng Angular i18n để dịch văn bản trong template và code.',
+                'Quản lý các file dịch (XLIFF, XLF, JSON).',
+                'Triển khai ứng dụng đa ngôn ngữ với Angular CLI.',
+                'Xử lý các định dạng ngày, số, tiền tệ theo từng khu vực.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Quốc tế hóa (i18n) và Bản địa hóa (l10n)',
+                    'description' => 'Tổng quan về i18n và l10n, tầm quan trọng của chúng trong phát triển ứng dụng toàn cầu.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: i18n và l10n là gì? Sự khác biệt và mối liên hệ', 'content' => 'Định nghĩa các khái niệm và lý do cần chúng trong ứng dụng web.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Lợi ích của ứng dụng đa ngôn ngữ', 'content' => 'Tiếp cận thị trường rộng lớn hơn và cải thiện trải nghiệm người dùng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Các phương pháp i18n trong Angular', 'content' => 'Tổng quan về các cách tiếp cận để quốc tế hóa ứng dụng Angular.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu hình ngôn ngữ và khu vực trong trình duyệt', 'content' => 'Cách trình duyệt xác định ngôn ngữ ưu tiên của người dùng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Dịch văn bản trong Angular Templates',
+                    'description' => 'Sử dụng các directive và pipe của Angular để dịch nội dung HTML.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Đánh dấu văn bản cần dịch với i18n attribute', 'content' => 'Cách đánh dấu các chuỗi văn bản trong template để Angular nhận diện.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Thêm description và meaning cho các chuỗi dịch', 'content' => 'Cung cấp ngữ cảnh cho người dịch để đảm bảo bản dịch chính xác.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Dịch các thuộc tính HTML (attribute translation)', 'content' => 'Cách dịch các thuộc tính như `alt`, `placeholder`, `title`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Dịch văn bản có biến (interpolation) và pluralization', 'content' => 'Xử lý các chuỗi có chứa biến và các quy tắc số nhiều.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Quản lý và Biên dịch các file dịch',
+                    'description' => 'Làm việc với các định dạng file dịch và quá trình biên dịch ứng dụng.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Trích xuất các chuỗi dịch (extract i18n)', 'content' => 'Sử dụng Angular CLI để trích xuất các chuỗi đã đánh dấu vào file dịch.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Các định dạng file dịch (XLIFF, XLF, JSON)', 'content' => 'Tìm hiểu về các định dạng file dịch phổ biến và cách chúng được sử dụng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Biên dịch ứng dụng cho từng ngôn ngữ (build process)', 'content' => 'Cách Angular CLI tạo ra các bản build riêng cho mỗi ngôn ngữ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Load các file dịch động (runtime translation)', 'content' => 'Các thư viện bên thứ ba như `ngx-translate` để dịch tại runtime.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Định dạng Ngày, Số, Tiền tệ (Locale-specific formatting)',
+                    'description' => 'Hiển thị dữ liệu theo định dạng chuẩn của từng khu vực.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu Angular DatePipe và CurrencyPipe', 'content' => 'Sử dụng các pipe có sẵn để định dạng ngày tháng và tiền tệ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Định dạng số với DecimalPipe và PercentPipe', 'content' => 'Cách định dạng số thập phân và phần trăm theo locale.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Cấu hình Locale trong Angular', 'content' => 'Thiết lập locale mặc định và cách chuyển đổi locale động.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Sử dụng `registerLocaleData`', 'content' => 'Đăng ký dữ liệu locale cần thiết để hỗ trợ các ngôn ngữ khác.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Chuyển đổi ngôn ngữ và Navigation',
+                    'description' => 'Xây dựng cơ chế cho phép người dùng chuyển đổi ngôn ngữ trong ứng dụng.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Chuyển đổi ngôn ngữ dựa trên URL (prefix strategy)', 'content' => 'Sử dụng tiền tố URL để xác định ngôn ngữ hiện tại.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Chuyển đổi ngôn ngữ dựa trên Subdomain/Domain', 'content' => 'Các chiến lược nâng cao để quản lý ngôn ngữ qua domain.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Lưu trữ lựa chọn ngôn ngữ của người dùng', 'content' => 'Sử dụng Local Storage hoặc Cookies để ghi nhớ lựa chọn ngôn ngữ.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Tích hợp i18n với Angular Router', 'content' => 'Đảm bảo routing hoạt động chính xác khi chuyển đổi ngôn ngữ.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Best Practices và các vấn đề nâng cao',
+                    'description' => 'Các thực hành tốt nhất và giải quyết các tình huống phức tạp trong i18n.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Dịch văn bản trong TypeScript Code', 'content' => 'Cách dịch các chuỗi không nằm trong template HTML.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Xử lý RTL (Right-to-Left) Languages', 'content' => 'Hỗ trợ các ngôn ngữ viết từ phải sang trái như tiếng Ả Rập, tiếng Do Thái.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tối ưu hóa hiệu suất cho ứng dụng đa ngôn ngữ', 'content' => 'Các mẹo để giảm kích thước bundle và thời gian tải cho các bản dịch.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Quản lý bản dịch với các công cụ bên ngoài', 'content' => 'Sử dụng các dịch vụ quản lý bản dịch (TMS) để cộng tác hiệu quả.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular NgRx Data: Phát triển ứng dụng nhanh hơn với CRUD',
+            'description' => 'Khóa học này giới thiệu NgRx Data, một thư viện giúp đơn giản hóa việc quản lý trạng thái dữ liệu CRUD (Create, Read, Update, Delete) trong ứng dụng Angular với NgRx.',
+            'price' => 800000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về Angular và NgRx cơ bản.',
+                'Hiểu biết về RESTful API.'
+            ],
+            'objectives' => [
+                'Hiểu cách NgRx Data đơn giản hóa việc quản lý trạng thái CRUD.',
+                'Cấu hình NgRx Data cho các entity và API endpoints.',
+                'Thực hiện các thao tác CRUD với EntityCollectionService.',
+                'Xử lý lỗi và loading state tự động.',
+                'Tùy chỉnh hành vi của NgRx Data.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu NgRx Data và CRUD Pattern',
+                    'description' => 'Tổng quan về NgRx Data và cách nó giải quyết các vấn đề lặp lại trong quản lý dữ liệu CRUD.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Các vấn đề khi quản lý CRUD với NgRx thuần', 'content' => 'Sự lặp lại code và độ phức tạp khi viết NgRx cho từng entity.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Giới thiệu NgRx Data: Đơn giản hóa CRUD', 'content' => 'Cách NgRx Data tự động hóa việc tạo Actions, Reducers, Effects cho CRUD.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Kiến trúc NgRx Data (EntityMetadata, EntityCollectionService)', 'content' => 'Các thành phần cốt lõi và cách chúng hoạt động cùng nhau.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cài đặt và cấu hình NgRx Data', 'content' => 'Các bước để thêm NgRx Data vào dự án Angular và thiết lập ban đầu.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Định nghĩa Entities và Entity Metadata',
+                    'description' => 'Cấu hình các entity và ánh xạ chúng với API backend.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Định nghĩa Entity Model', 'content' => 'Tạo các interface hoặc class cho các entity trong ứng dụng của bạn.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Entity Metadata Map', 'content' => 'Khai báo các entity và cấu hình metadata cho chúng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Entity Reducers và Selectors tự động', 'content' => 'Cách NgRx Data tự động tạo ra các reducer và selector cho mỗi entity.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Cấu hình Data Service (DefaultDataServiceConfig)', 'content' => 'Thiết lập base URL và các tùy chỉnh cho việc gọi API.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Thực hiện các thao tác CRUD với EntityCollectionService',
+                    'description' => 'Sử dụng service được tạo tự động để tương tác với dữ liệu.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: EntityCollectionService: Giao diện CRUD', 'content' => 'Sử dụng `EntityCollectionService` để thực hiện các thao tác `getAll`, `getById`, `add`, `update`, `delete`.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Lấy dữ liệu (getAll, getById)', 'content' => 'Cách lấy danh sách và từng entity từ backend và lưu vào store.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Thêm và Cập nhật dữ liệu (add, update)', 'content' => 'Thực hiện các thao tác thêm mới và cập nhật entity.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Xóa dữ liệu (delete)', 'content' => 'Cách xóa một entity khỏi store và backend.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Quản lý Loading State và Errors',
+                    'description' => 'Xử lý trạng thái tải và các lỗi trong quá trình tương tác dữ liệu.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Theo dõi Loading State tự động', 'content' => 'Cách NgRx Data cung cấp trạng thái tải cho mỗi entity collection.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Hiển thị Loading Indicators', 'content' => 'Sử dụng loading state để hiển thị spinner hoặc thông báo tải.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Xử lý lỗi API và hiển thị thông báo', 'content' => 'Cách NgRx Data bắt lỗi từ API và cách hiển thị chúng cho người dùng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Custom Error Handling', 'content' => 'Tùy chỉnh cách xử lý lỗi bằng cách ghi đè các service.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Tùy chỉnh hành vi của NgRx Data',
+                    'description' => 'Mở rộng và tùy chỉnh các chức năng mặc định của NgRx Data.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Custom Data Service (EntityDataService)', 'content' => 'Tạo service dữ liệu tùy chỉnh để thay đổi cách gọi API.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Custom Reducers và Effects với NgRx Data', 'content' => 'Thêm các reducer và effect của riêng bạn để xử lý logic đặc biệt.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Querying và Filtering dữ liệu cục bộ', 'content' => 'Sử dụng các selector của NgRx Data để lọc và sắp xếp dữ liệu trong store.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Optimistic vs Pessimistic Updates', 'content' => 'Các chiến lược cập nhật dữ liệu và khi nào nên sử dụng từng loại.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các trường hợp nâng cao và Best Practices',
+                    'description' => 'Giải quyết các tình huống phức tạp và áp dụng các thực hành tốt nhất khi sử dụng NgRx Data.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Relations giữa các Entities', 'content' => 'Cách quản lý mối quan hệ giữa các entity trong NgRx Data.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Caching và Refreshing dữ liệu', 'content' => 'Các chiến lược caching để tối ưu hóa hiệu suất và giảm số lượng yêu cầu API.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Testing NgRx Data Components và Services', 'content' => 'Cách viết test cho các thành phần sử dụng NgRx Data.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices và các mẹo khi sử dụng NgRx Data', 'content' => 'Những lời khuyên để xây dựng ứng dụng với NgRx Data hiệu quả và dễ bảo trì.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular SSR với Scully: Xây dựng Static Sites và Pre-rendering',
+            'description' => 'Khóa học này tập trung vào việc sử dụng Scully, một công cụ Static Site Generator (SSG) cho Angular, để tạo ra các trang web tĩnh hiệu suất cao và tối ưu SEO.',
+            'price' => 700000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về Angular và Node.js.',
+                'Hiểu biết về khái niệm Static Site Generation (SSG).'
+            ],
+            'objectives' => [
+                'Hiểu lợi ích của Static Site Generation và Scully.',
+                'Cài đặt và cấu hình Scully trong dự án Angular.',
+                'Tạo các route tĩnh và động với Scully.',
+                'Tích hợp dữ liệu từ API hoặc Markdown vào trang tĩnh.',
+                'Triển khai ứng dụng được tạo bởi Scully.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Static Site Generation (SSG) và Scully',
+                    'description' => 'Tổng quan về SSG và cách Scully giúp tạo các trang web tĩnh từ ứng dụng Angular.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: SSG là gì? Lợi ích của Static Sites', 'content' => 'Định nghĩa SSG, ưu điểm về hiệu suất, bảo mật và chi phí hosting.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Giới thiệu Scully: SSG cho Angular', 'content' => 'Vai trò của Scully trong việc tạo các trang HTML tĩnh từ Angular.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: So sánh Scully với Angular Universal (SSR)', 'content' => 'Điểm khác biệt giữa SSG và SSR, khi nào nên dùng từng loại.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cài đặt và cấu hình Scully', 'content' => 'Các bước để thêm Scully vào dự án Angular hiện có.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Tạo các Route tĩnh và động với Scully',
+                    'description' => 'Học cách Scully khám phá và tạo ra các trang tĩnh cho ứng dụng của bạn.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Khám phá các Route tĩnh', 'content' => 'Cách Scully tự động tìm các route tĩnh trong ứng dụng Angular.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Tạo các Route động (Parameterized Routes)', 'content' => 'Sử dụng các plugin của Scully để tạo trang cho các route có tham số.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Scully Config File (scully.config.ts)', 'content' => 'Cấu hình các route và plugin trong file cấu hình của Scully.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Chạy Scully và xem kết quả', 'content' => 'Thực hành chạy Scully và kiểm tra các file HTML tĩnh được tạo ra.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Tích hợp dữ liệu vào Static Pages',
+                    'description' => 'Lấy dữ liệu từ các nguồn khác nhau và đưa vào các trang tĩnh được tạo.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Sử dụng Plugins của Scully để lấy dữ liệu', 'content' => 'Các loại plugin có sẵn để lấy dữ liệu từ API hoặc file.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Lấy dữ liệu từ REST API (JSON Plugin)', 'content' => 'Cấu hình Scully để gọi API và đưa dữ liệu vào các trang tĩnh.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Lấy dữ liệu từ Markdown Files (Markdown Plugin)', 'content' => 'Sử dụng Markdown để viết nội dung và Scully sẽ chuyển đổi thành HTML.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Custom Plugins cho Scully', 'content' => 'Tạo các plugin của riêng bạn để xử lý các nguồn dữ liệu đặc biệt.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Tối ưu hóa SEO và Social Sharing',
+                    'description' => 'Đảm bảo các trang tĩnh của bạn được tối ưu hóa cho công cụ tìm kiếm và mạng xã hội.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Quản lý Metadata với Scully và Angular', 'content' => 'Thêm các thẻ meta động cho từng trang để cải thiện SEO.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Open Graph và Twitter Cards', 'content' => 'Tối ưu hóa hiển thị khi chia sẻ trang trên Facebook, Twitter, v.v.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Sitemap và Robots.txt cho Static Sites', 'content' => 'Tạo sitemap để giúp công cụ tìm kiếm index trang web hiệu quả.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Structured Data (Schema.org) với Scully', 'content' => 'Thêm dữ liệu có cấu trúc để cung cấp thêm thông tin cho công cụ tìm kiếm.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Triển khai ứng dụng được tạo bởi Scully',
+                    'description' => 'Các bước để đưa ứng dụng tĩnh của bạn lên môi trường production.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Build và Triển khai lên Static Hosting (Netlify, Vercel, Firebase Hosting)', 'content' => 'Các nền tảng tối ưu cho việc host các trang web tĩnh.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Tích hợp với CI/CD Pipeline', 'content' => 'Tự động hóa quá trình build và triển khai với các dịch vụ CI/CD.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Cấu hình CDN (Content Delivery Network)', 'content' => 'Sử dụng CDN để phân phối tài nguyên nhanh chóng trên toàn cầu.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Xử lý các trang 404 và Redirects', 'content' => 'Cấu hình các trang lỗi và chuyển hướng cho ứng dụng tĩnh.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Các trường hợp nâng cao và Best Practices',
+                    'description' => 'Giải quyết các tình huống phức tạp và áp dụng các thực hành tốt nhất khi sử dụng Scully.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Hydration và Progressive Enhancement', 'content' => 'Cách ứng dụng Angular "khởi động" trên các trang tĩnh được tạo bởi Scully.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tích hợp Scully với Angular Universal (Hybrid Approach)', 'content' => 'Kết hợp SSR và SSG để đạt được hiệu suất tối ưu.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Testing Scully Projects', 'content' => 'Cách kiểm thử các trang tĩnh và quá trình tạo ra chúng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices và các mẹo khi sử dụng Scully', 'content' => 'Những lời khuyên để xây dựng các trang web tĩnh hiệu quả và dễ bảo trì với Scully.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular & Firebase: Xây dựng ứng dụng Realtime',
+            'description' => 'Khóa học này hướng dẫn bạn cách xây dựng các ứng dụng web realtime mạnh mẽ bằng Angular và Firebase, bao gồm Firestore, Authentication và Storage.',
+            'price' => 980000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức cơ bản về Angular.',
+                'Hiểu biết về khái niệm cơ sở dữ liệu NoSQL.'
+            ],
+            'objectives' => [
+                'Thiết lập dự án Firebase và tích hợp vào Angular.',
+                'Làm việc với Cloud Firestore để lưu trữ dữ liệu realtime.',
+                'Triển khai xác thực người dùng với Firebase Authentication.',
+                'Sử dụng Firebase Storage để lưu trữ file.',
+                'Xây dựng ứng dụng Angular full-stack với Firebase.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Firebase và Thiết lập dự án',
+                    'description' => 'Tổng quan về Firebase và các bước để bắt đầu với dự án Angular.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Firebase là gì? Các dịch vụ chính', 'content' => 'Giới thiệu về nền tảng Firebase và các dịch vụ cốt lõi như Firestore, Auth, Storage.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Tạo dự án Firebase và cấu hình', 'content' => 'Các bước để tạo một dự án mới trên Firebase Console.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Tích hợp Firebase vào ứng dụng Angular', 'content' => 'Cài đặt AngularFire và cấu hình Firebase SDK trong dự án Angular.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Firebase CLI và triển khai ứng dụng', 'content' => 'Sử dụng Firebase CLI để quản lý dự án và triển khai ứng dụng Angular.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Cloud Firestore: Cơ sở dữ liệu NoSQL Realtime',
+                    'description' => 'Lưu trữ, truy xuất và quản lý dữ liệu realtime với Cloud Firestore.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Giới thiệu Cloud Firestore (Collections, Documents)', 'content' => 'Khái niệm về cấu trúc dữ liệu của Firestore và cách nó hoạt động.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Thêm, đọc, cập nhật và xóa dữ liệu', 'content' => 'Thực hiện các thao tác CRUD cơ bản với Firestore trong Angular.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Realtime Data và Snapshot Changes', 'content' => 'Lắng nghe các thay đổi dữ liệu theo thời gian thực với `snapshotChanges()`.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Querying và Filtering dữ liệu', 'content' => 'Thực hiện các truy vấn phức tạp và lọc dữ liệu trong Firestore.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Firebase Authentication: Quản lý người dùng',
+                    'description' => 'Triển khai các phương thức xác thực người dùng trong ứng dụng Angular.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Các phương thức Authentication (Email/Password, Google, Facebook)', 'content' => 'Giới thiệu các cách xác thực người dùng mà Firebase hỗ trợ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Đăng ký và Đăng nhập bằng Email/Password', 'content' => 'Triển khai chức năng đăng ký và đăng nhập cơ bản.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Đăng nhập với Google và các nhà cung cấp khác', 'content' => 'Tích hợp xác thực qua các dịch vụ bên thứ ba.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Quản lý trạng thái người dùng (authState, signOut)', 'content' => 'Theo dõi trạng thái đăng nhập của người dùng và chức năng đăng xuất.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Firebase Storage: Lưu trữ file',
+                    'description' => 'Lưu trữ và quản lý các file (hình ảnh, video, tài liệu) trong ứng dụng.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giới thiệu Firebase Storage và Rules', 'content' => 'Khái niệm về Storage và cách cấu hình các quy tắc bảo mật.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Upload file (hình ảnh, tài liệu)', 'content' => 'Cách upload file từ ứng dụng Angular lên Firebase Storage.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Download và hiển thị file', 'content' => 'Lấy URL của file đã upload và hiển thị chúng trong ứng dụng.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Xóa file và quản lý thư mục', 'content' => 'Các thao tác xóa file và tổ chức file trong Storage.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Firebase Security Rules và Cloud Functions',
+                    'description' => 'Bảo mật dữ liệu và mở rộng chức năng backend với Firebase.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Cloud Firestore Security Rules', 'content' => 'Viết các quy tắc bảo mật để kiểm soát quyền truy cập dữ liệu trong Firestore.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Firebase Authentication Rules', 'content' => 'Cấu hình các quy tắc cho xác thực người dùng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Cloud Functions: Backend không server', 'content' => 'Giới thiệu Cloud Functions và cách chúng mở rộng chức năng backend.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Trigger Functions từ Firestore và HTTP Functions', 'content' => 'Viết các hàm được kích hoạt bởi sự kiện Firestore hoặc các yêu cầu HTTP.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Xây dựng ứng dụng mẫu và Best Practices',
+                    'description' => 'Thực hành xây dựng một ứng dụng hoàn chỉnh và các lời khuyên khi sử dụng Firebase với Angular.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Xây dựng ứng dụng Chat Realtime với Firestore', 'content' => 'Thực hành tạo một ứng dụng chat đơn giản với các tính năng realtime.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Tích hợp Firebase với NgRx (tùy chọn)', 'content' => 'Cách quản lý trạng thái Firebase trong ứng dụng NgRx.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Performance và Scalability với Firebase', 'content' => 'Các mẹo để tối ưu hiệu suất và khả năng mở rộng của ứng dụng Firebase.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices và các vấn đề thường gặp với Firebase', 'content' => 'Những lời khuyên để phát triển ứng dụng Angular Firebase hiệu quả và an toàn.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Angular Micro Frontends với Nx Workspace',
+            'description' => 'Khóa học này tập trung vào việc xây dựng kiến trúc Micro Frontends phức tạp trong Angular bằng cách sử dụng Nx Workspace, một công cụ mạnh mẽ cho monorepo.',
+            'price' => 1150000.00,
+            'categoryIds' => [7, 2], // Angular, Lập trình Web
+            'requirements' => [
+                'Kiến thức vững chắc về Angular và TypeScript.',
+                'Hiểu biết về kiến trúc Micro Frontends và monorepo.'
+            ],
+            'objectives' => [
+                'Thiết lập Nx Workspace cho dự án monorepo Angular.',
+                'Tạo và quản lý các ứng dụng và thư viện trong Nx.',
+                'Triển khai Micro Frontends với Module Federation trong Nx.',
+                'Xử lý giao tiếp và chia sẻ tài nguyên giữa các Micro Frontends.',
+                'Tối ưu hóa quá trình phát triển và triển khai trong monorepo.'
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chương 1: Giới thiệu Nx Workspace và Monorepo',
+                    'description' => 'Tổng quan về Nx Workspace và lợi ích của việc sử dụng kiến trúc monorepo cho các dự án lớn.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Bài 1.1: Monorepo là gì? Ưu điểm và nhược điểm', 'content' => 'Giải thích khái niệm monorepo và lý do các công ty lớn sử dụng nó.', 'sortOrder' => 1],
+                        ['title' => 'Bài 1.2: Giới thiệu Nx Workspace: Công cụ cho Monorepo', 'content' => 'Các tính năng chính của Nx như code generation, dependency graph, caching.', 'sortOrder' => 2],
+                        ['title' => 'Bài 1.3: Cài đặt Nx CLI và tạo Nx Workspace đầu tiên', 'content' => 'Hướng dẫn các bước để khởi tạo một Nx Workspace mới.', 'sortOrder' => 3],
+                        ['title' => 'Bài 1.4: Cấu trúc thư mục Nx Workspace', 'content' => 'Hiểu cách Nx tổ chức các ứng dụng và thư viện trong một monorepo.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 2: Quản lý Apps và Libraries trong Nx',
+                    'description' => 'Học cách tạo, tổ chức và quản lý các ứng dụng và thư viện trong Nx Workspace.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Bài 2.1: Tạo Angular Applications với Nx', 'content' => 'Sử dụng Nx CLI để tạo các ứng dụng Angular mới trong monorepo.', 'sortOrder' => 1],
+                        ['title' => 'Bài 2.2: Tạo và sử dụng Libraries (shared code)', 'content' => 'Đóng gói các thành phần, service, model dùng chung thành các thư viện.', 'sortOrder' => 2],
+                        ['title' => 'Bài 2.3: Dependency Graph và Project Graph', 'content' => 'Cách Nx phân tích và hiển thị mối quan hệ giữa các dự án.', 'sortOrder' => 3],
+                        ['title' => 'Bài 2.4: Enforcing Module Boundaries', 'content' => 'Thiết lập các quy tắc để kiểm soát sự phụ thuộc giữa các thư viện và ứng dụng.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 3: Micro Frontends với Nx và Module Federation',
+                    'description' => 'Triển khai kiến trúc Micro Frontends bằng cách tận dụng Nx và Webpack Module Federation.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Bài 3.1: Module Federation trong Nx', 'content' => 'Cách Nx tích hợp và đơn giản hóa việc cấu hình Module Federation.', 'sortOrder' => 1],
+                        ['title' => 'Bài 3.2: Tạo Host và Remote Applications', 'content' => 'Sử dụng Nx generator để tạo các ứng dụng host và remote cho Micro Frontends.', 'sortOrder' => 2],
+                        ['title' => 'Bài 3.3: Exposing và Consuming Modules', 'content' => 'Cách các ứng dụng Micro Frontend chia sẻ và sử dụng các module lẫn nhau.', 'sortOrder' => 3],
+                        ['title' => 'Bài 3.4: Chia sẻ Dependencies giữa các Micro Frontends', 'content' => 'Tối ưu hóa kích thước bundle bằng cách chia sẻ các thư viện chung.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 4: Giao tiếp và Quản lý trạng thái trong Micro Frontends',
+                    'description' => 'Các chiến lược để các Micro Frontend có thể giao tiếp và chia sẻ trạng thái một cách hiệu quả.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Bài 4.1: Giao tiếp giữa các Micro Frontends (Event Bus, Custom Events)', 'content' => 'Các phương pháp để các ứng dụng con trao đổi thông tin.', 'sortOrder' => 1],
+                        ['title' => 'Bài 4.2: Chia sẻ trạng thái với NgRx trong Nx Workspace', 'content' => 'Sử dụng NgRx để quản lý trạng thái chung giữa các Micro Frontend.', 'sortOrder' => 2],
+                        ['title' => 'Bài 4.3: Context API và Global State', 'content' => 'Các giải pháp khác để chia sẻ trạng thái toàn cục.', 'sortOrder' => 3],
+                        ['title' => 'Bài 4.4: Xử lý Routing và Navigation liền mạch', 'content' => 'Đảm bảo trải nghiệm điều hướng mượt mà giữa các Micro Frontend.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 5: Testing và CI/CD trong Nx Monorepo',
+                    'description' => 'Kiểm thử và triển khai các ứng dụng Micro Frontend trong môi trường monorepo.',
+                    'sortOrder' => 5,
+                    'lessons' => [
+                        ['title' => 'Bài 5.1: Testing Strategies trong Nx Workspace', 'content' => 'Cách Nx hỗ trợ unit testing, integration testing và e2e testing.', 'sortOrder' => 1],
+                        ['title' => 'Bài 5.2: Impact Graph và Affected Commands', 'content' => 'Sử dụng Nx để chỉ chạy test và build cho những phần code bị ảnh hưởng.', 'sortOrder' => 2],
+                        ['title' => 'Bài 5.3: Thiết lập CI/CD Pipeline cho Nx Monorepo', 'content' => 'Tự động hóa quá trình build, test và triển khai với các dịch vụ CI/CD.', 'sortOrder' => 3],
+                        ['title' => 'Bài 5.4: Triển khai Micro Frontends từ Nx Workspace', 'content' => 'Các phương pháp triển khai các ứng dụng Micro Frontend độc lập.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chương 6: Nâng cao và Best Practices với Nx',
+                    'description' => 'Khám phá các tính năng nâng cao của Nx và các thực hành tốt nhất cho monorepo.',
+                    'sortOrder' => 6,
+                    'lessons' => [
+                        ['title' => 'Bài 6.1: Nx Generators và Executors tùy chỉnh', 'content' => 'Tạo các generator và executor của riêng bạn để tự động hóa các tác vụ.', 'sortOrder' => 1],
+                        ['title' => 'Bài 6.2: Nx Plugins và Community Ecosystem', 'content' => 'Sử dụng các plugin của Nx để hỗ trợ các framework và công nghệ khác.', 'sortOrder' => 2],
+                        ['title' => 'Bài 6.3: Tối ưu hóa hiệu suất Build và Test trong Nx', 'content' => 'Các mẹo để tăng tốc độ build và test trong môi trường monorepo.', 'sortOrder' => 3],
+                        ['title' => 'Bài 6.4: Best Practices và các mẹo khi làm việc với Nx Monorepo', 'content' => 'Những lời khuyên để quản lý các dự án lớn hiệu quả với Nx.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
     ];
 
 

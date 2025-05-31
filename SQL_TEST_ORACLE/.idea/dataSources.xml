@@ -9,5 +9,12 @@
       <jdbc-url>jdbc:oracle:thin:@//localhost:1521/QUANLYKHOAHOC</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="recommend_db@localhost" uuid="f7703840-268e-4a66-9502-74c5064c08f1">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/recommend_db</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
