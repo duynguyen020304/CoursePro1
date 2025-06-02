@@ -7578,105 +7578,6 @@ class CourseInitializer
             ]
         ],
         [
-            'title' => 'HTML Toàn Diện: Từ Cơ Bản Đến Nâng Cao',
-            'description' => 'Khóa học này sẽ đưa bạn từ những kiến thức cơ bản nhất của HTML đến các kỹ thuật nâng cao, giúp bạn xây dựng cấu trúc website mạnh mẽ và chuẩn SEO.',
-            'price' => 450000.00,
-            'categoryIds' => [3, 2], // HTML & CSS, Lập trình Web
-            'requirements' => [
-                'Máy tính có kết nối internet.',
-                'Sự kiên nhẫn và đam mê học hỏi về phát triển web.',
-            ],
-            'objectives' => [
-                'Nắm vững cú pháp và cấu trúc cơ bản của HTML5.',
-                'Sử dụng thành thạo các thẻ HTML để tạo nội dung, form, bảng, media.',
-                'Hiểu về ngữ nghĩa HTML (Semantic HTML) và tầm quan trọng của nó.',
-                'Áp dụng các kỹ thuật HTML nâng cao cho SEO và khả năng tiếp cận.',
-                'Xây dựng cấu trúc HTML cho các dự án web thực tế.',
-                'Biết cách debug và validate mã HTML.',
-            ],
-            'chapters' => [
-                [
-                    'title' => 'Chương 1: Giới thiệu HTML và Cấu trúc cơ bản',
-                    'description' => 'Tìm hiểu HTML là gì, lịch sử phát triển và cấu trúc một trang HTML.',
-                    'sortOrder' => 1,
-                    'lessons' => [
-                        ['title' => 'Bài 1.1: HTML là gì? Vai trò của HTML trong Web', 'content' => 'Tổng quan về HTML và cách nó hoạt động với CSS, JS.', 'sortOrder' => 1],
-                        ['title' => 'Bài 1.2: Cấu trúc một tài liệu HTML5', 'content' => 'Thẻ `<!DOCTYPE html>`, `<html>`, `<head>`, `<body>`.', 'sortOrder' => 2],
-                        ['title' => 'Bài 1.3: Các thẻ HTML cơ bản: Tiêu đề, Đoạn văn, Liên kết', 'content' => 'Sử dụng `<h1>` đến `<h6>`, `<p>`, `<a>`.', 'sortOrder' => 3],
-                        ['title' => 'Bài 1.4: Thẻ hình ảnh và video', 'content' => 'Chèn hình ảnh (`<img>`) và video (`<video>`) vào trang web.', 'sortOrder' => 4],
-                    ]
-                ],
-                [
-                    'title' => 'Chương 2: Làm việc với Văn bản và Danh sách',
-                    'description' => 'Cách định dạng văn bản và tạo các loại danh sách khác nhau.',
-                    'sortOrder' => 2,
-                    'lessons' => [
-                        ['title' => 'Bài 2.1: Định dạng văn bản: in đậm, in nghiêng, gạch chân', 'content' => 'Sử dụng `<strong>`, `<em>`, `<u>`, `<sub>`, `<sup>`.', 'sortOrder' => 1],
-                        ['title' => 'Bài 2.2: Các thẻ ngữ nghĩa cho văn bản', 'content' => 'Thẻ `<blockquote>`, `<q>`, `<cite>`, `<abbr>`.', 'sortOrder' => 2],
-                        ['title' => 'Bài 2.3: Danh sách không thứ tự và có thứ tự', 'content' => 'Sử dụng `<ul>`, `<ol>`, `<li>`.', 'sortOrder' => 3],
-                        ['title' => 'Bài 2.4: Danh sách định nghĩa và các trường hợp sử dụng', 'content' => 'Thẻ `<dl>`, `<dt>`, `<dd>`.', 'sortOrder' => 4],
-                    ]
-                ],
-                [
-                    'title' => 'Chương 3: Bảng và Form trong HTML',
-                    'description' => 'Xây dựng bảng dữ liệu và các biểu mẫu tương tác với người dùng.',
-                    'sortOrder' => 3,
-                    'lessons' => [
-                        ['title' => 'Bài 3.1: Tạo bảng cơ bản với `<table>`, `<tr>`, `<td>`, `<th>`', 'content' => 'Cấu trúc bảng và các thẻ cơ bản.', 'sortOrder' => 1],
-                        ['title' => 'Bài 3.2: Gộp hàng, gộp cột và chú thích bảng', 'content' => 'Sử dụng `rowspan`, `colspan`, `<caption>`.', 'sortOrder' => 2],
-                        ['title' => 'Bài 3.3: Các loại input trong form HTML5', 'content' => 'Text, password, email, number, date, checkbox, radio.', 'sortOrder' => 3],
-                        ['title' => 'Bài 3.4: Thẻ `<textarea>`, `<select>`, `<button>` và thuộc tính `action`, `method`', 'content' => 'Tạo các trường nhập liệu phức tạp hơn.', 'sortOrder' => 4],
-                        ['title' => 'Bài 3.5: Thuộc tính `placeholder`, `required`, `pattern` cho form', 'content' => 'Tối ưu hóa trải nghiệm người dùng và validation cơ bản.', 'sortOrder' => 5],
-                    ]
-                ],
-                [
-                    'title' => 'Chương 4: Ngữ nghĩa HTML5 và Cấu trúc trang',
-                    'description' => 'Sử dụng các thẻ ngữ nghĩa mới của HTML5 để xây dựng cấu trúc trang web rõ ràng và ý nghĩa.',
-                    'sortOrder' => 4,
-                    'lessons' => [
-                        ['title' => 'Bài 4.1: Giới thiệu Semantic HTML và lợi ích', 'content' => 'Tại sao nên sử dụng các thẻ ngữ nghĩa.', 'sortOrder' => 1],
-                        ['title' => 'Bài 4.2: Thẻ `<header>`, `<nav>`, `<main>`, `<footer>`', 'content' => 'Cấu trúc các phần chính của trang web.', 'sortOrder' => 2],
-                        ['title' => 'Bài 4.3: Thẻ `<article>`, `<section>`, `<aside>`', 'content' => 'Phân chia nội dung chính và nội dung phụ.', 'sortOrder' => 3],
-                        ['title' => 'Bài 4.4: Thẻ `<figure>`, `<figcaption>`, `<mark>`, `<time>`', 'content' => 'Các thẻ ngữ nghĩa khác hữu ích.', 'sortOrder' => 4],
-                    ]
-                ],
-                [
-                    'title' => 'Chương 5: HTML và SEO (Tối ưu hóa công cụ tìm kiếm)',
-                    'description' => 'Học cách viết HTML thân thiện với SEO để cải thiện thứ hạng tìm kiếm.',
-                    'sortOrder' => 5,
-                    'lessons' => [
-                        ['title' => 'Bài 5.1: Tầm quan trọng của HTML trong SEO', 'content' => 'Cách HTML ảnh hưởng đến việc xếp hạng trên công cụ tìm kiếm.', 'sortOrder' => 1],
-                        ['title' => 'Bài 5.2: Tối ưu thẻ `<title>` và `<meta description>`', 'content' => 'Viết tiêu đề và mô tả hấp dẫn cho SEO.', 'sortOrder' => 2],
-                        ['title' => 'Bài 5.3: Sử dụng thẻ Heading (`<h1>` đến `<h6>`) đúng cách', 'content' => 'Cấu trúc tiêu đề để tối ưu nội dung.', 'sortOrder' => 3],
-                        ['title' => 'Bài 5.4: Thuộc tính `alt` cho hình ảnh và liên kết nội bộ/ngoại bộ', 'content' => 'Tối ưu hình ảnh và chiến lược liên kết.', 'sortOrder' => 4],
-                    ]
-                ],
-                [
-                    'title' => 'Chương 6: HTML và Khả năng tiếp cận (Accessibility)',
-                    'description' => 'Đảm bảo trang web của bạn có thể truy cập được bởi tất cả mọi người, bao gồm cả người khuyết tật.',
-                    'sortOrder' => 6,
-                    'lessons' => [
-                        ['title' => 'Bài 6.1: Giới thiệu Web Accessibility và lý do cần thiết', 'content' => 'Tầm quan trọng của việc tạo ra các trang web dễ tiếp cận.', 'sortOrder' => 1],
-                        ['title' => 'Bài 6.2: Thuộc tính ARIA và vai trò của nó', 'content' => 'Sử dụng ARIA để cải thiện khả năng tiếp cận.', 'sortOrder' => 2],
-                        ['title' => 'Bài 6.3: Cấu trúc form và bảng thân thiện với người dùng', 'content' => 'Thiết kế form và bảng dễ sử dụng cho mọi đối tượng.', 'sortOrder' => 3],
-                        ['title' => 'Bài 6.4: Kiểm tra và debug HTML', 'content' => 'Sử dụng công cụ để kiểm tra lỗi HTML và khả năng tiếp cận.', 'sortOrder' => 4],
-                    ]
-                ],
-                [
-                    'title' => 'Chương 7: Dự án thực hành: Xây dựng trang Portfolio cá nhân',
-                    'description' => 'Áp dụng tất cả kiến thức đã học để xây dựng một trang portfolio cá nhân hoàn chỉnh bằng HTML.',
-                    'sortOrder' => 7,
-                    'lessons' => [
-                        ['title' => 'Bài 7.1: Lên kế hoạch cấu trúc HTML cho Portfolio', 'content' => 'Phân tích yêu cầu và thiết kế cấu trúc trang.', 'sortOrder' => 1],
-                        ['title' => 'Bài 7.2: Xây dựng phần Header và Navigation', 'content' => 'Tạo thanh điều hướng và thông tin giới thiệu.', 'sortOrder' => 2],
-                        ['title' => 'Bài 7.3: Phát triển phần About Me và Skills', 'content' => 'Tạo các section giới thiệu bản thân và kỹ năng.', 'sortOrder' => 3],
-                        ['title' => 'Bài 7.4: Xây dựng phần Projects và Contact Form', 'content' => 'Hiển thị các dự án và form liên hệ.', 'sortOrder' => 4],
-                        ['title' => 'Bài 7.5: Tối ưu hóa SEO và Accessibility cho Portfolio', 'content' => 'Kiểm tra và cải thiện trang web.', 'sortOrder' => 5],
-                    ]
-                ],
-            ]
-        ],
-        [
             'title' => 'CSS Masterclass: Thiết Kế Giao Diện Đẹp và Phản Hồi',
             'description' => 'Khóa học chuyên sâu về CSS, từ những khái niệm cơ bản đến các kỹ thuật nâng cao như Flexbox, Grid, Responsive Design, và Animation.',
             'price' => 550000.00,
@@ -14275,6 +14176,447 @@ class CourseInitializer
                         ['title' => 'Bài 6.2: Nx Plugins và Community Ecosystem', 'content' => 'Sử dụng các plugin của Nx để hỗ trợ các framework và công nghệ khác.', 'sortOrder' => 2],
                         ['title' => 'Bài 6.3: Tối ưu hóa hiệu suất Build và Test trong Nx', 'content' => 'Các mẹo để tăng tốc độ build và test trong môi trường monorepo.', 'sortOrder' => 3],
                         ['title' => 'Bài 6.4: Best Practices và các mẹo khi làm việc với Nx Monorepo', 'content' => 'Những lời khuyên để quản lý các dự án lớn hiệu quả với Nx.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Mastering ReactJS: Build Modern Web Applications (English)',
+            'description' => 'Learn to build dynamic and high-performance user interfaces with the ReactJS library, covering fundamental concepts to advanced patterns.',
+            'price' => 999000.00,
+            'categoryIds' => [5, 2], // ReactJS, Web Programming
+            'requirements' => [
+                'Solid understanding of HTML, CSS, and JavaScript (ES6+).',
+                'Familiarity with Node.js and npm/yarn is a plus.',
+            ],
+            'objectives' => [
+                'Understand Virtual DOM, Components, Props, State, and Lifecycle Methods.',
+                'Utilize JSX for declarative UI development.',
+                'Manage application state with Redux or Context API.',
+                'Build Single Page Applications (SPAs) with React Router.',
+                'Interact with backend APIs effectively.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chapter 1: Introduction to ReactJS and Environment Setup',
+                    'description' => 'Overview of React, its benefits, and how to set up your development environment.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Lesson 1.1: What is ReactJS?', 'content' => 'Detailed content about ReactJS fundamentals and its ecosystem.', 'sortOrder' => 1],
+                        ['title' => 'Lesson 1.2: Installing Node.js, npm, and Create React App', 'content' => 'Step-by-step guide to setting up your React development environment.', 'sortOrder' => 2],
+                        ['title' => 'Lesson 1.3: Basic React Project Structure', 'content' => 'Understanding the typical file and folder structure of a React application.', 'sortOrder' => 3],
+                        ['title' => 'Lesson 1.4: Your First React Component', 'content' => 'Writing and rendering a simple React component.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chapter 2: Components, Props, and State Management',
+                    'description' => 'Dive deep into the core building blocks of React applications.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Lesson 2.1: Functional vs. Class Components', 'content' => 'Comparing and choosing between different component types.', 'sortOrder' => 1],
+                        ['title' => 'Lesson 2.2: Props: Passing Data Between Components', 'content' => 'How to use props to pass data down the component tree.', 'sortOrder' => 2],
+                        ['title' => 'Lesson 2.3: State: Managing Internal Component Data', 'content' => 'Introduction to component state and how to update it.', 'sortOrder' => 3],
+                        ['title' => 'Lesson 2.4: Lifecycle Methods (Class) and Hooks (Functional)', 'content' => 'Understanding the component lifecycle and using Hooks for state and side effects.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chapter 3: Advanced State Management with Context API and Redux',
+                    'description' => 'Explore sophisticated methods for managing complex state in React applications.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Lesson 3.1: Introduction to Context API', 'content' => 'Using Context API to avoid "prop drilling" for global state.', 'sortOrder' => 1],
+                        ['title' => 'Lesson 3.2: When to Use Redux?', 'content' => 'Overview of Redux and its use cases in larger applications.', 'sortOrder' => 2],
+                        ['title' => 'Lesson 3.3: Redux Core Concepts: Store, Actions, Reducers', 'content' => 'Understanding the fundamental building blocks of a Redux application.', 'sortOrder' => 3],
+                        ['title' => 'Lesson 3.4: Connecting React with Redux (react-redux)', 'content' => 'Using `connect` HOC or `useSelector`/`useDispatch` hooks.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chapter 4: React Router and API Integration',
+                    'description' => 'Learn to handle navigation and fetch data from external sources.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Lesson 4.1: Client-Side Routing with React Router', 'content' => 'Setting up routes and navigating between pages in a SPA.', 'sortOrder' => 1],
+                        ['title' => 'Lesson 4.2: Fetching Data with `fetch` and Axios', 'content' => 'Making HTTP requests to consume RESTful APIs.', 'sortOrder' => 2],
+                        ['title' => 'Lesson 4.3: Handling Asynchronous Data in React', 'content' => 'Managing loading states, errors, and data display.', 'sortOrder' => 3],
+                        ['title' => 'Lesson 4.4: Building a Simple CRUD Application', 'content' => 'Putting it all together: creating, reading, updating, and deleting data.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Dominando ReactJS: Construye Aplicaciones Web Modernas (Español)',
+            'description' => 'Aprende a construir interfaces de usuario dinámicas y de alto rendimiento con la librería ReactJS, cubriendo desde conceptos fundamentales hasta patrones avanzados.',
+            'price' => 999000.00,
+            'categoryIds' => [5, 2], // ReactJS, Web Programming
+            'requirements' => [
+                'Conocimiento sólido de HTML, CSS y JavaScript (ES6+).',
+                'Familiaridad con Node.js y npm/yarn es una ventaja.',
+            ],
+            'objectives' => [
+                'Comprender el DOM Virtual, Componentes, Props, State y Métodos de Ciclo de Vida.',
+                'Utilizar JSX para el desarrollo declarativo de la interfaz de usuario.',
+                'Gestionar el estado de la aplicación con Redux o Context API.',
+                'Construir Single Page Applications (SPAs) con React Router.',
+                'Interactuar eficazmente con APIs de backend.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Capítulo 1: Introducción a ReactJS y Configuración del Entorno',
+                    'description' => 'Visión general de React, sus beneficios y cómo configurar tu entorno de desarrollo.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Lección 1.1: ¿Qué es ReactJS?', 'content' => 'Contenido detallado sobre los fundamentos de ReactJS y su ecosistema.', 'sortOrder' => 1],
+                        ['title' => 'Lección 1.2: Instalación de Node.js, npm y Create React App', 'content' => 'Guía paso a paso para configurar tu entorno de desarrollo React.', 'sortOrder' => 2],
+                        ['title' => 'Lección 1.3: Estructura Básica de un Proyecto React', 'content' => 'Comprendiendo la estructura típica de archivos y carpetas de una aplicación React.', 'sortOrder' => 3],
+                        ['title' => 'Lección 1.4: Tu Primer Componente React', 'content' => 'Escribiendo y renderizando un componente React simple.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Capítulo 2: Componentes, Props y Gestión del Estado',
+                    'description' => 'Profundiza en los bloques de construcción fundamentales de las aplicaciones React.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Lección 2.1: Componentes Funcionales vs. de Clase', 'content' => 'Comparando y eligiendo entre diferentes tipos de componentes.', 'sortOrder' => 1],
+                        ['title' => 'Lección 2.2: Props: Pasando Datos entre Componentes', 'content' => 'Cómo usar props para pasar datos por el árbol de componentes.', 'sortOrder' => 2],
+                        ['title' => 'Lección 2.3: State: Gestionando Datos Internos del Componente', 'content' => 'Introducción al estado del componente y cómo actualizarlo.', 'sortOrder' => 3],
+                        ['title' => 'Lección 2.4: Métodos de Ciclo de Vida (Clase) y Hooks (Funcional)', 'content' => 'Comprendiendo el ciclo de vida del componente y usando Hooks para el estado y efectos secundarios.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Capítulo 3: Gestión Avanzada del Estado con Context API y Redux',
+                    'description' => 'Explora métodos sofisticados para gestionar el estado complejo en aplicaciones React.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Lección 3.1: Introducción a Context API', 'content' => 'Usando Context API para evitar el "prop drilling" para el estado global.', 'sortOrder' => 1],
+                        ['title' => 'Lección 3.2: ¿Cuándo Usar Redux?', 'content' => 'Visión general de Redux y sus casos de uso en aplicaciones más grandes.', 'sortOrder' => 2],
+                        ['title' => 'Lección 3.3: Conceptos Centrales de Redux: Store, Actions, Reducers', 'content' => 'Comprendiendo los bloques de construcción fundamentales de una aplicación Redux.', 'sortOrder' => 3],
+                        ['title' => 'Lección 3.4: Conectando React con Redux (react-redux)', 'content' => 'Usando el HOC `connect` o los hooks `useSelector`/`useDispatch`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Capítulo 4: React Router e Integración de API',
+                    'description' => 'Aprende a manejar la navegación y a obtener datos de fuentes externas.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Lección 4.1: Enrutamiento del Lado del Cliente con React Router', 'content' => 'Configurando rutas y navegando entre páginas en una SPA.', 'sortOrder' => 1],
+                        ['title' => 'Lección 4.2: Obteniendo Datos con `fetch` y Axios', 'content' => 'Realizando solicitudes HTTP para consumir APIs RESTful.', 'sortOrder' => 2],
+                        ['title' => 'Lección 4.3: Manejo de Datos Asíncronos en React', 'content' => 'Gestionando estados de carga, errores y visualización de datos.', 'sortOrder' => 3],
+                        ['title' => 'Lección 4.4: Construyendo una Aplicación CRUD Simple', 'content' => 'Juntándolo todo: creando, leyendo, actualizando y eliminando datos.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Maîtriser ReactJS : Construire des Applications Web Modernes (Français)',
+            'description' => 'Apprenez à construire des interfaces utilisateur dynamiques et performantes avec la bibliothèque ReactJS, couvrant des concepts fondamentaux aux patterns avancés.',
+            'price' => 999000.00,
+            'categoryIds' => [5, 2], // ReactJS, Web Programming
+            'requirements' => [
+                'Solide compréhension de HTML, CSS et JavaScript (ES6+).',
+                'La familiarité avec Node.js et npm/yarn est un plus.',
+            ],
+            'objectives' => [
+                'Comprendre le DOM Virtuel, les Composants, les Props, le State et les Méthodes de Cycle de Vie.',
+                'Utiliser JSX pour le développement déclaratif de l\'interface utilisateur.',
+                'Gérer l\'état de l\'application avec Redux ou Context API.',
+                'Construire des Single Page Applications (SPAs) avec React Router.',
+                'Interagir efficacement avec les API backend.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Chapitre 1: Introduction à ReactJS et Configuration de l\'Environnement',
+                    'description' => 'Vue d\'ensemble de React, ses avantages et comment configurer votre environnement de développement.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Leçon 1.1: Qu\'est-ce que ReactJS?', 'content' => 'Contenu détaillé sur les fondamentaux de ReactJS et son écosystème.', 'sortOrder' => 1],
+                        ['title' => 'Leçon 1.2: Installation de Node.js, npm et Create React App', 'content' => 'Guide étape par étape pour configurer votre environnement de développement React.', 'sortOrder' => 2],
+                        ['title' => 'Leçon 1.3: Structure de Projet React de Base', 'content' => 'Comprendre la structure typique des fichiers et dossiers d\'une application React.', 'sortOrder' => 3],
+                        ['title' => 'Leçon 1.4: Votre Premier Composant React', 'content' => 'Écrire et rendre un composant React simple.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chapitre 2: Composants, Props et Gestion de l\'État',
+                    'description' => 'Plongez au cœur des blocs de construction fondamentaux des applications React.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Leçon 2.1: Composants Fonctionnels vs. de Classe', 'content' => 'Comparaison et choix entre différents types de composants.', 'sortOrder' => 1],
+                        ['title' => 'Leçon 2.2: Props: Passer des Données entre Composants', 'content' => 'Comment utiliser les props pour passer des données dans l\'arbre des composants.', 'sortOrder' => 2],
+                        ['title' => 'Leçon 2.3: State: Gérer les Données Internes du Composant', 'content' => 'Introduction à l\'état du composant et comment le mettre à jour.', 'sortOrder' => 3],
+                        ['title' => 'Leçon 2.4: Méthodes de Cycle de Vie (Classe) et Hooks (Fonctionnel)', 'content' => 'Comprendre le cycle de vie du composant et utiliser les Hooks pour l\'état et les effets secondaires.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chapitre 3: Gestion Avancée de l\'État avec Context API et Redux',
+                    'description' => 'Explorez des méthodes sophistiquées pour gérer l\'état complexe dans les applications React.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Leçon 3.1: Introduction à Context API', 'content' => 'Utiliser Context API pour éviter le "prop drilling" pour l\'état global.', 'sortOrder' => 1],
+                        ['title' => 'Leçon 3.2: Quand Utiliser Redux?', 'content' => 'Vue d\'ensemble de Redux et ses cas d\'utilisation dans des applications plus grandes.', 'sortOrder' => 2],
+                        ['title' => 'Leçon 3.3: Concepts Clés de Redux: Store, Actions, Reducers', 'content' => 'Comprendre les blocs de construction fondamentaux d\'une application Redux.', 'sortOrder' => 3],
+                        ['title' => 'Leçon 3.4: Connecter React avec Redux (react-redux)', 'content' => 'Utiliser le HOC `connect` ou les hooks `useSelector`/`useDispatch`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Chapitre 4: React Router et Intégration d\'API',
+                    'description' => 'Apprenez à gérer la navigation et à récupérer des données à partir de sources externes.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Leçon 4.1: Routage Côté Client avec React Router', 'content' => 'Mettre en place des routes et naviguer entre les pages dans une SPA.', 'sortOrder' => 1],
+                        ['title' => 'Leçon 4.2: Récupération de Données avec `fetch` et Axios', 'content' => 'Effectuer des requêtes HTTP pour consommer des API RESTful.', 'sortOrder' => 2],
+                        ['title' => 'Leçon 4.3: Gérer les Données Asynchrones dans React', 'content' => 'Gérer les états de chargement, les erreurs et l\'affichage des données.', 'sortOrder' => 3],
+                        ['title' => 'Leçon 4.4: Construire une Application CRUD Simple', 'content' => 'Tout assembler : créer, lire, mettre à jour et supprimer des données.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'ReactJS meistern: Moderne Webanwendungen erstellen (Deutsch)',
+            'description' => 'Lernen Sie, dynamische und hochleistungsfähige Benutzeroberflächen mit der ReactJS-Bibliothek zu erstellen, von grundlegenden Konzepten bis hin zu fortgeschrittenen Mustern.',
+            'price' => 999000.00,
+            'categoryIds' => [5, 2], // ReactJS, Web Programming
+            'requirements' => [
+                'Solides Verständnis von HTML, CSS und JavaScript (ES6+).',
+                'Vertrautheit mit Node.js und npm/yarn ist von Vorteil.',
+            ],
+            'objectives' => [
+                'Verstehen Sie Virtual DOM, Komponenten, Props, State und Lifecycle-Methoden.',
+                'Verwenden Sie JSX für die deklarative UI-Entwicklung.',
+                'Verwalten Sie den Anwendungszustand mit Redux oder Context API.',
+                'Erstellen Sie Single Page Applications (SPAs) mit React Router.',
+                'Interagieren Sie effektiv mit Backend-APIs.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Kapitel 1: Einführung in ReactJS und Umgebungs-Setup',
+                    'description' => 'Übersicht über React, seine Vorteile und wie Sie Ihre Entwicklungsumgebung einrichten.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Lektion 1.1: Was ist ReactJS?', 'content' => 'Detaillierter Inhalt zu den Grundlagen von ReactJS und seinem Ökosystem.', 'sortOrder' => 1],
+                        ['title' => 'Lektion 1.2: Installation von Node.js, npm und Create React App', 'content' => 'Schritt-für-Schritt-Anleitung zur Einrichtung Ihrer React-Entwicklungsumgebung.', 'sortOrder' => 2],
+                        ['title' => 'Lektion 1.3: Grundlegende React-Projektstruktur', 'content' => 'Verständnis der typischen Datei- und Ordnerstruktur einer React-Anwendung.', 'sortOrder' => 3],
+                        ['title' => 'Lektion 1.4: Ihr erster React-Komponente', 'content' => 'Schreiben und Rendern einer einfachen React-Komponente.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Kapitel 2: Komponenten, Props und State-Management',
+                    'description' => 'Tauchen Sie tief in die grundlegenden Bausteine von React-Anwendungen ein.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Lektion 2.1: Funktionale vs. Klassenkomponenten', 'content' => 'Vergleich und Auswahl zwischen verschiedenen Komponententypen.', 'sortOrder' => 1],
+                        ['title' => 'Lektion 2.2: Props: Daten zwischen Komponenten übergeben', 'content' => 'Wie man Props verwendet, um Daten im Komponentenbaum weiterzugeben.', 'sortOrder' => 2],
+                        ['title' => 'Lektion 2.3: State: Interne Komponentendaten verwalten', 'content' => 'Einführung in den Komponentenstatus und wie man ihn aktualisiert.', 'sortOrder' => 3],
+                        ['title' => 'Lektion 2.4: Lifecycle-Methoden (Klasse) und Hooks (Funktional)', 'content' => 'Verständnis des Komponentenlebenszyklus und Verwendung von Hooks für State und Side Effects.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Kapitel 3: Erweitertes State-Management mit Context API und Redux',
+                    'description' => 'Erkunden Sie ausgeklügelte Methoden zur Verwaltung komplexer Zustände in React-Anwendungen.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Lektion 3.1: Einführung in die Context API', 'content' => 'Verwendung der Context API, um "Prop Drilling" für den globalen Zustand zu vermeiden.', 'sortOrder' => 1],
+                        ['title' => 'Lektion 3.2: Wann sollte man Redux verwenden?', 'content' => 'Übersicht über Redux und seine Anwendungsfälle in größeren Anwendungen.', 'sortOrder' => 2],
+                        ['title' => 'Lektion 3.3: Redux-Kernkonzepte: Store, Actions, Reducers', 'content' => 'Verständnis der grundlegenden Bausteine einer Redux-Anwendung.', 'sortOrder' => 3],
+                        ['title' => 'Lektion 3.4: React mit Redux verbinden (react-redux)', 'content' => 'Verwendung des `connect`-HOC oder der `useSelector`/`useDispatch`-Hooks.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Kapitel 4: React Router und API-Integration',
+                    'description' => 'Lernen Sie, die Navigation zu handhaben und Daten aus externen Quellen abzurufen.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Lektion 4.1: Client-Side-Routing mit React Router', 'content' => 'Einrichten von Routen und Navigieren zwischen Seiten in einer SPA.', 'sortOrder' => 1],
+                        ['title' => 'Lektion 4.2: Datenabruf mit `fetch` und Axios', 'content' => 'HTTP-Anfragen stellen, um RESTful APIs zu konsumieren.', 'sortOrder' => 2],
+                        ['title' => 'Lektion 4.3: Umgang mit asynchronen Daten in React', 'content' => 'Verwalten von Ladezuständen, Fehlern und Datenanzeige.', 'sortOrder' => 3],
+                        ['title' => 'Lektion 4.4: Erstellen einer einfachen CRUD-Anwendung', 'content' => 'Alles zusammenfügen: Daten erstellen, lesen, aktualisieren und löschen.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'ReactJSをマスターする：モダンなウェブアプリケーションを構築する (日本語)',
+            'description' => 'ReactJSライブラリを使用して、動的で高性能なユーザーインターフェースを構築する方法を学びます。基本的な概念から高度なパターンまでをカバーします。',
+            'price' => 999000.00,
+            'categoryIds' => [5, 2], // ReactJS, Web Programming
+            'requirements' => [
+                'HTML、CSS、JavaScript (ES6+) の確かな知識。',
+                'Node.jsとnpm/yarnに慣れていると有利です。',
+            ],
+            'objectives' => [
+                '仮想DOM、コンポーネント、Props、State、ライフサイクルメソッドを理解する。',
+                'JSXを使用して宣言的なUI開発を行う。',
+                'ReduxまたはContext APIでアプリケーションの状態を管理する。',
+                'React Routerでシングルページアプリケーション (SPA) を構築する。',
+                'バックエンドAPIと効果的に連携する。',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'チャプター1：ReactJSの紹介と環境設定',
+                    'description' => 'Reactの概要、その利点、および開発環境のセットアップ方法。',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'レッスン1.1：ReactJSとは？', 'content' => 'ReactJSの基本とエコシステムに関する詳細なコンテンツ。', 'sortOrder' => 1],
+                        ['title' => 'レッスン1.2：Node.js、npm、Create React Appのインストール', 'content' => 'React開発環境をセットアップするためのステップバイステップガイド。', 'sortOrder' => 2],
+                        ['title' => 'レッスン1.3：基本的なReactプロジェクトの構造', 'content' => 'Reactアプリケーションの典型的なファイルとフォルダの構造を理解する。', 'sortOrder' => 3],
+                        ['title' => 'レッスン1.4：最初のReactコンポーネント', 'content' => 'シンプルなReactコンポーネントを記述してレンダリングする。', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'チャプター2：コンポーネント、Props、および状態管理',
+                    'description' => 'Reactアプリケーションの核となるビルディングブロックについて深く掘り下げます。',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'レッスン2.1：関数コンポーネントとクラスコンポーネント', 'content' => '異なるコンポーネントタイプの比較と選択。', 'sortOrder' => 1],
+                        ['title' => 'レッスン2.2：Props：コンポーネント間でデータを渡す', 'content' => 'コンポーネントツリーを介してデータを渡すためにPropsを使用する方法。', 'sortOrder' => 2],
+                        ['title' => 'レッスン2.3：State：コンポーネントの内部データを管理する', 'content' => 'コンポーネントの状態の紹介と更新方法。', 'sortOrder' => 3],
+                        ['title' => 'レッスン2.4：ライフサイクルメソッド（クラス）とHooks（関数）', 'content' => 'コンポーネントのライフサイクルを理解し、状態と副作用にHooksを使用する。', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'チャプター3：Context APIとReduxによる高度な状態管理',
+                    'description' => 'Reactアプリケーションで複雑な状態を管理するための洗練された方法を探求します。',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'レッスン3.1：Context APIの紹介', 'content' => 'グローバル状態の「プロップドリリング」を避けるためにContext APIを使用する。', 'sortOrder' => 1],
+                        ['title' => 'レッスン3.2：Reduxはいつ使用すべきか？', 'content' => 'Reduxの概要と大規模なアプリケーションでの使用例。', 'sortOrder' => 2],
+                        ['title' => 'レッスン3.3：Reduxのコアコンセプト：Store、Actions、Reducers', 'content' => 'Reduxアプリケーションの基本的なビルディングブロックを理解する。', 'sortOrder' => 3],
+                        ['title' => 'レッスン3.4：ReactとReduxの接続 (react-redux)', 'content' => '`connect` HOCまたは`useSelector`/`useDispatch`フックを使用する。', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'チャプター4：React RouterとAPI統合',
+                    'description' => 'ナビゲーションを処理し、外部ソースからデータを取得する方法を学びます。',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'レッスン4.1：React Routerによるクライアントサイドルーティング', 'content' => 'SPAでルートを設定し、ページ間を移動する。', 'sortOrder' => 1],
+                        ['title' => 'レッスン4.2：`fetch`とAxiosによるデータ取得', 'content' => 'RESTful APIを消費するためのHTTPリクエストを行う。', 'sortOrder' => 2],
+                        ['title' => 'レッスン4.3：Reactでの非同期データの処理', 'content' => '読み込み状態、エラー、データ表示の管理。', 'sortOrder' => 3],
+                        ['title' => 'レッスン4.4：シンプルなCRUDアプリケーションの構築', 'content' => 'すべてをまとめる：データの作成、読み取り、更新、削除。', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => 'Освоение ReactJS: Создание современных веб-приложений (Русский)',
+            'description' => 'Научитесь создавать динамичные и высокопроизводительные пользовательские интерфейсы с помощью библиотеки ReactJS, охватывая от фундаментальных концепций до продвинутых паттернов.',
+            'price' => 999000.00,
+            'categoryIds' => [5, 2], // ReactJS, Web Programming
+            'requirements' => [
+                'Глубокое понимание HTML, CSS и JavaScript (ES6+).',
+                'Знакомство с Node.js и npm/yarn является преимуществом.',
+            ],
+            'objectives' => [
+                'Понять Virtual DOM, компоненты, Props, State и методы жизненного цикла.',
+                'Использовать JSX для декларативной разработки пользовательского интерфейса.',
+                'Управлять состоянием приложения с помощью Redux или Context API.',
+                'Создавать одностраничные приложения (SPA) с помощью React Router.',
+                'Эффективно взаимодействовать с бэкенд-API.',
+            ],
+            'chapters' => [
+                [
+                    'title' => 'Глава 1: Введение в ReactJS и настройка окружения',
+                    'description' => 'Обзор React, его преимуществ и способов настройки среды разработки.',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => 'Урок 1.1: Что такое ReactJS?', 'content' => 'Подробное содержание об основах ReactJS и его экосистеме.', 'sortOrder' => 1],
+                        ['title' => 'Урок 1.2: Установка Node.js, npm и Create React App', 'content' => 'Пошаговое руководство по настройке среды разработки React.', 'sortOrder' => 2],
+                        ['title' => 'Урок 1.3: Базовая структура проекта React', 'content' => 'Понимание типичной структуры файлов и папок приложения React.', 'sortOrder' => 3],
+                        ['title' => 'Урок 1.4: Ваш первый компонент React', 'content' => 'Написание и рендеринг простого компонента React.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Глава 2: Компоненты, Props и управление состоянием',
+                    'description' => 'Глубокое погружение в основные строительные блоки приложений React.',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => 'Урок 2.1: Функциональные против классовых компонентов', 'content' => 'Сравнение и выбор между различными типами компонентов.', 'sortOrder' => 1],
+                        ['title' => 'Урок 2.2: Props: Передача данных между компонентами', 'content' => 'Как использовать Props для передачи данных по дереву компонентов.', 'sortOrder' => 2],
+                        ['title' => 'Урок 2.3: State: Управление внутренними данными компонента', 'content' => 'Введение в состояние компонента и способы его обновления.', 'sortOrder' => 3],
+                        ['title' => 'Урок 2.4: Методы жизненного цикла (класс) и Hooks (функциональные)', 'content' => 'Понимание жизненного цикла компонента и использование Hooks для состояния и побочных эффектов.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Глава 3: Расширенное управление состоянием с Context API и Redux',
+                    'description' => 'Изучите сложные методы управления сложным состоянием в приложениях React.',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => 'Урок 3.1: Введение в Context API', 'content' => 'Использование Context API для предотвращения "prop drilling" для глобального состояния.', 'sortOrder' => 1],
+                        ['title' => 'Урок 3.2: Когда использовать Redux?', 'content' => 'Обзор Redux и его вариантов использования в более крупных приложениях.', 'sortOrder' => 2],
+                        ['title' => 'Урок 3.3: Основные концепции Redux: Store, Actions, Reducers', 'content' => 'Понимание фундаментальных строительных блоков приложения Redux.', 'sortOrder' => 3],
+                        ['title' => 'Урок 3.4: Подключение React к Redux (react-redux)', 'content' => 'Использование HOC `connect` или хуков `useSelector`/`useDispatch`.', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => 'Глава 4: React Router и интеграция API',
+                    'description' => 'Научитесь обрабатывать навигацию и получать данные из внешних источников.',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => 'Урок 4.1: Маршрутизация на стороне клиента с React Router', 'content' => 'Настройка маршрутов и навигация между страницами в SPA.', 'sortOrder' => 1],
+                        ['title' => 'Урок 4.2: Получение данных с помощью `fetch` и Axios', 'content' => 'Выполнение HTTP-запросов для использования RESTful API.', 'sortOrder' => 2],
+                        ['title' => 'Урок 4.3: Обработка асинхронных данных в React', 'content' => 'Управление состояниями загрузки, ошибками и отображением данных.', 'sortOrder' => 3],
+                        ['title' => 'Урок 4.4: Создание простого CRUD-приложения', 'content' => 'Объединение всего: создание, чтение, обновление и удаление данных.', 'sortOrder' => 4],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'title' => '精通 ReactJS：构建现代 Web 应用程序 (中文)',
+            'description' => '学习使用 ReactJS 库构建动态和高性能的用户界面，涵盖从基础概念到高级模式。',
+            'price' => 999000.00,
+            'categoryIds' => [5, 2], // ReactJS, Web Programming
+            'requirements' => [
+                '扎实的 HTML、CSS 和 JavaScript (ES6+) 知识。',
+                '熟悉 Node.js 和 npm/yarn 优先。',
+            ],
+            'objectives' => [
+                '理解虚拟 DOM、组件、Props、State 和生命周期方法。',
+                '使用 JSX 进行声明式 UI 开发。',
+                '使用 Redux 或 Context API 管理应用程序状态。',
+                '使用 React Router 构建单页应用程序 (SPA)。',
+                '有效地与后端 API 交互。',
+            ],
+            'chapters' => [
+                [
+                    'title' => '第1章：ReactJS 简介和环境设置',
+                    'description' => 'React 概述、其优点以及如何设置开发环境。',
+                    'sortOrder' => 1,
+                    'lessons' => [
+                        ['title' => '第1.1课：什么是 ReactJS？', 'content' => '关于 ReactJS 基础知识及其生态系统的详细内容。', 'sortOrder' => 1],
+                        ['title' => '第1.2课：安装 Node.js、npm 和 Create React App', 'content' => '设置 React 开发环境的分步指南。', 'sortOrder' => 2],
+                        ['title' => '第1.3课：基本 React 项目结构', 'content' => '了解 React 应用程序的典型文件和文件夹结构。', 'sortOrder' => 3],
+                        ['title' => '第1.4课：您的第一个 React 组件', 'content' => '编写和渲染一个简单的 React 组件。', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => '第2章：组件、Props 和状态管理',
+                    'description' => '深入了解 React 应用程序的核心构建块。',
+                    'sortOrder' => 2,
+                    'lessons' => [
+                        ['title' => '第2.1课：函数组件 vs 类组件', 'content' => '比较和选择不同类型的组件。', 'sortOrder' => 1],
+                        ['title' => '第2.2课：Props：组件之间传递数据', 'content' => '如何使用 Props 在组件树中传递数据。', 'sortOrder' => 2],
+                        ['title' => '第2.3课：State：管理组件内部数据', 'content' => '组件状态的介绍以及如何更新它。', 'sortOrder' => 3],
+                        ['title' => '第2.4课：生命周期方法（类）和 Hooks（函数）', 'content' => '理解组件生命周期并使用 Hooks 处理状态和副作用。', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => '第3章：使用 Context API 和 Redux 进行高级状态管理',
+                    'description' => '探索在 React 应用程序中管理复杂状态的复杂方法。',
+                    'sortOrder' => 3,
+                    'lessons' => [
+                        ['title' => '第3.1课：Context API 简介', 'content' => '使用 Context API 避免全局状态的“prop drilling”。', 'sortOrder' => 1],
+                        ['title' => '第3.2课：何时使用 Redux？', 'content' => 'Redux 概述及其在大型应用程序中的用例。', 'sortOrder' => 2],
+                        ['title' => '第3.3课：Redux 核心概念：Store、Actions、Reducers', 'content' => '理解 Redux 应用程序的基本构建块。', 'sortOrder' => 3],
+                        ['title' => '第3.4课：将 React 与 Redux 连接 (react-redux)', 'content' => '使用 `connect` HOC 或 `useSelector`/`useDispatch` Hooks。', 'sortOrder' => 4],
+                    ]
+                ],
+                [
+                    'title' => '第4章：React Router 和 API 集成',
+                    'description' => '学习如何处理导航和从外部源获取数据。',
+                    'sortOrder' => 4,
+                    'lessons' => [
+                        ['title' => '第4.1课：使用 React Router 进行客户端路由', 'content' => '在 SPA 中设置路由并在页面之间导航。', 'sortOrder' => 1],
+                        ['title' => '第4.2课：使用 `fetch` 和 Axios 获取数据', 'content' => '发出 HTTP 请求以使用 RESTful API。', 'sortOrder' => 2],
+                        ['title' => '第4.3课：在 React 中处理异步数据', 'content' => '管理加载状态、错误和数据显示。', 'sortOrder' => 3],
+                        ['title' => '第4.4课：构建一个简单的 CRUD 应用程序', 'content' => '将所有内容整合在一起：创建、读取、更新和删除数据。', 'sortOrder' => 4],
                     ]
                 ],
             ]
