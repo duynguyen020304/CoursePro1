@@ -59,10 +59,10 @@ class CourseService
         $this->resourceBll = new ResourceBLL();
     }
 
-    public function create_course(string $title, ?string $description, float $price, array $instructorID, array $categoryIDs, string $createdBy): ServiceResponse
+    public function create_course(string $title, ?string $description, float $price, array $instructorID, array $categoryIDs, ?string $difficulty="All Level", ?string $language="UNKNOWN", string $createdBy="UNKNOWN"): ServiceResponse
     {
         $courseID = str_replace('.', '_', uniqid('course_', true));
-        $dto = new CourseDTO($courseID, $title, $description, $price, $createdBy);
+        $dto = new CourseDTO($courseID, $title, $description, $price, $difficulty, $language, $createdBy);
         try {
             if ($this->courseBll->create_course($dto)) {
                 foreach ($categoryIDs as $catID) {
@@ -85,7 +85,7 @@ class CourseService
         }
     }
 
-    public function update_course(string $courseID, string $title, ?string $description, float $price, array $instructorIDs, array $categoryIDs): ServiceResponse
+    public function update_course(string $courseID, string $title, ?string $description, float $price, array $instructorIDs, array $categoryIDs, ?string $difficulty="All Level", ?string $language="UNKNOWN"): ServiceResponse
     {
         try {
             $course_to_update = $this->courseBll->get_course($courseID);
@@ -93,10 +93,9 @@ class CourseService
                 return new ServiceResponse(false, 'Khóa học không tồn tại.');
             }
 
-            $dto = new CourseDTO($courseID, $title, $description, $price, $course_to_update->createdBy);
+            $dto = new CourseDTO($courseID, $title, $description, $price, $difficulty, $language, $course_to_update->createdBy);
 
             $existing_categories = $this->courseCategoryBll->get_categories_by_course_id($courseID);
-
             if (!empty($existing_categories)) {
                 foreach ($existing_categories as $cat) {
                     if (!$this->courseCategoryBll->unlink_course_category($courseID, $cat->categoryID)) {
@@ -261,6 +260,8 @@ class CourseService
                     'title' => $course->title,
                     'description' => $course->description,
                     'price' => $course->price,
+                    'difficulty' => $course->difficulty,
+                    'language' => $course->language,
                     'createdBy' => $course->createdBy,
                     'instructors' => $instructors_info,
                     'categories' => $tmp_course_categories,
@@ -329,6 +330,8 @@ class CourseService
                     'title' => $course->title,
                     'description' => $course->description,
                     'price' => $course->price,
+                    'difficulty' => $course->difficulty,
+                    'language' => $course->language,
                     'createdBy' => $course->createdBy,
                     'images' => $tmp_course_images,
                     'categories' => $tmp_course_categories,
@@ -389,7 +392,7 @@ class CourseService
                 $list_course_with_instructors_details[] = [
                     'courseID' => $course->courseID,
                     'title' => $course->title,
-                    'description' => $course->description,
+//                    'description' => $course->description,
 //                    'price' => $course->price,
 //                    'createdBy' => $course->createdBy,
 //                    'images' => $tmp_course_images,
@@ -443,6 +446,8 @@ class CourseService
                     'title' => $course->title,
                     'description' => $course->description,
                     'price' => $course->price,
+                    'difficulty' => $course->difficulty,
+                    'language' => $course->language,
                     'createdBy' => $course->createdBy,
                     'categories' => $tmp_course_categories,
                     'instructors' => $instructors_info,
@@ -611,6 +616,8 @@ class CourseService
                 'title' => $course->title,
                 'description' => $course->description,
                 'price' => $course->price,
+                'difficulty' => $course->difficulty,
+                'language' => $course->language,
                 'createdBy' => $course->createdBy,
                 'instructors' => $instructors_info,
                 'categories' => $tmp_course_categories,

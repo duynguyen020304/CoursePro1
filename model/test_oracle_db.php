@@ -1,28 +1,21 @@
 <?php
 
+require_once 'database.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
-// Include the Database class
-require_once 'database.php'; // Adjust path if necessary
-
 echo "<h1>Oracle Database Class Test</h1>";
-
-// --- Test Configuration ---
-// Use the credentials already in your class, or override them here if needed for testing
-$dbHost = 'localhost'; // Or your Oracle server IP/hostname
+$dbHost = 'localhost';
 $dbPort = 1521;
-$dbServiceName = 'QUANLYKHOAHOC'; // Your Oracle Service Name
+$dbServiceName = 'QUANLYKHOAHOC';
 $dbUser = 'duy_admin';
 $dbPass = 'duyadmin';
 $dbCharset = 'AL32UTF8';
 
-// --- Helper Function for Output ---
 function test_section(string $title)
 {
     echo "<h2>{$title}</h2>";
 }
-
+echo "hello";
 function print_result($result, ?Database $dbInstance = null)
 {
     echo "<pre>";
@@ -48,7 +41,6 @@ function print_result($result, ?Database $dbInstance = null)
     echo "<hr>";
 }
 
-// --- Instantiate Database ---
 test_section("1. Database Instantiation & Connection Test");
 $db = new Database($dbHost, $dbUser, $dbPass, $dbServiceName, $dbPort, $dbCharset);
 
@@ -58,7 +50,6 @@ if ($db->isConnected()) {
     echo "<p style='color:red;'>Failed to connect to Oracle database.</p>";
     print_result(null, $db);
     echo "<p><strong>Stopping tests due to connection failure.</strong></p>";
-    exit; // Stop further tests if connection fails
+    exit;
 }
-print_result(null, $db); // Show initial state
-
+print_result(null, $db);

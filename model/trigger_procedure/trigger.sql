@@ -38,35 +38,35 @@ CREATE OR REPLACE TRIGGER trg_course_audit
     AFTER INSERT OR UPDATE OR DELETE ON Course
     FOR EACH ROW
 DECLARE
-    v_dml_user VARCHAR2(128 CHAR);
+v_dml_user VARCHAR2(128 CHAR);
 BEGIN
     v_dml_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
 
     IF INSERTING THEN
         INSERT INTO Course_History (
-            CourseID, Title, Description, Price, CreatedBy, created_at_original,
+            CourseID, Title, Description, Price, Difficulty, Language, CreatedBy, created_at_original, -- Thêm Difficulty, Language
             DML_Type, DML_User
         ) VALUES (
-                     :NEW.CourseID, :NEW.Title, :NEW.Description, :NEW.Price, :NEW.CreatedBy, :NEW.created_at,
+                     :NEW.CourseID, :NEW.Title, :NEW.Description, :NEW.Price, :NEW.Difficulty, :NEW.Language, :NEW.CreatedBy, :NEW.created_at, -- Thêm :NEW.Difficulty, :NEW.Language
                      'INSERT', v_dml_user
                  );
     ELSIF UPDATING THEN
         INSERT INTO Course_History (
-            CourseID, Title, Description, Price, CreatedBy, created_at_original,
+            CourseID, Title, Description, Price, Difficulty, Language, CreatedBy, created_at_original, -- Thêm Difficulty, Language
             DML_Type, DML_User
         ) VALUES (
-                     :NEW.CourseID, :NEW.Title, :NEW.Description, :NEW.Price, :NEW.CreatedBy, :NEW.created_at,
+                     :NEW.CourseID, :NEW.Title, :NEW.Description, :NEW.Price, :NEW.Difficulty, :NEW.Language, :NEW.CreatedBy, :NEW.created_at, -- Thêm :NEW.Difficulty, :NEW.Language
                      'UPDATE', v_dml_user
                  );
     ELSIF DELETING THEN
         INSERT INTO Course_History (
-            CourseID, Title, Description, Price, CreatedBy, created_at_original,
+            CourseID, Title, Description, Price, Difficulty, Language, CreatedBy, created_at_original, -- Thêm Difficulty, Language
             DML_Type, DML_User
         ) VALUES (
-                     :OLD.CourseID, :OLD.Title, :OLD.Description, :OLD.Price, :OLD.CreatedBy, :OLD.created_at,
+                     :OLD.CourseID, :OLD.Title, :OLD.Description, :OLD.Price, :OLD.Difficulty, :OLD.Language, :OLD.CreatedBy, :OLD.created_at, -- Thêm :OLD.Difficulty, :OLD.Language
                      'DELETE', v_dml_user
                  );
-    END IF;
+END IF;
 END;
 /
 
