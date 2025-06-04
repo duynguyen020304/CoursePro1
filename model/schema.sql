@@ -210,6 +210,8 @@ CREATE TABLE Course (
                         Title       VARCHAR2(255 CHAR) NOT NULL,
                         Description CLOB,
                         Price       NUMBER(10,2) NOT NULL,
+                        Difficulty  VARCHAR2(40 CHAR),
+                        Language    VARCHAR2(40 CHAR),
                         CreatedBy   VARCHAR2(40 CHAR) NOT NULL,
                         created_at  TIMESTAMP DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP) NOT NULL
 );
@@ -397,6 +399,8 @@ CREATE TABLE Course_History (
                                 Title             VARCHAR2(255 CHAR),
                                 Description       CLOB,
                                 Price             NUMBER(10,2),
+                                Difficulty        VARCHAR2(40 CHAR),
+                                Language          VARCHAR2(40 CHAR),
                                 CreatedBy         VARCHAR2(40 CHAR),
                                 created_at_original TIMESTAMP,
                                 DML_Type          VARCHAR2(10 CHAR) NOT NULL,

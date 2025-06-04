@@ -13,6 +13,8 @@ class CourseBLL extends Database
             ':title'        => $c->title,
             ':description'  => ['value' => $c->description, 'type' => OCI_B_CLOB],
             ':price'        => is_numeric($c->price) ? (float)$c->price : 0,
+            ':difficulty'   => $c->difficulty,
+            ':language'     => $c->language,
             ':createdBy'    => $c->createdBy,
         ];
 
@@ -38,6 +40,8 @@ class CourseBLL extends Database
             ':title'        => $c->title,
             ':description'  => ['value' => $c->description, 'type' => OCI_B_CLOB],
             ':price'        => is_numeric($c->price) ? (float)$c->price : 0,
+            ':difficulty'   => $c->difficulty,
+            ':language'     => $c->language,
             ':createdBy'    => $c->createdBy,
         ];
 
@@ -100,6 +104,8 @@ class CourseBLL extends Database
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
                     $row['CREATEDBY'],
+                    $row['DIFFICULTY'],
+                    $row['LANGUAGE'],
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
@@ -159,6 +165,8 @@ class CourseBLL extends Database
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
                     $row['CREATEDBY'],
+                    $row['DIFFICULTY'],
+                    $row['LANGUAGE'],
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
@@ -219,6 +227,8 @@ class CourseBLL extends Database
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
                     $row['CREATEDBY'],
+                    $row['DIFFICULTY'],
+                    $row['LANGUAGE'],
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }

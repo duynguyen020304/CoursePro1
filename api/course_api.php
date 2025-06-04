@@ -147,7 +147,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     case 'POST':
         $data = json_decode(file_get_contents("php://input"), true);
-        $requiredFields = ['title', 'price'];
+        $requiredFields = ['title', 'price', 'difficulty', 'language'];
         $requiredArrayFields = ['instructorsID', 'categoriesID'];
         $missingFields = [];
         $invalidArrayFields = [];
@@ -191,6 +191,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
             floatval($data['price']),
             $data['instructorsID'],
             $data['categoriesID'],
+            $data['difficulty'],
+            $data['language'],
             $data['createdBy']
         );
 
@@ -204,7 +206,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     case 'PUT':
         $data = json_decode(file_get_contents("php://input"), true);
-        $requiredFields = ['courseID', 'title', 'price'];
+        $requiredFields = ['courseID', 'title', 'price', 'difficulty', 'language'];
         $requiredArrayFields = ['instructorsID', 'categoriesID'];
         $missingFields = [];
         $invalidArrayFields = [];
@@ -249,6 +251,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
             floatval($data['price']),
             $data['instructorsID'],
             $data['categoriesID'],
+            $data['difficulty'],
+            $data['language'],
         );
 
         http_response_code($response->success ? 200 : 500);

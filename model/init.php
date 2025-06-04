@@ -155,5 +155,6 @@ if ($db_user === 'your_oracle_user' || $db_pass === 'your_oracle_password') {
     }
 }
 
+
 $myinit = new InitDatabase($db_host, $db_user, $db_pass, $db_service, $db_port, $db_charset);
 $myinit->create_structure_and_procedures();
