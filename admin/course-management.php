@@ -13,19 +13,6 @@ function truncate_text_with_ellipsis_raw($text, $max_length = 20, $ellipsis = '.
     return $text;
 }
 
-function format_display_creator_raw($creator_name_raw) {
-    if ($creator_name_raw === null || $creator_name_raw === 'N/A') {
-        return 'N/A';
-    }
-
-    if (stripos($creator_name_raw, 'admin') === 0 && mb_strlen($creator_name_raw, 'UTF-8') >= 5 + 2) {
-        $last_two = mb_substr($creator_name_raw, -2, null, 'UTF-8');
-        return 'admin...' . $last_two;
-    }
-
-    return truncate_text_with_ellipsis_raw($creator_name_raw, 15, '......');
-}
-
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
 $host = $_SERVER['HTTP_HOST'];
 $script_path = $_SERVER['SCRIPT_NAME'];
@@ -51,6 +38,7 @@ $app_root_path_relative = rtrim($app_root_path_relative, '/');
 define('APP_ROOT_URL_BASE', $protocol . '://' . $host . $app_root_path_relative);
 define('API_BASE', APP_ROOT_URL_BASE . '/api');
 define('APP_BASE_PATH_FOR_IMAGES', $app_root_path_relative);
+define('DEFAULT_PAGE_SIZE', 10);
 
 function callApi(string $endpoint, string $method = 'GET', array $payload = []): array
 {
@@ -142,14 +130,15 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
     return $decodedResponse;
 }
 
-$courseResp = callApi('course_api.php?isGetAllCourse=true&option=2', 'GET');
-$courses    = $courseResp['success'] ? ($courseResp['data'] ?? []) : [];
-
+// Initial data load will be handled by JavaScript, but we still need categories and instructors for the modal.
 $catResp   = callApi('category_api.php', 'GET');
 $categories = $catResp['success'] ? ($catResp['data'] ?? []) : [];
 
 $instructorResp = callApi('instructor_api.php', 'GET');
 $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : [];
+
+$languages = ["Arabic", "French", "German", "Hindi", "Indonesian", "Italian", "Japanese", "Korean", "Mandarin", "Polish", "Portuguese", "Russian", "Spanish", "Turkish", "Vietnamese"];
+$difficulties = ["Beginner", "Intermediate", "Expert"];
 
 ?>
 <!DOCTYPE html>
@@ -189,6 +178,12 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
         }
+        .filter-controls .form-select, .filter-controls .form-control {
+            font-size: 0.9rem;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
     </style>
 </head>
 
@@ -218,6 +213,38 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
 
+        <div class="card shadow-sm mb-4">
+            <div class="card-body filter-controls">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="searchInput" class="form-label">Tìm kiếm</label>
+                        <input type="text" id="searchInput" class="form-control" placeholder="ID hoặc Tiêu đề khóa học...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="difficultyFilter" class="form-label">Độ khó</label>
+                        <select id="difficultyFilter" class="form-select">
+                            <option value="">Tất cả Độ khó</option>
+                            <?php foreach ($difficulties as $diff): ?>
+                                <option value="<?= htmlspecialchars($diff) ?>"><?= htmlspecialchars($diff) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="languageFilter" class="form-label">Ngôn ngữ</label>
+                        <select id="languageFilter" class="form-select">
+                            <option value="">Tất cả Ngôn ngữ</option>
+                            <?php foreach ($languages as $lang): ?>
+                                <option value="<?= htmlspecialchars($lang) ?>"><?= htmlspecialchars($lang) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button id="applyFiltersBtn" class="btn btn-info w-100"><i class="bi bi-funnel-fill"></i> Lọc</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead class="table-light">
@@ -227,75 +254,25 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                     <th>Giá (₫)</th>
                     <th>Giảng viên</th>
                     <th>Danh mục</th>
-<!--                    <th>Người tạo</th>-->
+                    <th>Độ khó</th>
+                    <th>Ngôn ngữ</th>
                     <th class="text-end">Hành động</th>
                 </tr>
                 </thead>
-                <tbody>
-                <?php if (!empty($courses)): ?>
-                    <?php foreach ($courses as $i => $c): ?>
-                        <tr>
-                            <td><?= $i + 1 ?></td>
-                            <td><?= htmlspecialchars($c['title'] ?? 'N/A') ?></td>
-                            <td><?= number_format($c['price'] ?? 0, 0, ',', '.') ?> ₫</td>
-                            <td>
-                                <?php
-                                $instructorNames = [];
-                                if (!empty($c['instructors']) && is_array($c['instructors'])) {
-                                    foreach ($c['instructors'] as $instructor) {
-                                        $firstName = $instructor['firstName'] ?? '';
-                                        $lastName = $instructor['lastName'] ?? '';
-                                        if (!empty(trim($firstName . $lastName))) {
-                                            $instructorNames[] = htmlspecialchars(trim($firstName . " " . $lastName));
-                                        }
-                                    }
-                                }
-                                $fullInstructorString = !empty($instructorNames) ? implode(', ', $instructorNames) : 'N/A';
-                                echo htmlspecialchars(truncate_text_with_ellipsis_raw($fullInstructorString, 30));
-                                ?>
-                            </td>
-                            <td>
-                                <?php
-                                $categoryNamesArray = [];
-                                if (!empty($c['categories']) && is_array($c['categories'])) {
-                                    foreach ($c['categories'] as $category) {
-                                        if (isset($category['categoryName'])) {
-                                            $categoryNamesArray[] = $category['categoryName'];
-                                        } elseif (isset($category['name'])) {
-                                            $categoryNamesArray[] = $category['name'];
-                                        }
-                                    }
-                                }
-                                $fullCategoryString = !empty($categoryNamesArray) ? implode(', ', $categoryNamesArray) : 'N/A';
-                                echo htmlspecialchars(truncate_text_with_ellipsis_raw($fullCategoryString, 25, '......'));
-                                ?>
-                            </td>
-<!--                            <td>-->
-<!--                                --><?php
-//                                $creator_raw = $c['createdByFullName'] ?? ($c['createdBy'] ?? 'N/A');
-//                                echo htmlspecialchars(format_display_creator_raw($creator_raw));
-//                                ?>
-<!--                            </td>-->
-                            <td class="text-end action-buttons">
-                                <button class="btn btn-sm btn-outline-primary edit-course"
-                                        data-course='<?= htmlspecialchars(json_encode($c, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>'
-                                        title="Sửa" type="button">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger delete-course" data-id="<?= htmlspecialchars($c['courseID'] ?? '') ?>" title="Xóa">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="7" class="text-center">Chưa có khóa học nào.</td>
-                    </tr>
-                <?php endif; ?>
+                <tbody id="coursesTableBody">
+                <tr>
+                    <td colspan="8" class="text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></td>
+                </tr>
                 </tbody>
             </table>
         </div>
+        <nav aria-label="Course navigation">
+            <ul class="pagination justify-content-center" id="paginationControls">
+                <li class="page-item" id="prevPageItem"><button class="page-link" id="prevPageLink">Trước</button></li>
+                <li class="page-item disabled"><span class="page-link" id="currentPageNumber">1</span></li>
+                <li class="page-item" id="nextPageItem"><button class="page-link" id="nextPageLink">Sau</button></li>
+            </ul>
+        </nav>
     </div>
 </div>
 
@@ -316,9 +293,29 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
                                 <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="Title" id="modalTitle" required />
                             </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Giá (₫) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" name="Price" id="modalPrice" step="1000" min="0" required />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Độ khó <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="Difficulty" id="modalDifficulty" required>
+                                        <option value="" disabled selected>Chọn độ khó</option>
+                                        <?php foreach ($difficulties as $diff): ?>
+                                            <option value="<?= htmlspecialchars($diff) ?>"><?= htmlspecialchars($diff) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="mb-3">
-                                <label class="form-label">Giá (₫) <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="Price" id="modalPrice" step="1000" min="0" required />
+                                <label class="form-label">Ngôn ngữ <span class="text-danger">*</span></label>
+                                <select class="form-select" name="Language" id="modalLanguage" required>
+                                    <option value="" disabled selected>Chọn ngôn ngữ</option>
+                                    <?php foreach ($languages as $lang): ?>
+                                        <option value="<?= htmlspecialchars($lang) ?>"><?= htmlspecialchars($lang) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Giảng viên <span class="text-danger">*</span></label>
@@ -386,7 +383,17 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
     const APP_IMG_BASE_PATH = '<?= APP_BASE_PATH_FOR_IMAGES ?>';
     const USER_TOKEN = '<?= $_SESSION['user']['token'] ?? '' ?>';
     const IMAGE_SERVING_SCRIPT_NAME = 'c_file_loader.php';
-    const PROJECT_BASE = '<?= APP_ROOT_URL_BASE ?>'
+    const PROJECT_BASE = '<?= APP_ROOT_URL_BASE ?>';
+    const DEFAULT_PAGE_SIZE_JS = <?= DEFAULT_PAGE_SIZE ?>;
+
+    const LANGS = <?= json_encode($languages) ?>;
+    const DIFFICULTIES_JS = <?= json_encode($difficulties) ?>;
+
+    let currentPage = 1;
+    let currentSearchTerm = '';
+    let currentDifficultyFilter = '';
+    let currentLanguageFilter = '';
+    let allCoursesCurrentPage = []; // To store fetched courses for client-side search
 
     function showAlert(message, type = 'success', duration = 3000) {
         const alertPlaceholder = document.getElementById('alertPlaceholder');
@@ -398,10 +405,10 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
             '</div>'
         ].join('');
         alertPlaceholder.append(wrapper);
+
+        const bsAlert = new bootstrap.Alert(wrapper.querySelector('.alert'));
         setTimeout(() => {
-            if (wrapper && wrapper.parentNode) {
-                wrapper.remove();
-            }
+            bsAlert.close();
         }, duration);
     }
 
@@ -450,381 +457,552 @@ $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : []
         }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const courseModal = new bootstrap.Modal(document.getElementById('courseModal'));
-        const form = document.getElementById('courseForm');
-        const actInput = document.getElementById('formAct');
-        const idInput = document.getElementById('modalCourseID');
-        const titleInput = document.getElementById('modalTitle');
-        const priceInput = document.getElementById('modalPrice');
-        const instructorsSelect = document.getElementById('modalInstructors');
-        const categoriesSelect = document.getElementById('modalCategories');
-        const descriptionInput = document.getElementById('modalDescription');
-        const imageInput = document.getElementById('modalCourseImage');
-        const imagePreview = document.getElementById('modalImagePreview');
-        const courseModalLabel = document.getElementById('courseModalLabel');
+    function htmlspecialchars(str) {
+        if (typeof str !== 'string' && typeof str !== 'number') return '';
+        str = String(str);
+        const map = {
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+        };
+        return str.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
 
-        const objectivesListDiv = document.getElementById('courseObjectivesList');
-        const newObjectiveText = document.getElementById('newObjectiveText');
-        const addObjectiveBtn = document.getElementById('addObjectiveBtn');
-        const editingObjectiveIDInput = document.getElementById('editingObjectiveID');
+    function truncateText(text, maxLength = 20, ellipsis = '...') {
+        if (text === null || text === undefined || text === 'N/A') {
+            return 'N/A';
+        }
+        const strText = String(text);
+        if (strText.length > maxLength) {
+            return strText.substring(0, maxLength) + ellipsis;
+        }
+        return strText;
+    }
 
-        const requirementsListDiv = document.getElementById('courseRequirementsList');
-        const newRequirementText = document.getElementById('newRequirementText');
-        const addRequirementBtn = document.getElementById('addRequirementBtn');
-        const editingRequirementIDInput = document.getElementById('editingRequirementID');
+    function renderCoursesTable(courses) {
+        const tableBody = document.getElementById('coursesTableBody');
+        tableBody.innerHTML = '';
 
-        let currentCourseID = null;
+        if (!courses || courses.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="8" class="text-center">Không tìm thấy khóa học nào.</td></tr>`;
+            return;
+        }
 
-        imageInput.addEventListener('change', e => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = ev => {
-                    imagePreview.src = ev.target.result;
-                    imagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                if (!imagePreview.dataset.existingUrl) {
-                    imagePreview.src = '#';
-                    imagePreview.style.display = 'none';
-                } else {
-                    imagePreview.src = imagePreview.dataset.existingUrl;
-                    imagePreview.style.display = 'block';
-                }
-            }
+        courses.forEach((course, index) => {
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+                <td>${(currentPage - 1) * DEFAULT_PAGE_SIZE_JS + index + 1}</td>
+                <td>${htmlspecialchars(truncateText(course.title, 30))}</td>
+                <td>${new Intl.NumberFormat('vi-VN').format(course.price || 0)} ₫</td>
+                <td>
+                    ${truncateText(course.instructors && Array.isArray(course.instructors) ? course.instructors.map(i => `${i.firstName || ''} ${i.lastName || ''}`.trim()).filter(name => name).join(', ') : 'N/A', 25)}
+                </td>
+                <td>
+                    ${truncateText(course.categories && Array.isArray(course.categories) ? course.categories.map(c => c.categoryName || c.name).join(', ') : 'N/A', 25)}
+                </td>
+                <td>${htmlspecialchars(course.difficulty || 'N/A')}</td>
+                <td>${htmlspecialchars(course.language || 'N/A')}</td>
+                <td class="text-end action-buttons">
+                    <button class="btn btn-sm btn-outline-primary edit-course"
+                            data-course='${htmlspecialchars(JSON.stringify(course))}'
+                            title="Sửa" type="button">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-course" data-id="${htmlspecialchars(course.courseID || '')}" title="Xóa">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
+                </td>
+            `;
         });
+        addEventListenersToTableButtons();
+    }
 
-        function resetSubItemsUI() {
-            objectivesListDiv.innerHTML = '';
+    function addEventListenersToTableButtons() {
+        document.querySelectorAll('.edit-course').forEach(btn => {
+            // Remove existing event listener before adding a new one to prevent duplicates
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener('click', handleEditCourse);
+        });
+        document.querySelectorAll('.delete-course').forEach(btn => {
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener('click', handleDeleteCourse);
+        });
+    }
+
+    function updatePaginationControls(numItemsOnPage) {
+        document.getElementById('currentPageNumber').textContent = currentPage;
+        const prevButton = document.getElementById('prevPageLink');
+        const nextButton = document.getElementById('nextPageLink');
+
+        prevButton.disabled = currentPage === 1;
+        document.getElementById('prevPageItem').classList.toggle('disabled', currentPage === 1);
+
+        nextButton.disabled = numItemsOnPage < DEFAULT_PAGE_SIZE_JS;
+        document.getElementById('nextPageItem').classList.toggle('disabled', numItemsOnPage < DEFAULT_PAGE_SIZE_JS);
+    }
+
+    async function loadCourses(page = 1) {
+        currentPage = page;
+        const tableBody = document.getElementById('coursesTableBody');
+        tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></td></tr>`;
+
+        const params = {
+            page: currentPage,
+            pageSize: DEFAULT_PAGE_SIZE_JS
+        };
+        if (currentDifficultyFilter) params.difficulty = currentDifficultyFilter;
+        if (currentLanguageFilter) params.language = currentLanguageFilter;
+
+        const response = await fetchApi('course_api.php', 'GET', params);
+
+        if (response.success && response.data) {
+            allCoursesCurrentPage = response.data; // Store for client-side search
+            let coursesToDisplay = allCoursesCurrentPage;
+            if (currentSearchTerm) {
+                const searchTermLower = currentSearchTerm.toLowerCase();
+                coursesToDisplay = allCoursesCurrentPage.filter(course => {
+                    return (course.title && course.title.toLowerCase().includes(searchTermLower)) ||
+                        (course.courseID && course.courseID.toLowerCase().includes(searchTermLower));
+                });
+            }
+            renderCoursesTable(coursesToDisplay);
+            updatePaginationControls(response.data.length); // Use original length for pagination logic
+        } else {
+            tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Lỗi khi tải khóa học: ${response.message || 'Unknown error'}</td></tr>`;
+            updatePaginationControls(0);
+        }
+    }
+
+    const courseModalElement = document.getElementById('courseModal');
+    const courseModal = new bootstrap.Modal(courseModalElement);
+    const form = document.getElementById('courseForm');
+    const actInput = document.getElementById('formAct');
+    const idInput = document.getElementById('modalCourseID');
+    const titleInput = document.getElementById('modalTitle');
+    const priceInput = document.getElementById('modalPrice');
+    const difficultySelect = document.getElementById('modalDifficulty');
+    const languageSelect = document.getElementById('modalLanguage');
+    const instructorsSelect = document.getElementById('modalInstructors');
+    const categoriesSelect = document.getElementById('modalCategories');
+    const descriptionInput = document.getElementById('modalDescription');
+    const imageInput = document.getElementById('modalCourseImage');
+    const imagePreview = document.getElementById('modalImagePreview');
+    const courseModalLabel = document.getElementById('courseModalLabel');
+
+    const objectivesListDiv = document.getElementById('courseObjectivesList');
+    const newObjectiveText = document.getElementById('newObjectiveText');
+    const addObjectiveBtn = document.getElementById('addObjectiveBtn');
+    const editingObjectiveIDInput = document.getElementById('editingObjectiveID');
+
+    const requirementsListDiv = document.getElementById('courseRequirementsList');
+    const newRequirementText = document.getElementById('newRequirementText');
+    const addRequirementBtn = document.getElementById('addRequirementBtn');
+    const editingRequirementIDInput = document.getElementById('editingRequirementID');
+    let currentCourseIDForSubItems = null;
+
+
+    imageInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = ev => {
+                imagePreview.src = ev.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            if (!imagePreview.dataset.existingUrl) {
+                imagePreview.src = '#';
+                imagePreview.style.display = 'none';
+            } else {
+                imagePreview.src = imagePreview.dataset.existingUrl;
+                imagePreview.style.display = 'block';
+            }
+        }
+    });
+
+    function resetSubItemsUI() {
+        objectivesListDiv.innerHTML = '';
+        newObjectiveText.value = '';
+        addObjectiveBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Thêm';
+        addObjectiveBtn.classList.remove('btn-warning');
+        addObjectiveBtn.classList.add('btn-outline-success');
+        editingObjectiveIDInput.value = '';
+
+        requirementsListDiv.innerHTML = '';
+        newRequirementText.value = '';
+        addRequirementBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Thêm';
+        addRequirementBtn.classList.remove('btn-warning');
+        addRequirementBtn.classList.add('btn-outline-success');
+        editingRequirementIDInput.value = '';
+    }
+
+    async function loadObjectives(courseID) {
+        if (!courseID) {
+            objectivesListDiv.innerHTML = '<div class="text-center text-muted p-2">Vui lòng lưu khóa học trước khi thêm mục tiêu.</div>';
+            return;
+        }
+        objectivesListDiv.innerHTML = '<div class="text-center text-muted p-2">Đang tải...</div>';
+        const response = await fetchApi(`course_objective_api.php?courseID=${courseID}`);
+        objectivesListDiv.innerHTML = '';
+        if (response.success && response.data && Array.isArray(response.data)) {
+            if (response.data.length === 0) {
+                objectivesListDiv.innerHTML = '<div class="text-center text-muted p-2">Chưa có mục tiêu nào.</div>';
+            } else {
+                response.data.forEach(obj => renderObjective(obj));
+            }
+        } else if (!response.success || !response.data) {
+            objectivesListDiv.innerHTML = `<div class="text-danger p-2">Lỗi tải mục tiêu: ${response.message || 'Không có dữ liệu hoặc lỗi không xác định.'}</div>`;
+        }
+    }
+
+    function renderObjective(obj) {
+        const item = document.createElement('div');
+        item.className = 'list-group-item d-flex justify-content-between align-items-center';
+        item.dataset.id = obj.objectiveID;
+        item.innerHTML = `
+                <span class="objective-text">${htmlspecialchars(obj.objective)}</span>
+                <span class="d-inline-flex"> <button class="btn btn-sm btn-outline-primary edit-objective me-1" type="button" title="Sửa"><i class="bi bi-pencil-fill"></i></button>
+                    <button class="btn btn-sm btn-outline-danger delete-objective" type="button" title="Xóa"><i class="bi bi-trash3-fill"></i></button>
+                </span>`;
+        objectivesListDiv.appendChild(item);
+    }
+
+    addObjectiveBtn.addEventListener('click', async () => {
+        const objectiveText = newObjectiveText.value.trim();
+        if (!objectiveText || !currentCourseIDForSubItems) {
+            showAlert('Vui lòng nhập nội dung mục tiêu. Nếu là khóa học mới, hãy lưu khóa học trước.', 'warning');
+            return;
+        }
+
+        const editingID = editingObjectiveIDInput.value;
+        let response;
+        const payload = { courseID: currentCourseIDForSubItems, objective: objectiveText };
+        if (editingID) {
+            payload.objectiveID = editingID;
+            response = await fetchApi('course_objective_api.php', 'PUT', payload);
+        } else {
+            response = await fetchApi('course_objective_api.php', 'POST', payload);
+        }
+
+        if (response.success) {
+            showAlert(editingID ? 'Cập nhật mục tiêu thành công!' : 'Thêm mục tiêu thành công!');
             newObjectiveText.value = '';
+            editingObjectiveIDInput.value = '';
             addObjectiveBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Thêm';
             addObjectiveBtn.classList.remove('btn-warning');
             addObjectiveBtn.classList.add('btn-outline-success');
-            editingObjectiveIDInput.value = '';
+            loadObjectives(currentCourseIDForSubItems);
+        } else {
+            showAlert(`Lỗi: ${response.message || (editingID ? 'Không thể cập nhật mục tiêu.' : 'Không thể thêm mục tiêu.')}`, 'danger');
+        }
+    });
 
-            requirementsListDiv.innerHTML = '';
+    objectivesListDiv.addEventListener('click', async (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
+
+        const itemDiv = target.closest('.list-group-item');
+        const objectiveID = itemDiv.dataset.id;
+
+        if (target.classList.contains('edit-objective')) {
+            const objectiveText = itemDiv.querySelector('.objective-text').textContent;
+            newObjectiveText.value = objectiveText;
+            editingObjectiveIDInput.value = objectiveID;
+            addObjectiveBtn.innerHTML = '<i class="bi bi-save-fill"></i> Lưu sửa';
+            addObjectiveBtn.classList.remove('btn-outline-success');
+            addObjectiveBtn.classList.add('btn-warning');
+            newObjectiveText.focus();
+        } else if (target.classList.contains('delete-objective')) {
+            if (window.confirm('Bạn có chắc muốn xóa mục tiêu này?')) { // Consider custom modal for confirm
+                const response = await fetchApi('course_objective_api.php', 'DELETE', { objectiveID });
+                if (response.success) {
+                    showAlert('Xóa mục tiêu thành công!');
+                    loadObjectives(currentCourseIDForSubItems);
+                } else {
+                    showAlert(`Lỗi: ${response.message || 'Không thể xóa mục tiêu.'}`, 'danger');
+                }
+            }
+        }
+    });
+
+    async function loadRequirements(courseID) {
+        if (!courseID) {
+            requirementsListDiv.innerHTML = '<div class="text-center text-muted p-2">Vui lòng lưu khóa học trước khi thêm yêu cầu.</div>';
+            return;
+        }
+        requirementsListDiv.innerHTML = '<div class="text-center text-muted p-2">Đang tải...</div>';
+        const response = await fetchApi(`course_requirement_api.php?courseID=${courseID}`);
+        requirementsListDiv.innerHTML = '';
+        if (response.success && response.data && Array.isArray(response.data)) {
+            if (response.data.length === 0) {
+                requirementsListDiv.innerHTML = '<div class="text-center text-muted p-2">Chưa có yêu cầu nào.</div>';
+            } else {
+                response.data.forEach(req => renderRequirement(req));
+            }
+        } else if (!response.success || !response.data) {
+            requirementsListDiv.innerHTML = `<div class="text-danger p-2">Lỗi tải yêu cầu: ${response.message || 'Không có dữ liệu hoặc lỗi không xác định.'}</div>`;
+        }
+    }
+
+    function renderRequirement(req) {
+        const item = document.createElement('div');
+        item.className = 'list-group-item d-flex justify-content-between align-items-center';
+        item.dataset.id = req.requirementID;
+        item.innerHTML = `
+                <span class="requirement-text">${htmlspecialchars(req.requirement)}</span>
+                <span class="d-inline-flex"> <button class="btn btn-sm btn-outline-primary edit-requirement me-1" type="button" title="Sửa"><i class="bi bi-pencil-fill"></i></button> <button class="btn btn-sm btn-outline-danger delete-requirement" type="button" title="Xóa"><i class="bi bi-trash3-fill"></i></button>
+                </span>`;
+        requirementsListDiv.appendChild(item);
+    }
+
+    addRequirementBtn.addEventListener('click', async () => {
+        const requirementText = newRequirementText.value.trim();
+        if (!requirementText || !currentCourseIDForSubItems) {
+            showAlert('Vui lòng nhập nội dung yêu cầu. Nếu là khóa học mới, hãy lưu khóa học trước.', 'warning');
+            return;
+        }
+
+        const editingID = editingRequirementIDInput.value;
+        let response;
+        const payload = { courseID: currentCourseIDForSubItems, requirement: requirementText };
+
+        if (editingID) {
+            payload.requirementID = editingID;
+            response = await fetchApi('course_requirement_api.php', 'PUT', payload);
+        } else {
+            response = await fetchApi('course_requirement_api.php', 'POST', payload);
+        }
+
+        if (response.success) {
+            showAlert(editingID ? 'Cập nhật yêu cầu thành công!' : 'Thêm yêu cầu thành công!');
             newRequirementText.value = '';
+            editingRequirementIDInput.value = '';
             addRequirementBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Thêm';
             addRequirementBtn.classList.remove('btn-warning');
             addRequirementBtn.classList.add('btn-outline-success');
-            editingRequirementIDInput.value = '';
+            loadRequirements(currentCourseIDForSubItems);
+        } else {
+            showAlert(`Lỗi: ${response.message || (editingID ? 'Không thể cập nhật yêu cầu.' : 'Không thể thêm yêu cầu.')}`, 'danger');
         }
+    });
 
-        async function loadObjectives(courseID) {
-            if (!courseID) return;
-            objectivesListDiv.innerHTML = '<div class="text-center text-muted p-2">Đang tải...</div>';
-            const response = await fetchApi(`course_objective_api.php?courseID=${courseID}`);
-            objectivesListDiv.innerHTML = '';
-            if (response.success && response.data && Array.isArray(response.data)) {
-                if (response.data.length === 0) {
-                    objectivesListDiv.innerHTML = '<div class="text-center text-muted p-2">Chưa có mục tiêu nào.</div>';
+    requirementsListDiv.addEventListener('click', async (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
+
+        const itemDiv = target.closest('.list-group-item');
+        const requirementID = itemDiv.dataset.id;
+
+        if (target.classList.contains('edit-requirement')) {
+            const requirementText = itemDiv.querySelector('.requirement-text').textContent;
+            newRequirementText.value = requirementText;
+            editingRequirementIDInput.value = requirementID;
+            addRequirementBtn.innerHTML = '<i class="bi bi-save-fill"></i> Lưu sửa';
+            addRequirementBtn.classList.remove('btn-outline-success');
+            addRequirementBtn.classList.add('btn-warning');
+            newRequirementText.focus();
+        } else if (target.classList.contains('delete-requirement')) {
+            if (window.confirm('Bạn có chắc muốn xóa yêu cầu này?')) { // Consider custom modal
+                const response = await fetchApi('course_requirement_api.php', 'DELETE', { requirementID });
+                if (response.success) {
+                    showAlert('Xóa yêu cầu thành công!');
+                    loadRequirements(currentCourseIDForSubItems);
                 } else {
-                    response.data.forEach(obj => renderObjective(obj));
+                    showAlert(`Lỗi: ${response.message || 'Không thể xóa yêu cầu.'}`, 'danger');
                 }
-            } else if (!response.success || !response.data) {
-                objectivesListDiv.innerHTML = `<div class="text-danger p-2">Lỗi tải mục tiêu: ${response.message || 'Không có dữ liệu hoặc lỗi không xác định.'}</div>`;
             }
         }
+    });
 
-        function renderObjective(obj) {
-            const item = document.createElement('div');
-            item.className = 'list-group-item d-flex justify-content-between align-items-center';
-            item.dataset.id = obj.objectiveID;
-            item.innerHTML = `
-                    <span class="objective-text">${htmlspecialchars(obj.objective)}</span>
-                    <span class="d-inline-flex"> <button class="btn btn-sm btn-outline-primary edit-objective me-1" type="button" title="Sửa"><i class="bi bi-pencil-fill"></i></button>
-                        <button class="btn btn-sm btn-outline-danger delete-objective" type="button" title="Xóa"><i class="bi bi-trash3-fill"></i></button>
-                    </span>`;
-            objectivesListDiv.appendChild(item);
-        }
-
-        addObjectiveBtn.addEventListener('click', async () => {
-            const objectiveText = newObjectiveText.value.trim();
-            if (!objectiveText || !currentCourseID) {
-                showAlert('Vui lòng nhập nội dung mục tiêu và đảm bảo đang sửa một khóa học.', 'warning');
-                return;
-            }
-
-            const editingID = editingObjectiveIDInput.value;
-            let response;
-            const payload = { courseID: currentCourseID, objective: objectiveText };
-            if (editingID) {
-                payload.objectiveID = editingID;
-                response = await fetchApi('course_objective_api.php', 'PUT', payload);
-            } else {
-                response = await fetchApi('course_objective_api.php', 'POST', payload);
-            }
-
-            if (response.success) {
-                showAlert(editingID ? 'Cập nhật mục tiêu thành công!' : 'Thêm mục tiêu thành công!');
-                newObjectiveText.value = '';
-                editingObjectiveIDInput.value = '';
-                addObjectiveBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Thêm';
-                addObjectiveBtn.classList.remove('btn-warning');
-                addObjectiveBtn.classList.add('btn-outline-success');
-                loadObjectives(currentCourseID);
-            } else {
-                showAlert(`Lỗi: ${response.message || (editingID ? 'Không thể cập nhật mục tiêu.' : 'Không thể thêm mục tiêu.')}`, 'danger');
-            }
-        });
-
-        objectivesListDiv.addEventListener('click', async (e) => {
-            const target = e.target.closest('button');
-            if (!target) return;
-
-            const itemDiv = target.closest('.list-group-item');
-            const objectiveID = itemDiv.dataset.id;
-
-            if (target.classList.contains('edit-objective')) {
-                const objectiveText = itemDiv.querySelector('.objective-text').textContent;
-                newObjectiveText.value = objectiveText;
-                editingObjectiveIDInput.value = objectiveID;
-                addObjectiveBtn.innerHTML = '<i class="bi bi-save-fill"></i> Lưu sửa';
-                addObjectiveBtn.classList.remove('btn-outline-success');
-                addObjectiveBtn.classList.add('btn-warning');
-                newObjectiveText.focus();
-            } else if (target.classList.contains('delete-objective')) {
-                if (window.confirm('Bạn có chắc muốn xóa mục tiêu này?')) {
-                    const response = await fetchApi('course_objective_api.php', 'DELETE', { objectiveID });
-                    if (response.success) {
-                        showAlert('Xóa mục tiêu thành công!');
-                        loadObjectives(currentCourseID);
-                    } else {
-                        showAlert(`Lỗi: ${response.message || 'Không thể xóa mục tiêu.'}`, 'danger');
-                    }
-                }
-            }
-        });
-
-        async function loadRequirements(courseID) {
-            if (!courseID) return;
-            requirementsListDiv.innerHTML = '<div class="text-center text-muted p-2">Đang tải...</div>';
-            const response = await fetchApi(`course_requirement_api.php?courseID=${courseID}`);
-            requirementsListDiv.innerHTML = '';
-            if (response.success && response.data && Array.isArray(response.data)) {
-                if (response.data.length === 0) {
-                    requirementsListDiv.innerHTML = '<div class="text-center text-muted p-2">Chưa có yêu cầu nào.</div>';
-                } else {
-                    response.data.forEach(req => renderRequirement(req));
-                }
-            } else if (!response.success || !response.data) {
-                requirementsListDiv.innerHTML = `<div class="text-danger p-2">Lỗi tải yêu cầu: ${response.message || 'Không có dữ liệu hoặc lỗi không xác định.'}</div>`;
-            }
-        }
-
-        function renderRequirement(req) {
-            const item = document.createElement('div');
-            item.className = 'list-group-item d-flex justify-content-between align-items-center';
-            item.dataset.id = req.requirementID;
-            item.innerHTML = `
-                    <span class="requirement-text">${htmlspecialchars(req.requirement)}</span>
-                    <span class="d-inline-flex"> <button class="btn btn-sm btn-outline-primary edit-requirement me-1" type="button" title="Sửa"><i class="bi bi-pencil-fill"></i></button> <button class="btn btn-sm btn-outline-danger delete-requirement" type="button" title="Xóa"><i class="bi bi-trash3-fill"></i></button>
-                    </span>`;
-            requirementsListDiv.appendChild(item);
-        }
-
-        addRequirementBtn.addEventListener('click', async () => {
-            const requirementText = newRequirementText.value.trim();
-            if (!requirementText || !currentCourseID) {
-                showAlert('Vui lòng nhập nội dung yêu cầu và đảm bảo đang sửa một khóa học.', 'warning');
-                return;
-            }
-
-            const editingID = editingRequirementIDInput.value;
-            let response;
-            const payload = { courseID: currentCourseID, requirement: requirementText };
-
-            if (editingID) {
-                payload.requirementID = editingID;
-                response = await fetchApi('course_requirement_api.php', 'PUT', payload);
-            } else {
-                response = await fetchApi('course_requirement_api.php', 'POST', payload);
-            }
-
-            if (response.success) {
-                showAlert(editingID ? 'Cập nhật yêu cầu thành công!' : 'Thêm yêu cầu thành công!');
-                newRequirementText.value = '';
-                editingRequirementIDInput.value = '';
-                addRequirementBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Thêm';
-                addRequirementBtn.classList.remove('btn-warning');
-                addRequirementBtn.classList.add('btn-outline-success');
-                loadRequirements(currentCourseID);
-            } else {
-                showAlert(`Lỗi: ${response.message || (editingID ? 'Không thể cập nhật yêu cầu.' : 'Không thể thêm yêu cầu.')}`, 'danger');
-            }
-        });
-
-        requirementsListDiv.addEventListener('click', async (e) => {
-            const target = e.target.closest('button');
-            if (!target) return;
-
-            const itemDiv = target.closest('.list-group-item');
-            const requirementID = itemDiv.dataset.id;
-
-            if (target.classList.contains('edit-requirement')) {
-                const requirementText = itemDiv.querySelector('.requirement-text').textContent;
-                newRequirementText.value = requirementText;
-                editingRequirementIDInput.value = requirementID;
-                addRequirementBtn.innerHTML = '<i class="bi bi-save-fill"></i> Lưu sửa';
-                addRequirementBtn.classList.remove('btn-outline-success');
-                addRequirementBtn.classList.add('btn-warning');
-                newRequirementText.focus();
-            } else if (target.classList.contains('delete-requirement')) {
-                if (window.confirm('Bạn có chắc muốn xóa yêu cầu này?')) {
-                    const response = await fetchApi('course_requirement_api.php', 'DELETE', { requirementID });
-                    if (response.success) {
-                        showAlert('Xóa yêu cầu thành công!');
-                        loadRequirements(currentCourseID);
-                    } else {
-                        showAlert(`Lỗi: ${response.message || 'Không thể xóa yêu cầu.'}`, 'danger');
-                    }
-                }
-            }
-        });
-
-        function htmlspecialchars(str) {
-            if (typeof str !== 'string') return '';
-            const map = {
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-            };
-            return str.replace(/[&<>"']/g, function(m) { return map[m]; });
-        }
-
-        document.querySelectorAll('.add-new-course-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                form.reset();
-                actInput.value = 'create';
-                idInput.value = '';
-                currentCourseID = null;
-                courseModalLabel.textContent = 'Thêm Khóa học';
-
-                Array.from(instructorsSelect.options).forEach(option => option.selected = false);
-                Array.from(categoriesSelect.options).forEach(option => option.selected = false);
-
-                imagePreview.src = '#';
-                imagePreview.style.display = 'none';
-                imagePreview.removeAttribute('data-existing-url');
-                imageInput.value = '';
-
-                resetSubItemsUI();
-                courseModal.show();
-            });
-        });
-
-        document.querySelectorAll('.edit-course').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const dataString = btn.getAttribute('data-course');
-                if (!dataString) {
-                    console.error('data-course attribute is missing or empty');
-                    showAlert('Lỗi: Không thể tải dữ liệu khóa học.', 'danger');
-                    return;
-                }
-                try {
-                    const data = JSON.parse(dataString);
-                    form.reset();
-                    actInput.value = 'update';
-                    idInput.value = data.courseID || '';
-                    currentCourseID = data.courseID;
-                    titleInput.value = data.title || '';
-                    priceInput.value = data.price || '0';
-                    descriptionInput.value = data.description || '';
-                    courseModalLabel.textContent = 'Sửa Khóa học';
-
-                    Array.from(instructorsSelect.options).forEach(opt => opt.selected = false);
-                    if (data.instructors && Array.isArray(data.instructors)) {
-                        const selectedInstructorIDs = data.instructors.map(instr => instr.instructorID.toString());
-                        Array.from(instructorsSelect.options).forEach(option => {
-                            if (selectedInstructorIDs.includes(option.value)) {
-                                option.selected = true;
-                            }
-                        });
-                    }
-
-                    Array.from(categoriesSelect.options).forEach(opt => opt.selected = false);
-                    if (data.categories && Array.isArray(data.categories)) {
-                        const selectedCategoryIDs = data.categories.map(cat => (cat.id || cat.categoryID).toString());
-                        Array.from(categoriesSelect.options).forEach(option => {
-                            if (selectedCategoryIDs.includes(option.value)) {
-                                option.selected = true;
-                            }
-                        });
-                    }
-
-                    imageInput.value = '';
-                    imagePreview.src = '#';
-                    imagePreview.style.display = 'none';
-                    imagePreview.removeAttribute('data-existing-url');
-
-                    if (currentCourseID) {
-                        const imgResponse = await fetchApi(`course_image_api.php?courseID=${currentCourseID}&isPrimary=true`);
-                        if (imgResponse.success && imgResponse.data && Array.isArray(imgResponse.data) && imgResponse.data.length > 0) {
-                            const imagePathFromServer = imgResponse.data[0].imagePath;
-                            if (imagePathFromServer) {
-                                const imageName = imagePathFromServer.split('/').pop();
-                                const imageUrl = `${PROJECT_BASE}/controller/${IMAGE_SERVING_SCRIPT_NAME}?act=serve_image&course_id=${currentCourseID}&image=${encodeURIComponent(imageName)}`;
-                                imagePreview.src = imageUrl;
-                                imagePreview.style.display = 'block';
-                                imagePreview.dataset.existingUrl = imageUrl;
-                            }
-                        } else if (imgResponse.success && imgResponse.data && imgResponse.data.length === 0) {
-                            const anyImgResponse = await fetchApi(`course_image_api.php?courseID=${currentCourseID}`);
-                            if (anyImgResponse.success && anyImgResponse.data && Array.isArray(anyImgResponse.data) && anyImgResponse.data.length > 0) {
-                                const imagePathFromServer = anyImgResponse.data[0].imagePath;
-                                if (imagePathFromServer) {
-                                    const imageName = imagePathFromServer.split('/').pop();
-                                    const imageUrl = `${PROJECT_BASE}/controller/${IMAGE_SERVING_SCRIPT_NAME}?act=serve_image&course_id=${currentCourseID}&image=${encodeURIComponent(imageName)}`;
-                                    imagePreview.src = imageUrl;
-                                    imagePreview.style.display = 'block';
-                                    imagePreview.dataset.existingUrl = imageUrl;
-                                }
-                            }
-                        }
-                    }
-
-                    resetSubItemsUI();
-                    if (currentCourseID) {
-                        loadObjectives(currentCourseID);
-                        loadRequirements(currentCourseID);
-                    }
-                    courseModal.show();
-                } catch (e) {
-                    console.error('Error parsing data-course JSON or setting up modal:', e);
-                    showAlert('Lỗi: Không thể xử lý dữ liệu khóa học để sửa. ' + e.message, 'danger');
-                    console.error('Problematic JSON string for debugging:', dataString);
-                }
-            });
-        });
-
-        document.querySelectorAll('.delete-course').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (!window.confirm('Bạn có chắc muốn xóa khóa học này? Hành động này không thể hoàn tác.')) return;
-                const courseIdToDelete = btn.getAttribute('data-id');
-                if (!courseIdToDelete) {
-                    showAlert('Lỗi: Không tìm thấy ID khóa học để xóa.', 'danger');
-                    return;
-                }
-                window.location.href = `../controller/c_course_management.php?act=delete&courseID=${encodeURIComponent(courseIdToDelete)}`;
-            });
-        });
-
-        document.getElementById('courseModal').addEventListener('hidden.bs.modal', function () {
+    document.querySelectorAll('.add-new-course-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
             form.reset();
             actInput.value = 'create';
             idInput.value = '';
-            currentCourseID = null;
+            currentCourseIDForSubItems = null;
+            courseModalLabel.textContent = 'Thêm Khóa học';
+
+            difficultySelect.value = "";
+            languageSelect.value = "";
             Array.from(instructorsSelect.options).forEach(option => option.selected = false);
             Array.from(categoriesSelect.options).forEach(option => option.selected = false);
+
             imagePreview.src = '#';
             imagePreview.style.display = 'none';
             imagePreview.removeAttribute('data-existing-url');
             imageInput.value = '';
+
             resetSubItemsUI();
-            courseModalLabel.textContent = 'Thêm Khóa học';
+            // For new courses, objectives/requirements can only be added after the course is saved.
+            objectivesListDiv.innerHTML = '<div class="text-center text-muted p-2">Lưu khóa học để thêm mục tiêu.</div>';
+            requirementsListDiv.innerHTML = '<div class="text-center text-muted p-2">Lưu khóa học để thêm yêu cầu.</div>';
+            addObjectiveBtn.disabled = true;
+            addRequirementBtn.disabled = true;
+
+            courseModal.show();
         });
     });
+
+    async function handleEditCourse(event) {
+        const btn = event.currentTarget;
+        const dataString = btn.getAttribute('data-course');
+        if (!dataString) {
+            console.error('data-course attribute is missing or empty');
+            showAlert('Lỗi: Không thể tải dữ liệu khóa học.', 'danger');
+            return;
+        }
+        try {
+            const data = JSON.parse(dataString);
+            form.reset();
+            actInput.value = 'update';
+            idInput.value = data.courseID || '';
+            currentCourseIDForSubItems = data.courseID;
+            titleInput.value = data.title || '';
+            priceInput.value = data.price || '0';
+            difficultySelect.value = data.difficulty || '';
+            languageSelect.value = data.language || '';
+            descriptionInput.value = data.description || '';
+            courseModalLabel.textContent = 'Sửa Khóa học';
+
+            Array.from(instructorsSelect.options).forEach(opt => opt.selected = false);
+            if (data.instructors && Array.isArray(data.instructors)) {
+                const selectedInstructorIDs = data.instructors.map(instr => instr.instructorID.toString());
+                Array.from(instructorsSelect.options).forEach(option => {
+                    if (selectedInstructorIDs.includes(option.value)) {
+                        option.selected = true;
+                    }
+                });
+            }
+
+            Array.from(categoriesSelect.options).forEach(opt => opt.selected = false);
+            if (data.categories && Array.isArray(data.categories)) {
+                const selectedCategoryIDs = data.categories.map(cat => (cat.id || cat.categoryID).toString());
+                Array.from(categoriesSelect.options).forEach(option => {
+                    if (selectedCategoryIDs.includes(option.value)) {
+                        option.selected = true;
+                    }
+                });
+            }
+
+            imageInput.value = '';
+            imagePreview.src = '#';
+            imagePreview.style.display = 'none';
+            imagePreview.removeAttribute('data-existing-url');
+
+            if (currentCourseIDForSubItems) {
+                const imgResponse = await fetchApi(`course_image_api.php?courseID=${currentCourseIDForSubItems}&isPrimary=true`);
+                if (imgResponse.success && imgResponse.data && Array.isArray(imgResponse.data) && imgResponse.data.length > 0) {
+                    const imagePathFromServer = imgResponse.data[0].imagePath;
+                    if (imagePathFromServer) {
+                        const imageName = imagePathFromServer.split('/').pop();
+                        const imageUrl = `${PROJECT_BASE}/controller/${IMAGE_SERVING_SCRIPT_NAME}?act=serve_image&course_id=${currentCourseIDForSubItems}&image=${encodeURIComponent(imageName)}`;
+                        imagePreview.src = imageUrl;
+                        imagePreview.style.display = 'block';
+                        imagePreview.dataset.existingUrl = imageUrl;
+                    }
+                } else if (imgResponse.success && imgResponse.data && imgResponse.data.length === 0) {
+                    const anyImgResponse = await fetchApi(`course_image_api.php?courseID=${currentCourseIDForSubItems}`);
+                    if (anyImgResponse.success && anyImgResponse.data && Array.isArray(anyImgResponse.data) && anyImgResponse.data.length > 0) {
+                        const imagePathFromServer = anyImgResponse.data[0].imagePath;
+                        if (imagePathFromServer) {
+                            const imageName = imagePathFromServer.split('/').pop();
+                            const imageUrl = `${PROJECT_BASE}/controller/${IMAGE_SERVING_SCRIPT_NAME}?act=serve_image&course_id=${currentCourseIDForSubItems}&image=${encodeURIComponent(imageName)}`;
+                            imagePreview.src = imageUrl;
+                            imagePreview.style.display = 'block';
+                            imagePreview.dataset.existingUrl = imageUrl;
+                        }
+                    }
+                }
+            }
+
+            addObjectiveBtn.disabled = !currentCourseIDForSubItems;
+            addRequirementBtn.disabled = !currentCourseIDForSubItems;
+
+            resetSubItemsUI();
+            if (currentCourseIDForSubItems) {
+                loadObjectives(currentCourseIDForSubItems);
+                loadRequirements(currentCourseIDForSubItems);
+            }
+            courseModal.show();
+        } catch (e) {
+            console.error('Error parsing data-course JSON or setting up modal:', e);
+            showAlert('Lỗi: Không thể xử lý dữ liệu khóa học để sửa. ' + e.message, 'danger');
+        }
+    }
+
+    function handleDeleteCourse(event) {
+        const btn = event.currentTarget;
+        event.preventDefault();
+        // Replace window.confirm with a custom modal for better UX if possible
+        if (!window.confirm('Bạn có chắc muốn xóa khóa học này? Hành động này không thể hoàn tác.')) return;
+        const courseIdToDelete = btn.getAttribute('data-id');
+        if (!courseIdToDelete) {
+            showAlert('Lỗi: Không tìm thấy ID khóa học để xóa.', 'danger');
+            return;
+        }
+        // The form submission will handle actual deletion via c_course_management.php
+        // For immediate UI update and consistency with API-first approach, could call API directly:
+        // fetchApi(`course_api.php`, 'DELETE', { courseID: courseIdToDelete }).then(response => { ... });
+        // However, to stick to the current pattern for delete:
+        window.location.href = `../controller/c_course_management.php?act=delete&courseID=${encodeURIComponent(courseIdToDelete)}`;
+    }
+
+    courseModalElement.addEventListener('hidden.bs.modal', function () {
+        form.reset();
+        actInput.value = 'create';
+        idInput.value = '';
+        currentCourseIDForSubItems = null;
+        difficultySelect.value = "";
+        languageSelect.value = "";
+        Array.from(instructorsSelect.options).forEach(option => option.selected = false);
+        Array.from(categoriesSelect.options).forEach(option => option.selected = false);
+        imagePreview.src = '#';
+        imagePreview.style.display = 'none';
+        imagePreview.removeAttribute('data-existing-url');
+        imageInput.value = '';
+        resetSubItemsUI();
+        courseModalLabel.textContent = 'Thêm Khóa học';
+        addObjectiveBtn.disabled = true;
+        addRequirementBtn.disabled = true;
+    });
+
+    // Event listeners for filters and search
+    document.getElementById('applyFiltersBtn').addEventListener('click', () => {
+        currentSearchTerm = document.getElementById('searchInput').value.trim();
+        currentDifficultyFilter = document.getElementById('difficultyFilter').value;
+        currentLanguageFilter = document.getElementById('languageFilter').value;
+        loadCourses(1); // Reset to page 1 when filters change
+    });
+
+    document.getElementById('searchInput').addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+            currentSearchTerm = document.getElementById('searchInput').value.trim();
+            // Client-side search: re-filter current data or reload if server-side search is preferred and API supports it
+            // For now, triggering a full filter apply which re-fetches and then client-searches
+            document.getElementById('applyFiltersBtn').click();
+        }
+    });
+
+
+    document.getElementById('prevPageLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentPage > 1) {
+            loadCourses(currentPage - 1);
+        }
+    });
+
+    document.getElementById('nextPageLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        // Check if next button is not disabled (implicitly done by numItemsOnPage < DEFAULT_PAGE_SIZE_JS)
+        loadCourses(currentPage + 1);
+    });
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadCourses(1);
+    });
+
 </script>
 </body>
 </html>

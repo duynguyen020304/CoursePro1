@@ -1,5 +1,7 @@
 <?php
+
 $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
+
 require_once __DIR__ . '/../service/service_course.php';
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -7,11 +9,11 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 header("Content-Type: application/json");
-$authHeader = apache_request_headers();
-$token = null;
-
 
 if ($_SERVER['REQUEST_METHOD'] !== "GET") {
+    $authHeader = apache_request_headers();
+    $token = null;
+
     if (isset($authHeader['Authorization'])) {
         if (preg_match('/Bearer\s(\S+)/', $authHeader['Authorization'], $matches)) {
             $token = $matches[1];
@@ -41,81 +43,103 @@ if ($_SERVER['REQUEST_METHOD'] !== "GET") {
     }
 }
 
-
 $service = new CourseService();
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
+        $response = null;
+
+        $pageParam = $_GET['page'] ?? null;
+        $pageSizeParam = $_GET['pageSize'] ?? null;
+        $difficultyParam = $_GET['difficulty'] ?? null;
+        $languageParam = $_GET['language'] ?? null;
+
         $isGetAllCourseParam = $_GET['isGetAllCourse'] ?? null;
-        $optionParam = $_GET['option'] ?? 1; #Option 0 lấy tất cả dữ liệu khóa học(bao gồm nhiều loại dữ liệu khác nhau), cực chậm
-                                             #Option 1 lấy k dữ liệu khóa học, nhanh hơn
+        $optionParam = $_GET['option'] ?? 1;
         $optionParam = filter_var($optionParam, FILTER_VALIDATE_INT);
         $courseIDParam = $_GET['courseID'] ?? null;
         $isFilterByCategory = $_GET['isFilterByCategory'] ?? null;
         $isGetCourseForRecommend = $_GET['isGetCourseForRecommend'] ?? null;
 
+        if ($pageParam !== null) {
+            $pageNumber = filter_var($pageParam, FILTER_VALIDATE_INT);
+            $pageSize = 10;
+            if ($pageSizeParam !== null) {
+                $pageSizeValidated = filter_var($pageSizeParam, FILTER_VALIDATE_INT);
+                if ($pageSizeValidated && $pageSizeValidated > 0) {
+                    $pageSize = $pageSizeValidated;
+                } else {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'pageSize không hợp lệ. Phải là một số nguyên dương.',
+                        'data'    => null
+                    ]);
+                    exit;
+                }
+            }
 
-        if ($isGetAllCourseParam !== null && filter_var($isGetAllCourseParam, FILTER_VALIDATE_BOOLEAN)) {
-            if ($optionParam == 0) {
+            if ($pageNumber && $pageNumber > 0) {
+                $filterDifficulty = !empty($difficultyParam) ? trim($difficultyParam) : null;
+                $filterLanguage = !empty($languageParam) ? trim($languageParam) : null;
+                $response = $service->get_courses_paginated_service($pageNumber, $pageSize, $filterDifficulty, $filterLanguage);
+            } else {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'page không hợp lệ. Phải là một số nguyên dương.',
+                    'data'    => null
+                ]);
+                exit;
+            }
+        } elseif ($pageParam === null && (!empty($difficultyParam) || !empty($languageParam))) {
+            $filterDifficulty = !empty($difficultyParam) ? trim($difficultyParam) : null;
+            $filterLanguage = !empty($languageParam) ? trim($languageParam) : null;
+
+            if ($filterDifficulty !== null || $filterLanguage !== null) {
+                $response = $service->get_courses_by_difficulty_lang_service($filterDifficulty, $filterLanguage);
+            } else {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Cần cung cấp ít nhất một tiêu chí lọc (difficulty hoặc language).',
+                    'data'    => null
+                ]);
+                exit;
+            }
+        } elseif ($isGetAllCourseParam !== null && filter_var($isGetAllCourseParam, FILTER_VALIDATE_BOOLEAN)) {
+            if ($optionParam === 0) {
                 $response = $service->get_all_courses();
-            }
-            else if ($optionParam == 1) {
+            } else if ($optionParam === 1) {
                 $response = $service->get_k_courses_for_home_page(8);
-            }
-            else if ($optionParam == 2) {
+            } else if ($optionParam === 2) {
                 $response = $service->get_all_courses_for_course_management();
-            }
-            else if ($optionParam == 3) {
+            } else if ($optionParam === 3) {
                 $response = $service->get_all_courses_for_upload_video();
             }
-            http_response_code($response->success ? 200 : 500);
-            echo json_encode([
-                'success' => $response->success,
-                'message' => $response->message,
-                'data'    => $response->data
-            ]);
-            exit;
-        }
-        else if ($courseIDParam !== null && $isFilterByCategory !== null && filter_var($isFilterByCategory, FILTER_VALIDATE_BOOLEAN) && $isFilterByCategory) {
+        } elseif ($courseIDParam !== null && $isFilterByCategory !== null && filter_var($isFilterByCategory, FILTER_VALIDATE_BOOLEAN)) {
             if (empty($courseIDParam)) {
                 http_response_code(400);
                 echo json_encode([
                     'success' => false,
-                    'message' => 'courseID parameter cannot be empty when provided.',
+                    'message' => 'courseID parameter cannot be empty when provided for category filter.',
                     'data'    => null
                 ]);
                 exit;
             }
             $response = $service->get_course_by_id_for_category_filter($courseIDParam);
-            http_response_code($response->success ? 200 : 500);
-            echo json_encode([
-                'success' => $response->success,
-                'message' => $response->message,
-                'data'    => $response->data
-            ]);
-            exit;
-        }
-        else if ($courseIDParam !== null && $isGetCourseForRecommend !== null && filter_var($isGetCourseForRecommend, FILTER_VALIDATE_BOOLEAN)) {
+        } elseif ($courseIDParam !== null && $isGetCourseForRecommend !== null && filter_var($isGetCourseForRecommend, FILTER_VALIDATE_BOOLEAN)) {
             if (empty($courseIDParam)) {
                 http_response_code(400);
                 echo json_encode([
                     'success' => false,
-                    'message' => 'courseID parameter cannot be empty when provided.',
+                    'message' => 'courseID parameter cannot be empty when provided for recommend.',
                     'data'    => null
                 ]);
                 exit;
             }
-
             $response = $service->get_course_for_recommend($courseIDParam);
-            http_response_code($response->success ? 200 : 500);
-            echo json_encode([
-                'success' => $response->success,
-                'message' => $response->message,
-                'data'    => $response->data
-            ]);
-            exit;
-        }
-        else if ($courseIDParam !== null) {
+        } elseif ($courseIDParam !== null) {
             if (empty($courseIDParam)) {
                 http_response_code(400);
                 echo json_encode([
@@ -125,28 +149,29 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 ]);
                 exit;
             }
-
             $response = $service->get_course_by_id($courseIDParam);
-            http_response_code($response->success ? 200 : 500);
+        }
+
+        if ($response !== null) {
+            http_response_code($response->success ? 200 : ($response->message === 'Không tìm thấy khóa học' || strpos($response->message, 'Không tìm thấy') !== false ? 404 : 500));
             echo json_encode([
                 'success' => $response->success,
                 'message' => $response->message,
                 'data'    => $response->data
             ]);
-            exit;
-        }
-        else {
+        } else {
             http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'message' => 'Invalid or missing parameters. Please provide "isGetAllCourse=true" or a "courseID".',
+                'message' => 'Invalid or missing GET parameters, and no specific route matched.',
                 'data'    => null
             ]);
-            exit;
         }
+        break;
 
     case 'POST':
         $data = json_decode(file_get_contents("php://input"), true);
+
         $requiredFields = ['title', 'price', 'difficulty', 'language'];
         $requiredArrayFields = ['instructorsID', 'categoriesID'];
         $missingFields = [];
@@ -185,6 +210,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
         }
 
         $description = $data['description'] ?? null;
+        $createdBy = $data['createdBy'] ?? ($decoded->userID ?? 'UNKNOWN');
+
         $response = $service->create_course(
             $data['title'],
             $description,
@@ -193,7 +220,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $data['categoriesID'],
             $data['difficulty'],
             $data['language'],
-            $data['createdBy']
+            $createdBy
         );
 
         http_response_code($response->success ? 201 : 500);
@@ -206,6 +233,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     case 'PUT':
         $data = json_decode(file_get_contents("php://input"), true);
+
         $requiredFields = ['courseID', 'title', 'price', 'difficulty', 'language'];
         $requiredArrayFields = ['instructorsID', 'categoriesID'];
         $missingFields = [];
@@ -238,12 +266,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
             http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'message' => 'Các trường sau phải là mảng không rỗng: ' . implode(', ', $invalidArrayFields)
+                'message' => 'Các trường sau phải là mảng không rỗng khi cập nhật: ' . implode(', ', $invalidArrayFields)
             ]);
             exit;
         }
 
         $description = $data['description'] ?? null;
+
         $response = $service->update_course(
             $data['courseID'],
             $data['title'],
@@ -252,22 +281,25 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $data['instructorsID'],
             $data['categoriesID'],
             $data['difficulty'],
-            $data['language'],
+            $data['language']
         );
 
-        http_response_code($response->success ? 200 : 500);
+        http_response_code($response->success ? 200 : ($response->message === 'Khóa học không tồn tại.' ? 404 : 500));
         echo json_encode(['success' => $response->success, 'message' => $response->message]);
         break;
 
     case 'DELETE':
         $data = json_decode(file_get_contents("php://input"), true);
-        if (!isset($data['courseID'])) {
+
+        if (!isset($data['courseID']) || empty(trim($data['courseID']))) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu cần thiết để xóa: courseID']);
             exit;
         }
+
         $response = $service->delete_course($data['courseID']);
-        http_response_code($response->success ? 200 : 500);
+
+        http_response_code($response->success ? 200 : ($response->message === 'Khóa học không tồn tại' ? 404 : 500));
         echo json_encode(['success' => $response->success, 'message' => $response->message]);
         break;
 
@@ -276,3 +308,4 @@ switch ($_SERVER['REQUEST_METHOD']) {
         echo json_encode(['success' => false, 'message' => 'Phương thức không được hỗ trợ']);
         break;
 }
+?>

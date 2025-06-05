@@ -11,7 +11,7 @@ class CourseDTO
     public ?string $language;
     public ?string $created_at;
 
-    public function __construct(string $courseID, string $title, ?string $description, float $price, string $createdBy, ?string $difficulty=null, ?string $language=null, ?string $created_at=null)
+    public function __construct(string $courseID, string $title, ?string $description, float $price, ?string $difficulty=null, ?string $language=null, string $createdBy=null, ?string $created_at=null)
     {
         $this->courseID    = $courseID;
         $this->title       = $title;
