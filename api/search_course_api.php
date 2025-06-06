@@ -7,8 +7,29 @@ $service = new CourseService();
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
-        // Check if a 'title' parameter is provided for searching
-        if (isset($_GET['title']) && !empty($_GET['title'])) {
+        $isGetForCourseManagement = $_GET['isGetForCourseManagement'] ?? null;
+        $difficulty = $_GET['difficulty'] ?? null;
+        $language = $_GET['language'] ?? null;
+        if ($isGetForCourseManagement !== null && filter_var($isGetForCourseManagement, FILTER_VALIDATE_BOOLEAN) && isset($_GET['title']) && !empty($_GET['title'])) {
+            $title = $_GET['title'];
+            $response = $service->search_courses_by_title_for_course_management($title);
+            if ($response->success) {
+                http_response_code(200);
+                echo json_encode([
+                    'success' => $response->success,
+                    'data'    => $response->data
+                ]);
+                break;
+            } else {
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'data'    => null
+                ]);
+                break;
+            }
+        }
+        else if (isset($_GET['title']) && !empty($_GET['title'])) {
             $title = $_GET['title'];
             $response = $service->search_courses_by_title($title);
         } else {
@@ -16,9 +37,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
         }
 
         if ($response->success) {
-            http_response_code(200); // OK
+            http_response_code(200);
         } else {
-            http_response_code(500); // Internal Server Error or other appropriate code
+            http_response_code(500);
         }
         echo json_encode($response->data);
         break;

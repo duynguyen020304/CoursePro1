@@ -184,7 +184,7 @@ $c_file_loader_controller_url = $protocol . '://' . $host . $c_file_loader_contr
     <title>Thêm Nội dung Khóa học - Trang Quản Trị</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/font_awesome_all.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="css/admin_style.css" />
     <link rel="stylesheet" href="css/base_dashboard.css" />
     <style>
