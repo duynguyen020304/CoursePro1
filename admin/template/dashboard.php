@@ -1,8 +1,6 @@
 <?php
-// template/dashboard.php
 ?>
 
-<!-- Mobile topbar / offcanvas toggle -->
 <div class="topbar-sm d-lg-none d-flex justify-content-between align-items-center px-3 py-2 border-bottom bg-light">
     <button class="btn btn-dark" 
             type="button" 
@@ -15,11 +13,9 @@
     <div style="width: 40px;"></div>
 </div>
 
-<!-- Desktop sidebar with collapse button -->
 <div id="sidebar" class="sidebar d-none d-lg-block">
     <div class="sidebar-header d-flex align-items-center justify-content-between px-3 py-2">
         <a href="admin.php" class="text-white text-decoration-none">E-Course</a>
-        <!-- Collapse toggle -->
         <button type="button" id="sidebarCollapse" class="btn btn-sm btn-toggle" aria-label="Collapse sidebar">
             <i class="bi bi-chevron-left"></i>
         </button>
@@ -46,7 +42,6 @@
     </nav>
 </div>
 
-<!-- Offcanvas mobile menu -->
 <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
@@ -76,7 +71,6 @@
     </div>
 </div>
 
-<!-- Sidebar collapse script -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('sidebar');

@@ -72,7 +72,6 @@ function create_item()
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = json_decode(file_get_contents('php://input'), true);
 
-        // Lấy tham số từ input hoặc gán giá trị mặc định
         $cartItemID = $data['cartItemID'] ?? uniqid("cartItem_", true);
         $cartID = $data['cartID'] ?? '';
         $courseID = $data['courseID'] ?? '';
@@ -84,11 +83,9 @@ function create_item()
             return;
         }
 
-        // Tạo đối tượng DTO và BLL
         $itemDTO = new CartItemDTO($cartItemID, $cartID, $courseID, $quantity);
         $cartItemBLL = new CartItemBLL();
 
-        // Gọi phương thức create_item trong BLL
         $result = $cartItemBLL->create_item($itemDTO);
         if ($result) {
             echo json_encode(['status' => 'success', 'message' => 'Item created successfully']);
@@ -105,7 +102,6 @@ function get_items_by_cart()
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $cartID = $_GET['cartID'] ?? '';
 
-        // Kiểm tra CartID có được cung cấp không
         if (empty($cartID)) {
             echo json_encode(['status' => 'error', 'message' => 'Cart ID is required']);
             return;
@@ -126,7 +122,6 @@ function delete_item()
         $data = json_decode(file_get_contents('php://input'), true);
         $cartItemID = $data['cartItemID'] ?? '';
 
-        // Kiểm tra CartItemID có được cung cấp không
         if (empty($cartItemID)) {
             echo json_encode(['status' => 'error', 'message' => 'CartItemID is required']);
             return;
@@ -151,7 +146,6 @@ function clear_cart()
         $data = json_decode(file_get_contents('php://input'), true);
         $cartID = $data['cartID'] ?? '';
 
-        // Kiểm tra CartID có được cung cấp không
         if (empty($cartID)) {
             echo json_encode(['status' => 'error', 'message' => 'CartID is required']);
             return;

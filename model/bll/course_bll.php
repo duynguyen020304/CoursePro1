@@ -42,7 +42,6 @@ class CourseBLL extends Database
             ':price'        => is_numeric($c->price) ? (float)$c->price : 0,
             ':difficulty'   => $c->difficulty,
             ':language'     => $c->language,
-            ':createdBy'    => $c->createdBy,
         ];
 
         $stid = $this->executePrepared($sql, $bindParams);
@@ -103,9 +102,9 @@ class CourseBLL extends Database
                     $row['TITLE'],
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
-                    $row['CREATEDBY'],
                     $row['DIFFICULTY'],
                     $row['LANGUAGE'],
+                    $row['CREATEDBY'],
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
@@ -164,9 +163,9 @@ class CourseBLL extends Database
                     $row['TITLE'],
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
-                    $row['CREATEDBY'],
                     $row['DIFFICULTY'],
                     $row['LANGUAGE'],
+                    $row['CREATEDBY'],
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
@@ -176,9 +175,10 @@ class CourseBLL extends Database
         return $list;
     }
 
-    public function search_courses_by_title(string $title): array
+    public function search_courses_by_title(string $title, ?string $difficulty = null, ?string $language = null): array
     {
-        $sql = "BEGIN :result_cursor := COURSE_PKG.GET_COURSES_BY_TITLE_FUNC(:title_param); END;";
+        $sql = "BEGIN :result_cursor := COURSE_PKG.GET_COURSES_BY_TITLE_FUNC(:title_param, :difficulty_param, :language_param); END;";
+
         $list = [];
         $out_cursor = @oci_new_cursor($this->conn);
         if (!$out_cursor) {
@@ -194,6 +194,8 @@ class CourseBLL extends Database
         }
 
         @oci_bind_by_name($parsed_stid, ':title_param', $title);
+        @oci_bind_by_name($parsed_stid, ':difficulty_param', $difficulty);
+        @oci_bind_by_name($parsed_stid, ':language_param', $language);
         @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
 
         $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
@@ -226,9 +228,9 @@ class CourseBLL extends Database
                     $row['TITLE'],
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
-                    $row['CREATEDBY'],
                     $row['DIFFICULTY'],
                     $row['LANGUAGE'],
+                    $row['CREATEDBY'],
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
@@ -237,6 +239,7 @@ class CourseBLL extends Database
         @oci_free_statement($parsed_stid);
         return $list;
     }
+
 
     public function get_courses_by_difficulty_lang(string $difficulty, string $language): array
     {
@@ -290,9 +293,9 @@ class CourseBLL extends Database
                     $row['TITLE'],
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
-                    $row['CREATEDBY'],
                     $row['DIFFICULTY'],
                     $row['LANGUAGE'],
+                    $row['CREATEDBY'],
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
@@ -353,9 +356,9 @@ class CourseBLL extends Database
                     $row['TITLE'],
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
-                    $row['CREATEDBY'],
                     $row['DIFFICULTY'],
                     $row['LANGUAGE'],
+                    $row['CREATEDBY'],
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
@@ -416,9 +419,9 @@ class CourseBLL extends Database
                     $row['TITLE'],
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
-                    $row['CREATEDBY'],
                     $row['DIFFICULTY'],
                     $row['LANGUAGE'],
+                    $row['CREATEDBY'],
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }
@@ -482,9 +485,9 @@ class CourseBLL extends Database
                     $row['TITLE'],
                     $description,
                     isset($row['PRICE']) ? (float)$row['PRICE'] : 0.0,
-                    $row['CREATEDBY'],
                     $row['DIFFICULTY'],
                     $row['LANGUAGE'],
+                    $row['CREATEDBY'],
                     $row['CREATED_AT_FORMATTED'] ?? null
                 );
             }

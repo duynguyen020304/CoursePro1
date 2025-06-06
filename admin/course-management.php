@@ -3,15 +3,6 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-function truncate_text_with_ellipsis_raw($text, $max_length = 20, $ellipsis = '......') {
-    if ($text === null || $text === 'N/A') {
-        return $text;
-    }
-    if (mb_strlen($text, 'UTF-8') > $max_length) {
-        return mb_substr($text, 0, $max_length, 'UTF-8') . $ellipsis;
-    }
-    return $text;
-}
 
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
 $host = $_SERVER['HTTP_HOST'];
@@ -38,7 +29,7 @@ $app_root_path_relative = rtrim($app_root_path_relative, '/');
 define('APP_ROOT_URL_BASE', $protocol . '://' . $host . $app_root_path_relative);
 define('API_BASE', APP_ROOT_URL_BASE . '/api');
 define('APP_BASE_PATH_FOR_IMAGES', $app_root_path_relative);
-define('DEFAULT_PAGE_SIZE', 10);
+define('DEFAULT_PAGE_SIZE', 12);
 
 function callApi(string $endpoint, string $method = 'GET', array $payload = []): array
 {
@@ -59,10 +50,10 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
 
     $options = [
         'http' => [
-            'method'        => $methodUpper,
-            'header'        => $headers,
+            'method' => $methodUpper,
+            'header' => $headers,
             'ignore_errors' => true,
-            'timeout'       => 15,
+            'timeout' => 15,
         ]
     ];
 
@@ -74,7 +65,7 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
         }
     }
 
-    $context  = stream_context_create($options);
+    $context = stream_context_create($options);
     $response = @file_get_contents($url, false, $context);
     $responseHeaders = $http_response_header ?? [];
 
@@ -130,14 +121,40 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
     return $decodedResponse;
 }
 
-// Initial data load will be handled by JavaScript, but we still need categories and instructors for the modal.
-$catResp   = callApi('category_api.php', 'GET');
+$catResp = callApi('category_api.php', 'GET');
 $categories = $catResp['success'] ? ($catResp['data'] ?? []) : [];
 
 $instructorResp = callApi('instructor_api.php', 'GET');
 $instructors = $instructorResp['success'] ? ($instructorResp['data'] ?? []) : [];
 
-$languages = ["Arabic", "French", "German", "Hindi", "Indonesian", "Italian", "Japanese", "Korean", "Mandarin", "Polish", "Portuguese", "Russian", "Spanish", "Turkish", "Vietnamese"];
+$languages = [
+    ["language" => "Arabic", "locale" => "ar"],
+    ["language" => "French", "locale" => "fr"],
+    ["language" => "German", "locale" => "de"],
+    ["language" => "Hindi", "locale" => "hi"],
+    ["language" => "Indonesian", "locale" => "id"],
+    ["language" => "Italian", "locale" => "it"],
+    ["language" => "Japanese", "locale" => "ja"],
+    ["language" => "Korean", "locale" => "ko"],
+    ["language" => "Mandarin", "locale" => "zh"],
+    ["language" => "Polish", "locale" => "pl"],
+    ["language" => "Portuguese", "locale" => "pt"],
+    ["language" => "Russian", "locale" => "ru"],
+    ["language" => "Spanish", "locale" => "es"],
+    ["language" => "Turkish", "locale" => "tr"],
+    ["language" => "Vietnamese", "locale" => "vi"]
+];
+
+$language_locale_map = [];
+foreach ($languages as $lang) {
+    $language_locale_map[$lang['language']] = $lang['locale'];
+}
+
+$locale_language_map = [];
+foreach ($languages as $lang) {
+    $locale_language_map[$lang['locale']] = $lang['language'];
+}
+
 $difficulties = ["Beginner", "Intermediate", "Expert"];
 
 ?>
@@ -145,43 +162,53 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
 <html lang="vi">
 
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>Quản lý Khóa học</title>
     <link href="css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet" />
     <link href="css/base_dashboard.css" rel="stylesheet" />
     <link href="css/admin_style.css" rel="stylesheet" />
     <style>
         .action-buttons .btn {
             margin-right: .25rem;
         }
+
         .action-buttons .btn:last-child {
             margin-right: 0;
         }
+
         .modal-dialog-scrollable .modal-body {
             max-height: calc(100vh - 260px);
             overflow-y: auto;
         }
+
         .list-group-item span .btn {
             padding: 0.1rem 0.3rem;
             font-size: 0.8rem;
         }
+
         #courseObjectivesList .list-group-item,
         #courseRequirementsList .list-group-item {
             padding: 0.5rem 0.75rem;
         }
+
         .sub-item-input-group .form-control {
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
         }
+
         .sub-item-input-group .btn {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
         }
-        .filter-controls .form-select, .filter-controls .form-control {
+
+        .filter-controls .form-select,
+        .filter-controls .form-control {
             font-size: 0.9rem;
         }
-        .table th, .table td {
+
+        .table th,
+        .table td {
             vertical-align: middle;
         }
     </style>
@@ -218,7 +245,8 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
                 <div class="row g-3 align-items-end">
                     <div class="col-md-4">
                         <label for="searchInput" class="form-label">Tìm kiếm</label>
-                        <input type="text" id="searchInput" class="form-control" placeholder="ID hoặc Tiêu đề khóa học...">
+                        <input type="text" id="searchInput" class="form-control"
+                               placeholder="ID hoặc Tiêu đề khóa học...">
                     </div>
                     <div class="col-md-3">
                         <label for="difficultyFilter" class="form-label">Độ khó</label>
@@ -234,12 +262,13 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
                         <select id="languageFilter" class="form-select">
                             <option value="">Tất cả Ngôn ngữ</option>
                             <?php foreach ($languages as $lang): ?>
-                                <option value="<?= htmlspecialchars($lang) ?>"><?= htmlspecialchars($lang) ?></option>
+                                <option value="<?= htmlspecialchars($lang['locale']) ?>"><?= htmlspecialchars($lang['language']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <button id="applyFiltersBtn" class="btn btn-info w-100"><i class="bi bi-funnel-fill"></i> Lọc</button>
+                        <button id="applyFiltersBtn" class="btn btn-info w-100"><i class="bi bi-funnel-fill"></i> Lọc
+                        </button>
                     </div>
                 </div>
             </div>
@@ -261,16 +290,23 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
                 </thead>
                 <tbody id="coursesTableBody">
                 <tr>
-                    <td colspan="8" class="text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></td>
+                    <td colspan="8" class="text-center p-5">
+                        <div class="spinner-border text-primary" role="status"><span
+                                    class="visually-hidden">Đang tải...</span></div>
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
         <nav aria-label="Course navigation">
             <ul class="pagination justify-content-center" id="paginationControls">
-                <li class="page-item" id="prevPageItem"><button class="page-link" id="prevPageLink">Trước</button></li>
+                <li class="page-item" id="prevPageItem">
+                    <button class="page-link" id="prevPageLink">Trước</button>
+                </li>
                 <li class="page-item disabled"><span class="page-link" id="currentPageNumber">1</span></li>
-                <li class="page-item" id="nextPageItem"><button class="page-link" id="nextPageLink">Sau</button></li>
+                <li class="page-item" id="nextPageItem">
+                    <button class="page-link" id="nextPageLink">Sau</button>
+                </li>
             </ul>
         </nav>
     </div>
@@ -279,9 +315,10 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
 <div class="modal fade" id="courseModal" tabindex="-1" aria-labelledby="courseModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
-            <form id="courseForm" method="POST" action="../controller/c_course_management.php" enctype="multipart/form-data">
-                <input type="hidden" name="act" id="formAct" value="create" />
-                <input type="hidden" name="CourseID" id="modalCourseID" />
+            <form id="courseForm" method="POST" action="../controller/c_course_management.php"
+                  enctype="multipart/form-data">
+                <input type="hidden" name="act" id="formAct" value="create"/>
+                <input type="hidden" name="CourseID" id="modalCourseID"/>
                 <div class="modal-header">
                     <h5 class="modal-title" id="courseModalLabel">Thêm Khóa học</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -291,12 +328,13 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="Title" id="modalTitle" required />
+                                <input type="text" class="form-control" name="Title" id="modalTitle" required/>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Giá (₫) <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="Price" id="modalPrice" step="1000" min="0" required />
+                                    <input type="number" class="form-control" name="Price" id="modalPrice" step="1000"
+                                           min="0" required/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Độ khó <span class="text-danger">*</span></label>
@@ -313,16 +351,19 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
                                 <select class="form-select" name="Language" id="modalLanguage" required>
                                     <option value="" disabled selected>Chọn ngôn ngữ</option>
                                     <?php foreach ($languages as $lang): ?>
-                                        <option value="<?= htmlspecialchars($lang) ?>"><?= htmlspecialchars($lang) ?></option>
+                                        <option value="<?= htmlspecialchars($lang['locale']) ?>"><?= htmlspecialchars($lang['language']) ?></option>
+
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Giảng viên <span class="text-danger">*</span></label>
-                                <select class="form-select" name="Instructors[]" id="modalInstructors" multiple required>
+                                <select class="form-select" name="Instructors[]" id="modalInstructors" multiple
+                                        required>
                                     <?php if (!empty($instructors)): foreach ($instructors as $instructor): ?>
                                         <option value="<?= htmlspecialchars($instructor['instructorID']) ?>"><?= htmlspecialchars($instructor['firstName'] . " " . $instructor['lastName']) ?></option>
-                                    <?php endforeach; endif; ?>
+                                    <?php endforeach;
+                                    endif; ?>
                                 </select>
                                 <small class="form-text text-muted">Giữ Ctrl/Cmd để chọn nhiều.</small>
                             </div>
@@ -331,47 +372,60 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
                                 <select class="form-select" name="Categories[]" id="modalCategories" multiple required>
                                     <?php if (!empty($categories)): foreach ($categories as $cat): ?>
                                         <option value="<?= htmlspecialchars($cat['id'] ?? $cat['categoryID']) ?>"><?= htmlspecialchars($cat['name'] ?? $cat['categoryName']) ?></option>
-                                    <?php endforeach; endif; ?>
+                                    <?php endforeach;
+                                    endif; ?>
                                 </select>
                                 <small class="form-text text-muted">Giữ Ctrl/Cmd để chọn nhiều.</small>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Mô tả chi tiết</label>
-                                <textarea class="form-control" name="Description" id="modalDescription" rows="3"></textarea>
+                                <textarea class="form-control" name="Description" id="modalDescription"
+                                          rows="3"></textarea>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Ảnh đại diện</label>
-                                <input type="file" class="form-control" name="CourseImage" id="modalCourseImage" accept="image/jpeg,image/png,image/webp" />
-                                <img id="modalImagePreview" src="#" alt="Xem trước ảnh" class="mt-2 img-fluid rounded" style="max-height:150px; display:none;" />
+                                <input type="file" class="form-control" name="CourseImage" id="modalCourseImage"
+                                       accept="image/jpeg,image/png,image/webp"/>
+                                <img id="modalImagePreview" src="#" alt="Xem trước ảnh" class="mt-2 img-fluid rounded"
+                                     style="max-height:150px; display:none;"/>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Mục tiêu khóa học</label>
-                                <div id="courseObjectivesList" class="list-group mb-2" style="max-height: 200px; overflow-y: auto;"></div>
+                                <div id="courseObjectivesList" class="list-group mb-2"
+                                     style="max-height: 200px; overflow-y: auto;"></div>
                                 <div class="input-group sub-item-input-group">
-                                    <input type="text" class="form-control" id="newObjectiveText" placeholder="Nhập mục tiêu mới" />
-                                    <button class="btn btn-outline-success" type="button" id="addObjectiveBtn"><i class="bi bi-plus-circle-fill"></i> Thêm</button>
+                                    <input type="text" class="form-control" id="newObjectiveText"
+                                           placeholder="Nhập mục tiêu mới"/>
+                                    <button class="btn btn-outline-success" type="button" id="addObjectiveBtn"><i
+                                                class="bi bi-plus-circle-fill"></i> Thêm
+                                    </button>
                                 </div>
-                                <input type="hidden" id="editingObjectiveID" />
+                                <input type="hidden" id="editingObjectiveID"/>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Yêu cầu khóa học</label>
-                                <div id="courseRequirementsList" class="list-group mb-2" style="max-height: 200px; overflow-y: auto;"></div>
+                                <div id="courseRequirementsList" class="list-group mb-2"
+                                     style="max-height: 200px; overflow-y: auto;"></div>
                                 <div class="input-group sub-item-input-group">
-                                    <input type="text" class="form-control" id="newRequirementText" placeholder="Nhập yêu cầu mới" />
-                                    <button class="btn btn-outline-success" type="button" id="addRequirementBtn"><i class="bi bi-plus-circle-fill"></i> Thêm</button>
+                                    <input type="text" class="form-control" id="newRequirementText"
+                                           placeholder="Nhập yêu cầu mới"/>
+                                    <button class="btn btn-outline-success" type="button" id="addRequirementBtn"><i
+                                                class="bi bi-plus-circle-fill"></i> Thêm
+                                    </button>
                                 </div>
-                                <input type="hidden" id="editingRequirementID" />
+                                <input type="hidden" id="editingRequirementID"/>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-save-fill me-1"></i> Lưu thay đổi</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save-fill me-1"></i> Lưu thay đổi
+                    </button>
                 </div>
             </form>
         </div>
@@ -386,14 +440,15 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
     const PROJECT_BASE = '<?= APP_ROOT_URL_BASE ?>';
     const DEFAULT_PAGE_SIZE_JS = <?= DEFAULT_PAGE_SIZE ?>;
 
-    const LANGS = <?= json_encode($languages) ?>;
+    const LANGUAGE_LOCALE_MAP = <?= json_encode($language_locale_map) ?>;
+    const LOCALE_LANGUAGE_MAP = <?= json_encode($locale_language_map) ?>;
     const DIFFICULTIES_JS = <?= json_encode($difficulties) ?>;
 
     let currentPage = 1;
     let currentSearchTerm = '';
     let currentDifficultyFilter = '';
     let currentLanguageFilter = '';
-    let allCoursesCurrentPage = []; // To store fetched courses for client-side search
+    let allCoursesCurrentPage = [];
 
     function showAlert(message, type = 'success', duration = 3000) {
         const alertPlaceholder = document.getElementById('alertPlaceholder');
@@ -435,7 +490,10 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
             const response = await fetch(url, options);
             let responseData = {};
             if (response.status === 204) {
-                responseData = { success: true, message: 'Thao tác thành công, không có nội dung trả về.' };
+                responseData = {
+                    success: true,
+                    message: 'Thao tác thành công, không có nội dung trả về.'
+                };
             } else if (response.headers.get("content-type")?.includes("application/json")) {
                 responseData = await response.json();
             } else {
@@ -453,7 +511,12 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
             return responseData;
         } catch (error) {
             console.error(`Lỗi gọi API cho ${method} ${url}:`, error);
-            return { success: false, message: `Lỗi phía client: ${error.message}`, http_status_code: 0, data: null };
+            return {
+                success: false,
+                message: `Lỗi phía client: ${error.message}`,
+                http_status_code: 0,
+                data: null
+            };
         }
     }
 
@@ -461,9 +524,15 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
         if (typeof str !== 'string' && typeof str !== 'number') return '';
         str = String(str);
         const map = {
-            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
         };
-        return str.replace(/[&<>"']/g, function(m) { return map[m]; });
+        return str.replace(/[&<>"']/g, function (m) {
+            return map[m];
+        });
     }
 
     function truncateText(text, maxLength = 20, ellipsis = '...') {
@@ -487,37 +556,37 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
         }
 
         courses.forEach((course, index) => {
+            const languageLocale = course.language;
+            const languageFullName = LOCALE_LANGUAGE_MAP[languageLocale] || languageLocale || 'N/A';
             const row = tableBody.insertRow();
             row.innerHTML = `
-                <td>${(currentPage - 1) * DEFAULT_PAGE_SIZE_JS + index + 1}</td>
-                <td>${htmlspecialchars(truncateText(course.title, 30))}</td>
-                <td>${new Intl.NumberFormat('vi-VN').format(course.price || 0)} ₫</td>
-                <td>
-                    ${truncateText(course.instructors && Array.isArray(course.instructors) ? course.instructors.map(i => `${i.firstName || ''} ${i.lastName || ''}`.trim()).filter(name => name).join(', ') : 'N/A', 25)}
-                </td>
-                <td>
-                    ${truncateText(course.categories && Array.isArray(course.categories) ? course.categories.map(c => c.categoryName || c.name).join(', ') : 'N/A', 25)}
-                </td>
-                <td>${htmlspecialchars(course.difficulty || 'N/A')}</td>
-                <td>${htmlspecialchars(course.language || 'N/A')}</td>
-                <td class="text-end action-buttons">
-                    <button class="btn btn-sm btn-outline-primary edit-course"
-                            data-course='${htmlspecialchars(JSON.stringify(course))}'
-                            title="Sửa" type="button">
-                        <i class="bi bi-pencil-square"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger delete-course" data-id="${htmlspecialchars(course.courseID || '')}" title="Xóa">
-                        <i class="bi bi-trash3-fill"></i>
-                    </button>
-                </td>
-            `;
+            <td>${(currentPage - 1) * DEFAULT_PAGE_SIZE_JS + index + 1}</td>
+            <td>${htmlspecialchars(truncateText(course.title, 30))}</td>
+            <td>${new Intl.NumberFormat('vi-VN').format(course.price || 0)} ₫</td>
+            <td>
+                ${truncateText(course.instructors && Array.isArray(course.instructors) ? course.instructors.map(i => `${i.firstName || ''} ${i.lastName || ''}`.trim()).filter(name => name).join(', ') : 'N/A', 25)}
+            </td>
+            <td>
+                ${truncateText(course.categories && Array.isArray(course.categories) ? course.categories.map(c => c.categoryName || c.name).join(', ') : 'N/A', 25)}
+            </td>
+            <td>${htmlspecialchars(course.difficulty || 'N/A')}</td>
+            <td>${htmlspecialchars(languageFullName)}</td>  <td class="text-end action-buttons">
+                <button class="btn btn-sm btn-outline-primary edit-course"
+                        data-course='${htmlspecialchars(JSON.stringify(course))}'
+                        title="Sửa" type="button">
+                    <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger delete-course" data-id="${htmlspecialchars(course.courseID || '')}" title="Xóa">
+                    <i class="bi bi-trash3-fill"></i>
+                </button>
+            </td>
+        `;
         });
         addEventListenersToTableButtons();
     }
 
     function addEventListenersToTableButtons() {
         document.querySelectorAll('.edit-course').forEach(btn => {
-            // Remove existing event listener before adding a new one to prevent duplicates
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
             newBtn.addEventListener('click', handleEditCourse);
@@ -544,32 +613,47 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
     async function loadCourses(page = 1) {
         currentPage = page;
         const tableBody = document.getElementById('coursesTableBody');
+        const paginationControls = document.getElementById('paginationControls');
         tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></td></tr>`;
 
-        const params = {
-            page: currentPage,
-            pageSize: DEFAULT_PAGE_SIZE_JS
-        };
-        if (currentDifficultyFilter) params.difficulty = currentDifficultyFilter;
-        if (currentLanguageFilter) params.language = currentLanguageFilter;
+        let response;
+        if (currentSearchTerm) {
+            paginationControls.style.display = 'none';
 
-        const response = await fetchApi('course_api.php', 'GET', params);
+            const params = {
+                title: currentSearchTerm,
+                isGetForCourseManagement: true,
+            };
+            if (currentDifficultyFilter) params.difficulty = currentDifficultyFilter;
+            if (currentLanguageFilter) params.language = currentLanguageFilter;
+
+            response = await fetchApi('search_course_api.php', 'GET', params);
+            console.log(response)
+
+        } else {
+            paginationControls.style.display = 'flex';
+
+            const params = {
+                page: currentPage,
+                pageSize: DEFAULT_PAGE_SIZE_JS
+            };
+            if (currentDifficultyFilter) params.difficulty = currentDifficultyFilter;
+            if (currentLanguageFilter) params.language = currentLanguageFilter;
+
+            response = await fetchApi('course_api.php', 'GET', params);
+        }
 
         if (response.success && response.data) {
-            allCoursesCurrentPage = response.data; // Store for client-side search
-            let coursesToDisplay = allCoursesCurrentPage;
-            if (currentSearchTerm) {
-                const searchTermLower = currentSearchTerm.toLowerCase();
-                coursesToDisplay = allCoursesCurrentPage.filter(course => {
-                    return (course.title && course.title.toLowerCase().includes(searchTermLower)) ||
-                        (course.courseID && course.courseID.toLowerCase().includes(searchTermLower));
-                });
+            renderCoursesTable(response.data);
+            if (!currentSearchTerm) {
+                updatePaginationControls(response.data.length);
             }
-            renderCoursesTable(coursesToDisplay);
-            updatePaginationControls(response.data.length); // Use original length for pagination logic
         } else {
-            tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Lỗi khi tải khóa học: ${response.message || 'Unknown error'}</td></tr>`;
-            updatePaginationControls(0);
+            const message = response.message || 'Lỗi không xác định';
+            tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Lỗi: ${message}</td></tr>`;
+            if (!currentSearchTerm) {
+                updatePaginationControls(0);
+            }
         }
     }
 
@@ -677,7 +761,10 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
 
         const editingID = editingObjectiveIDInput.value;
         let response;
-        const payload = { courseID: currentCourseIDForSubItems, objective: objectiveText };
+        const payload = {
+            courseID: currentCourseIDForSubItems,
+            objective: objectiveText
+        };
         if (editingID) {
             payload.objectiveID = editingID;
             response = await fetchApi('course_objective_api.php', 'PUT', payload);
@@ -715,7 +802,9 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
             newObjectiveText.focus();
         } else if (target.classList.contains('delete-objective')) {
             if (window.confirm('Bạn có chắc muốn xóa mục tiêu này?')) { // Consider custom modal for confirm
-                const response = await fetchApi('course_objective_api.php', 'DELETE', { objectiveID });
+                const response = await fetchApi('course_objective_api.php', 'DELETE', {
+                    objectiveID
+                });
                 if (response.success) {
                     showAlert('Xóa mục tiêu thành công!');
                     loadObjectives(currentCourseIDForSubItems);
@@ -765,7 +854,10 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
 
         const editingID = editingRequirementIDInput.value;
         let response;
-        const payload = { courseID: currentCourseIDForSubItems, requirement: requirementText };
+        const payload = {
+            courseID: currentCourseIDForSubItems,
+            requirement: requirementText
+        };
 
         if (editingID) {
             payload.requirementID = editingID;
@@ -804,7 +896,9 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
             newRequirementText.focus();
         } else if (target.classList.contains('delete-requirement')) {
             if (window.confirm('Bạn có chắc muốn xóa yêu cầu này?')) { // Consider custom modal
-                const response = await fetchApi('course_requirement_api.php', 'DELETE', { requirementID });
+                const response = await fetchApi('course_requirement_api.php', 'DELETE', {
+                    requirementID
+                });
                 if (response.success) {
                     showAlert('Xóa yêu cầu thành công!');
                     loadRequirements(currentCourseIDForSubItems);
@@ -834,7 +928,6 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
             imageInput.value = '';
 
             resetSubItemsUI();
-            // For new courses, objectives/requirements can only be added after the course is saved.
             objectivesListDiv.innerHTML = '<div class="text-center text-muted p-2">Lưu khóa học để thêm mục tiêu.</div>';
             requirementsListDiv.innerHTML = '<div class="text-center text-muted p-2">Lưu khóa học để thêm yêu cầu.</div>';
             addObjectiveBtn.disabled = true;
@@ -861,7 +954,7 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
             titleInput.value = data.title || '';
             priceInput.value = data.price || '0';
             difficultySelect.value = data.difficulty || '';
-            languageSelect.value = data.language || '';
+            languageSelect.value = LANGUAGE_LOCALE_MAP[data.language] || '';
             descriptionInput.value = data.description || '';
             courseModalLabel.textContent = 'Sửa Khóa học';
 
@@ -934,17 +1027,13 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
     function handleDeleteCourse(event) {
         const btn = event.currentTarget;
         event.preventDefault();
-        // Replace window.confirm with a custom modal for better UX if possible
         if (!window.confirm('Bạn có chắc muốn xóa khóa học này? Hành động này không thể hoàn tác.')) return;
         const courseIdToDelete = btn.getAttribute('data-id');
         if (!courseIdToDelete) {
             showAlert('Lỗi: Không tìm thấy ID khóa học để xóa.', 'danger');
             return;
         }
-        // The form submission will handle actual deletion via c_course_management.php
-        // For immediate UI update and consistency with API-first approach, could call API directly:
-        // fetchApi(`course_api.php`, 'DELETE', { courseID: courseIdToDelete }).then(response => { ... });
-        // However, to stick to the current pattern for delete:
+
         window.location.href = `../controller/c_course_management.php?act=delete&courseID=${encodeURIComponent(courseIdToDelete)}`;
     }
 
@@ -967,7 +1056,6 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
         addRequirementBtn.disabled = true;
     });
 
-    // Event listeners for filters and search
     document.getElementById('applyFiltersBtn').addEventListener('click', () => {
         currentSearchTerm = document.getElementById('searchInput').value.trim();
         currentDifficultyFilter = document.getElementById('difficultyFilter').value;
@@ -978,8 +1066,6 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
     document.getElementById('searchInput').addEventListener('keyup', (event) => {
         if (event.key === 'Enter') {
             currentSearchTerm = document.getElementById('searchInput').value.trim();
-            // Client-side search: re-filter current data or reload if server-side search is preferred and API supports it
-            // For now, triggering a full filter apply which re-fetches and then client-searches
             document.getElementById('applyFiltersBtn').click();
         }
     });
@@ -994,7 +1080,6 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
 
     document.getElementById('nextPageLink').addEventListener('click', (e) => {
         e.preventDefault();
-        // Check if next button is not disabled (implicitly done by numItemsOnPage < DEFAULT_PAGE_SIZE_JS)
         loadCourses(currentPage + 1);
     });
 
@@ -1002,7 +1087,7 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
     document.addEventListener('DOMContentLoaded', () => {
         loadCourses(1);
     });
-
 </script>
 </body>
+
 </html>

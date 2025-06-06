@@ -39,21 +39,17 @@ define('API_BASE', $protocol . '://' . $host . $app_root_path_relative . '/api')
 function callApi(string $endpoint, string $method = 'GET', array $payload = []): array
 {
     $url = API_BASE . '/' . ltrim($endpoint, '/');
-    $methodUpper = strtoupper($method); // Chuyển method thành chữ hoa để xử lý nhất quán
+    $methodUpper = strtoupper($method);
 
-    // Nếu là GET và có $payload, xây dựng query string
     if ($methodUpper === 'GET' && !empty($payload)) {
         $url .= '?' . http_build_query($payload);
     }
 
-    // Khởi tạo chuỗi header
     $headers = "Content-Type: application/json; charset=utf-8\r\n" .
         "Accept: application/json\r\n";
 
-    // Lấy token từ session nếu có
     $token = $_SESSION['user']['token'] ?? null;
 
-    // Nếu có token, thêm header Authorization
     if ($token) {
         $headers .= "Authorization: Bearer " . $token . "\r\n";
     }
@@ -61,17 +57,15 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
     $options = [
         'http' => [
             'method'        => $methodUpper,
-            'header'        => $headers, // Sử dụng chuỗi headers đã được cập nhật
+            'header'        => $headers,
             'ignore_errors' => true,
         ]
     ];
 
-    // Chỉ thêm 'content' (body) cho các method không phải GET và có $payload
     if ($methodUpper !== 'GET') {
         if (!empty($payload)) {
             $options['http']['content'] = json_encode($payload);
         } else if (in_array($methodUpper, ['POST', 'PUT'])) {
-            // Gửi một đối tượng JSON rỗng nếu không có payload cho POST/PUT
             $options['http']['content'] = '{}';
         }
     }
@@ -80,7 +74,7 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
     $response = @file_get_contents($url, false, $context);
     $result   = json_decode($response, true);
 
-    $status_code = 500; // Mặc định là lỗi server nếu không lấy được header
+    $status_code = 500;
     if (isset($http_response_header[0])) {
         preg_match('{HTTP\/\S*\s(\d{3})}', $http_response_header[0], $match);
         if (isset($match[1])) {
@@ -88,29 +82,27 @@ function callApi(string $endpoint, string $method = 'GET', array $payload = []):
         }
     }
 
-    // Nếu $result không phải là mảng (ví dụ: lỗi decode JSON), trả về cấu trúc lỗi chuẩn
     if (!is_array($result)) {
         return [
             'success' => false,
             'message' => 'Invalid API response or failed to decode JSON.',
             'data' => null,
-            'raw_response' => $response, // Giữ lại raw response để debug
+            'raw_response' => $response,
             'http_status_code' => $status_code
         ];
     }
 
-    // Đảm bảo có 'http_status_code' và 'success' trong kết quả trả về
     $result['http_status_code'] = $status_code;
     if (!isset($result['success'])) {
         $result['success'] = ($status_code >= 200 && $status_code < 300);
     }
     return $result;
 }
-// Giả sử các biến này đã được lấy từ database hoặc service
-$totalCourses = 0; // Thay thế bằng số liệu thật
-$totalUsers = 0;   // Thay thế bằng số liệu thật
-$totalRevenueMonth = 0; // Thay thế bằng số liệu thật
-$newOrdersToday = 0;  // Thay thế bằng số liệu thật
+
+$totalCourses = 0;
+$totalUsers = 0;
+$totalRevenueMonth = 0;
+$newOrdersToday = 0;
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -120,7 +112,7 @@ $newOrdersToday = 0;  // Thay thế bằng số liệu thật
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="css/base_dashboard.css">
     <link rel="stylesheet" href="css/admin_style.css"> <style>
         .stat-card {

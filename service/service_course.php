@@ -680,14 +680,16 @@ class CourseService
         }
     }
 
-    public function search_courses_by_title(string $title): ServiceResponse
+    public function search_courses_by_title(string $title, ?string $difficulty = null, ?string $language = null): ServiceResponse
     {
         try {
-            $list_course = $this->courseBll->search_courses_by_title($title);
+            $list_course = $this->courseBll->search_courses_by_title($title, $difficulty, $language);
+
             $list_course_with_details = [];
             foreach ($list_course as $course) {
                 $instructor_dtos_for_course = $this->courseInstructorBll->get_instructors_by_course_id($course->courseID);
                 $course_images = $this->courseImageBll->get_images_by_course_id($course->courseID);
+
                 $instructors_info = [];
                 if (!empty($instructor_dtos_for_course)) {
                     foreach ($instructor_dtos_for_course as $instructor_dto) {
@@ -704,6 +706,7 @@ class CourseService
                         }
                     }
                 }
+
                 $tmp_course_images = [];
                 if (!empty($course_images)) {
                     foreach ($course_images as $course_image) {
@@ -713,12 +716,15 @@ class CourseService
                         ];
                     }
                 }
+
                 $list_course_with_details[] = [
                     'courseID' => $course->courseID,
                     'title' => $course->title,
                     'description' => $course->description,
                     'price' => $course->price,
                     'createdBy' => $course->createdBy,
+                    'difficulty' => $course->difficulty,
+                    'language' => $course->language,
                     'instructors' => $instructors_info,
                     'images' => $tmp_course_images,
                 ];
@@ -729,17 +735,65 @@ class CourseService
         }
     }
 
-    public function get_courses_by_difficulty_lang_service(?string $difficulty=null, ?string $language=null): ServiceResponse
+    public function search_courses_by_title_for_course_management(string $title, ?string $difficulty = null, ?string $language = null): ServiceResponse
+    {
+        try {
+            $list_course = $this->courseBll->search_courses_by_title($title, $difficulty, $language);
+            $list_course_with_instructors_details = [];
+            foreach ($list_course as $course) {
+                $instructor_dtos_for_course = $this->courseInstructorBll->get_instructors_by_course_id($course->courseID);
+                $course_categories = $this->courseCategoryBll->get_categories_by_course_id($course->courseID);
+                $course_images = $this->courseImageBll->get_images_by_course_id($course->courseID);
+                $instructors_info = [];
+                if (!empty($instructor_dtos_for_course)) {
+                    foreach ($instructor_dtos_for_course as $instructor_dto) {
+                        $instructor = $this->instructorBll->get_instructor($instructor_dto->instructorID);
+                        $instructor_user = $this->userBll->get_user_by_user_id($instructor->userID);
+                        $instructors_info[] = [
+                            'instructorID' => $instructor_dto->instructorID,
+                            'userID' => $instructor_user->userID,
+                            'firstName' => $instructor_user->firstName,
+                            'lastName' => $instructor_user->lastName,
+                        ];
+                    }
+                }
+                $tmp_course_categories = [];
+                if (!empty($course_categories)) {
+                    foreach ($course_categories as $course_category) {
+                        $category_name = $this->categoryBll->get_category($course_category->categoryID)->name;
+                        $tmp_course_categories[] = [
+                            'categoryID' => $course_category->categoryID,
+                            'categoryName' => $category_name,
+                        ];
+                    }
+                }
+                $list_course_with_instructors_details[] = [
+                    'courseID' => $course->courseID,
+                    'title' => $course->title,
+                    'description' => $course->description,
+                    'price' => $course->price,
+                    'difficulty' => $course->difficulty,
+                    'language' => $course->language,
+                    'createdBy' => $course->createdBy,
+                    'categories' => $tmp_course_categories,
+                    'instructors' => $instructors_info,
+                ];
+            }
+            return new ServiceResponse(true, 'Lấy danh sách thành công', $list_course_with_instructors_details);
+        } catch (Exception $e) {
+            return new ServiceResponse(false, 'Lỗi khi lấy danh sách: ' . $e->getMessage());
+        }
+    }
+
+    public function get_courses_by_difficulty_lang_service(?string $difficulty = null, ?string $language = null): ServiceResponse
     {
         try {
             $list_course = [];
             if (empty($difficulty) && !empty($language)) {
                 $list_course = $this->courseBll->get_courses_by_language($language);
-            }
-            else if (!empty($difficulty) && empty($language)) {
+            } else if (!empty($difficulty) && empty($language)) {
                 $list_course = $this->courseBll->get_courses_by_difficulty($difficulty);
-            }
-            else if (!empty($difficulty) && !empty($language)) {
+            } else if (!empty($difficulty) && !empty($language)) {
                 $list_course = $this->courseBll->get_courses_by_difficulty_lang($difficulty, $language);
             }
             $list_course_with_instructors_details = [];

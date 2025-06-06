@@ -120,15 +120,17 @@ switch ($act) {
         $title = trim($_POST['Title'] ?? '');
         $priceInput = str_replace(',', '', trim($_POST['Price'] ?? '0'));
         $price = is_numeric($priceInput) ? floatval($priceInput) : 0;
-
         $instructors = isset($_POST['Instructors']) && is_array($_POST['Instructors']) ? $_POST['Instructors'] : [];
         $categories = isset($_POST['Categories']) && is_array($_POST['Categories']) ? $_POST['Categories'] : [];
-
         $createdBy = trim($_POST['CreatedBy'] ?? ($_SESSION['user']['userID'] ?? ''));
         $description = trim($_POST['Description'] ?? '');
+        $difficulty = trim($_POST['Difficulty'] ?? '');
+        $language = trim($_POST['Language'] ?? '');
 
         $isValid = true;
         if (empty($title)) $isValid = false;
+        if (empty($difficulty)) $isValid = false;
+        if (empty($language)) $isValid = false;
         if ($price < 0) $isValid = false;
         if (empty($instructors)) $isValid = false;
         if (empty($categories)) $isValid = false;
@@ -144,6 +146,8 @@ switch ($act) {
             'title' => $title,
             'description' => $description,
             'price' => $price,
+            'difficulty' => $difficulty,
+            'language' => $language,
             'instructorsID' => $instructors,
             'categoriesID' => $categories,
             'createdBy' => $createdBy
