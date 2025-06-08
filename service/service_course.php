@@ -337,10 +337,22 @@ class CourseService
             $list_course = $this->courseBll->get_all_courses();
             $list_course_with_instructors_details = [];
             foreach ($list_course as $course) {
+                $course_images = $this->courseImageBll->get_images_by_course_id($course->courseID);
+                $tmp_course_images = [];
+                if (!empty($course_images)) {
+                    foreach ($course_images as $course_image) {
+                        $tmp_course_images[] = [
+                            'imageID' => $course_image->imageID,
+                            'imagePath' => $course_image->imagePath
+                        ];
+                    }
+                }
                 $list_course_with_instructors_details[] = [
                     'courseID' => $course->courseID,
                     'title' => $course->title,
+                    'images' => $tmp_course_images,
                 ];
+                
             }
             return new ServiceResponse(true, 'Lấy danh sách thành công', $list_course_with_instructors_details);
         } catch (Exception $e) {
