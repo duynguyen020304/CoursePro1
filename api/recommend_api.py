@@ -11,7 +11,7 @@ from flask_cors import CORS
 import requests
 import traceback
 import random
-from waitress import serve
+#from waitress import serve #ienable for windows compatibility
 
 
 DB_HOST = os.environ.get("DB_HOST", "localhost")
@@ -405,4 +405,4 @@ def recommend_for_course(course_id_param):
 
 if __name__ == "__main__":
     print("Khởi chạy Flask API server...")
-    serve(app, host='0.0.0.0', port=5001)
+    # serve(app, host='0.0.0.0', port=5001) #enable for windows compatibility

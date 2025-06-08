@@ -245,7 +245,7 @@ include('template/head.php');
 
                     let imageUrl;
                     if (course.images && Array.isArray(course.images) && course.images.length > 0) {
-                        const imageFilename = course.images[0];
+                        const imageFilename = course.images[0]['imagePath'];
                         if (typeof imageFilename === 'string' && imageFilename.trim() !== '') {
                             imageUrl = `http://localhost/CoursePro1/controller/c_file_loader.php?act=serve_image&course_id=${course.courseID}&image=${encodeURIComponent(imageFilename)}`;
                         }

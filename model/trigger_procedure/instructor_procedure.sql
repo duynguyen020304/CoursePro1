@@ -40,10 +40,6 @@ CREATE OR REPLACE PACKAGE BODY INSTRUCTOR_PKG AS
     BEGIN
         INSERT INTO INSTRUCTOR (InstructorID, UserID, Biography)
         VALUES (p_InstructorID, p_UserID, p_Biography);
-        -- PHP BLL checks for affectedRows === 1. SQL%ROWCOUNT will be 1 on success.
-        -- Oracle will handle PK violation (InstructorID).
-        -- Oracle will handle UQ violation (UserID).
-        -- Oracle will handle FK violation (UserID in USERS).
     EXCEPTION
         WHEN DUP_VAL_ON_INDEX THEN
             RAISE_APPLICATION_ERROR(-20090, 'Instructor with InstructorID ''' || p_InstructorID || ''' or UserID ''' || p_UserID || ''' already exists.');
