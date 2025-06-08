@@ -159,21 +159,29 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
 <style>
     /* Styles for the existing search input and icon button */
     .search-form .search-input-wrapper {
-        position: relative; /* For positioning the suggestions dropdown */
-        width: 100%; /* Ensure wrapper takes full width in its container */
-        max-width: 600px; /* Optional: constrain max width like Udemy */
+        position: relative;
+        /* For positioning the suggestions dropdown */
+        width: 100%;
+        /* Ensure wrapper takes full width in its container */
+        max-width: 600px;
+        /* Optional: constrain max width like Udemy */
     }
 
     .search-form .search-input.form-control {
-        padding-right: 3rem; /* Space for the search icon */
-        border-radius: 999px; /* Rounded like Udemy */
-        border: 1px solid #1c1d1f; /* Udemy-like border */
-        height: 46px; /* Udemy-like height */
+        padding-right: 3rem;
+        /* Space for the search icon */
+        border-radius: 999px;
+        /* Rounded like Udemy */
+        border: 1px solid #1c1d1f;
+        /* Udemy-like border */
+        height: 46px;
+        /* Udemy-like height */
         padding-left: 1.5rem;
     }
+
     .search-form .search-input.form-control:focus {
         border-color: #1c1d1f;
-        box-shadow: 0 0 0 0.2rem rgba(28,29,31,.25);
+        box-shadow: 0 0 0 0.2rem rgba(28, 29, 31, .25);
     }
 
 
@@ -182,7 +190,8 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
         right: 0;
         top: 0;
         height: 100%;
-        width: 3rem; /* Width of the icon button */
+        width: 3rem;
+        /* Width of the icon button */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -190,16 +199,21 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
         border: none;
         padding: 0;
         margin: 0;
-        color: #1c1d1f; /* Darker icon color */
+        color: #1c1d1f;
+        /* Darker icon color */
         cursor: pointer;
-        z-index: 4; /* Ensure icon is clickable over input */
-        border-top-right-radius: 999px; /* Match input rounding */
-        border-bottom-right-radius: 999px; /* Match input rounding */
+        z-index: 4;
+        /* Ensure icon is clickable over input */
+        border-top-right-radius: 999px;
+        /* Match input rounding */
+        border-bottom-right-radius: 999px;
+        /* Match input rounding */
     }
 
     .search-form .search-icon-inside-btn:hover,
     .search-form .search-icon-inside-btn:focus {
-        color: #0056b3; /* Keep hover effect or adjust as needed */
+        color: #0056b3;
+        /* Keep hover effect or adjust as needed */
         background-color: transparent;
         border: none;
         outline: none;
@@ -207,53 +221,69 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
     }
 
     .search-form .search-icon-inside-btn svg {
-        width: 18px; /* Slightly larger icon */
+        width: 18px;
+        /* Slightly larger icon */
         height: 18px;
     }
 
     /* Styles for the search suggestions dropdown */
     .search-suggestions-dropdown {
         position: absolute;
-        top: 100%; /* Position below the search input */
+        top: 100%;
+        /* Position below the search input */
         left: 0;
         right: 0;
         background-color: #fff;
         border: 1px solid #d1d7dc;
-        border-top: none; /* Optional: if you want it to look connected */
+        border-top: none;
+        /* Optional: if you want it to look connected */
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        z-index: 1050; /* High z-index to appear above other content */
-        max-height: 400px; /* Limit height and allow scrolling */
+        z-index: 1050;
+        /* High z-index to appear above other content */
+        max-height: 400px;
+        /* Limit height and allow scrolling */
         overflow-y: auto;
-        display: none; /* Hidden by default */
+        display: none;
+        /* Hidden by default */
         border-bottom-left-radius: 4px;
         border-bottom-right-radius: 4px;
     }
 
     .search-suggestions-dropdown .suggestion-item {
-        display: flex; /* Use flexbox for layout */
-        align-items: center; /* Vertically align items */
+        display: flex;
+        /* Use flexbox for layout */
+        align-items: center;
+        /* Vertically align items */
         padding: 10px 15px;
         cursor: pointer;
         text-decoration: none;
         color: #1c1d1f;
-        border-bottom: 1px solid #f0f0f0; /* Separator line */
+        border-bottom: 1px solid #f0f0f0;
+        /* Separator line */
     }
+
     .search-suggestions-dropdown .suggestion-item:last-child {
         border-bottom: none;
     }
 
 
     .search-suggestions-dropdown .suggestion-item:hover {
-        background-color: #f7f9fa; /* Light hover effect */
+        background-color: #f7f9fa;
+        /* Light hover effect */
     }
 
     .search-suggestions-dropdown .suggestion-item-image {
-        width: 60px; /* Fixed width for thumbnail */
-        height: 40px; /* Fixed height for thumbnail */
-        object-fit: cover; /* Ensure image covers the area */
+        width: 60px;
+        /* Fixed width for thumbnail */
+        height: 40px;
+        /* Fixed height for thumbnail */
+        object-fit: cover;
+        /* Ensure image covers the area */
         margin-right: 12px;
-        border: 1px solid #e0e0e0; /* Light border for image */
-        background-color: #f0f0f0; /* Placeholder background */
+        border: 1px solid #e0e0e0;
+        /* Light border for image */
+        background-color: #f0f0f0;
+        /* Placeholder background */
     }
 
     .search-suggestions-dropdown .suggestion-item-details {
@@ -276,6 +306,7 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
         margin: 0;
         line-height: 1.3;
     }
+
     .search-suggestions-dropdown .suggestion-item-loading,
     .search-suggestions-dropdown .suggestion-item-no-results {
         padding: 15px;
@@ -283,15 +314,21 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
         color: #505763;
         font-style: italic;
     }
-    .navbar-nav.right-nav { /* Ensure right nav items don't overlap with a wide search bar if navbar shrinks */
+
+    .navbar-nav.right-nav {
+        /* Ensure right nav items don't overlap with a wide search bar if navbar shrinks */
         flex-shrink: 0;
     }
-    .custom-navbar .search-form { /* Allow search form to take more space */
+
+    .custom-navbar .search-form {
+        /* Allow search form to take more space */
         flex-grow: 1;
         margin-left: 1rem !important;
         margin-right: 1rem !important;
-        display: flex; /* Added for centering search-input-wrapper */
-        justify-content: center; /* Added for centering search-input-wrapper */
+        display: flex;
+        /* Added for centering search-input-wrapper */
+        justify-content: center;
+        /* Added for centering search-input-wrapper */
     }
 </style>
 
@@ -303,7 +340,7 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
         </div>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -311,12 +348,12 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
             <form class="form-inline my-2 my-lg-0 search-form mx-auto" action="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/search-results.php" method="GET" id="courseSearchForm">
                 <div class="search-input-wrapper">
                     <input class="form-control search-input" type="search" name="query" id="searchInput"
-                           placeholder="Tìm kiếm khóa học..." aria-label="Search Courses" autocomplete="off">
+                        placeholder="Tìm kiếm khóa học..." aria-label="Search Courses" autocomplete="off">
                     <button type="submit" class="search-icon-inside-btn" aria-label="Search button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                             class="bi bi-search" viewBox="0 0 16 16">
+                            class="bi bi-search" viewBox="0 0 16 16">
                             <path
-                                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
                         </svg>
                     </button>
                     <div id="searchSuggestionsDropdown" class="search-suggestions-dropdown">
@@ -328,9 +365,9 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
                 <li class="nav-item">
                     <a class="nav-link position-relative" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/cart.php" aria-label="Giỏ hàng">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                             class="bi bi-cart" viewBox="0 0 16 16">
+                            class="bi bi-cart" viewBox="0 0 16 16">
                             <path
-                                    d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+                                d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
                         </svg>
                         <?php if ($cart_item_count > 0): ?>
                             <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" style="font-size: 0.6em; padding: 0.2em 0.35em; line-height: 1;">
@@ -357,7 +394,7 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
                         $avatar = strtoupper(mb_substr($emailPrefix, 0, 2, 'UTF-8'));
                         if (empty($avatar)) $avatar = '??'; // Default if email prefix is also short/empty
                     }
-                    ?>
+                ?>
                     <li class="nav-item dropdown user-avatar-nav">
                         <a class="nav-link avatar-btn" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="avatar-circle"><?php echo htmlspecialchars($avatar); ?></span>
@@ -370,7 +407,9 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
                                     <span class="text-muted small d-block"><?php echo htmlspecialchars($user['email']); ?></span>
                                 </div>
                             </li>
-                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <hr class="dropdown-divider my-1">
+                            </li>
                             <li><a class="dropdown-item" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/user.php"><i class="fas fa-book-open me-2"></i>Khóa học của tôi</a></li>
                             <li><a class="dropdown-item" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/cart.php"><i class="fas fa-shopping-cart me-2"></i>Giỏ hàng
                                     <?php if ($cart_item_count > 0): ?>
@@ -379,12 +418,18 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
                                 </a>
                             </li>
                             <li><a class="dropdown-item" href="#"><i class="fas fa-heart me-2"></i>Danh sách yêu thích</a></li>
-                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <hr class="dropdown-divider my-1">
+                            </li>
                             <li><a class="dropdown-item" href="#"><i class="fas fa-bell me-2"></i>Thông báo</a></li>
-                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <hr class="dropdown-divider my-1">
+                            </li>
                             <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Cài đặt tài khoản</a></li>
                             <li><a class="dropdown-item" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/purchase-history.php"><i class="fas fa-history me-2"></i>Lịch sử mua hàng</a></li>
-                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <hr class="dropdown-divider my-1">
+                            </li>
                             <li>
                                 <?php
                                 // Determine profile link based on user role
@@ -399,7 +444,9 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
                                 ?>
                                 <a class="dropdown-item" href="<?php echo htmlspecialchars($role_href); ?>"><i class="fas fa-user-circle me-2"></i>Hồ sơ</a>
                             </li>
-                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <hr class="dropdown-divider my-1">
+                            </li>
                             <li><a class="dropdown-item text-danger" href="<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>/logout.php"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
                         </ul>
                     </li>
@@ -483,10 +530,10 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
                             }
                             categoriesLoaded = true;
                         }).catch(error => {
-                        console.error("Error fetching categories:", error);
-                        categoryDropdown.innerHTML = `<li class='p-2 text-danger'>Lỗi tải danh mục: ${error.message}.</li>`;
-                        categoriesLoaded = true; // Set to true even on error to prevent retrying
-                    });
+                            console.error("Error fetching categories:", error);
+                            categoryDropdown.innerHTML = `<li class='p-2 text-danger'>Lỗi tải danh mục: ${error.message}.</li>`;
+                            categoriesLoaded = true; // Set to true even on error to prevent retrying
+                        });
                 }
             };
 
@@ -500,7 +547,7 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
             };
 
             categoryBtn.addEventListener("mouseenter", () => {
-                if(categoryTimeoutEnter) clearTimeout(categoryTimeoutEnter);
+                if (categoryTimeoutEnter) clearTimeout(categoryTimeoutEnter);
                 categoryTimeoutEnter = setTimeout(showDropdown, 50); // Slight delay before showing
             });
             categoryBtn.addEventListener("mouseleave", hideDropdown);
@@ -631,7 +678,8 @@ if (isset($_SESSION['user']['token']) && isset($_SESSION['user']['userID'])) {
                     // Construct image URL using c_file_loader.php
                     // Assumes course.images is an array and the first element is the image filename.
                     if (course.images && course.images.length > 0 && course.images[0]) {
-                        img.src = `${appRootPath}/controller/c_file_loader.php?act=serve_image&course_id=${course.courseID}&image=${encodeURIComponent(course.images[0])}`;
+                        console.log(course.images)
+                        img.src = `${appRootPath}/controller/c_file_loader.php?act=serve_image&course_id=${course.courseID}&image=${encodeURIComponent(course.images[0]['imagePath'])}`;
                         img.alt = course.title;
                     } else {
                         // Fallback placeholder if no image is available

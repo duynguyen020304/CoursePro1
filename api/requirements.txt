@@ -8,3 +8,5 @@ oracledb
 underthesea
 sentence-transformers
 requests
+gunicorn
+imagehash

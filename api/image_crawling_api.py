@@ -8,7 +8,7 @@ import imagehash
 from icrawler.builtin import GoogleImageCrawler, BingImageCrawler
 from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
-from waitress import serve
+# from waitress import serve #enable this for windows compatibility
 from concurrent.futures import ThreadPoolExecutor
 
 DB_FILE = "images.db"
@@ -93,12 +93,12 @@ def crawl_and_convert_image(title, language='vi'):
         )
         print(f"Bắt đầu crawl ảnh cho từ khóa '{title}'...")
         try:
-            google_crawler.crawl(keyword=title, max_num=100, file_idx_offset='auto', language=language)
+            google_crawler.crawl(keyword=title, max_num=25, file_idx_offset='auto', language=language)
             print("Crawl từ Google hoàn tất.")
         except Exception as e:
             print(f"Lỗi khi crawl từ Google: {e}")
         try:
-            bing_crawler.crawl(keyword=title, max_num=100, offset=0, file_idx_offset='auto')
+            bing_crawler.crawl(keyword=title, max_num=25, offset=0, file_idx_offset='auto')
             print("Crawl từ Bing hoàn tất.")
         except Exception as e:
             print(f"Lỗi khi crawl từ Bing: {e}")
@@ -154,5 +154,5 @@ def get_course_image():
 
 if __name__ == '__main__':
     init_db()
-    print("Khởi động máy chủ đa luồng với Waitress tại http://0.0.0.0:5000")
-    serve(app, host='0.0.0.0', port=5000, threads=16)
+    # print("Khởi động máy chủ crawl images đa luồng")
+    # serve(app, host='0.0.0.0', port=5000, threads=16) #enable this for windows compatibility
