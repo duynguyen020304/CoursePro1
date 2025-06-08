@@ -954,7 +954,8 @@ $difficulties = ["Beginner", "Intermediate", "Expert"];
             titleInput.value = data.title || '';
             priceInput.value = data.price || '0';
             difficultySelect.value = data.difficulty || '';
-            languageSelect.value = LANGUAGE_LOCALE_MAP[data.language] || '';
+            // console.log(data.difficulty);
+            languageSelect.value = data.language || '';
             descriptionInput.value = data.description || '';
             courseModalLabel.textContent = 'Sửa Khóa học';
 
