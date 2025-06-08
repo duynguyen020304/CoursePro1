@@ -25,7 +25,7 @@ class UserInitializer
         $isGenerateStudentSuccess = true;
         echo "Starting user initialization...\n";
         $passwordAdmin = password_hash("duyadmin123", PASSWORD_DEFAULT);
-        $adminID = str_replace('.', '_', uniqid('admin', true));
+        $adminID = str_replace('.', '_', uniqid('admin_', true));
         $admin_sql = "INSERT INTO Users (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage) VALUES ('{$adminID}', 'Duy', 'Admin', 'duyadmin123@example.com', '{$passwordAdmin}', 'admin', 'null')";
         $this->db->execute($admin_sql);
         // Create 4 instructor accounts
@@ -729,7 +729,7 @@ class UserInitializer
 
         if ($isGenerateInstructorSuccess && $isGenerateStudentSuccess) {
             ob_end_clean();
-            header("Location: course_initializer.php");
+            header("Location: course_initializer.php?admin_id=" . urlencode($adminID));
             exit();
         } else {
             ob_end_flush();

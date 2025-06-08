@@ -11,6 +11,8 @@ from flask_cors import CORS
 import requests
 import traceback
 import random
+from waitress import serve
+
 
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_PORT = int(os.environ.get("DB_PORT", 1521))
@@ -31,21 +33,6 @@ is_data_loaded = False
 def get_detailed_instruct(task_description: str, query: str) -> str:
     return f'Instruct: {task_description}\nQuery: {query}'
 
-def tokenize_text_vietnamese_underthesea(text):
-    if not isinstance(text, str):
-        return ""
-    try:
-        tokens = word_tokenize(text)
-        filtered_tokens = [token for token in tokens if token.lower() not in VIETNAMESE_STOP_WORDS]
-        return " ".join(filtered_tokens)
-    except Exception as e:
-        print(f"Lỗi khi tokenize với underthesea: {e}. Sử dụng split().")
-        try:
-            tokens = str(text).split()
-            filtered_tokens = [token for token in tokens if token.lower() not in VIETNAMESE_STOP_WORDS]
-            return " ".join(filtered_tokens)
-        except:
-             return str(text)
 
 def fetch_courses_from_oracle():
     dsn = f"{DB_HOST}:{DB_PORT}/{DB_SERVICE_NAME}"
@@ -57,7 +44,7 @@ def fetch_courses_from_oracle():
         connection = oracledb.connect(user=DB_USER, password=DB_PASSWORD, dsn=dsn)
         print("Kết nối Oracle thành công!")
         cursor = connection.cursor()
-        query_courses = "SELECT COURSEID, TITLE, DESCRIPTION FROM Course"
+        query_courses = "SELECT COURSEID, TITLE, DESCRIPTION, LANGUAGE, DIFFICULTY FROM Course"
         cursor.execute(query_courses)
         main_course_columns = [desc[0] for desc in cursor.description]
 
@@ -101,7 +88,7 @@ def fetch_courses_from_oracle():
         df = pd.DataFrame(courses_data)
         df.rename(columns={
             'COURSEID': 'course_id', 'TITLE': 'title', 'DESCRIPTION': 'description',
-            'objectives_text': 'objectives', 'requirements_text': 'requirements'
+            'objectives_text': 'objectives', 'requirements_text': 'requirements', 'LANGUAGE': 'language', 'DIFFICULTY': 'difficulty'
             }, inplace=True)
         print(f"Đã tải {len(df)} khóa học (bao gồm objectives, requirements) từ Oracle DB.")
         return df
@@ -121,7 +108,7 @@ def preprocess_data_from_db(db_data_df):
     if db_data_df is None or db_data_df.empty:
         print("Không có dữ liệu từ DB để tiền xử lý.")
         return None
-    expected_cols = ['course_id', 'title', 'description', 'objectives', 'requirements']
+    expected_cols = ['course_id', 'title', 'description', 'objectives', 'requirements', 'language', 'difficulty']
     for col in expected_cols:
         if col not in db_data_df.columns: db_data_df[col] = ''
     data = db_data_df[expected_cols].copy()
@@ -132,16 +119,15 @@ def preprocess_data_from_db(db_data_df):
     data['tags'] = (data['title'].fillna('') + ' ' + data['description'].fillna('') + ' ' +
                     data['objectives'].fillna('') + ' ' + data['requirements'].fillna(''))
     data['tags'] = data['tags'].str.strip().str.lower()
-    data['processed_tags_for_embedding'] = data['tags'].apply(tokenize_text_vietnamese_underthesea)
-    print("Tiền xử lý dữ liệu khóa học (tạo tags và processed_tags_for_embedding) hoàn tất.")
+    print("Tiền xử lý dữ liệu khóa học (tạo tags) hoàn tất.")
     return data
 
 def generate_course_embeddings_global(feature_df, model):
-    if feature_df is None or 'processed_tags_for_embedding' not in feature_df.columns or feature_df['processed_tags_for_embedding'].isnull().all():
-        print("Lỗi: Feature DataFrame không hợp lệ hoặc cột 'processed_tags_for_embedding' trống để tạo embeddings.")
+    if feature_df is None or 'tags' not in feature_df.columns or feature_df['tags'].isnull().all():
+        print("Lỗi: Feature DataFrame không hợp lệ hoặc cột 'tags' trống để tạo embeddings.")
         return None
 
-    documents_to_encode = feature_df['processed_tags_for_embedding'].tolist()
+    documents_to_encode = feature_df['tags'].tolist()
 
     print(f"Đang tạo embeddings cho {len(documents_to_encode)} khóa học...")
     try:
@@ -218,7 +204,7 @@ def get_recommendations_from_history_ids(history_ids_list, model, feature_df_glo
     for hist_course_id in history_ids_list:
         course_data_for_tags = feature_df_global[feature_df_global['course_id'] == hist_course_id]
         if not course_data_for_tags.empty:
-            history_tags_list.append(course_data_for_tags['processed_tags_for_embedding'].iloc[0])
+            history_tags_list.append(course_data_for_tags['tags'].iloc[0])
             valid_history_ids.append(hist_course_id)
 
     if not history_tags_list:
@@ -374,7 +360,7 @@ def recommend_for_course(course_id_param):
         return jsonify({"success": False, "message": f"Khóa học với ID '{course_id_param}' không có trong dữ liệu để tạo gợi ý.", "data": None}), 404
 
     target_course_index = target_course_data.index[0]
-    target_course_tag_for_embedding = target_course_data['processed_tags_for_embedding'].iloc[0]
+    target_course_tag_for_embedding = target_course_data['tags'].iloc[0]
 
     query_instruction_item = "Find courses similar to this course"
     query_for_item_embedding = get_detailed_instruct(query_instruction_item, target_course_tag_for_embedding)
@@ -395,7 +381,7 @@ def recommend_for_course(course_id_param):
 
     recommended_courses_details_list = []
     count = 0
-    top_n = 5
+    top_n = 100
     for item in sorted_scores_item:
         idx = item['index']
         score_val = item['score']
@@ -419,4 +405,4 @@ def recommend_for_course(course_id_param):
 
 if __name__ == "__main__":
     print("Khởi chạy Flask API server...")
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    serve(app, host='0.0.0.0', port=5001)
