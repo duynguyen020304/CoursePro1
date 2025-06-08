@@ -385,7 +385,7 @@ $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
     }
 </style>
 
-<?php if ($error_message): ?>
+<?php if ($error_message) : ?>
     <div class="course-hero-bg">
         <div class="course-hero-container" style="text-align: center; padding: 50px; color: red;">
             <h1>Đã xảy ra lỗi</h1>
@@ -393,23 +393,23 @@ $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
             <p><a href="<?php echo $app_root_url_for_paths; ?>/">Quay lại trang chủ</a></p>
         </div>
     </div>
-<?php elseif ($course_data): ?>
+<?php elseif ($course_data) : ?>
     <div class="course-hero-bg">
         <div class="course-hero-container">
             <div class="course-hero-main">
                 <nav class="course-breadcrumbs" aria-label="Điều hướng phân cấp">
-                    <?php if (!empty($course_data['categories']) && is_array($course_data['categories'])): ?>
-                        <?php foreach ($course_data['categories'] as $index => $category): ?>
+                    <?php if (!empty($course_data['categories']) && is_array($course_data['categories'])) : ?>
+                        <?php foreach ($course_data['categories'] as $index => $category) : ?>
                             <a href="#" tabindex="0"><?php echo htmlspecialchars($category['categoryName']); ?></a>
-                            <?php if ($index < count($course_data['categories']) - 1): ?> <span aria-hidden="true">›</span> <?php endif; ?>
+                            <?php if ($index < count($course_data['categories']) - 1) : ?> <span aria-hidden="true">›</span> <?php endif; ?>
                         <?php endforeach; ?>
-                    <?php else: ?> <a href="#" tabindex="0">Chưa phân loại</a> <?php endif; ?>
+                    <?php else : ?> <a href="#" tabindex="0">Chưa phân loại</a> <?php endif; ?>
                 </nav>
                 <h1 class="course-hero-title"><?php echo htmlspecialchars($course_data['title'] ?? 'N/A'); ?></h1>
                 <div class="course-hero-meta" role="list">
                     <span class="course-badge" role="listitem">Bán chạy nhất</span> <span class="course-rating" role="listitem"> <span class="course-rating-num">4.6</span>
                         <span class="course-stars" aria-hidden="true">
-                            <?php for ($i = 0; $i < 5; $i++): ?> <svg viewBox="0 0 20 20" width="14" height="14" fill="#f7b500">
+                            <?php for ($i = 0; $i < 5; $i++) : ?> <svg viewBox="0 0 20 20" width="14" height="14" fill="#f7b500">
                                     <path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"></path>
                                 </svg> <?php endfor; ?>
                         </span>
@@ -419,14 +419,14 @@ $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
                         </svg>764,815 học viên</span>
                 </div>
                 <div class="course-meta-author">Được dạy bởi
-                    <?php if (!empty($course_data['instructors']) && is_array($course_data['instructors'])):
+                    <?php if (!empty($course_data['instructors']) && is_array($course_data['instructors'])) :
                         $instructor_links = [];
                         foreach ($course_data['instructors'] as $instructor) {
                             $instructor_name = htmlspecialchars(($instructor['firstName'] ?? '') . ' ' . ($instructor['lastName'] ?? ''));
                             $instructor_links[] = '<a href="#" class="course-meta-link">' . trim($instructor_name) . '</a>';
                         }
                         echo implode(', ', $instructor_links);
-                    else: echo '<a href="#" class="course-meta-link">Đang cập nhật</a>';
+                    else : echo '<a href="#" class="course-meta-link">Đang cập nhật</a>';
                     endif; ?>
                 </div>
                 <div class="course-meta-date"> <svg width="14" height="14" fill="none" stroke="#999" stroke-width="2">
@@ -435,13 +435,13 @@ $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
                     </svg> <span>Cập nhật lần cuối 5/2020</span></div>
                 <div class="course-learn-card" role="region" aria-labelledby="learn-title">
                     <h2 id="learn-title" class="course-learn-title">Bạn sẽ học được gì</h2>
-                    <?php if (!empty($course_data['objectives']) && is_array($course_data['objectives'])): ?>
+                    <?php if (!empty($course_data['objectives']) && is_array($course_data['objectives'])) : ?>
                         <ul class="course-learn-list">
-                            <?php foreach ($course_data['objectives'] as $objective): ?> <li> <svg width="20" height="20" fill="none" stroke="#5624d0" stroke-width="3">
+                            <?php foreach ($course_data['objectives'] as $objective) : ?> <li> <svg width="20" height="20" fill="none" stroke="#5624d0" stroke-width="3">
                                     <polyline points="5 11 9 15 16 6" />
                                 </svg> <?php echo htmlspecialchars($objective['objective'] ?? 'N/A'); ?> </li> <?php endforeach; ?>
                         </ul>
-                    <?php else: ?> <p>Thông tin mục tiêu học tập đang được cập nhật.</p> <?php endif; ?>
+                    <?php else : ?> <p>Thông tin mục tiêu học tập đang được cập nhật.</p> <?php endif; ?>
                 </div>
                 <div class="course-content-card" role="region" aria-labelledby="content-title">
                     <div class="course-content-header-row">
@@ -462,18 +462,18 @@ $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
                     ?>
                     <div class="course-content-meta"><?php echo $total_chapters; ?> chương • <?php echo $total_lessons; ?> bài học</div>
                     <div class="course-content-accordion" id="course-content-accordion">
-                        <?php if (!empty($course_data['chapters']) && is_array($course_data['chapters'])): ?>
-                            <?php foreach ($course_data['chapters'] as $chapter_index => $chapter): ?>
+                        <?php if (!empty($course_data['chapters']) && is_array($course_data['chapters'])) : ?>
+                            <?php foreach ($course_data['chapters'] as $chapter_index => $chapter) : ?>
                                 <div class="course-section">
                                     <button class="course-section-toggle" aria-expanded="<?php echo $chapter_index === 0 ? 'true' : 'false'; ?>" aria-controls="chapter-<?php echo $chapter_index; ?>-content" onclick="toggleSyllabusSection(this)">
                                         <span class="course-section-title"><?php echo htmlspecialchars($chapter['chapterTitle'] ?? 'Chương'); ?></span>
                                         <span class="course-section-info"><?php echo (!empty($chapter['chapterLessons']) && is_array($chapter['chapterLessons'])) ? count($chapter['chapterLessons']) : 0; ?> bài học</span>
                                     </button>
                                     <div class="course-section-content <?php echo $chapter_index === 0 ? 'open' : ''; ?>" id="chapter-<?php echo $chapter_index; ?>-content">
-                                        <?php if (!empty($chapter['chapterDescription'])): ?> <p class="chapter-description"><?php echo htmlspecialchars($chapter['chapterDescription']); ?></p> <?php endif; ?>
+                                        <?php if (!empty($chapter['chapterDescription'])) : ?> <p class="chapter-description"><?php echo htmlspecialchars($chapter['chapterDescription']); ?></p> <?php endif; ?>
                                         <ul class="course-lecture-list">
-                                            <?php if (!empty($chapter['chapterLessons']) && is_array($chapter['chapterLessons'])): ?>
-                                                <?php foreach ($chapter['chapterLessons'] as $lesson_index => $lesson): ?>
+                                            <?php if (!empty($chapter['chapterLessons']) && is_array($chapter['chapterLessons'])) : ?>
+                                                <?php foreach ($chapter['chapterLessons'] as $lesson_index => $lesson) : ?>
                                                     <li class="lesson-entry">
                                                         <div class="lesson-header">
                                                             <div class="lesson-title-area">
@@ -483,7 +483,7 @@ $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
                                                                 <span><?php echo htmlspecialchars($lesson['lessonTitle'] ?? 'Bài học'); ?></span>
                                                             </div>
                                                             <div class="lesson-actions-area">
-                                                                <?php if (!empty($lesson['lessonResources']) || !empty($lesson['lessonVideos'])): ?>
+                                                                <?php if (!empty($lesson['lessonResources']) || !empty($lesson['lessonVideos'])) : ?>
                                                                     <button type="button" class="btn-lesson-resources" onclick="toggleLessonDetails(this, 'lesson-details-<?php echo $chapter_index . '-' . $lesson_index; ?>')">
                                                                         <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px; vertical-align: middle;">
                                                                             <path d="M5.5 16.5A1.5 1.5 0 014 15V5a1.5 1.5 0 011.5-1.5h5A1.5 1.5 0 0112 5v2.5a.75.75 0 001.5 0V5a3 3 0 00-3-3h-5A3 3 0 002.5 5v10a3 3 0 003 3h5a3 3 0 003-3V12.5a.75.75 0 00-1.5 0V15a1.5 1.5 0 01-1.5 1.5h-5z"></path>
@@ -496,35 +496,35 @@ $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
                                                             </div>
                                                         </div>
                                                         <div class="lesson-content-details" id="lesson-details-<?php echo $chapter_index . '-' . $lesson_index; ?>" style="display: none;">
-                                                            <?php if (!empty($lesson['lessonResources']) && is_array($lesson['lessonResources'])): ?>
+                                                            <?php if (!empty($lesson['lessonResources']) && is_array($lesson['lessonResources'])) : ?>
                                                                 <ul class="resource-list-collapsible"><span class="sub-list-title">Tài liệu đính kèm:</span>
-                                                                    <?php foreach ($lesson['lessonResources'] as $resource): ?> <li><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                                    <?php foreach ($lesson['lessonResources'] as $resource) : ?> <li><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                                                             <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
                                                                         </svg><a href="<?php echo htmlspecialchars($file_loader_base_url . "?act=serve_course_resource&resource_id=" . urlencode($resource['resourceID'] ?? '') . "&filename=" . urlencode($resource['resourcePath'] ?? '')); ?>" target="_blank"><?php echo htmlspecialchars($resource['resourceTitle'] ?? 'Tài liệu'); ?></a></li> <?php endforeach; ?>
                                                                 </ul>
                                                             <?php endif; ?>
-                                                            <?php if (!empty($lesson['lessonVideos']) && is_array($lesson['lessonVideos'])): ?>
+                                                            <?php if (!empty($lesson['lessonVideos']) && is_array($lesson['lessonVideos'])) : ?>
                                                                 <ul class="video-list-collapsible"><span class="sub-list-title">Video bài giảng:</span>
-                                                                    <?php foreach ($lesson['lessonVideos'] as $video): ?> <li><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                                    <?php foreach ($lesson['lessonVideos'] as $video) : ?> <li><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                                                             <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z" />
                                                                         </svg> <?php $video_url = $video['videoURL'] ?? '#';
-                                                                        if ($video_url !== '#' && !(substr($video_url, 0, 7) === 'http://' || substr($video_url, 0, 8) === 'https://')) {
-                                                                            $video_url = htmlspecialchars($file_loader_base_url . "?act=serve_course_video&video_id=" . urlencode($video['videoID'] ?? '') . "&filename=" . urlencode($video['videoURL'] ?? ''));
-                                                                        } else {
-                                                                            $video_url = htmlspecialchars($video_url);
-                                                                        } ?><a href="<?php echo $video_url; ?>" target="_blank"><?php echo htmlspecialchars($video['videoTitle'] ?? 'Video'); ?></a></li> <?php endforeach; ?>
+                                                                                if ($video_url !== '#' && !(substr($video_url, 0, 7) === 'http://' || substr($video_url, 0, 8) === 'https://')) {
+                                                                                    $video_url = htmlspecialchars($file_loader_base_url . "?act=serve_course_video&video_id=" . urlencode($video['videoID'] ?? '') . "&filename=" . urlencode($video['videoURL'] ?? ''));
+                                                                                } else {
+                                                                                    $video_url = htmlspecialchars($video_url);
+                                                                                } ?><a href="<?php echo $video_url; ?>" target="_blank"><?php echo htmlspecialchars($video['videoTitle'] ?? 'Video'); ?></a></li> <?php endforeach; ?>
                                                                 </ul>
                                                             <?php endif; ?>
-                                                            <?php if (empty($lesson['lessonResources']) && empty($lesson['lessonVideos'])): ?> <p style="font-style: italic; color: #777; font-size: 13px;">Không có tài liệu hoặc video.</p> <?php endif; ?>
+                                                            <?php if (empty($lesson['lessonResources']) && empty($lesson['lessonVideos'])) : ?> <p style="font-style: italic; color: #777; font-size: 13px;">Không có tài liệu hoặc video.</p> <?php endif; ?>
                                                         </div>
                                                     </li>
                                                 <?php endforeach; ?>
-                                            <?php else: ?> <li style="font-style: italic; color: #777; padding: 10px 0;">Không có bài học.</li> <?php endif; ?>
+                                            <?php else : ?> <li style="font-style: italic; color: #777; padding: 10px 0;">Không có bài học.</li> <?php endif; ?>
                                         </ul>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
-                        <?php else: ?> <p style="padding: 15px 0;">Nội dung khóa học đang cập nhật.</p> <?php endif; ?>
+                        <?php else : ?> <p style="padding: 15px 0;">Nội dung khóa học đang cập nhật.</p> <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -584,25 +584,25 @@ $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
     <div class="course-section-main">
         <section class="course-section-block" aria-labelledby="requirements-title">
             <h2 id="requirements-title" class="course-section-title">Yêu cầu</h2>
-            <?php if (!empty($course_data['requirements']) && is_array($course_data['requirements'])): ?>
+            <?php if (!empty($course_data['requirements']) && is_array($course_data['requirements'])) : ?>
                 <ul class="course-req-list">
-                    <?php foreach ($course_data['requirements'] as $requirement): ?> <li><svg width="20" height="20" fill="none" stroke="#5624d0" stroke-width="2">
+                    <?php foreach ($course_data['requirements'] as $requirement) : ?> <li><svg width="20" height="20" fill="none" stroke="#5624d0" stroke-width="2">
                             <circle cx="10" cy="10" r="9" />
                             <path d="M7 12l3 3 5-5" />
                         </svg><?php echo htmlspecialchars($requirement['requirement'] ?? 'N/A'); ?></li> <?php endforeach; ?>
                 </ul>
-            <?php else: ?> <p>Không có yêu cầu cụ thể.</p> <?php endif; ?>
+            <?php else : ?> <p>Không có yêu cầu cụ thể.</p> <?php endif; ?>
         </section>
         <hr class="course-block-divider" />
         <section class="course-section-block" aria-labelledby="description-title">
             <h2 id="description-title" class="course-section-title">Mô tả</h2>
-            <?php if (!empty($course_data['description'])): ?> <p><?php echo nl2br(htmlspecialchars($course_data['description'])); ?></p> <?php else: ?> <p>Mô tả khóa học đang cập nhật.</p> <?php endif; ?>
+            <?php if (!empty($course_data['description'])) : ?> <p><?php echo nl2br(htmlspecialchars($course_data['description'])); ?></p> <?php else : ?> <p>Mô tả khóa học đang cập nhật.</p> <?php endif; ?>
         </section>
         <section class="course-section-block" aria-labelledby="instructors-title">
             <h2 id="instructors-title" class="course-section-title">Giảng viên</h2>
             <div class="course-instructors-list">
-                <?php if (!empty($course_data['instructors']) && is_array($course_data['instructors'])): ?>
-                    <?php foreach ($course_data['instructors'] as $instructor): ?>
+                <?php if (!empty($course_data['instructors']) && is_array($course_data['instructors'])) : ?>
+                    <?php foreach ($course_data['instructors'] as $instructor) : ?>
                         <?php
                         $instructor_avatar_url = "https://placehold.co/100x100/EFEFEF/AAAAAA?text=Avatar";
                         $instructor_image_filename = $instructor['profileImage'] ?? 'default_avatar.png';
@@ -632,11 +632,11 @@ $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
                             <div class="course-instructor-bio"><?php echo nl2br(htmlspecialchars($instructor['biography'] ?? 'Tiểu sử đang cập nhật.')); ?></div>
                         </div>
                     <?php endforeach; ?>
-                <?php else: ?> <p>Thông tin giảng viên đang cập nhật.</p> <?php endif; ?>
+                <?php else : ?> <p>Thông tin giảng viên đang cập nhật.</p> <?php endif; ?>
             </div>
         </section>
     </div>
-<?php else: ?>
+<?php else : ?>
     <div class="course-hero-bg">
         <div class="course-hero-container" style="text-align: center; padding: 50px;">
             <h1>Không tìm thấy khóa học</h1>
@@ -926,4 +926,282 @@ $js_cart_page_url = APP_ROOT_PATH_RELATIVE_DETAIL . '/cart.php';
     });
 </script>
 <script src="<?php echo $app_root_url_for_paths; ?>/public/js/course-detail.js"></script>
+
+<?php
+if (isset($course_data['courseID']) && !empty($course_data['courseID'])) {
+    $recommend_api_url = 'http://localhost:5000/recommend_course/' . urlencode($course_data['courseID']);
+    $recommend_response_json = @file_get_contents($recommend_api_url);
+    $recommended_courses = null;
+
+    if ($recommend_response_json !== false) {
+        $recommend_response = json_decode($recommend_response_json, true);
+        if (isset($recommend_response['success']) && $recommend_response['success'] && !empty($recommend_response['data'])) {
+            $recommended_courses = $recommend_response['data'];
+        }
+    }
+
+    if (!empty($recommended_courses)) :
+?>
+    <div class="recommended-courses-section">
+        <div class="recommended-courses-container">
+            <h2 class="recommended-courses-title">Có thể bạn cũng thích</h2>
+            <div class="slider-controls">
+                <button class="slider-btn prev" id="rec-prev-btn" aria-label="Khóa học trước">&lt;</button>
+                <button class="slider-btn next" id="rec-next-btn" aria-label="Khóa học tiếp theo">&gt;</button>
+            </div>
+            <div class="slider-wrapper" id="rec-slider-wrapper">
+                <div class="slider-track" id="rec-slider-track">
+                    <?php foreach ($recommended_courses as $rec_course) : ?>
+                        <div class="course-card-rec">
+                            <a href="<?php echo $app_root_url_for_paths; ?>/course-detail.php?courseID=<?php echo htmlspecialchars($rec_course['courseID']); ?>">
+                                <?php
+                                $rec_image_url = "https://placehold.co/300x180/EFEFEF/AAAAAA?text=No+Image";
+                                if (!empty($rec_course['images']) && isset($rec_course['images'][0]['imagePath'])) {
+                                    $rec_image_filename = basename($rec_course['images'][0]['imagePath']);
+                                    $rec_image_url = htmlspecialchars($file_loader_base_url . "?act=serve_image&course_id=" . urlencode($rec_course['courseID']) . "&image=" . urlencode($rec_image_filename));
+                                }
+                                ?>
+                                <img class="course-card-img-rec" src="<?php echo $rec_image_url; ?>" alt="Ảnh khóa học <?php echo htmlspecialchars($rec_course['title']); ?>" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x180/EFEFEF/AAAAAA?text=Image+Error';">
+                                <div class="course-card-body-rec">
+                                    <h3 class="course-card-title-rec"><?php echo htmlspecialchars($rec_course['title']); ?></h3>
+                                    <div class="course-card-price-rec"><?php echo format_price($rec_course['price'] ?? 0); ?></div>
+                                </div>
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .recommended-courses-section {
+            background-color: #f7f9fa;
+            padding: 48px 0;
+            border-top: 1px solid #d1d7dc;
+        }
+
+        .recommended-courses-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+        }
+
+        .recommended-courses-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #1c1d1f;
+        }
+
+        .slider-wrapper {
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .slider-track {
+            display: flex;
+            gap: 16px;
+            transition: transform 0.5s ease-in-out;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .slider-track::-webkit-scrollbar {
+            display: none;
+        }
+
+        .course-card-rec {
+            flex: 0 0 calc(25% - 12px);
+            min-width: 220px;
+            background-color: #fff;
+            border: 1px solid #d1d7dc;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .course-card-rec:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-card-rec a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .course-card-img-rec {
+            width: 100%;
+            height: 125px;
+            object-fit: cover;
+            background-color: #e8e8e8;
+        }
+
+        .course-card-body-rec {
+            padding: 12px;
+        }
+
+        .course-card-title-rec {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.3;
+            color: #1c1d1f;
+            margin: 0 0 8px 0;
+            height: 40px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .course-card-price-rec {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1c1d1f;
+        }
+
+        .slider-controls {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 10;
+            padding: 0;
+        }
+
+        .slider-btn {
+            pointer-events: all;
+            background-color: #fff;
+            border: 1px solid #1c1d1f;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1c1d1f;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slider-btn:hover {
+            background-color: #f7f9fa;
+        }
+
+        .slider-btn:active {
+            transform: scale(0.95);
+        }
+
+        .slider-btn.prev {
+            transform: translateX(-24px);
+        }
+
+        .slider-btn.next {
+            transform: translateX(24px);
+        }
+
+        .slider-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 991px) {
+            .course-card-rec {
+                flex-basis: calc(33.333% - 11px);
+            }
+        }
+
+        @media (max-width: 767px) {
+            .course-card-rec {
+                flex-basis: calc(50% - 8px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .course-card-rec {
+                flex-basis: 80%;
+                min-width: unset;
+            }
+
+            .recommended-courses-title {
+                font-size: 20px;
+            }
+
+            .slider-controls {
+                display: none;
+            }
+
+            .slider-wrapper {
+                overflow-x: auto;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const track = document.getElementById('rec-slider-track');
+            const wrapper = document.getElementById('rec-slider-wrapper');
+            const nextButton = document.getElementById('rec-next-btn');
+            const prevButton = document.getElementById('rec-prev-btn');
+
+            if (!track || !wrapper || !nextButton || !prevButton) {
+                return;
+            }
+
+            const updateButtons = () => {
+                const scrollLeft = wrapper.scrollLeft;
+                const scrollWidth = wrapper.scrollWidth;
+                const clientWidth = wrapper.clientWidth;
+
+                prevButton.disabled = scrollLeft <= 0;
+                nextButton.disabled = scrollLeft + clientWidth >= scrollWidth - 1;
+            };
+
+            const scrollAmount = () => {
+                const firstCard = track.querySelector('.course-card-rec');
+                if (!firstCard) return wrapper.clientWidth * 0.8;
+
+                const cardStyle = window.getComputedStyle(firstCard);
+                const cardMargin = parseFloat(cardStyle.marginRight) || 0;
+                const cardGap = parseFloat(window.getComputedStyle(track).gap) || 16;
+
+                return firstCard.offsetWidth + cardGap;
+            };
+
+            nextButton.addEventListener('click', () => {
+                wrapper.scrollBy({
+                    left: scrollAmount(),
+                    behavior: 'smooth'
+                });
+            });
+
+            prevButton.addEventListener('click', () => {
+                wrapper.scrollBy({
+                    left: -scrollAmount(),
+                    behavior: 'smooth'
+                });
+            });
+
+            setTimeout(updateButtons, 100);
+
+            wrapper.addEventListener('scroll', updateButtons);
+            window.addEventListener('resize', updateButtons);
+        });
+    </script>
+<?php
+    endif;
+}
+?>
+
 <?php include('template/footer.php'); ?>
