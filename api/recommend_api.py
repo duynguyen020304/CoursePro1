@@ -32,7 +32,6 @@ is_data_loaded = False
 
 
 def _filter_course_data(full_course_data):
-    """Hàm nội bộ để lọc và chỉ giữ lại các trường cần thiết."""
     if not full_course_data:
         return None
     
@@ -49,12 +48,10 @@ def _filter_course_data(full_course_data):
     return slim_data
 
 def get_detailed_instruct(task_description: str, query: str) -> str:
-    """Hàm này tạo một chuỗi hướng dẫn chi tiết cho mô hình embedding."""
     return f'Instruct: {task_description}\nQuery: {query}'
 
 
 def fetch_courses_from_oracle():
-    """Hàm này kết nối đến Oracle DB và lấy thông tin tất cả các khóa học."""
     dsn = f"{DB_HOST}:{DB_PORT}/{DB_SERVICE_NAME}"
     connection = None
     cursor = None
@@ -125,7 +122,6 @@ def fetch_courses_from_oracle():
         if connection: connection.close()
 
 def preprocess_data_from_db(db_data_df):
-    """Tiền xử lý dữ liệu khóa học từ DataFrame, tạo cột 'tags'."""
     if db_data_df is None or db_data_df.empty:
         print("Không có dữ liệu từ DB để tiền xử lý.")
         return None
@@ -144,7 +140,6 @@ def preprocess_data_from_db(db_data_df):
     return data
 
 def generate_course_embeddings_global(feature_df, model):
-    """Tạo embeddings cho tất cả các khóa học từ cột 'tags'."""
     if feature_df is None or 'tags' not in feature_df.columns or feature_df['tags'].isnull().all():
         print("Lỗi: Feature DataFrame không hợp lệ hoặc cột 'tags' trống để tạo embeddings.")
         return None
@@ -162,9 +157,6 @@ def generate_course_embeddings_global(feature_df, model):
         return None
 
 def fetch_cart_items(user_id):
-    """
-    Hàm mới: Lấy danh sách CourseID từ giỏ hàng của người dùng qua kết nối DB trực tiếp.
-    """
     dsn = f"{DB_HOST}:{DB_PORT}/{DB_SERVICE_NAME}"
     connection = None
     cursor = None
@@ -174,7 +166,7 @@ def fetch_cart_items(user_id):
         connection = oracledb.connect(user=DB_USER, password=DB_PASSWORD, dsn=dsn)
         cursor = connection.cursor()
 
-        # Bước 1: Tìm CartID từ UserID trong bảng Cart
+        
         query_cart_id = "SELECT CartID FROM Cart WHERE UserID = :user_id_bv"
         cursor.execute(query_cart_id, user_id_bv=user_id)
         cart_id_row = cursor.fetchone()
@@ -185,7 +177,7 @@ def fetch_cart_items(user_id):
 
         cart_id = cart_id_row[0]
 
-        # Bước 2: Tìm các CourseID từ CartID trong bảng CartItem
+        
         query_cart_items = "SELECT CourseID FROM CartItem WHERE CartID = :cart_id_bv"
         cursor.execute(query_cart_items, cart_id_bv=cart_id)
 
@@ -208,7 +200,6 @@ def fetch_cart_items(user_id):
 
 
 def fetch_purchase_history(user_id):
-    """Lấy lịch sử mua hàng (danh sách CourseID) của người dùng qua PHP API."""
     purchased_course_ids = set()
     order_api_url = f"http://localhost/CoursePro1/api/order_api.php?userID={user_id}"
     try:
@@ -236,7 +227,6 @@ def fetch_purchase_history(user_id):
     return list(purchased_course_ids)
 
 def fetch_course_details_php(course_id):
-    """Lấy thông tin chi tiết của một khóa học qua PHP API."""
     if not course_id: return None
     course_detail_url = f"{COURSE_API_BASE_URL}?courseID={course_id}&isGetCourseForRecommend=true"
     try:
@@ -248,7 +238,6 @@ def fetch_course_details_php(course_id):
     except Exception: return None
 
 def fetch_all_courses_for_generic_recommendation():
-    """Lấy tất cả khóa học từ PHP API để dùng cho gợi ý ngẫu nhiên."""
     print(f"Fetching all courses for generic recommendations from: {ALL_COURSES_API_URL}")
     try:
         response = requests.get(ALL_COURSES_API_URL, timeout=15)
@@ -263,7 +252,6 @@ def fetch_all_courses_for_generic_recommendation():
         return []
 
 def get_recommendations_from_history_ids(history_ids_list, model, feature_df_global, all_course_embeds_g, top_n=10):
-    """Tạo gợi ý khóa học dựa trên danh sách các CourseID đầu vào."""
     if not history_ids_list:
         print("Lịch sử (giỏ hàng/mua hàng) trống.")
         return []
@@ -320,7 +308,7 @@ def get_recommendations_from_history_ids(history_ids_list, model, feature_df_glo
             course_details = fetch_course_details_php(course_id_at_index)
             if course_details:
                 course_details["recommendation_score"] = float(score)
-                # print(course_details)
+                
                 slim_details = _filter_course_data(course_details)
                 if slim_details:
                     recommended_courses_details_list.append(slim_details)
@@ -334,7 +322,6 @@ app = Flask(__name__)
 CORS(app)
 
 def load_initial_data():
-    """Tải dữ liệu ban đầu: mô hình, dữ liệu khóa học từ DB, và tạo embeddings."""
     global all_courses_df_processed, sentence_transformer_model_global, all_course_embeddings_global, is_data_loaded
     if is_data_loaded:
         print("Dữ liệu đã được tải trước đó.")
@@ -368,13 +355,6 @@ with app.app_context():
 
 @app.route('/recommend/<string:user_id>', methods=['GET'])
 def recommend_for_user(user_id):
-    """
-    API Endpoint chính để gợi ý khóa học cho người dùng.
-    Logic:
-    1. Kết hợp giỏ hàng và lịch sử mua hàng để tạo hồ sơ người dùng.
-    2. Dựa vào hồ sơ để gợi ý bằng model.
-    3. Nếu không có hồ sơ, gợi ý ngẫu nhiên.
-    """
     global all_courses_df_processed, sentence_transformer_model_global, all_course_embeddings_global, is_data_loaded
 
     if not is_data_loaded:
@@ -387,15 +367,15 @@ def recommend_for_user(user_id):
         return jsonify({"success": False, "message": "UserID không được cung cấp.", "data": None}), 400
 
     try:
-        # Bước 1: Lấy cả giỏ hàng và lịch sử mua hàng
+        
         cart_course_ids = fetch_cart_items(user_id)
         purchase_history_ids = fetch_purchase_history(user_id)
         
-        # Kết hợp thành một danh sách duy nhất
+        
         combined_ids = list(set(cart_course_ids) | set(purchase_history_ids))
 
         recommendations = []
-        # Bước 2: Nếu có lịch sử tổng hợp, tạo gợi ý
+        
         if combined_ids:
             print(f"Tạo gợi ý dựa trên lịch sử tổng hợp (giỏ hàng + đã mua) cho userID: {user_id}")
             print(f"Danh sách ID tổng hợp: {combined_ids}")
@@ -412,12 +392,12 @@ def recommend_for_user(user_id):
                 message = "Lấy danh sách gợi ý thành công dựa trên giỏ hàng và lịch sử mua hàng của bạn."
                 return jsonify({"success": True, "message": message, "source": "combined_history", "data": recommendations}), 200
 
-        # Bước 3: Nếu không có lịch sử hoặc không tìm thấy gợi ý phù hợp, chuyển sang ngẫu nhiên
+        
         print(f"Không có hoạt động nào hoặc không tìm thấy gợi ý mới. Cung cấp gợi ý ngẫu nhiên cho userID: {user_id}.")
         all_php_courses = fetch_all_courses_for_generic_recommendation()
         generic_recommendations = []
         if all_php_courses:
-            # Lọc ra những khóa học người dùng đã có trong giỏ hàng hoặc đã mua
+            
             unseen_courses = [course for course in all_php_courses if course.get('courseID') not in combined_ids]
             
             num_to_recommend = min(10, len(unseen_courses))
@@ -451,9 +431,6 @@ def recommend_for_user(user_id):
 
 @app.route('/recommend_by_order/<string:user_id>', methods=['GET'])
 def recommend_for_user_by_order(user_id):
-    """
-    API Endpoint để gợi ý khóa học CHỈ dựa trên lịch sử mua hàng.
-    """
     global all_courses_df_processed, sentence_transformer_model_global, all_course_embeddings_global, is_data_loaded
 
     if not is_data_loaded:
@@ -463,11 +440,11 @@ def recommend_for_user_by_order(user_id):
         return jsonify({"success": False, "message": "UserID không được cung cấp.", "data": None}), 400
 
     try:
-        # Bước 1: Chỉ lấy lịch sử mua hàng
+        
         purchase_history_ids = fetch_purchase_history(user_id)
         
         recommendations = []
-        # Bước 2: Nếu có lịch sử mua hàng, tạo gợi ý
+        
         if purchase_history_ids:
             print(f"Tạo gợi ý CHỈ dựa trên lịch sử mua hàng cho userID: {user_id}")
             print(f"Danh sách ID lịch sử mua hàng: {purchase_history_ids}")
@@ -484,12 +461,12 @@ def recommend_for_user_by_order(user_id):
                 message = "Lấy danh sách gợi ý thành công dựa trên lịch sử mua hàng của bạn."
                 return jsonify({"success": True, "message": message, "source": "purchase_history", "data": recommendations}), 200
 
-        # Bước 3: Nếu không có lịch sử hoặc không tìm thấy gợi ý, chuyển sang ngẫu nhiên
+        
         print(f"Không có lịch sử mua hàng hoặc không tìm thấy gợi ý mới. Cung cấp gợi ý ngẫu nhiên cho userID: {user_id}.")
         all_php_courses = fetch_all_courses_for_generic_recommendation()
         generic_recommendations = []
         if all_php_courses:
-            # Lọc ra những khóa học người dùng đã mua
+            
             unseen_courses = [course for course in all_php_courses if course.get('courseID') not in purchase_history_ids]
             
             num_to_recommend = min(10, len(unseen_courses))
@@ -523,7 +500,6 @@ def recommend_for_user_by_order(user_id):
 
 @app.route('/recommend_course/<string:course_id_param>', methods=['GET'])
 def recommend_for_course(course_id_param):
-    """API Endpoint để gợi ý các khóa học tương tự với một khóa học cụ thể."""
     global all_courses_df_processed, sentence_transformer_model_global, all_course_embeddings_global, is_data_loaded
 
     if not is_data_loaded:
@@ -565,7 +541,7 @@ def recommend_for_course(course_id_param):
         idx = item['index']
         score_val = item['score']
         
-        # Bỏ qua chính khóa học đang được dùng để gợi ý
+        
         if all_courses_df_processed.iloc[idx]['course_id'] == course_id_param:
             continue
 
@@ -574,7 +550,7 @@ def recommend_for_course(course_id_param):
             course_details = fetch_course_details_php(rec_course_id)
             if course_details:
                 course_details["recommendation_score"] = float(score_val)
-                # print(course_details)
+                
                 slim_details = _filter_course_data(course_details)
                 if slim_details:
                     recommended_courses_details_list.append(slim_details)
@@ -589,3 +565,4 @@ def recommend_for_course(course_id_param):
 
 if __name__ == "__main__":
     print("Khởi chạy Flask API server...")
+    # serve(app, host='0.0.0.0', port=5000, threads=16)
