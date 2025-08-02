@@ -1,282 +1,174 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/chapter_dto.php';
 
 class ChapterBLL extends Database
 {
+    /**
+     * Tạo một chương mới trong cơ sở dữ liệu.
+     * @param ChapterDTO $chapter Đối tượng ChapterDTO chứa thông tin chương mới.
+     * @return bool Trả về true nếu tạo thành công, ngược lại false.
+     */
     public function create_chapter(ChapterDTO $chapter): bool
     {
-        $sql = "BEGIN COURSE_CHAPTER_PKG.CREATE_CHAPTER_PROC(:chapterID, :courseID, :title, :description, :sortOrder); END;";
+        // Câu lệnh SQL để chèn một chương mới vào bảng 'chapters'.
+        // Sử dụng các placeholder (?) để tránh tấn công SQL injection.
+        $sql = "INSERT INTO chapters (chapterID, courseID, title, description, sortOrder) VALUES (?, ?, ?, ?, ?)";
 
+        // Mảng chứa các giá trị để ràng buộc vào câu lệnh đã chuẩn bị.
         $bindParams = [
-            ':chapterID'   => $chapter->chapterID,
-            ':courseID'    => $chapter->courseID,
-            ':title'       => $chapter->title,
-            ':description' => ['value' => $chapter->description, 'type' => OCI_B_CLOB],
-            ':sortOrder'   => $chapter->sortOrder ?? 0,
+            $chapter->chapterID,
+            $chapter->courseID,
+            $chapter->title,
+            $chapter->description,
+            $chapter->sortOrder ?? 0,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị.
+        $result = $this->executePrepared($sql, $bindParams);
+        
+        // Trả về true nếu câu lệnh được thực thi thành công (không phải là false).
+        return ($result !== false);
     }
 
+    /**
+     * Cập nhật thông tin của một chương đã có.
+     * @param ChapterDTO $chapter Đối tượng ChapterDTO chứa thông tin cần cập nhật.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update_chapter(ChapterDTO $chapter): bool
     {
-        $sql = "BEGIN COURSE_CHAPTER_PKG.UPDATE_CHAPTER_PROC(:chapterID_where, :courseID, :title, :description, :sortOrder); END;";
+        // Câu lệnh SQL để cập nhật một chương trong bảng 'chapters'.
+        $sql = "UPDATE chapters SET courseID = ?, title = ?, description = ?, sortOrder = ? WHERE chapterID = ?";
 
+        // Mảng chứa các giá trị để ràng buộc.
         $bindParams = [
-            ':chapterID_where' => $chapter->chapterID,
-            ':courseID'    => $chapter->courseID,
-            ':title'       => $chapter->title,
-            ':description' => ['value' => $chapter->description, 'type' => OCI_B_CLOB],
-            ':sortOrder'   => $chapter->sortOrder ?? 0,
+            $chapter->courseID,
+            $chapter->title,
+            $chapter->description,
+            $chapter->sortOrder ?? 0,
+            $chapter->chapterID,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh.
+        $result = $this->executePrepared($sql, $bindParams);
+        return ($result !== false);
     }
 
+    /**
+     * Xóa một chương khỏi cơ sở dữ liệu.
+     * @param string $chapterID ID của chương cần xóa.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function delete_chapter(string $chapterID): bool
     {
-        $sql = "BEGIN COURSE_CHAPTER_PKG.DELETE_CHAPTER_PROC(:chapterID); END;";
-        $bindParams = [':chapterID' => $chapterID];
+        // Câu lệnh SQL để xóa một chương.
+        $sql = "DELETE FROM chapters WHERE chapterID = ?";
+        $bindParams = [$chapterID];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh.
+        $result = $this->executePrepared($sql, $bindParams);
+        return ($result !== false);
     }
 
+    /**
+     * Lấy tất cả các chương từ cơ sở dữ liệu.
+     * @return array Danh sách các đối tượng ChapterDTO.
+     */
     public function get_all_chapters(): array
     {
-        $sql = "BEGIN :result_cursor := COURSE_CHAPTER_PKG.GET_ALL_CHAPTERS_FUNC(); END;";
+        // Câu lệnh SQL để lấy tất cả các chương, sắp xếp theo thứ tự.
+        $sql = "SELECT chapterID, courseID, title, description, sortOrder, created_at FROM chapters ORDER BY sortOrder ASC, created_at DESC";
         $list = [];
 
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[ChapterBLL] Failed to create new cursor for GET_ALL_CHAPTERS_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
-        }
+        // Thực thi câu lệnh và lấy kết quả.
+        $result = $this->executePrepared($sql);
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[ChapterBLL] OCI Parse failed for GET_ALL_CHAPTERS_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[ChapterBLL] OCI Execute failed for GET_ALL_CHAPTERS_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[ChapterBLL] OCI Execute failed for result cursor of GET_ALL_CHAPTERS_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $description = null;
-                if (is_object($row['DESCRIPTION']) && method_exists($row['DESCRIPTION'], 'read')) {
-                    $description = $row['DESCRIPTION']->read($row['DESCRIPTION']->size());
-                } elseif (isset($row['DESCRIPTION'])) {
-                    $description = $row['DESCRIPTION'];
-                }
+        // Kiểm tra nếu kết quả là một đối tượng mysqli_result.
+        if ($result instanceof mysqli_result) {
+            // Lặp qua từng dòng kết quả.
+            while (($row = $result->fetch_assoc())) {
+                // Tạo đối tượng ChapterDTO từ dữ liệu dòng và thêm vào danh sách.
                 $list[] = new ChapterDTO(
-                    $row['CHAPTERID'],
-                    $row['COURSEID'],
-                    $row['TITLE'],
-                    $description,
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['chapterID'],
+                    $row['courseID'],
+                    $row['title'],
+                    $row['description'],
+                    (int)$row['sortOrder'],
+                    $row['created_at']
                 );
             }
-            @oci_free_statement($stid_cursor);
+            // Giải phóng bộ nhớ của kết quả.
+            $result->free();
         }
-        @oci_free_statement($parsed_stid);
 
         return $list;
     }
 
+    /**
+     * Lấy thông tin một chương cụ thể bằng ID.
+     * @param string $chapterID ID của chương cần lấy.
+     * @return ?ChapterDTO Trả về đối tượng ChapterDTO nếu tìm thấy, ngược lại null.
+     */
     public function get_chapter_by_id(string $chapterID): ?ChapterDTO
     {
-        $sql = "BEGIN :result_cursor := COURSE_CHAPTER_PKG.GET_CHAPTER_BY_ID_FUNC(:chapterID_param); END;";
-        $bindParams = [
-            ':chapterID_param' => $chapterID
-        ];
-
+        // Câu lệnh SQL để lấy một chương theo ID.
+        $sql = "SELECT chapterID, courseID, title, description, sortOrder, created_at FROM chapters WHERE chapterID = ?";
+        $bindParams = [$chapterID];
         $dto = null;
-        if (!$this->conn) {
-            error_log('[ChapterBLL] Database connection is not set for GET_CHAPTER_BY_ID_FUNC.');
-            return null;
-        }
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[ChapterBLL] Failed to create new cursor for GET_CHAPTER_BY_ID_FUNC: ' . oci_error($this->conn)['message']);
-            return null;
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[ChapterBLL] OCI Parse failed for GET_CHAPTER_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . oci_error($this->conn)['message']);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
+        // Thực thi câu lệnh.
+        $result = $this->executePrepared($sql, $bindParams);
 
-        @oci_bind_by_name($parsed_stid, ':chapterID_param', $bindParams[':chapterID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[ChapterBLL] OCI Execute failed for GET_CHAPTER_BY_ID_FUNC. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[ChapterBLL] OCI Execute failed for result cursor of GET_CHAPTER_BY_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor; // Use the executed cursor
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                // --- Start of modified DESCRIPTION handling ---
-                $description = ''; // Defaulting to an empty string.
-
-                // Check if DESCRIPTION is set in the $row array and is not explicitly null
-                if (isset($row['DESCRIPTION']) && $row['DESCRIPTION'] !== null) {
-                    // Check if it's an object and has a 'read' method (typical for LOB types)
-                    if (is_object($row['DESCRIPTION']) && method_exists($row['DESCRIPTION'], 'read')) {
-                        $lob_size = 0;
-                        if (method_exists($row['DESCRIPTION'], 'size')) {
-                            $lob_size = $row['DESCRIPTION']->size();
-                        }
-
-                        if ($lob_size > 0) {
-                            $content = $row['DESCRIPTION']->read($lob_size);
-                            if ($content !== false && $content !== null) {
-                                $description = $content;
-                            }
-                        }
-                    } else {
-                        // If $row['DESCRIPTION'] is set, not null, but not a LOB object,
-                        // assign its value directly.
-                        $description = $row['DESCRIPTION'];
-                    }
-                }
-                // --- End of modified DESCRIPTION handling ---
-
+        if ($result instanceof mysqli_result) {
+            // Lấy dòng kết quả đầu tiên.
+            if (($row = $result->fetch_assoc())) {
+                // Tạo đối tượng ChapterDTO từ dữ liệu.
                 $dto = new ChapterDTO(
-                    $row['CHAPTERID'],
-                    $row['COURSEID'],
-                    $row['TITLE'],
-                    $description, // Use the processed description
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['chapterID'],
+                    $row['courseID'],
+                    $row['title'],
+                    $row['description'],
+                    (int)$row['sortOrder'],
+                    $row['created_at']
                 );
             }
-            @oci_free_statement($stid_cursor); // Free the cursor statement handle
+            $result->free();
         }
-        @oci_free_statement($parsed_stid); // Free the main statement handle
 
         return $dto;
     }
 
+    /**
+     * Lấy tất cả các chương thuộc về một khóa học cụ thể.
+     * @param string $courseID ID của khóa học.
+     * @return array Danh sách các đối tượng ChapterDTO.
+     */
     public function get_chapters_by_course_id(string $courseID): array
     {
-        $sql = "BEGIN :result_cursor := COURSE_CHAPTER_PKG.GET_CHAPTERS_BY_COURSE_FUNC(:courseID_param); END;";
-        $bindParams = [
-            ':courseID_param' => $courseID
-        ];
-
+        // Câu lệnh SQL để lấy các chương theo courseID, sắp xếp theo thứ tự.
+        $sql = "SELECT chapterID, courseID, title, description, sortOrder, created_at FROM chapters WHERE courseID = ? ORDER BY sortOrder ASC, created_at DESC";
+        $bindParams = [$courseID];
         $list = [];
-        if (!$this->conn) {
-            error_log('[ChapterBLL] Database connection is not set for GET_CHAPTERS_BY_COURSE_FUNC.');
-            return [];
-        }
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[ChapterBLL] Failed to create new cursor for GET_CHAPTERS_BY_COURSE_FUNC: ' . oci_error($this->conn)['message']);
-            return [];
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[ChapterBLL] OCI Parse failed for GET_CHAPTERS_BY_COURSE_FUNC. SQL: ' . $sql . ' Error: ' . oci_error($this->conn)['message']);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
+        // Thực thi câu lệnh.
+        $result = $this->executePrepared($sql, $bindParams);
 
-        @oci_bind_by_name($parsed_stid, ':courseID_param', $bindParams[':courseID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[ChapterBLL] OCI Execute failed for GET_CHAPTERS_BY_COURSE_FUNC. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[ChapterBLL] OCI Execute failed for result cursor of GET_CHAPTERS_BY_COURSE_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor; // Use the executed cursor
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                // --- Start of modified DESCRIPTION handling ---
-                $description = ''; // Defaulting to an empty string.
-
-                // Check if DESCRIPTION is set in the $row array and is not explicitly null
-                if (isset($row['DESCRIPTION']) && $row['DESCRIPTION'] !== null) {
-                    // Check if it's an object and has a 'read' method (typical for LOB types)
-                    if (is_object($row['DESCRIPTION']) && method_exists($row['DESCRIPTION'], 'read')) {
-                        $lob_size = 0;
-                        if (method_exists($row['DESCRIPTION'], 'size')) {
-                            $lob_size = $row['DESCRIPTION']->size();
-                        }
-
-                        if ($lob_size > 0) {
-                            $content = $row['DESCRIPTION']->read($lob_size);
-                            if ($content !== false && $content !== null) {
-                                $description = $content;
-                            }
-                        }
-                    } else {
-                        // If $row['DESCRIPTION'] is set, not null, but not a LOB object,
-                        // assign its value directly.
-                        $description = $row['DESCRIPTION'];
-                    }
-                }
-                // --- End of modified DESCRIPTION handling ---
-
+        if ($result instanceof mysqli_result) {
+            // Lặp qua các dòng kết quả.
+            while (($row = $result->fetch_assoc())) {
+                // Tạo đối tượng ChapterDTO và thêm vào danh sách.
                 $list[] = new ChapterDTO(
-                    $row['CHAPTERID'],
-                    $row['COURSEID'],
-                    $row['TITLE'],
-                    $description, // Use the processed description
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['chapterID'],
+                    $row['courseID'],
+                    $row['title'],
+                    $row['description'],
+                    (int)$row['sortOrder'],
+                    $row['created_at']
                 );
             }
-            @oci_free_statement($stid_cursor); // Free the cursor statement handle
+            $result->free();
         }
-        @oci_free_statement($parsed_stid); // Free the main statement handle
 
         return $list;
     }

@@ -1,100 +1,128 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/review_dto.php';
 
 class ReviewBLL extends Database
 {
+    /**
+     * Tạo một đánh giá mới.
+     *
+     * @param ReviewDTO $r Đối tượng chứa thông tin đánh giá.
+     * @return bool Trả về true nếu tạo thành công, ngược lại false.
+     */
     public function create_review(ReviewDTO $r): bool
     {
-        $sql = "INSERT INTO REVIEW (ReviewID, UserID, CourseID, Rating, REVIEW_TEXT)
-                VALUES (:reviewID, :userID, :courseID, :rating, :review_text)";
-        $bindParams = [
-            ':reviewID'   => $r->reviewID,
-            ':userID'     => $r->userID,
-            ':courseID'   => $r->courseID,
-            ':rating'     => $r->rating,
-            ':review_text' => $r->comment,
+        $sql = "INSERT INTO REVIEW (ReviewID, UserID, CourseID, Rating, REVIEW_TEXT) VALUES (?, ?, ?, ?, ?)";
+        
+        $params = [
+            $r->reviewID,
+            $r->userID,
+            $r->courseID,
+            $r->rating,
+            $r->comment,
         ];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false) && ($this->getAffectedRows() === 1);
     }
 
+    /**
+     * Cập nhật một đánh giá.
+     *
+     * @param ReviewDTO $r Đối tượng chứa thông tin đánh giá cần cập nhật.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update_review(ReviewDTO $r): bool
     {
-        $sql = "UPDATE REVIEW SET
-                UserID = :userID,
-                CourseID = :courseID,
-                Rating   = :rating,
-                REVIEW_TEXT  = :review_text
-                WHERE ReviewID = :reviewID_where";
-        $bindParams = [
-            ':userID'     => $r->userID,
-            ':courseID'   => $r->courseID,
-            ':rating'     => $r->rating,
-            ':review_text' => $r->comment,
-            ':reviewID_where' => $r->reviewID,
+        $sql = "UPDATE REVIEW SET UserID = ?, CourseID = ?, Rating = ?, REVIEW_TEXT = ? WHERE ReviewID = ?";
+        
+        $params = [
+            $r->userID,
+            $r->courseID,
+            $r->rating,
+            $r->comment,
+            $r->reviewID,
         ];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false);
     }
 
+    /**
+     * Xóa một đánh giá.
+     *
+     * @param string $reviewID ID của đánh giá cần xóa.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function delete_review(string $reviewID): bool
     {
-        $sql = "DELETE FROM REVIEW WHERE ReviewID = :reviewID";
-        $bindParams = [':reviewID' => $reviewID];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        $sql = "DELETE FROM REVIEW WHERE ReviewID = ?";
+        $params = [$reviewID];
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false) && ($this->getAffectedRows() === 1);
     }
 
+    /**
+     * Lấy danh sách đánh giá theo ID khóa học.
+     *
+     * @param string $courseID ID của khóa học.
+     * @return array Mảng các đối tượng ReviewDTO.
+     */
     public function get_reviews_by_course(string $courseID): array
     {
         $sql = "SELECT ReviewID, UserID, CourseID, Rating, REVIEW_TEXT,
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
                 FROM REVIEW
-                WHERE CourseID = :courseID_param
+                WHERE CourseID = ?
                 ORDER BY created_at DESC";
-        $bindParams = [':courseID_param' => $courseID];
-        $stid = $this->executePrepared($sql, $bindParams);
+        $params = [$courseID];
+        $result = $this->executePrepared($sql, $params);
         $reviews = [];
 
-        if ($stid) {
-            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
                 $reviews[] = new ReviewDTO(
-                    $row['REVIEWID'],
-                    $row['USERID'],
-                    $row['COURSEID'],
-                    isset($row['RATING']) ? (int)$row['RATING'] : 0,
+                    $row['ReviewID'],
+                    $row['UserID'],
+                    $row['CourseID'],
+                    isset($row['Rating']) ? (int)$row['Rating'] : 0,
                     $row['REVIEW_TEXT'],
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            $result->free();
         }
         return $reviews;
     }
 
+    /**
+     * Lấy đánh giá bằng ID của nó.
+     *
+     * @param string $reviewID ID của đánh giá.
+     * @return ReviewDTO|null Trả về đối tượng ReviewDTO nếu tìm thấy, ngược lại null.
+     */
     public function get_review_by_id(string $reviewID): ?ReviewDTO
     {
         $sql = "SELECT ReviewID, UserID, CourseID, Rating, REVIEW_TEXT,
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
                 FROM REVIEW
-                WHERE ReviewID = :reviewID_param";
-        $bindParams = [':reviewID_param' => $reviewID];
-        $stid = $this->executePrepared($sql, $bindParams);
+                WHERE ReviewID = ?";
+        $params = [$reviewID];
+        $result = $this->executePrepared($sql, $params);
         $dto = null;
 
-        if ($stid) {
-            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result instanceof mysqli_result) {
+            if ($row = $result->fetch_assoc()) {
                 $dto = new ReviewDTO(
-                    $row['REVIEWID'],
-                    $row['USERID'],
-                    $row['COURSEID'],
-                    isset($row['RATING']) ? (int)$row['RATING'] : 0,
+                    $row['ReviewID'],
+                    $row['UserID'],
+                    $row['CourseID'],
+                    isset($row['Rating']) ? (int)$row['Rating'] : 0,
                     $row['REVIEW_TEXT'],
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            $result->free();
         }
         return $dto;
     }

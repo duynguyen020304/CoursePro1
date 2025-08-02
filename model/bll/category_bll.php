@@ -4,172 +4,141 @@ require_once __DIR__ . '/../dto/category_dto.php';
 
 class CategoryBLL extends Database
 {
+    /**
+     * Tạo một danh mục mới.
+     *
+     * @param CategoryDTO $cat Đối tượng danh mục cần tạo.
+     * @return bool True nếu thành công, ngược lại false.
+     */
     public function create_category(CategoryDTO $cat): bool
     {
-        $sql = "BEGIN CATEGORY_PKG.CREATE_CATEGORY_PROC(:name, :parent_id, :sort_order); END;";
-
+        $sql = "INSERT INTO categories (name, parent_id, sort_order) VALUES (?, ?, ?)";
+        
         $bindParams = [
-            ':name'       => $cat->name,
-            ':parent_id'  => $cat->parent_id,
-            ':sort_order' => $cat->sort_order ?? 0,
+            $cat->name,
+            $cat->parent_id,
+            $cat->sort_order ?? 0,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $bindParams);
+        return $result !== false;
     }
 
+    /**
+     * Xóa một danh mục.
+     *
+     * @param int $id ID của danh mục cần xóa.
+     * @return bool True nếu thành công, ngược lại false.
+     */
     public function delete_category(int $id): bool
     {
-        $sql = "BEGIN CATEGORY_PKG.DELETE_CATEGORY_PROC(:id); END;";
-        $bindParams = [':id' => $id];
-
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $sql = "DELETE FROM categories WHERE id = ?";
+        $bindParams = [$id];
+        $result = $this->executePrepared($sql, $bindParams);
+        return $result !== false;
     }
 
+    /**
+     * Cập nhật thông tin một danh mục.
+     *
+     * @param CategoryDTO $cat Đối tượng danh mục với thông tin đã cập nhật.
+     * @return bool True nếu thành công, ngược lại false.
+     */
     public function update_category(CategoryDTO $cat): bool
     {
-        $sql = "BEGIN CATEGORY_PKG.UPDATE_CATEGORY_PROC(:id_where, :name, :parent_id, :sort_order); END;";
-
+        $sql = "UPDATE categories SET name = ?, parent_id = ?, sort_order = ? WHERE id = ?";
+        
         $bindParams = [
-            ':id_where'   => $cat->id,
-            ':name'       => $cat->name,
-            ':parent_id'  => $cat->parent_id,
-            ':sort_order' => $cat->sort_order ?? 0,
+            $cat->name,
+            $cat->parent_id,
+            $cat->sort_order ?? 0,
+            $cat->id,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $bindParams);
+        return $result !== false;
     }
 
+    /**
+     * Lấy thông tin một danh mục bằng ID.
+     *
+     * @param int $id ID của danh mục.
+     * @return ?CategoryDTO Đối tượng CategoryDTO hoặc null nếu không tìm thấy.
+     */
     public function get_category(int $id): ?CategoryDTO
     {
-        $sql = "BEGIN :result_cursor := CATEGORY_PKG.GET_CATEGORY_BY_ID_FUNC(:id_param); END;";
-        $bindParams = [
-            ':id_param' => $id
-        ];
-
+        $sql = "SELECT id, name, parent_id, sort_order, created_at FROM categories WHERE id = ?";
+        $bindParams = [$id];
+        $result = $this->executePrepared($sql, $bindParams);
         $dto = null;
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CategoryBLL] Failed to create new cursor for GET_CATEGORY_BY_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return null;
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CategoryBLL] OCI Parse failed for GET_CATEGORY_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return null;
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $dto = new CategoryDTO(
+                (int)$row['id'],
+                $row['name'],
+                isset($row['parent_id']) ? (int)$row['parent_id'] : null,
+                (int)$row['sort_order'],
+                $row['created_at']
+            );
+            $result->free();
         }
-
-        @oci_bind_by_name($parsed_stid, ':id_param', $bindParams[':id_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CategoryBLL] OCI Execute failed for GET_CATEGORY_BY_ID_FUNC. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CategoryBLL] OCI Execute failed for result cursor. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $dto = new CategoryDTO(
-                    isset($row['ID']) ? (int)$row['ID'] : 0,
-                    $row['NAME'],
-                    isset($row['PARENT_ID']) ? (int)$row['PARENT_ID'] : null,
-                    isset($row['SORT_ORDER']) ? (int)$row['SORT_ORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
-                );
-            }
-            @oci_free_statement($stid_cursor);
-        }
-        @oci_free_statement($parsed_stid);
         return $dto;
     }
 
+    /**
+     * Lấy tất cả các danh mục dưới dạng danh sách phẳng.
+     *
+     * @return array Mảng các đối tượng CategoryDTO.
+     */
     public function get_all_categories(): array
     {
-        $sql = "BEGIN :result_cursor := CATEGORY_PKG.GET_ALL_CATEGORIES_FUNC(); END;";
+        $sql = "SELECT id, name, parent_id, sort_order, created_at FROM categories ORDER BY sort_order ASC, name ASC";
         $list = [];
+        $rows = $this->fetchAll($sql); // Sử dụng phương thức fetchAll tiện lợi
 
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CategoryBLL] Failed to create new cursor for GET_ALL_CATEGORIES_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
+        foreach ($rows as $row) {
+            $list[] = new CategoryDTO(
+                (int)$row['id'],
+                $row['name'],
+                isset($row['parent_id']) ? (int)$row['parent_id'] : null,
+                (int)$row['sort_order'],
+                $row['created_at']
+            );
         }
-
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CategoryBLL] OCI Parse failed for GET_ALL_CATEGORIES_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CategoryBLL] OCI Execute failed for GET_ALL_CATEGORIES_FUNC. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CategoryBLL] OCI Execute failed for result cursor. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        $stid_cursor = $out_cursor;
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $list[] = new CategoryDTO(
-                    isset($row['ID']) ? (int)$row['ID'] : 0,
-                    $row['NAME'],
-                    isset($row['PARENT_ID']) ? (int)$row['PARENT_ID'] : null,
-                    isset($row['SORT_ORDER']) ? (int)$row['SORT_ORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
-                );
-            }
-            @oci_free_statement($stid_cursor);
-        }
-        @oci_free_statement($parsed_stid);
         return $list;
     }
 
+    /**
+     * Lấy các danh mục dưới dạng cây phân cấp.
+     *
+     * @return array Cây danh mục.
+     */
     public function get_nested_categories(): array
     {
         $all_categories_flat = $this->get_all_categories();
 
         $all_by_id = [];
         foreach ($all_categories_flat as $dto) {
-            $all_by_id[$dto->id] = ['data' => $dto, 'children' => []];
+            // Thêm một thuộc tính 'children' vào đối tượng DTO để lưu các con
+            $dto->children = []; 
+            $all_by_id[$dto->id] = $dto;
         }
 
         $tree = [];
         foreach ($all_by_id as $id => &$node) {
-            $parentID = $node['data']->parent_id;
+            $parentID = $node->parent_id;
             if ($parentID === null) {
+                // Đây là node gốc
                 $tree[$id] = &$node;
             } elseif (isset($all_by_id[$parentID])) {
-                $all_by_id[$parentID]['children'][] = &$node;
+                // Thêm node này vào mảng children của cha nó
+                $all_by_id[$parentID]->children[] = &$node;
             }
         }
-        unset($node);
+        unset($node); // Hủy tham chiếu cuối cùng
 
-        return $tree;
+        return array_values($tree); // Trả về mảng không có key là ID
     }
 }
 ?>

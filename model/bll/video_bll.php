@@ -1,111 +1,130 @@
 <?php
-require_once __DIR__ . '/../database.php';
+// Thay đổi đường dẫn để trỏ đến database_mysql.php
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/video_dto.php';
 
 class VideoBLL extends Database
 {
+    /**
+     * Tạo một video mới trong cơ sở dữ liệu.
+     * @param VideoDTO $v Đối tượng DTO chứa thông tin video.
+     * @return bool Trả về true nếu tạo thành công, ngược lại false.
+     */
     public function create_video(VideoDTO $v): bool
     {
-        $sql = "INSERT INTO CourseVideo (VideoID, LessonID, Url, Title, Duration, SortOrder)
-                VALUES (:videoID, :lessonID, :url, :title, :duration, :sortOrder)";
-        $bindParams = [
-            ':videoID'   => $v->videoID,
-            ':lessonID'  => $v->lessonID,
-            ':url'       => $v->url,
-            ':title'     => $v->title,
-            ':duration'  => $v->duration ?? 0,
-            ':sortOrder' => $v->sortOrder,
+        // Câu lệnh SQL INSERT cho MySQL với các placeholder '?'
+        $sql = "INSERT INTO CourseVideo (VideoID, LessonID, Url, Title, Duration, SortOrder) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        // Mảng tham số cho prepared statement
+        $params = [
+            $v->videoID,
+            $v->lessonID,
+            $v->url,
+            $v->title,
+            $v->duration ?? 0,
+            $v->sortOrder,
         ];
-        $stid = $this->executePrepared($sql, $bindParams);
-        $success = ($stid !== false);
-        if ($success) {
-            // No action needed here, affected rows check is below
-        }
-        return $success && $this->getAffectedRows() === 1;
+
+        // Thực thi câu lệnh và trả về kết quả dựa trên số dòng bị ảnh hưởng
+        $this->executePrepared($sql, $params);
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Xóa một video khỏi cơ sở dữ liệu.
+     * @param string $vid ID của video cần xóa.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function delete_video(string $vid): bool
     {
-        $sql = "DELETE FROM CourseVideo WHERE VideoID = :videoID";
-        $bindParams = [':videoID' => $vid];
-        $stid = $this->executePrepared($sql, $bindParams);
-        $success = ($stid !== false);
-        return $success && $this->getAffectedRows() === 1;
+        $sql = "DELETE FROM CourseVideo WHERE VideoID = ?";
+        $params = [$vid];
+        $this->executePrepared($sql, $params);
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Cập nhật thông tin một video.
+     * @param VideoDTO $v Đối tượng DTO chứa thông tin video cần cập nhật.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update_video(VideoDTO $v): bool
     {
-        $setClauses = [];
-        $bindParams = [];
-        $setClauses[] = "LessonID = :lessonID";
-        $bindParams[':lessonID'] = $v->lessonID;
-        $setClauses[] = "Url = :url";
-        $bindParams[':url'] = $v->url;
-        $setClauses[] = "SortOrder = :sortOrder";
-        $bindParams[':sortOrder'] = $v->sortOrder;
-        $setClauses[] = "Title = :title";
-        $bindParams[':title'] = $v->title;
-        $setClauses[] = "Duration = :duration";
-        $bindParams[':duration'] = $v->duration ?? 0;
-        $bindParams[':videoID_where'] = $v->videoID;
-        if (empty($setClauses)) {
-            return true;
-        }
-        $sql = "UPDATE CourseVideo SET " . implode(', ', $setClauses) . " WHERE VideoID = :videoID_where";
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $sql = "UPDATE CourseVideo SET LessonID = ?, Url = ?, SortOrder = ?, Title = ?, Duration = ? WHERE VideoID = ?";
+        
+        $params = [
+            $v->lessonID,
+            $v->url,
+            $v->sortOrder,
+            $v->title,
+            $v->duration ?? 0,
+            $v->videoID
+        ];
+
+        $this->executePrepared($sql, $params);
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Lấy thông tin một video bằng ID.
+     * @param string $videoID ID của video.
+     * @return VideoDTO|null Trả về đối tượng VideoDTO nếu tìm thấy, ngược lại null.
+     */
     public function get_video(string $videoID): ?VideoDTO
     {
+        // Sử dụng DATE_FORMAT cho MySQL thay vì TO_CHAR
         $sql = "SELECT VideoID, LessonID, Url, Title, SortOrder, Duration, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
                 FROM CourseVideo
-                WHERE VideoID = :videoID_param";
-        $bindParams = [':videoID_param' => $videoID];
-        $stid = $this->executePrepared($sql, $bindParams);
-        if ($stid) {
-            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $video = new VideoDTO(
-                    $row['VIDEOID'],
-                    $row['LESSONID'],
-                    $row['URL'],
-                    $row['TITLE'],
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    isset($row['DURATION']) ? (int)$row['DURATION'] : null,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
-                );
-                @oci_free_statement($stid);
-                return $video;
-            }
-            @oci_free_statement($stid);
+                WHERE VideoID = ?";
+        $params = [$videoID];
+        
+        $result = $this->executePrepared($sql, $params);
+
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return new VideoDTO(
+                $row['VideoID'],
+                $row['LessonID'],
+                $row['Url'],
+                $row['Title'],
+                isset($row['SortOrder']) ? (int)$row['SortOrder'] : 0,
+                isset($row['Duration']) ? (int)$row['Duration'] : null,
+                $row['created_at_formatted'] ?? null
+            );
         }
         return null;
     }
 
+    /**
+     * Lấy danh sách các video thuộc về một bài học.
+     * @param string $lessonID ID của bài học.
+     * @return array Mảng các đối tượng VideoDTO.
+     */
     public function get_videos_by_lesson(string $lessonID): array
     {
         $sql = "SELECT VideoID, LessonID, Url, Title, SortOrder, Duration, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
                 FROM CourseVideo
-                WHERE LessonID = :lessonID_param
+                WHERE LessonID = ?
                 ORDER BY SortOrder";
-        $bindParams = [':lessonID_param' => $lessonID];
-        $stid = $this->executePrepared($sql, $bindParams);
+        $params = [$lessonID];
+        
         $videos = [];
-        if ($stid) {
-            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        $result = $this->executePrepared($sql, $params);
+
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
                 $videos[] = new VideoDTO(
-                    $row['VIDEOID'],
-                    $row['LESSONID'],
-                    $row['URL'],
-                    $row['TITLE'],
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    isset($row['DURATION']) ? (int)$row['DURATION'] : null,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['VideoID'],
+                    $row['LessonID'],
+                    $row['Url'],
+                    $row['Title'],
+                    isset($row['SortOrder']) ? (int)$row['SortOrder'] : 0,
+                    isset($row['Duration']) ? (int)$row['Duration'] : null,
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid);
         }
         return $videos;
     }

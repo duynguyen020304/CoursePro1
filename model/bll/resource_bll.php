@@ -1,210 +1,160 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/resource_dto.php';
 
 class ResourceBLL extends Database
 {
+    /**
+     * Tạo một tài nguyên mới.
+     *
+     * @param ResourceDTO $resource Đối tượng chứa thông tin tài nguyên.
+     * @return bool Trả về true nếu tạo thành công, ngược lại false.
+     */
     public function create_resource(ResourceDTO $resource): bool
     {
-        $sql = "BEGIN COURSE_RESOURCE_PKG.CREATE_RESOURCE_PROC(:resourceID, :lessonID, :resourcePath, :title, :sortOrder); END;";
-        $bindParams = [
-            ':resourceID'   => $resource->resourceID,
-            ':lessonID'     => $resource->lessonID,
-            ':resourcePath' => $resource->resourcePath,
-            ':title'        => $resource->title,
-            ':sortOrder'    => $resource->sortOrder ?? 0,
+        $sql = "INSERT INTO COURSERESOURCES (ResourceID, LessonID, ResourcePath, Title, SortOrder) VALUES (?, ?, ?, ?, ?)";
+        
+        $params = [
+            $resource->resourceID,
+            $resource->lessonID,
+            $resource->resourcePath,
+            $resource->title,
+            $resource->sortOrder ?? 0,
         ];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false) && ($this->getAffectedRows() === 1);
     }
 
+    /**
+     * Lấy tài nguyên bằng ID của nó.
+     *
+     * @param string $resourceID ID của tài nguyên.
+     * @return ResourceDTO|null Trả về đối tượng ResourceDTO nếu tìm thấy, ngược lại null.
+     */
     public function get_resource_by_resource_id(string $resourceID): ?ResourceDTO
     {
-        $sql = "BEGIN :result_cursor := COURSE_RESOURCE_PKG.GET_RESOURCE_BY_ID_FUNC(:resourceID_param); END;";
-        $bindParams = [
-            ':resourceID_param' => $resourceID
-        ];
-
+        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder,
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
+                FROM COURSERESOURCES
+                WHERE ResourceID = ?";
+        $params = [$resourceID];
+        $result = $this->executePrepared($sql, $params);
         $dto = null;
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[ResourceBLL] Failed to create new cursor for GET_RESOURCE_BY_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return null;
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[ResourceBLL] OCI Parse failed for GET_RESOURCE_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        @oci_bind_by_name($parsed_stid, ':resourceID_param', $bindParams[':resourceID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[ResourceBLL] OCI Execute failed for GET_RESOURCE_BY_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[ResourceBLL] OCI Execute failed for result cursor of GET_RESOURCE_BY_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result instanceof mysqli_result) {
+            if ($row = $result->fetch_assoc()) {
                 $dto = new ResourceDTO(
-                    $row['RESOURCEID'],
-                    $row['LESSONID'],
-                    $row['RESOURCEPATH'],
-                    $row['TITLE'],
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['ResourceID'],
+                    $row['LessonID'],
+                    $row['ResourcePath'],
+                    $row['Title'],
+                    isset($row['SortOrder']) ? (int)$row['SortOrder'] : 0,
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid_cursor);
+            $result->free();
         }
-        @oci_free_statement($parsed_stid);
-
         return $dto;
     }
 
+    /**
+     * Lấy danh sách tài nguyên theo ID bài học.
+     *
+     * @param string $lessonID ID của bài học.
+     * @return array Mảng các đối tượng ResourceDTO.
+     */
     public function get_resources_by_lesson_id(string $lessonID): array
     {
-        $sql = "BEGIN :result_cursor := COURSE_RESOURCE_PKG.GET_RESOURCES_BY_LESSON_FUNC(:lessonID_param); END;";
-        $bindParams = [
-            ':lessonID_param' => $lessonID
-        ];
+        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder,
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
+                FROM COURSERESOURCES
+                WHERE LessonID = ?
+                ORDER BY SortOrder ASC";
+        $params = [$lessonID];
+        $result = $this->executePrepared($sql, $params);
         $resources = [];
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[ResourceBLL] Failed to create new cursor for GET_RESOURCES_BY_LESSON_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[ResourceBLL] OCI Parse failed for GET_RESOURCES_BY_LESSON_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':lessonID_param', $bindParams[':lessonID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[ResourceBLL] OCI Execute failed for GET_RESOURCES_BY_LESSON_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[ResourceBLL] OCI Execute failed for result cursor of GET_RESOURCES_BY_LESSON_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
                 $resources[] = new ResourceDTO(
-                    $row['RESOURCEID'],
-                    $row['LESSONID'],
-                    $row['RESOURCEPATH'],
-                    $row['TITLE'],
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['ResourceID'],
+                    $row['LessonID'],
+                    $row['ResourcePath'],
+                    $row['Title'],
+                    isset($row['SortOrder']) ? (int)$row['SortOrder'] : 0,
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid_cursor);
+            $result->free();
         }
-        @oci_free_statement($parsed_stid);
-
         return $resources;
     }
 
+    /**
+     * Lấy tất cả các tài nguyên.
+     *
+     * @return array Mảng các đối tượng ResourceDTO.
+     */
     public function get_all_resources(): array
     {
-        $sql = "BEGIN :result_cursor := COURSE_RESOURCE_PKG.GET_ALL_RESOURCES_FUNC(); END;";
+        $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder,
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
+                FROM COURSERESOURCES
+                ORDER BY LessonID, SortOrder ASC";
+        $result = $this->execute($sql);
         $resources = [];
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[ResourceBLL] Failed to create new cursor for GET_ALL_RESOURCES_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[ResourceBLL] OCI Parse failed for GET_ALL_RESOURCES_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[ResourceBLL] OCI Execute failed for GET_ALL_RESOURCES_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[ResourceBLL] OCI Execute failed for result cursor of GET_ALL_RESOURCES_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
                 $resources[] = new ResourceDTO(
-                    $row['RESOURCEID'],
-                    $row['LESSONID'],
-                    $row['RESOURCEPATH'],
-                    $row['TITLE'],
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['ResourceID'],
+                    $row['LessonID'],
+                    $row['ResourcePath'],
+                    $row['Title'],
+                    isset($row['SortOrder']) ? (int)$row['SortOrder'] : 0,
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid_cursor);
+            $result->free();
         }
-        @oci_free_statement($parsed_stid);
-
         return $resources;
     }
 
+    /**
+     * Cập nhật thông tin một tài nguyên.
+     *
+     * @param ResourceDTO $resource Đối tượng chứa thông tin tài nguyên cần cập nhật.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update_resource(ResourceDTO $resource): bool
     {
-        $sql = "BEGIN COURSE_RESOURCE_PKG.UPDATE_RESOURCE_PROC(:resourceID_where, :lessonID, :resourcePath, :title, :sortOrder); END;";
-        $bindParams = [
-            ':resourceID_where' => $resource->resourceID,
-            ':lessonID'       => $resource->lessonID,
-            ':resourcePath'   => $resource->resourcePath,
-            ':title'          => $resource->title,
-            ':sortOrder'      => $resource->sortOrder ?? 0,
+        $sql = "UPDATE COURSERESOURCES SET LessonID = ?, ResourcePath = ?, Title = ?, SortOrder = ? 
+                WHERE ResourceID = ?";
+        
+        $params = [
+            $resource->lessonID,
+            $resource->resourcePath,
+            $resource->title,
+            $resource->sortOrder ?? 0,
+            $resource->resourceID,
         ];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false);
     }
 
+    /**
+     * Xóa một tài nguyên.
+     *
+     * @param string $resourceID ID của tài nguyên cần xóa.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function delete_resource(string $resourceID): bool
     {
-        $sql = "BEGIN COURSE_RESOURCE_PKG.DELETE_RESOURCE_PROC(:resourceID); END;";
-        $bindParams = [':resourceID' => $resourceID];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $sql = "DELETE FROM COURSERESOURCES WHERE ResourceID = ?";
+        $params = [$resourceID];
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false) && ($this->getAffectedRows() === 1);
     }
 }

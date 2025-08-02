@@ -1,143 +1,110 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/role_dto.php';
 
 class RoleBLL extends Database
 {
+    /**
+     * Tạo một vai trò mới.
+     *
+     * @param RoleDTO $role Đối tượng chứa thông tin vai trò.
+     * @return bool Trả về true nếu tạo thành công, ngược lại false.
+     */
     public function create_role(RoleDTO $role): bool
     {
-        $sql = "BEGIN ROLE_PKG.CREATE_ROLE_PROC(:roleID, :roleName); END;";
-        $bindParams = [
-            ':roleID'   => $role->roleID,
-            ':roleName' => $role->roleName,
+        $sql = "INSERT INTO ROLES (RoleID, RoleName) VALUES (?, ?)";
+        $params = [
+            $role->roleID,
+            $role->roleName,
         ];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false) && ($this->getAffectedRows() === 1);
     }
 
+    /**
+     * Xóa một vai trò.
+     *
+     * @param string $roleID ID của vai trò cần xóa.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function delete_role(string $roleID): bool
     {
-        $sql = "BEGIN ROLE_PKG.DELETE_ROLE_PROC(:roleID); END;";
-        $bindParams = [':roleID' => $roleID];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $sql = "DELETE FROM ROLES WHERE RoleID = ?";
+        $params = [$roleID];
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false) && ($this->getAffectedRows() === 1);
     }
 
+    /**
+     * Cập nhật thông tin một vai trò.
+     *
+     * @param RoleDTO $role Đối tượng chứa thông tin vai trò cần cập nhật.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update_role(RoleDTO $role): bool
     {
-        $sql = "BEGIN ROLE_PKG.UPDATE_ROLE_PROC(:roleID_where, :roleName); END;";
-        $bindParams = [
-            ':roleID_where' => $role->roleID,
-            ':roleName'    => $role->roleName,
+        $sql = "UPDATE ROLES SET RoleName = ? WHERE RoleID = ?";
+        $params = [
+            $role->roleName,
+            $role->roleID,
         ];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false);
     }
 
+    /**
+     * Lấy thông tin vai trò bằng ID.
+     *
+     * @param string $roleID ID của vai trò.
+     * @return RoleDTO|null Trả về đối tượng RoleDTO nếu tìm thấy, ngược lại null.
+     */
     public function get_role_by_role_id(string $roleID): ?RoleDTO
     {
-        $sql = "BEGIN :result_cursor := ROLE_PKG.GET_ROLE_BY_ID_FUNC(:roleID_param); END;";
-        $bindParams = [
-            ':roleID_param' => $roleID
-        ];
-
+        $sql = "SELECT RoleID, RoleName, 
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
+                FROM ROLES 
+                WHERE RoleID = ?";
+        $params = [$roleID];
+        $result = $this->executePrepared($sql, $params);
         $dto = null;
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[RoleBLL] Failed to create new cursor for GET_ROLE_BY_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return null;
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[RoleBLL] OCI Parse failed for GET_ROLE_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        @oci_bind_by_name($parsed_stid, ':roleID_param', $bindParams[':roleID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[RoleBLL] OCI Execute failed for GET_ROLE_BY_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[RoleBLL] OCI Execute failed for result cursor of GET_ROLE_BY_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result instanceof mysqli_result) {
+            if ($row = $result->fetch_assoc()) {
                 $dto = new RoleDTO(
-                    $row['ROLEID'],
-                    $row['ROLENAME'],
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['RoleID'],
+                    $row['RoleName'],
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid_cursor);
+            $result->free();
         }
-        @oci_free_statement($parsed_stid);
-
         return $dto;
     }
 
+    /**
+     * Lấy tất cả các vai trò.
+     *
+     * @return array Mảng các đối tượng RoleDTO.
+     */
     public function get_all_roles(): array
     {
-        $sql = "BEGIN :result_cursor := ROLE_PKG.GET_ALL_ROLES_FUNC(); END;";
-
+        $sql = "SELECT RoleID, RoleName, 
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
+                FROM ROLES 
+                ORDER BY RoleName ASC";
+        $result = $this->execute($sql);
         $roles = [];
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[RoleBLL] Failed to create new cursor for GET_ALL_ROLES_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[RoleBLL] OCI Parse failed for GET_ALL_ROLES_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[RoleBLL] OCI Execute failed for GET_ALL_ROLES_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[RoleBLL] OCI Execute failed for result cursor of GET_ALL_ROLES_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
                 $roles[] = new RoleDTO(
-                    $row['ROLEID'],
-                    $row['ROLENAME'],
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['RoleID'],
+                    $row['RoleName'],
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid_cursor);
+            $result->free();
         }
-        @oci_free_statement($parsed_stid);
-
         return $roles;
     }
 }
-?>

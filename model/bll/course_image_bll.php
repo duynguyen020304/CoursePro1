@@ -1,168 +1,130 @@
 <?php
-require_once __DIR__ . '/../database.php';
+// Thay đổi đường dẫn để trỏ đến tệp kết nối MySQL
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/course_image_dto.php';
 
 class CourseImageBLL extends Database
 {
+    /**
+     * Chuyển đổi một hàng dữ liệu từ database thành một đối tượng CourseImageDTO.
+     * @param array $row Mảng kết hợp chứa dữ liệu của một hình ảnh.
+     * @return CourseImageDTO Đối tượng DTO của hình ảnh.
+     */
+    private function _map_row_to_dto(array $row): CourseImageDTO
+    {
+        return new CourseImageDTO(
+            $row['imageID'],
+            $row['courseID'],
+            $row['imagePath'],
+            $row['caption'],
+            isset($row['sortOrder']) ? (int)$row['sortOrder'] : 0,
+            $row['createdAt_formatted'] ?? null
+        );
+    }
+
+    /**
+     * Tạo một bản ghi hình ảnh mới cho khóa học.
+     * @param CourseImageDTO $img Đối tượng chứa thông tin hình ảnh.
+     * @return bool Trả về true nếu tạo thành công, ngược lại false.
+     */
     public function create_image(CourseImageDTO $img): bool
     {
-        $sql = "BEGIN COURSE_IMAGE_PKG.CREATE_IMAGE_PROC(:imageID, :courseID, :imagePath, :caption, :sortOrder); END;";
+        // Câu lệnh INSERT chuẩn của MySQL
+        $sql = "INSERT INTO course_images (imageID, courseID, imagePath, caption, sortOrder) VALUES (?, ?, ?, ?, ?)";
 
         $bindParams = [
-            ':imageID'    => $img->imageID,
-            ':courseID'   => $img->courseID,
-            ':imagePath'  => $img->imagePath,
-            ':caption'    => $img->caption,
-            ':sortOrder'  => $img->sortOrder ?? 0,
+            $img->imageID,
+            $img->courseID,
+            $img->imagePath,
+            $img->caption,
+            $img->sortOrder ?? 0,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $bindParams);
+        return ($result !== false && $this->getAffectedRows() > 0);
     }
 
+    /**
+     * Cập nhật thông tin của một hình ảnh.
+     * @param CourseImageDTO $img Đối tượng chứa thông tin cần cập nhật.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update_image(CourseImageDTO $img): bool
     {
-        $sql = "BEGIN COURSE_IMAGE_PKG.UPDATE_IMAGE_PROC(:imageID_where, :courseID, :imagePath, :caption, :sortOrder); END;";
+        // Câu lệnh UPDATE chuẩn của MySQL
+        $sql = "UPDATE course_images SET courseID = ?, imagePath = ?, caption = ?, sortOrder = ? WHERE imageID = ?";
 
         $bindParams = [
-            ':imageID_where' => $img->imageID,
-            ':courseID'   => $img->courseID,
-            ':imagePath'  => $img->imagePath,
-            ':caption'    => $img->caption,
-            ':sortOrder'  => $img->sortOrder ?? 0,
+            $img->courseID,
+            $img->imagePath,
+            $img->caption,
+            $img->sortOrder ?? 0,
+            $img->imageID, // Tham số cho mệnh đề WHERE
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $bindParams);
+        return ($result !== false);
     }
 
+    /**
+     * Xóa một hình ảnh khỏi khóa học (xóa bản ghi).
+     * @param string $imageID ID của hình ảnh.
+     * @param string $courseID ID của khóa học để đảm bảo xóa đúng.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function unlink_image_course(string $imageID, string $courseID): bool
     {
-        $sql = "BEGIN COURSE_IMAGE_PKG.UNLINK_IMAGE_COURSE_PROC(:imageID, :courseID); END;";
+        // Câu lệnh DELETE chuẩn của MySQL
+        $sql = "DELETE FROM course_images WHERE imageID = ? AND courseID = ?";
 
         $bindParams = [
-            ':imageID'  => $imageID,
-            ':courseID' => $courseID,
+            $imageID,
+            $courseID,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $bindParams);
+        return ($result !== false && $this->getAffectedRows() > 0);
     }
 
+    /**
+     * Lấy thông tin chi tiết của một hình ảnh bằng ID của nó.
+     * @param string $imageID ID của hình ảnh.
+     * @return ?CourseImageDTO Trả về đối tượng DTO nếu tìm thấy, ngược lại null.
+     */
     public function get_image_by_image_id(string $imageID): ?CourseImageDTO
     {
-        $sql = "BEGIN :result_cursor := COURSE_IMAGE_PKG.GET_IMAGE_BY_IMAGE_ID_FUNC(:imageID_param); END;";
-        $bindParams = [
-            ':imageID_param' => $imageID
-        ];
+        // Câu lệnh SELECT với định dạng ngày tháng
+        $sql = "SELECT imageID, courseID, imagePath, caption, sortOrder, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM course_images WHERE imageID = ?";
+        $bindParams = [$imageID];
 
-        $dto = null;
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CourseImageBLL] Failed to create new cursor for GET_IMAGE_BY_IMAGE_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return null;
+        $result = $this->executePrepared($sql, $bindParams);
+
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $this->_map_row_to_dto($row);
         }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CourseImageBLL] OCI Parse failed for GET_IMAGE_BY_IMAGE_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        @oci_bind_by_name($parsed_stid, ':imageID_param', $bindParams[':imageID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CourseImageBLL] OCI Execute failed for GET_IMAGE_BY_IMAGE_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CourseImageBLL] OCI Execute failed for result cursor of GET_IMAGE_BY_IMAGE_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $dto = new CourseImageDTO(
-                    $row['IMAGEID'],
-                    $row['COURSEID'],
-                    $row['IMAGEPATH'],
-                    $row['CAPTION'],
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
-                );
-            }
-            @oci_free_statement($stid_cursor);
-        }
-        @oci_free_statement($parsed_stid);
-
-        return $dto;
+        return null;
     }
 
+    /**
+     * Lấy tất cả hình ảnh của một khóa học, sắp xếp theo thứ tự.
+     * @param string $courseID ID của khóa học.
+     * @return array Danh sách các đối tượng CourseImageDTO.
+     */
     public function get_images_by_course_id(string $courseID): array
     {
-        $sql = "BEGIN :result_cursor := COURSE_IMAGE_PKG.GET_IMAGES_BY_COURSE_ID_FUNC(:courseID_param); END;";
-        $bindParams = [
-            ':courseID_param' => $courseID
-        ];
-
+        // Câu lệnh SELECT, sắp xếp theo sortOrder để hiển thị đúng thứ tự
+        $sql = "SELECT imageID, courseID, imagePath, caption, sortOrder, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM course_images WHERE courseID = ? ORDER BY sortOrder ASC, createdAt ASC";
+        $bindParams = [$courseID];
         $images = [];
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CourseImageBLL] Failed to create new cursor for GET_IMAGES_BY_COURSE_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CourseImageBLL] OCI Parse failed for GET_IMAGES_BY_COURSE_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':courseID_param', $bindParams[':courseID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CourseImageBLL] OCI Execute failed for GET_IMAGES_BY_COURSE_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CourseImageBLL] OCI Execute failed for result cursor of GET_IMAGES_BY_COURSE_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $images[] = new CourseImageDTO(
-                    $row['IMAGEID'],
-                    $row['COURSEID'],
-                    $row['IMAGEPATH'],
-                    $row['CAPTION'],
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
-                );
+        $result = $this->executePrepared($sql, $bindParams);
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $images[] = $this->_map_row_to_dto($row);
             }
-            @oci_free_statement($stid_cursor);
         }
-        @oci_free_statement($parsed_stid);
-
         return $images;
     }
 }
-?>
