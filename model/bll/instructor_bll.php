@@ -1,227 +1,143 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/instructor_dto.php';
 
 class InstructorBLL extends Database
 {
+    /**
+     * Tạo một hồ sơ giảng viên mới.
+     * @param InstructorDTO $inst Đối tượng DTO chứa thông tin giảng viên.
+     * @return bool Trả về true nếu tạo thành công, ngược lại false.
+     */
     public function create_instructor(InstructorDTO $inst): bool
     {
-        $sql = "BEGIN INSTRUCTOR_PKG.CREATE_INSTRUCTOR_PROC(:instructorID, :userID, :biography); END;";
+        // Câu lệnh SQL để chèn dữ liệu vào bảng Instructor
+        $sql = "INSERT INTO Instructor (InstructorID, UserID, Biography) VALUES (?, ?, ?)";
 
-        $bindParams = [
-            ':instructorID' => $inst->instructorID,
-            ':userID'       => $inst->userID,
-            ':biography'    => ['value' => $inst->biography, 'type' => OCI_B_CLOB],
-        ];
+        // Mảng chứa các tham số để bind vào câu lệnh SQL
+        $bindParams = [$inst->instructorID, $inst->userID, $inst->biography];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị
+        $this->executePrepared($sql, $bindParams);
+        
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Xóa một hồ sơ giảng viên.
+     * @param string $instructorID ID của giảng viên cần xóa.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function delete_instructor(string $instructorID): bool
     {
-        $sql = "BEGIN INSTRUCTOR_PKG.DELETE_INSTRUCTOR_PROC(:instructorID); END;";
-        $bindParams = [':instructorID' => $instructorID];
+        // Câu lệnh SQL để xóa một bản ghi khỏi Instructor
+        $sql = "DELETE FROM Instructor WHERE InstructorID = ?";
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Mảng chứa các tham số để bind
+        $bindParams = [$instructorID];
+
+        // Thực thi câu lệnh đã chuẩn bị
+        $this->executePrepared($sql, $bindParams);
+
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Cập nhật thông tin hồ sơ giảng viên.
+     * @param InstructorDTO $inst Đối tượng DTO chứa thông tin cần cập nhật.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update_instructor(InstructorDTO $inst): bool
     {
-        $sql = "BEGIN INSTRUCTOR_PKG.UPDATE_INSTRUCTOR_PROC(:instructorID_where, :userID, :biography); END;";
+        // Câu lệnh SQL để cập nhật bản ghi trong Instructor
+        $sql = "UPDATE Instructor SET UserID = ?, Biography = ? WHERE InstructorID = ?";
 
-        $bindParams = [
-            ':instructorID_where' => $inst->instructorID,
-            ':userID'             => $inst->userID,
-            ':biography'          => ['value' => $inst->biography, 'type' => OCI_B_CLOB],
-        ];
+        // Mảng chứa các tham số theo đúng thứ tự trong câu lệnh SQL
+        $bindParams = [$inst->userID, $inst->biography, $inst->instructorID];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị
+        $this->executePrepared($sql, $bindParams);
+
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Lấy thông tin giảng viên bằng ID giảng viên.
+     * @param string $instructorID ID của giảng viên.
+     * @return InstructorDTO|null Trả về đối tượng DTO nếu tìm thấy, ngược lại null.
+     */
     public function get_instructor(string $instructorID): ?InstructorDTO
     {
-        $sql = "BEGIN :result_cursor := INSTRUCTOR_PKG.GET_INSTRUCTOR_BY_ID_FUNC(:instructorID_param); END;";
-        $bindParams = [
-            ':instructorID_param' => $instructorID
-        ];
+        // Câu lệnh SQL để lấy thông tin giảng viên
+        $sql = "SELECT InstructorID, UserID, Biography, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted FROM Instructor WHERE InstructorID = ?";
+        
+        $bindParams = [$instructorID];
+        $result = $this->executePrepared($sql, $bindParams);
 
-        $dto = null;
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[InstructorBLL] Failed to create new cursor for GET_INSTRUCTOR_BY_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return null;
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return new InstructorDTO(
+                $row['InstructorID'],
+                $row['UserID'],
+                $row['Biography'],
+                $row['created_at_formatted']
+            );
         }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[InstructorBLL] OCI Parse failed for GET_INSTRUCTOR_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        @oci_bind_by_name($parsed_stid, ':instructorID_param', $bindParams[':instructorID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[InstructorBLL] OCI Execute failed for GET_INSTRUCTOR_BY_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[InstructorBLL] OCI Execute failed for result cursor of GET_INSTRUCTOR_BY_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $biography = null;
-                if (is_object($row['BIOGRAPHY']) && method_exists($row['BIOGRAPHY'], 'read')) {
-                    $biography = $row['BIOGRAPHY']->read($row['BIOGRAPHY']->size());
-                } elseif (isset($row['BIOGRAPHY'])) {
-                    $biography = $row['BIOGRAPHY'];
-                }
-
-                $dto = new InstructorDTO(
-                    $row['INSTRUCTORID'],
-                    $row['USERID'],
-                    $biography,
-                    $row['CREATED_AT_FORMATTED'] ?? null
-                );
-            }
-            @oci_free_statement($stid_cursor);
-        }
-        @oci_free_statement($parsed_stid);
-
-        return $dto;
+        return null;
     }
 
+    /**
+     * Lấy thông tin giảng viên bằng ID người dùng.
+     * @param string $userID ID của người dùng.
+     * @return InstructorDTO|null Trả về đối tượng DTO nếu tìm thấy, ngược lại null.
+     */
     public function get_instructor_by_user_id(string $userID): ?InstructorDTO
     {
-        $sql = "BEGIN :result_cursor := INSTRUCTOR_PKG.GET_INSTRUCTOR_BY_USER_ID_FUNC(:userID_param); END;";
-        $bindParams = [
-            ':userID_param' => $userID
-        ];
+        // Câu lệnh SQL để lấy thông tin giảng viên theo UserID
+        $sql = "SELECT InstructorID, UserID, Biography, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted FROM Instructor WHERE UserID = ?";
+        
+        $bindParams = [$userID];
+        $result = $this->executePrepared($sql, $bindParams);
 
-        $dto = null;
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[InstructorBLL] Failed to create new cursor for GET_INSTRUCTOR_BY_USER_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return null;
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return new InstructorDTO(
+                $row['InstructorID'],
+                $row['UserID'],
+                $row['Biography'],
+                $row['created_at_formatted']
+            );
         }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[InstructorBLL] OCI Parse failed for GET_INSTRUCTOR_BY_USER_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        @oci_bind_by_name($parsed_stid, ':userID_param', $bindParams[':userID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[InstructorBLL] OCI Execute failed for GET_INSTRUCTOR_BY_USER_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[InstructorBLL] OCI Execute failed for result cursor of GET_INSTRUCTOR_BY_USER_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $biography = null;
-                if (is_object($row['BIOGRAPHY']) && method_exists($row['BIOGRAPHY'], 'read')) {
-                    $biography = $row['BIOGRAPHY']->read($row['BIOGRAPHY']->size());
-                } elseif (isset($row['BIOGRAPHY'])) {
-                    $biography = $row['BIOGRAPHY'];
-                }
-
-                $dto = new InstructorDTO(
-                    $row['INSTRUCTORID'],
-                    $row['USERID'],
-                    $biography,
-                    $row['CREATED_AT_FORMATTED'] ?? null
-                );
-            }
-            @oci_free_statement($stid_cursor);
-        }
-        @oci_free_statement($parsed_stid);
-
-        return $dto;
+        return null;
     }
 
+    /**
+     * Lấy danh sách tất cả các giảng viên.
+     * @return array Mảng các đối tượng InstructorDTO.
+     */
     public function get_all_instructors(): array
     {
-        $sql = "BEGIN :result_cursor := INSTRUCTOR_PKG.GET_ALL_INSTRUCTORS_FUNC(); END;";
-
+        // Câu lệnh SQL để lấy tất cả giảng viên
+        $sql = "SELECT InstructorID, UserID, Biography, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted FROM Instructor";
+        
         $list = [];
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[InstructorBLL] Failed to create new cursor for GET_ALL_INSTRUCTORS_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
-        }
+        $result = $this->executePrepared($sql);
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[InstructorBLL] OCI Parse failed for GET_ALL_INSTRUCTORS_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[InstructorBLL] OCI Execute failed for GET_ALL_INSTRUCTORS_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[InstructorBLL] OCI Execute failed for result cursor of GET_ALL_INSTRUCTORS_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $biography = null;
-                if (is_object($row['BIOGRAPHY']) && method_exists($row['BIOGRAPHY'], 'read')) {
-                    $biography = $row['BIOGRAPHY']->read($row['BIOGRAPHY']->size());
-                } elseif (isset($row['BIOGRAPHY'])) {
-                    $biography = $row['BIOGRAPHY'];
-                }
-
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
                 $list[] = new InstructorDTO(
-                    $row['INSTRUCTORID'],
-                    $row['USERID'],
-                    $biography,
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['InstructorID'],
+                    $row['UserID'],
+                    $row['Biography'],
+                    $row['created_at_formatted']
                 );
             }
-            @oci_free_statement($stid_cursor);
         }
-        @oci_free_statement($parsed_stid);
 
         return $list;
     }

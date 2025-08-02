@@ -4,111 +4,139 @@ require_once __DIR__ . '/../dto/cart_item_dto.php';
 
 class CartItemBLL extends Database
 {
+    /**
+     * Thêm một sản phẩm mới vào giỏ hàng.
+     *
+     * @param CartItemDTO $item Đối tượng sản phẩm trong giỏ hàng.
+     * @return bool True nếu thành công, ngược lại false.
+     */
     public function create_item(CartItemDTO $item): bool
     {
-        $sql = "INSERT INTO CARTITEM (CartItemID, CartID, CourseID, Quantity)
-                VALUES (:cartItemID, :cartID, :courseID, :quantity)";
-
+        $sql = "INSERT INTO cart_items (cartItemID, cartID, courseID, quantity) VALUES (?, ?, ?, ?)";
+        
         $bindParams = [
-            ':cartItemID' => $item->cartItemID,
-            ':cartID'     => $item->cartID,
-            ':courseID'   => $item->courseID,
-            ':quantity'   => isset($item->quantity) ? (int)$item->quantity : 1,
+            $item->cartItemID,
+            $item->cartID,
+            $item->courseID,
+            $item->quantity ?? 1,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        $result = $this->executePrepared($sql, $bindParams);
+        return $result !== false;
     }
 
+    /**
+     * Lấy tất cả sản phẩm trong một giỏ hàng.
+     *
+     * @param string $cartID ID của giỏ hàng.
+     * @return array Mảng các đối tượng CartItemDTO.
+     */
     public function get_items_by_cart(string $cartID): array
     {
-        $sql = "SELECT CartItemID, CartID, CourseID, Quantity, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-                FROM CARTITEM
-                WHERE CartID = :cartID_param
-                ORDER BY CourseID ASC";
-
-        $bindParams = [':cartID_param' => $cartID];
-
-        $stid = $this->executePrepared($sql, $bindParams);
+        $sql = "SELECT cartItemID, cartID, courseID, quantity, created_at 
+                FROM cart_items 
+                WHERE cartID = ? 
+                ORDER BY courseID ASC";
+        
+        $bindParams = [$cartID];
+        $result = $this->executePrepared($sql, $bindParams);
         $items = [];
 
-        if ($stid) {
-            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
                 $items[] = new CartItemDTO(
-                    $row['CARTITEMID'],
-                    $row['CARTID'],
-                    $row['COURSEID'],
-                    isset($row['QUANTITY']) ? (int)$row['QUANTITY'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['cartItemID'],
+                    $row['cartID'],
+                    $row['courseID'],
+                    (int)$row['quantity'],
+                    $row['created_at']
                 );
             }
-            @oci_free_statement($stid);
+            $result->free();
         }
         return $items;
     }
 
+    /**
+     * Xóa một sản phẩm khỏi giỏ hàng.
+     *
+     * @param string $cartItemID ID của sản phẩm trong giỏ hàng.
+     * @return bool True nếu thành công, ngược lại false.
+     */
     public function delete_item(string $cartItemID): bool
     {
-        $sql = "DELETE FROM CARTITEM WHERE CartItemID = :cartItemID";
-        $bindParams = [':cartItemID' => $cartItemID];
-
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        $sql = "DELETE FROM cart_items WHERE cartItemID = ?";
+        $bindParams = [$cartItemID];
+        $result = $this->executePrepared($sql, $bindParams);
+        return $result !== false;
     }
 
+    /**
+     * Lấy thông tin một sản phẩm trong giỏ hàng bằng ID của nó.
+     *
+     * @param string $cartItemID ID của sản phẩm.
+     * @return ?CartItemDTO Đối tượng CartItemDTO hoặc null nếu không tìm thấy.
+     */
     public function get_item_by_id(string $cartItemID): ?CartItemDTO
     {
-        $sql = "SELECT CartItemID, CartID, CourseID, Quantity, 
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-                FROM CARTITEM
-                WHERE CartItemID = :cartItemID_param";
-        $bindParams = [':cartItemID_param' => $cartItemID];
-
-        $stid = $this->executePrepared($sql, $bindParams);
+        $sql = "SELECT cartItemID, cartID, courseID, quantity, created_at 
+                FROM cart_items 
+                WHERE cartItemID = ?";
+        
+        $bindParams = [$cartItemID];
+        $result = $this->executePrepared($sql, $bindParams);
         $dto = null;
 
-        if ($stid) {
-            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $dto = new CartItemDTO(
-                    $row['CARTITEMID'],
-                    $row['CARTID'],
-                    $row['COURSEID'],
-                    isset($row['QUANTITY']) ? (int)$row['QUANTITY'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
-                );
-            }
-            @oci_free_statement($stid);
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $dto = new CartItemDTO(
+                $row['cartItemID'],
+                $row['cartID'],
+                $row['courseID'],
+                (int)$row['quantity'],
+                $row['created_at']
+            );
+            $result->free();
         }
         return $dto;
     }
 
+    /**
+     * Cập nhật số lượng của một sản phẩm trong giỏ hàng.
+     *
+     * @param string $cartItemID ID của sản phẩm.
+     * @param int $quantity Số lượng mới.
+     * @return bool True nếu thành công, ngược lại false.
+     */
     public function update_item_quantity(string $cartItemID, int $quantity): bool
     {
         if ($quantity <= 0) {
             return $this->delete_item($cartItemID);
         }
 
-        $sql = "UPDATE CARTITEM SET Quantity = :quantity
-                WHERE CartItemID = :cartItemID_where";
-
+        $sql = "UPDATE cart_items SET quantity = ? WHERE cartItemID = ?";
+        
         $bindParams = [
-            ':quantity'        => $quantity,
-            ':cartItemID_where' => $cartItemID,
+            $quantity,
+            $cartItemID,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $bindParams);
+        return $result !== false;
     }
 
-
+    /**
+     * Xóa tất cả sản phẩm khỏi một giỏ hàng.
+     *
+     * @param string $cartID ID của giỏ hàng.
+     * @return bool True nếu thành công, ngược lại false.
+     */
     public function clear_cart(string $cartID): bool
     {
-        $sql = "DELETE FROM CARTITEM WHERE CartID = :cartID";
-        $bindParams = [':cartID' => $cartID];
-
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $sql = "DELETE FROM cart_items WHERE cartID = ?";
+        $bindParams = [$cartID];
+        $result = $this->executePrepared($sql, $bindParams);
+        return $result !== false;
     }
 }
 ?>

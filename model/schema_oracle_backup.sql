@@ -66,7 +66,143 @@ CREATE TABLE categories (
                             CONSTRAINT fk_categories_parent FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED
 );
 
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (1, 'Phát triển', NULL, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (33, 'Kinh doanh', NULL, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (41, 'CNTT & Phần mềm', NULL, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (49, 'Thiết kế', NULL, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (56, 'Marketing', NULL, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (63, 'Phát triển cá nhân', NULL, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (69, 'Âm nhạc', NULL, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (73, 'Sức khỏe & Thể hình', NULL, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (78, 'Giảng dạy & Học thuật', NULL, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (2, 'Lập trình Web', 1, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (14, 'Lập trình Mobile', 1, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (20, 'Lập trình Game', 1, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (24, 'Phát triển phần mềm', 1, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (30, 'Lập trình nhúng / IoT', 1, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (31, 'Blockchain', 1, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (32, 'No-Code Development', 1, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (3, 'HTML & CSS', 2, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (4, 'JavaScript', 2, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (5, 'ReactJS', 2, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (6, 'VueJS', 2, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (7, 'Angular', 2, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (8, 'PHP', 2, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (9, 'Laravel', 2, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (10, 'ASP.NET', 2, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (11, 'Django', 2, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (12, 'NodeJS', 2, 10, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (13, 'Web APIs', 2, 11, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (15, 'Android Development', 14, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (16, 'iOS Development', 14, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (17, 'React Native', 14, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (18, 'Flutter', 14, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (19, 'Xamarin', 14, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (21, 'Unity', 20, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (22, 'Unreal Engine', 20, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (23, 'Godot', 20, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (25, 'Python', 24, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (26, 'Java', 24, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (27, 'C++', 24, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (28, 'C#', 24, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (29, 'Rust', 24, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (34, 'Quản trị kinh doanh', 33, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (35, 'Doanh nghiệp khởi nghiệp', 33, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (36, 'Quản lý dự án', 33, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (37, 'Agile & Scrum', 33, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (38, 'Tài chính & Kế toán', 33, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (39, 'Phân tích kinh doanh (Business Analytics)', 33, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (40, 'Nhân sự (HR)', 33, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (42, 'Mạng máy tính & Bảo mật', 41, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (43, 'Ethical Hacking', 41, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (44, 'Khoa học dữ liệu (Data Science)', 41, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (45, 'Trí tuệ nhân tạo (AI)', 41, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (46, 'Hệ điều hành (Linux, Windows Server)', 41, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (47, 'DevOps', 41, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (48, 'Kiểm thử phần mềm (Software Testing)', 41, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (50, 'Thiết kế Web', 49, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (51, 'Thiết kế UI/UX', 49, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (52, 'Adobe Photoshop', 49, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (53, 'Illustrator', 49, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (54, 'Thiết kế đồ họa 2D/3D', 49, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (55, 'Thiết kế sản phẩm', 49, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (57, 'Digital Marketing', 56, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (58, 'SEO', 56, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (59, 'Google Ads / Facebook Ads', 56, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (60, 'Content Marketing', 56, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (61, 'Email Marketing', 56, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (62, 'Affiliate Marketing', 56, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (64, 'Kỹ năng giao tiếp', 63, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (65, 'Lãnh đạo', 63, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (66, 'Quản lý thời gian', 63, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (67, 'Tư duy phản biện', 63, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (68, 'Đọc nhanh & Ghi nhớ', 63, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (70, 'Nhạc cụ (Piano, Guitar, v.v.)', 69, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (71, 'Sản xuất âm nhạc', 69, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (72, 'DJ & Âm thanh điện tử', 69, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (74, 'Yoga', 73, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (75, 'Thiền', 73, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (76, 'Dinh dưỡng', 73, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (77, 'Tập luyện thể hình', 73, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (79, 'Toán học', 78, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (80, 'Vật lý', 78, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (81, 'Lập trình cho trẻ em', 78, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (82, 'Khoa học máy tính', 78, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (83, 'IELTS, TOEIC, TOEFL', 78, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (84, 'Ngoại ngữ', NULL, 10, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (85, 'Tiếng Anh', 84, 1, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (86, 'Tiếng Nhật', 84, 2, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (87, 'Tiếng Hàn', 84, 3, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (88, 'Tiếng Trung', 84, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (89, 'Tiếng Pháp', 84, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (90, 'Tiếng Đức', 84, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (91, 'Cloud Computing (AWS, Azure, GCP)', 1, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (92, 'Data Engineering', 1, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (93, 'E-commerce', 33, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (94, 'Đầu tư (Chứng khoán, Bất động sản)', 33, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (95, 'Machine Learning', 41, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (96, 'Database Management (SQL, NoSQL)', 41, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (97, 'Cybersecurity Chuyên sâu', 41, 10, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (98, 'Animation (2D/3D)', 49, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (99, 'Video Editing (Premiere, Final Cut)', 49, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (100, 'Figma', 49, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (101, 'Social Media Marketing', 56, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (102, 'Branding & Xây dựng thương hiệu', 56, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (103, 'Năng suất & Tổ chức công việc', 63, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (104, 'Trí tuệ cảm xúc (EQ)', 63, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (105, 'Lý thuyết âm nhạc', 69, 4, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (106, 'Thanh nhạc', 69, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (107, 'Sơ cứu & Chăm sóc sức khỏe cơ bản', 73, 5, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (108, 'Mindfulness & Giảm căng thẳng', 73, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (109, 'Hóa học', 78, 6, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (110, 'Sinh học', 78, 7, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (111, 'Lịch sử', 78, 8, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (112, 'Địa lý', 78, 9, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
+INSERT INTO categories (id, name, parent_id, sort_order, created_at) VALUES (113, 'Văn học', 78, 10, CAST(SYSTIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh' AS TIMESTAMP));
 
 
 CREATE TABLE Course (

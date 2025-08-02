@@ -1,157 +1,129 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/course_requirement_dto.php';
 
 class CourseRequirementBLL extends Database
 {
+    /**
+     * Tạo một yêu cầu mới cho khóa học.
+     * @param CourseRequirementDTO $req Đối tượng DTO chứa thông tin yêu cầu.
+     * @return bool Trả về true nếu tạo thành công, ngược lại false.
+     */
     public function create(CourseRequirementDTO $req): bool
     {
-        $sql = "BEGIN COURSE_REQUIREMENT_PKG.CREATE_REQUIREMENT_PROC(:requirementID, :courseID, :requirement); END;";
+        // Câu lệnh SQL để chèn dữ liệu vào bảng CourseRequirement
+        $sql = "INSERT INTO CourseRequirement (RequirementID, CourseID, Requirement) VALUES (?, ?, ?)";
 
-        $bindParams = [
-            ':requirementID' => $req->requirementID,
-            ':courseID'      => $req->courseID,
-            ':requirement'   => $req->requirement,
-        ];
+        // Mảng chứa các tham số để bind vào câu lệnh SQL
+        $bindParams = [$req->requirementID, $req->courseID, $req->requirement];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị
+        $this->executePrepared($sql, $bindParams);
+        
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Cập nhật thông tin một yêu cầu.
+     * @param CourseRequirementDTO $req Đối tượng DTO chứa thông tin cần cập nhật.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update(CourseRequirementDTO $req): bool
     {
-        $sql = "BEGIN COURSE_REQUIREMENT_PKG.UPDATE_REQUIREMENT_PROC(:requirementID_where, :courseID_where, :requirement); END;";
+        // Câu lệnh SQL để cập nhật bản ghi trong CourseRequirement
+        $sql = "UPDATE CourseRequirement SET Requirement = ? WHERE RequirementID = ? AND CourseID = ?";
 
-        $bindParams = [
-            ':requirementID_where' => $req->requirementID,
-            ':courseID_where'    => $req->courseID,
-            ':requirement'       => $req->requirement,
-        ];
+        // Mảng chứa các tham số theo đúng thứ tự trong câu lệnh SQL
+        $bindParams = [$req->requirement, $req->requirementID, $req->courseID];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị
+        $this->executePrepared($sql, $bindParams);
+
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Xóa một yêu cầu khỏi khóa học.
+     * @param string $requirementID ID của yêu cầu cần xóa.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function delete(string $requirementID): bool
     {
-        $sql = "BEGIN COURSE_REQUIREMENT_PKG.DELETE_REQUIREMENT_PROC(:requirementID); END;";
+        // Câu lệnh SQL để xóa một bản ghi khỏi CourseRequirement
+        $sql = "DELETE FROM CourseRequirement WHERE RequirementID = ?";
 
-        $bindParams = [
-            ':requirementID' => $requirementID,
-        ];
+        // Mảng chứa các tham số để bind
+        $bindParams = [$requirementID];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị
+        $this->executePrepared($sql, $bindParams);
+
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Lấy thông tin một yêu cầu cụ thể bằng ID của nó.
+     * @param string $requirementID ID của yêu cầu.
+     * @return CourseRequirementDTO|null Trả về đối tượng DTO nếu tìm thấy, ngược lại null.
+     */
     public function get_requirement_by_requirement_id(string $requirementID): ?CourseRequirementDTO
     {
-        $sql = "BEGIN :result_cursor := COURSE_REQUIREMENT_PKG.GET_REQ_BY_REQ_ID_FUNC(:requirementID_param); END;";
-        $bindParams = [
-            ':requirementID_param' => $requirementID,
-        ];
+        // Câu lệnh SQL để lấy một yêu cầu, định dạng lại cột created_at
+        $sql = "SELECT RequirementID, CourseID, Requirement, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted FROM CourseRequirement WHERE RequirementID = ?";
+        
+        // Mảng chứa các tham số để bind
+        $bindParams = [$requirementID];
 
-        $dto = null;
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CourseRequirementBLL] Failed to create new cursor for GET_REQ_BY_REQ_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return null;
+        // Thực thi câu lệnh và lấy kết quả
+        $result = $this->executePrepared($sql, $bindParams);
+
+        if ($result && $result->num_rows > 0) {
+            // Lấy hàng dữ liệu đầu tiên dưới dạng mảng kết hợp
+            $row = $result->fetch_assoc();
+            // Tạo và trả về đối tượng DTO từ dữ liệu
+            return new CourseRequirementDTO(
+                $row['RequirementID'],
+                $row['CourseID'],
+                $row['Requirement'],
+                $row['created_at_formatted']
+            );
         }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CourseRequirementBLL] OCI Parse failed for GET_REQ_BY_REQ_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        @oci_bind_by_name($parsed_stid, ':requirementID_param', $bindParams[':requirementID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CourseRequirementBLL] OCI Execute failed for GET_REQ_BY_REQ_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CourseRequirementBLL] OCI Execute failed for result cursor of GET_REQ_BY_REQ_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $dto = new CourseRequirementDTO(
-                    $row['REQUIREMENTID'],
-                    $row['COURSEID'],
-                    $row['REQUIREMENT'],
-                    $row['CREATED_AT_FORMATTED'] ?? null
-                );
-            }
-            @oci_free_statement($stid_cursor);
-        }
-        @oci_free_statement($parsed_stid);
-
-        return $dto;
+        return null;
     }
 
+    /**
+     * Lấy danh sách tất cả các yêu cầu của một khóa học.
+     * @param string $courseID ID của khóa học.
+     * @return array Mảng các đối tượng CourseRequirementDTO.
+     */
     public function get_requirements_by_course_id(string $courseID): array
     {
-        $sql = "BEGIN :result_cursor := COURSE_REQUIREMENT_PKG.GET_REQS_BY_COURSE_ID_FUNC(:courseID); END;";
-        $bindParams = [
-            ':courseID' => $courseID
-        ];
+        // Câu lệnh SQL để lấy tất cả yêu cầu của một khóa học
+        $sql = "SELECT RequirementID, CourseID, Requirement, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted FROM CourseRequirement WHERE CourseID = ?";
+        
+        // Mảng chứa tham số để bind
+        $bindParams = [$courseID];
 
         $requirements = [];
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CourseRequirementBLL] Failed to create new cursor for GET_REQS_BY_COURSE_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
-        }
+        // Thực thi câu lệnh và lấy kết quả
+        $result = $this->executePrepared($sql, $bindParams);
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CourseRequirementBLL] OCI Parse failed for GET_REQS_BY_COURSE_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':courseID', $bindParams[':courseID']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CourseRequirementBLL] OCI Execute failed for GET_REQS_BY_COURSE_ID_FUNC. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CourseRequirementBLL] OCI Execute failed for result cursor of GET_REQS_BY_COURSE_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result) {
+            // Lặp qua tất cả các hàng trong kết quả
+            while ($row = $result->fetch_assoc()) {
+                // Tạo đối tượng DTO cho mỗi hàng và thêm vào danh sách
                 $requirements[] = new CourseRequirementDTO(
-                    $row['REQUIREMENTID'],
-                    $row['COURSEID'],
-                    $row['REQUIREMENT'],
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['RequirementID'],
+                    $row['CourseID'],
+                    $row['Requirement'],
+                    $row['created_at_formatted']
                 );
             }
-            @oci_free_statement($stid_cursor);
         }
-        @oci_free_statement($parsed_stid);
 
         return $requirements;
     }

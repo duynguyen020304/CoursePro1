@@ -1,158 +1,173 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/lesson_dto.php';
 
 class LessonBLL extends Database
 {
+    /**
+     * Tạo một bài học mới trong cơ sở dữ liệu.
+     *
+     * @param LessonDTO $lesson_dto Đối tượng chứa thông tin bài học.
+     * @return bool Trả về true nếu tạo thành công, ngược lại false.
+     */
     public function create_lesson(LessonDTO $lesson_dto): bool
     {
         $sql = "INSERT INTO COURSELESSON (LessonID, CourseID, ChapterID, Title, Content, SortOrder)
-                VALUES (:lessonID, :courseID, :chapterID, :title, :content, :sortOrder)";
-        if ($lesson_dto->content === null) { // Changed == to === for strict comparison
-            $lesson_dto->content = "null"; // Consider handling actual NULL values if appropriate for your DB schema
-        }
-        $bindParams = [
-            ':lessonID'  => $lesson_dto->lessonID,
-            ':courseID'  => $lesson_dto->courseID,
-            ':chapterID' => $lesson_dto->chapterID,
-            ':title'     => $lesson_dto->title,
-            ':content'   => $lesson_dto->content,
-            ':sortOrder' => $lesson_dto->sortOrder ?? 0,
+                VALUES (?, ?, ?, ?, ?, ?)";
+
+        $params = [
+            $lesson_dto->lessonID,
+            $lesson_dto->courseID,
+            $lesson_dto->chapterID,
+            $lesson_dto->title,
+            $lesson_dto->content,
+            $lesson_dto->sortOrder ?? 0,
         ];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false) && ($this->getAffectedRows() === 1);
     }
 
+    /**
+     * Xóa một bài học khỏi cơ sở dữ liệu.
+     *
+     * @param string $lessonID ID của bài học cần xóa.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function delete_lesson(string $lessonID): bool
     {
-        $sql = "DELETE FROM COURSELESSON WHERE LessonID = :lessonID";
-        $bindParams = [':lessonID' => $lessonID];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false) && ($this->getAffectedRows() === 1);
+        $sql = "DELETE FROM COURSELESSON WHERE LessonID = ?";
+        $params = [$lessonID];
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false) && ($this->getAffectedRows() === 1);
     }
 
+    /**
+     * Cập nhật thông tin một bài học.
+     *
+     * @param LessonDTO $lesson_dto Đối tượng chứa thông tin bài học cần cập nhật.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update_lesson(LessonDTO $lesson_dto): bool
     {
         $sql = "UPDATE COURSELESSON SET
-                CourseID = :courseID,
-                ChapterID = :chapterID,
-                Title = :title,
-                Content = :content,
-                SortOrder = :sortOrder
-                WHERE LessonID = :lessonID_where";
-        $bindParams = [
-            ':courseID'  => $lesson_dto->courseID,
-            ':chapterID' => $lesson_dto->chapterID,
-            ':title'     => $lesson_dto->title,
-            ':content'   => $lesson_dto->content,
-            ':sortOrder' => $lesson_dto->sortOrder ?? 0,
-            ':lessonID_where' => $lesson_dto->lessonID,
+                    CourseID = ?,
+                    ChapterID = ?,
+                    Title = ?,
+                    Content = ?,
+                    SortOrder = ?
+                WHERE LessonID = ?";
+
+        $params = [
+            $lesson_dto->courseID,
+            $lesson_dto->chapterID,
+            $lesson_dto->title,
+            $lesson_dto->content,
+            $lesson_dto->sortOrder ?? 0,
+            $lesson_dto->lessonID,
         ];
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false);
     }
 
+    /**
+     * Lấy thông tin một bài học bằng ID của nó.
+     *
+     * @param string $lessonID ID của bài học.
+     * @return LessonDTO|null Trả về đối tượng LessonDTO nếu tìm thấy, ngược lại null.
+     */
     public function get_lesson_by_lesson_id(string $lessonID): ?LessonDTO
     {
         $sql = "SELECT LessonID, CourseID, ChapterID, Title, Content, SortOrder,
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
                 FROM COURSELESSON
-                WHERE LessonID = :lessonID_param";
-        $bindParams = [':lessonID_param' => $lessonID];
-        $stid = $this->executePrepared($sql, $bindParams);
+                WHERE LessonID = ?";
+        $params = [$lessonID];
+        $result = $this->executePrepared($sql, $params);
         $dto = null;
 
-        if ($stid) {
-            if (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $content = null;
-                // Handle CLOB content if it's an OCI-Lob object
-                if (is_object($row['CONTENT']) && method_exists($row['CONTENT'], 'read')) {
-                    $content = $row['CONTENT']->read($row['CONTENT']->size());
-                } elseif (isset($row['CONTENT'])) {
-                    // Fallback for non-object content, though typically CLOBs are objects
-                    $content = $row['CONTENT'];
-                }
+        if ($result instanceof mysqli_result) {
+            if ($row = $result->fetch_assoc()) {
                 $dto = new LessonDTO(
-                    $row['LESSONID'],
-                    $row['COURSEID'],
-                    $row['CHAPTERID'],
-                    $row['TITLE'],
-                    $content,
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['LessonID'],
+                    $row['CourseID'],
+                    $row['ChapterID'],
+                    $row['Title'],
+                    $row['Content'],
+                    isset($row['SortOrder']) ? (int)$row['SortOrder'] : 0,
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            $result->free();
         }
         return $dto;
     }
 
+    /**
+     * Lấy danh sách các bài học theo ID của chương.
+     *
+     * @param string $chapterID ID của chương.
+     * @return array Mảng các đối tượng LessonDTO.
+     */
     public function get_lessons_by_chapter_id(string $chapterID): array
     {
         $sql = "SELECT LessonID, CourseID, ChapterID, Title, Content, SortOrder,
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
                 FROM COURSELESSON
-                WHERE ChapterID = :chapterID_param
+                WHERE ChapterID = ?
                 ORDER BY SortOrder ASC";
-        $bindParams = [':chapterID_param' => $chapterID];
-        $stid = $this->executePrepared($sql, $bindParams);
+        $params = [$chapterID];
+        $result = $this->executePrepared($sql, $params);
         $lessons = [];
 
-        if ($stid) {
-            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $content = null;
-                // Handle CLOB content
-                if (is_object($row['CONTENT']) && method_exists($row['CONTENT'], 'read')) {
-                    $content = $row['CONTENT']->read($row['CONTENT']->size());
-                } elseif (isset($row['CONTENT'])) {
-                    $content = $row['CONTENT'];
-                }
+        if ($result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
                 $lessons[] = new LessonDTO(
-                    $row['LESSONID'],
-                    $row['COURSEID'],
-                    $row['CHAPTERID'],
-                    $row['TITLE'],
-                    $content,
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['LessonID'],
+                    $row['CourseID'],
+                    $row['ChapterID'],
+                    $row['Title'],
+                    $row['Content'],
+                    isset($row['SortOrder']) ? (int)$row['SortOrder'] : 0,
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            $result->free();
         }
         return $lessons;
     }
 
+    /**
+     * Lấy tất cả các bài học của một khóa học.
+     *
+     * @param string $courseID ID của khóa học.
+     * @return array Mảng các đối tượng LessonDTO.
+     */
     public function get_lessons_by_course(string $courseID): array
     {
         $sql = "SELECT LessonID, CourseID, ChapterID, Title, Content, SortOrder,
-                       TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
                 FROM COURSELESSON
-                WHERE CourseID = :courseID_param
+                WHERE CourseID = ?
                 ORDER BY ChapterID ASC, SortOrder ASC";
-        $bindParams = [':courseID_param' => $courseID];
-        $stid = $this->executePrepared($sql, $bindParams);
+        $params = [$courseID];
+        $result = $this->executePrepared($sql, $params);
         $lessons = [];
 
-        if ($stid) {
-            while (($row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $content = null;
-                // Handle CLOB content
-                if (is_object($row['CONTENT']) && method_exists($row['CONTENT'], 'read')) {
-                    $content = $row['CONTENT']->read($row['CONTENT']->size());
-                } elseif (isset($row['CONTENT'])) {
-                    $content = $row['CONTENT'];
-                }
+        if ($result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
                 $lessons[] = new LessonDTO(
-                    $row['LESSONID'],
-                    $row['COURSEID'],
-                    $row['CHAPTERID'],
-                    $row['TITLE'],
-                    $content,
-                    isset($row['SORTORDER']) ? (int)$row['SORTORDER'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null // Use the formatted alias
+                    $row['LessonID'],
+                    $row['CourseID'],
+                    $row['ChapterID'],
+                    $row['Title'],
+                    $row['Content'],
+                    isset($row['SortOrder']) ? (int)$row['SortOrder'] : 0,
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid);
+            $result->free();
         }
         return $lessons;
     }

@@ -1,218 +1,160 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/payment_dto.php';
 
 class PaymentBLL extends Database
 {
+    /**
+     * Tạo một thanh toán mới.
+     *
+     * @param PaymentDTO $p Đối tượng chứa thông tin thanh toán.
+     * @return bool Trả về true nếu tạo thành công, ngược lại false.
+     */
     public function create_payment(PaymentDTO $p): bool
     {
-        // Calls PAYMENT_PKG.CREATE_PAYMENT_PROC
-        // Explicitly convert the date string to TIMESTAMP within the anonymous PL/SQL block
-        $sql = "BEGIN 
-                    PAYMENT_PKG.CREATE_PAYMENT_PROC(
-                        p_PaymentID     => :paymentID, 
-                        p_OrderID       => :orderID, 
-                        p_PaymentDate   => TO_TIMESTAMP(:paymentDate_str, 'YYYY-MM-DD HH24:MI:SS.FF6'), 
-                        p_PaymentMethod => :paymentMethod, 
-                        p_PaymentStatus => :paymentStatus, 
-                        p_Amount        => :amount
-                    ); 
-                END;";
+        $sql = "INSERT INTO PAYMENTS (PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount) 
+                VALUES (?, ?, ?, ?, ?, ?)";
 
         $paymentDateString = null;
         if ($p->paymentDate instanceof DateTimeInterface) {
-            $paymentDateString = $p->paymentDate->format('Y-m-d H:i:s.u');
+            $paymentDateString = $p->paymentDate->format('Y-m-d H:i:s');
         }
 
-        $bindParams = [
-            ':paymentID'     => $p->paymentID,
-            ':orderID'       => $p->orderID,
-            ':paymentDate_str' => $paymentDateString, // Bind the string
-            ':paymentMethod' => $p->paymentMethod,
-            ':paymentStatus' => $p->paymentStatus,
-            ':amount'        => is_numeric($p->amount) ? (float)$p->amount : 0,
+        $params = [
+            $p->paymentID,
+            $p->orderID,
+            $paymentDateString,
+            $p->paymentMethod,
+            $p->paymentStatus,
+            is_numeric($p->amount) ? (float)$p->amount : 0,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false) && ($this->getAffectedRows() === 1);
     }
 
+    /**
+     * Lấy thông tin thanh toán theo ID đơn hàng.
+     *
+     * @param string $orderID ID của đơn hàng.
+     * @return PaymentDTO|null Trả về đối tượng PaymentDTO nếu tìm thấy, ngược lại null.
+     */
     public function get_payment_by_order_id(string $orderID): ?PaymentDTO
     {
-        $sql = "BEGIN :result_cursor := PAYMENT_PKG.GET_PAYMENT_BY_ORDER_ID_FUNC(:orderID_param); END;";
-        $bindParams = [
-            ':orderID_param' => $orderID
-        ];
-
+        $sql = "SELECT PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount,
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
+                FROM PAYMENTS
+                WHERE OrderID = ?";
+        $params = [$orderID];
+        $result = $this->executePrepared($sql, $params);
         $dto = null;
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[PaymentBLL] Failed to create new cursor for GET_PAYMENT_BY_ORDER_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return null;
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[PaymentBLL] OCI Parse failed for GET_PAYMENT_BY_ORDER_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        @oci_bind_by_name($parsed_stid, ':orderID_param', $bindParams[':orderID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[PaymentBLL] OCI Execute failed for GET_PAYMENT_BY_ORDER_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[PaymentBLL] OCI Execute failed for result cursor of GET_PAYMENT_BY_ORDER_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result instanceof mysqli_result) {
+            if ($row = $result->fetch_assoc()) {
                 $paymentDate = null;
-                if (!empty($row['PAYMENT_DATE_FORMATTED'])) {
+                if (!empty($row['PaymentDate'])) {
                     try {
-                        $paymentDate = new DateTime($row['PAYMENT_DATE_FORMATTED']);
+                        $paymentDate = new DateTime($row['PaymentDate']);
                     } catch (Exception $e) {
-                        error_log("Error parsing PAYMENT_DATE_FORMATTED from DB (via PL/SQL): " . $row['PAYMENT_DATE_FORMATTED'] . " - " . $e->getMessage());
-                        $paymentDate = null;
+                        error_log("Lỗi phân tích cú pháp PaymentDate từ DB: " . $row['PaymentDate'] . " - " . $e->getMessage());
                     }
                 }
                 $dto = new PaymentDTO(
-                    $row['PAYMENTID'],
-                    $row['ORDERID'],
+                    $row['PaymentID'],
+                    $row['OrderID'],
                     $paymentDate,
-                    $row['PAYMENTMETHOD'],
-                    $row['PAYMENTSTATUS'],
-                    isset($row['AMOUNT']) ? (float)$row['AMOUNT'] : 0.0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['PaymentMethod'],
+                    $row['PaymentStatus'],
+                    isset($row['Amount']) ? (float)$row['Amount'] : 0.0,
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid_cursor);
+            $result->free();
         }
-        @oci_free_statement($parsed_stid);
-
         return $dto;
     }
 
+    /**
+     * Lấy thông tin thanh toán theo ID của nó.
+     *
+     * @param string $paymentID ID của thanh toán.
+     * @return PaymentDTO|null Trả về đối tượng PaymentDTO nếu tìm thấy, ngược lại null.
+     */
     public function get_payment_by_id(string $paymentID): ?PaymentDTO
     {
-        $sql = "BEGIN :result_cursor := PAYMENT_PKG.GET_PAYMENT_BY_ID_FUNC(:paymentID_param); END;";
-        $bindParams = [
-            ':paymentID_param' => $paymentID
-        ];
-
+        $sql = "SELECT PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount,
+                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
+                FROM PAYMENTS
+                WHERE PaymentID = ?";
+        $params = [$paymentID];
+        $result = $this->executePrepared($sql, $params);
         $dto = null;
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[PaymentBLL] Failed to create new cursor for GET_PAYMENT_BY_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return null;
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[PaymentBLL] OCI Parse failed for GET_PAYMENT_BY_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        @oci_bind_by_name($parsed_stid, ':paymentID_param', $bindParams[':paymentID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[PaymentBLL] OCI Execute failed for GET_PAYMENT_BY_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[PaymentBLL] OCI Execute failed for result cursor of GET_PAYMENT_BY_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result instanceof mysqli_result) {
+            if ($row = $result->fetch_assoc()) {
                 $paymentDate = null;
-                if (!empty($row['PAYMENT_DATE_FORMATTED'])) {
+                if (!empty($row['PaymentDate'])) {
                     try {
-                        $paymentDate = new DateTime($row['PAYMENT_DATE_FORMATTED']);
+                        $paymentDate = new DateTime($row['PaymentDate']);
                     } catch (Exception $e) {
-                        error_log("Error parsing PAYMENT_DATE_FORMATTED from DB (via PL/SQL): " . $row['PAYMENT_DATE_FORMATTED'] . " - " . $e->getMessage());
+                        error_log("Lỗi phân tích cú pháp PaymentDate từ DB: " . $row['PaymentDate'] . " - " . $e->getMessage());
                     }
                 }
                 $dto = new PaymentDTO(
-                    $row['PAYMENTID'],
-                    $row['ORDERID'],
+                    $row['PaymentID'],
+                    $row['OrderID'],
                     $paymentDate,
-                    $row['PAYMENTMETHOD'],
-                    $row['PAYMENTSTATUS'],
-                    isset($row['AMOUNT']) ? (float)$row['AMOUNT'] : 0.0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['PaymentMethod'],
+                    $row['PaymentStatus'],
+                    isset($row['Amount']) ? (float)$row['Amount'] : 0.0,
+                    $row['created_at_formatted'] ?? null
                 );
             }
-            @oci_free_statement($stid_cursor);
+            $result->free();
         }
-        @oci_free_statement($parsed_stid);
-
         return $dto;
     }
 
+    /**
+     * Cập nhật thông tin thanh toán.
+     *
+     * @param PaymentDTO $p Đối tượng chứa thông tin thanh toán cần cập nhật.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update_payment(PaymentDTO $p): bool
     {
-        // Calls PAYMENT_PKG.UPDATE_PAYMENT_PROC
-        // Explicitly convert the date string to TIMESTAMP within the anonymous PL/SQL block
-        $sql = "BEGIN 
-                    PAYMENT_PKG.UPDATE_PAYMENT_PROC(
-                        p_PaymentID     => :paymentID_where, 
-                        p_OrderID       => :orderID, 
-                        p_PaymentDate   => TO_TIMESTAMP(:paymentDate_str, 'YYYY-MM-DD HH24:MI:SS.FF6'), 
-                        p_PaymentMethod => :paymentMethod, 
-                        p_PaymentStatus => :paymentStatus, 
-                        p_Amount        => :amount
-                    ); 
-                END;";
+        $sql = "UPDATE PAYMENTS SET OrderID = ?, PaymentDate = ?, PaymentMethod = ?, PaymentStatus = ?, Amount = ? 
+                WHERE PaymentID = ?";
 
         $paymentDateString = null;
         if ($p->paymentDate instanceof DateTimeInterface) {
-            $paymentDateString = $p->paymentDate->format('Y-m-d H:i:s.u');
+            $paymentDateString = $p->paymentDate->format('Y-m-d H:i:s');
         }
 
-        $bindParams = [
-            ':paymentID_where' => $p->paymentID,
-            ':orderID'        => $p->orderID,
-            ':paymentDate_str'    => $paymentDateString, // Bind the string
-            ':paymentMethod'  => $p->paymentMethod,
-            ':paymentStatus'  => $p->paymentStatus,
-            ':amount'         => is_numeric($p->amount) ? (float)$p->amount : 0,
+        $params = [
+            $p->orderID,
+            $paymentDateString,
+            $p->paymentMethod,
+            $p->paymentStatus,
+            is_numeric($p->amount) ? (float)$p->amount : 0,
+            $p->paymentID,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false);
     }
 
+    /**
+     * Xóa một thanh toán.
+     *
+     * @param string $paymentID ID của thanh toán cần xóa.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function delete_payment(string $paymentID): bool
     {
-        // Calls PAYMENT_PKG.DELETE_PAYMENT_PROC
-        $sql = "BEGIN PAYMENT_PKG.DELETE_PAYMENT_PROC(:paymentID); END;";
-        $bindParams = [':paymentID' => $paymentID];
-
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $sql = "DELETE FROM PAYMENTS WHERE PaymentID = ?";
+        $params = [$paymentID];
+        $result = $this->executePrepared($sql, $params);
+        return ($result !== false) && ($this->getAffectedRows() === 1);
     }
 }
-?>

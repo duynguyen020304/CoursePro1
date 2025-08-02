@@ -1,157 +1,129 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/course_objective_dto.php';
 
 class CourseObjectiveBLL extends Database
 {
+    /**
+     * Tạo một mục tiêu mới cho khóa học.
+     * @param CourseObjectiveDTO $obj Đối tượng DTO chứa thông tin mục tiêu.
+     * @return bool Trả về true nếu tạo thành công, ngược lại false.
+     */
     public function create(CourseObjectiveDTO $obj): bool
     {
-        $sql = "BEGIN COURSE_OBJECTIVE_PKG.CREATE_OBJECTIVE_PROC(:objectiveID, :courseID, :objective); END;";
+        // Câu lệnh SQL để chèn dữ liệu vào bảng CourseObjective
+        $sql = "INSERT INTO CourseObjective (ObjectiveID, CourseID, Objective) VALUES (?, ?, ?)";
 
-        $bindParams = [
-            ':objectiveID' => $obj->objectiveID,
-            ':courseID'    => $obj->courseID,
-            ':objective'   => $obj->objective,
-        ];
+        // Mảng chứa các tham số để bind vào câu lệnh SQL
+        $bindParams = [$obj->objectiveID, $obj->courseID, $obj->objective];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị
+        $this->executePrepared($sql, $bindParams);
+        
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Cập nhật thông tin một mục tiêu.
+     * @param CourseObjectiveDTO $obj Đối tượng DTO chứa thông tin cần cập nhật.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update(CourseObjectiveDTO $obj): bool
     {
-        $sql = "BEGIN COURSE_OBJECTIVE_PKG.UPDATE_OBJECTIVE_PROC(:objectiveID_where, :courseID_where, :objective); END;";
+        // Câu lệnh SQL để cập nhật bản ghi trong CourseObjective
+        $sql = "UPDATE CourseObjective SET Objective = ? WHERE ObjectiveID = ? AND CourseID = ?";
 
-        $bindParams = [
-            ':objectiveID_where' => $obj->objectiveID,
-            ':courseID_where'    => $obj->courseID,
-            ':objective'         => $obj->objective,
-        ];
+        // Mảng chứa các tham số theo đúng thứ tự trong câu lệnh SQL
+        $bindParams = [$obj->objective, $obj->objectiveID, $obj->courseID];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị
+        $this->executePrepared($sql, $bindParams);
+
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Xóa một mục tiêu khỏi khóa học.
+     * @param string $objectiveID ID của mục tiêu cần xóa.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function delete(string $objectiveID): bool
     {
-        $sql = "BEGIN COURSE_OBJECTIVE_PKG.DELETE_OBJECTIVE_PROC(:objectiveID); END;";
+        // Câu lệnh SQL để xóa một bản ghi khỏi CourseObjective
+        $sql = "DELETE FROM CourseObjective WHERE ObjectiveID = ?";
 
-        $bindParams = [
-            ':objectiveID' => $objectiveID,
-        ];
+        // Mảng chứa các tham số để bind
+        $bindParams = [$objectiveID];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị
+        $this->executePrepared($sql, $bindParams);
+
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Lấy thông tin một mục tiêu cụ thể bằng ID của nó.
+     * @param string $objectiveID ID của mục tiêu.
+     * @return CourseObjectiveDTO|null Trả về đối tượng DTO nếu tìm thấy, ngược lại null.
+     */
     public function get_objective_by_objective_id(string $objectiveID): ?CourseObjectiveDTO
     {
-        $sql = "BEGIN :result_cursor := COURSE_OBJECTIVE_PKG.GET_OBJ_BY_OBJ_ID_FUNC(:objectiveID_param); END;";
-        $bindParams = [
-            ':objectiveID_param' => $objectiveID,
-        ];
+        // Câu lệnh SQL để lấy một mục tiêu, định dạng lại cột created_at
+        $sql = "SELECT ObjectiveID, CourseID, Objective, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted FROM CourseObjective WHERE ObjectiveID = ?";
+        
+        // Mảng chứa các tham số để bind
+        $bindParams = [$objectiveID];
 
-        $dto = null;
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CourseObjectiveBLL] Failed to create new cursor for GET_OBJ_BY_OBJ_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return null;
+        // Thực thi câu lệnh và lấy kết quả
+        $result = $this->executePrepared($sql, $bindParams);
+
+        if ($result && $result->num_rows > 0) {
+            // Lấy hàng dữ liệu đầu tiên dưới dạng mảng kết hợp
+            $row = $result->fetch_assoc();
+            // Tạo và trả về đối tượng DTO từ dữ liệu
+            return new CourseObjectiveDTO(
+                $row['ObjectiveID'],
+                $row['CourseID'],
+                $row['Objective'],
+                $row['created_at_formatted']
+            );
         }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CourseObjectiveBLL] OCI Parse failed for GET_OBJ_BY_OBJ_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        @oci_bind_by_name($parsed_stid, ':objectiveID_param', $bindParams[':objectiveID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CourseObjectiveBLL] OCI Execute failed for GET_OBJ_BY_OBJ_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CourseObjectiveBLL] OCI Execute failed for result cursor of GET_OBJ_BY_OBJ_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $dto = new CourseObjectiveDTO(
-                    $row['OBJECTIVEID'],
-                    $row['COURSEID'],
-                    $row['OBJECTIVE'],
-                    $row['CREATED_AT_FORMATTED'] ?? null
-                );
-            }
-            @oci_free_statement($stid_cursor);
-        }
-        @oci_free_statement($parsed_stid);
-
-        return $dto;
+        return null;
     }
 
+    /**
+     * Lấy danh sách tất cả các mục tiêu của một khóa học.
+     * @param string $courseID ID của khóa học.
+     * @return array Mảng các đối tượng CourseObjectiveDTO.
+     */
     public function get_objectives_by_course_id(string $courseID): array
     {
-        $sql = "BEGIN :result_cursor := COURSE_OBJECTIVE_PKG.GET_OBJS_BY_COURSE_ID_FUNC(:courseID_param); END;";
-        $bindParams = [
-            ':courseID_param' => $courseID
-        ];
+        // Câu lệnh SQL để lấy tất cả mục tiêu của một khóa học
+        $sql = "SELECT ObjectiveID, CourseID, Objective, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted FROM CourseObjective WHERE CourseID = ?";
+        
+        // Mảng chứa tham số để bind
+        $bindParams = [$courseID];
 
         $objectives = [];
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CourseObjectiveBLL] Failed to create new cursor for GET_OBJS_BY_COURSE_ID_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
-        }
+        // Thực thi câu lệnh và lấy kết quả
+        $result = $this->executePrepared($sql, $bindParams);
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CourseObjectiveBLL] OCI Parse failed for GET_OBJS_BY_COURSE_ID_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':courseID_param', $bindParams[':courseID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CourseObjectiveBLL] OCI Execute failed for GET_OBJS_BY_COURSE_ID_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CourseObjectiveBLL] OCI Execute failed for result cursor of GET_OBJS_BY_COURSE_ID_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result) {
+            // Lặp qua tất cả các hàng trong kết quả
+            while ($row = $result->fetch_assoc()) {
+                // Tạo đối tượng DTO cho mỗi hàng và thêm vào danh sách
                 $objectives[] = new CourseObjectiveDTO(
-                    $row['OBJECTIVEID'],
-                    $row['COURSEID'],
-                    $row['OBJECTIVE'],
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['ObjectiveID'],
+                    $row['CourseID'],
+                    $row['Objective'],
+                    $row['created_at_formatted']
                 );
             }
-            @oci_free_statement($stid_cursor);
         }
-        @oci_free_statement($parsed_stid);
 
         return $objectives;
     }

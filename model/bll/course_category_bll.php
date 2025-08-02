@@ -1,164 +1,122 @@
 <?php
-require_once __DIR__ . '/../database.php';
+// Thay đổi đường dẫn để trỏ đến tệp kết nối MySQL
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/course_category_dto.php';
 
 class CourseCategoryBLL extends Database
 {
+    /**
+     * Chuyển đổi một hàng dữ liệu từ database thành một đối tượng CourseCategoryDTO.
+     * @param array $row Mảng kết hợp chứa dữ liệu của một liên kết.
+     * @return CourseCategoryDTO Đối tượng DTO của liên kết.
+     */
+    private function _map_row_to_dto(array $row): CourseCategoryDTO
+    {
+        return new CourseCategoryDTO(
+            $row['courseID'],
+            isset($row['categoryID']) ? (int)$row['categoryID'] : 0,
+            $row['createdAt_formatted'] ?? null
+        );
+    }
+
+    /**
+     * Tạo liên kết giữa một khóa học và một danh mục.
+     * @param CourseCategoryDTO $cc Đối tượng chứa courseID và categoryID.
+     * @return bool Trả về true nếu liên kết thành công, ngược lại false.
+     */
     public function link_course_category(CourseCategoryDTO $cc): bool
     {
-        $sql = "BEGIN COURSE_CATEGORY_PKG.LINK_COURSE_CATEGORY_PROC(:courseID, :categoryID); END;";
+        // Câu lệnh INSERT chuẩn của MySQL cho bảng trung gian
+        $sql = "INSERT INTO course_categories (courseID, categoryID) VALUES (?, ?)";
 
         $bindParams = [
-            ':courseID'   => $cc->courseID,
-            ':categoryID' => (int)$cc->categoryID,
+            $cc->courseID,
+            (int)$cc->categoryID,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $bindParams);
+        return ($result !== false && $this->getAffectedRows() > 0);
     }
 
+    /**
+     * Xóa liên kết giữa một khóa học và một danh mục.
+     * @param string $courseID ID của khóa học.
+     * @param int|string $categoryID ID của danh mục.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function unlink_course_category(string $courseID, $categoryID): bool
     {
-        $sql = "BEGIN COURSE_CATEGORY_PKG.UNLINK_COURSE_CATEGORY_PROC(:courseID, :categoryID); END;";
+        // Câu lệnh DELETE chuẩn của MySQL
+        $sql = "DELETE FROM course_categories WHERE courseID = ? AND categoryID = ?";
 
         $bindParams = [
-            ':courseID'   => $courseID,
-            ':categoryID' => (int)$categoryID,
+            $courseID,
+            (int)$categoryID,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        $result = $this->executePrepared($sql, $bindParams);
+        return ($result !== false && $this->getAffectedRows() > 0);
     }
 
+    /**
+     * Lấy danh sách các danh mục của một khóa học.
+     * @param string $courseID ID của khóa học.
+     * @return array Danh sách các đối tượng CourseCategoryDTO.
+     */
     public function get_categories_by_course_id(string $courseID): array
     {
-        $sql = "BEGIN :result_cursor := COURSE_CATEGORY_PKG.GET_CATEGORIES_BY_COURSE_FUNC(:courseID_param); END;";
-        $bindParams = [
-            ':courseID_param' => $courseID
-        ];
-
+        // Câu lệnh SELECT để lấy các liên kết danh mục cho một khóa học
+        $sql = "SELECT courseID, categoryID, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM course_categories WHERE courseID = ?";
+        $bindParams = [$courseID];
         $list = [];
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CourseCategoryBLL] Failed to create new cursor for GET_CATEGORIES_BY_COURSE_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CourseCategoryBLL] OCI Parse failed for GET_CATEGORIES_BY_COURSE_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':courseID_param', $bindParams[':courseID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CourseCategoryBLL] OCI Execute failed for GET_CATEGORIES_BY_COURSE_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CourseCategoryBLL] OCI Execute failed for result cursor of GET_CATEGORIES_BY_COURSE_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $list[] = new CourseCategoryDTO(
-                    $row['COURSEID'],
-                    isset($row['CATEGORYID']) ? (int)$row['CATEGORYID'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
-                );
+        $result = $this->executePrepared($sql, $bindParams);
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $list[] = $this->_map_row_to_dto($row);
             }
-            @oci_free_statement($stid_cursor);
         }
-        @oci_free_statement($parsed_stid);
-
         return $list;
     }
 
+    /**
+     * Lấy danh sách các khóa học thuộc một danh mục.
+     * @param int|string $categoryID ID của danh mục.
+     * @return array Danh sách các đối tượng CourseCategoryDTO.
+     */
     public function get_courses_by_category_id($categoryID): array
     {
-        $sql = "BEGIN :result_cursor := COURSE_CATEGORY_PKG.GET_COURSES_BY_CATEGORY_FUNC(:categoryID_param); END;";
-        $bindParams = [
-            ':categoryID_param' => (int)$categoryID
-        ];
-
+        // Câu lệnh SELECT để lấy các liên kết khóa học cho một danh mục
+        $sql = "SELECT courseID, categoryID, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM course_categories WHERE categoryID = ?";
+        $bindParams = [(int)$categoryID];
         $list = [];
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CourseCategoryBLL] Failed to create new cursor for GET_COURSES_BY_CATEGORY_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
-        }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CourseCategoryBLL] OCI Parse failed for GET_COURSES_BY_CATEGORY_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':categoryID_param', $bindParams[':categoryID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CourseCategoryBLL] OCI Execute failed for GET_COURSES_BY_CATEGORY_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CourseCategoryBLL] OCI Execute failed for result cursor of GET_COURSES_BY_CATEGORY_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $list[] = new CourseCategoryDTO(
-                    $row['COURSEID'],
-                    isset($row['CATEGORYID']) ? (int)$row['CATEGORYID'] : 0,
-                    $row['CREATED_AT_FORMATTED'] ?? null
-                );
+        $result = $this->executePrepared($sql, $bindParams);
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $list[] = $this->_map_row_to_dto($row);
             }
-            @oci_free_statement($stid_cursor);
         }
-        @oci_free_statement($parsed_stid);
-
         return $list;
     }
 
+    /**
+     * Kiểm tra xem một liên kết giữa khóa học và danh mục đã tồn tại chưa.
+     * @param string $courseID ID của khóa học.
+     * @param int|string $categoryID ID của danh mục.
+     * @return bool Trả về true nếu liên kết đã tồn tại, ngược lại false.
+     */
     public function link_exists(string $courseID, $categoryID): bool
     {
-        $sql = "SELECT COURSE_CATEGORY_PKG.LINK_EXISTS_FUNC(:courseID, :categoryID) AS LINK_EXISTS FROM DUAL";
-
+        // Câu lệnh SELECT để kiểm tra sự tồn tại
+        $sql = "SELECT 1 FROM course_categories WHERE courseID = ? AND categoryID = ?";
         $bindParams = [
-            ':courseID'   => $courseID,
-            ':categoryID' => (int)$categoryID,
+            $courseID,
+            (int)$categoryID,
         ];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        if ($stid) {
-            $row = @oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS);
-            @oci_free_statement($stid);
-            if ($row && isset($row['LINK_EXISTS'])) {
-                return (int)$row['LINK_EXISTS'] === 1;
-            }
-        }
-        error_log('[CourseCategoryBLL] Failed to check link existence for CourseID: ' . $courseID . ', CategoryID: ' . $categoryID);
-        return false;
+        $result = $this->executePrepared($sql, $bindParams);
+        // Nếu query trả về kết quả và có ít nhất 1 hàng, nghĩa là liên kết tồn tại
+        return ($result && $result->num_rows > 0);
     }
 }
-?>

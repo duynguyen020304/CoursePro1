@@ -1,158 +1,133 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/course_instructor_dto.php';
 
 class CourseInstructorBLL extends Database
 {
+    /**
+     * Thêm một phân công giảng viên cho một khóa học.
+     * @param string $courseID ID của khóa học.
+     * @param string $instructorID ID của giảng viên.
+     * @return bool Trả về true nếu thêm thành công, ngược lại false.
+     */
     public function add(string $courseID, string $instructorID): bool
     {
-        $sql = "BEGIN COURSE_INSTRUCTOR_PKG.ADD_COURSE_INSTRUCTOR_PROC(:courseID, :instructorID); END;";
+        // Câu lệnh SQL để chèn dữ liệu vào bảng CourseInstructor
+        $sql = "INSERT INTO CourseInstructor (CourseID, InstructorID) VALUES (?, ?)";
 
-        $bindParams = [
-            ':courseID'     => $courseID,
-            ':instructorID' => $instructorID,
-        ];
+        // Mảng chứa các tham số để bind vào câu lệnh SQL
+        $bindParams = [$courseID, $instructorID];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị
+        $result = $this->executePrepared($sql, $bindParams);
+        
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng (tức là chèn thành công)
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Cập nhật thông tin phân công.
+     * @param string $oldCourseID ID khóa học cũ.
+     * @param string $oldInstructorID ID giảng viên cũ.
+     * @param string $newCourseID ID khóa học mới.
+     * @param string $newInstructorID ID giảng viên mới.
+     * @return bool Trả về true nếu cập nhật thành công, ngược lại false.
+     */
     public function update(string $oldCourseID, string $oldInstructorID, string $newCourseID, string $newInstructorID): bool
     {
-        $sql = "BEGIN COURSE_INSTRUCTOR_PKG.UPDATE_COURSE_INSTRUCTOR_PROC(:old_courseID, :old_instructorID, :new_courseID, :new_instructorID); END;";
+        // Câu lệnh SQL để cập nhật bản ghi trong CourseInstructor
+        $sql = "UPDATE CourseInstructor SET CourseID = ?, InstructorID = ? WHERE CourseID = ? AND InstructorID = ?";
 
-        $bindParams = [
-            ':old_courseID'     => $oldCourseID,
-            ':old_instructorID' => $oldInstructorID,
-            ':new_courseID'     => $newCourseID,
-            ':new_instructorID' => $newInstructorID,
-        ];
+        // Mảng chứa các tham số theo đúng thứ tự trong câu lệnh SQL
+        $bindParams = [$newCourseID, $newInstructorID, $oldCourseID, $oldInstructorID];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị
+        $result = $this->executePrepared($sql, $bindParams);
+
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng (tức là cập nhật thành công)
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Hủy liên kết giữa một giảng viên và một khóa học.
+     * @param string $courseID ID của khóa học.
+     * @param string $instructorID ID của giảng viên.
+     * @return bool Trả về true nếu xóa thành công, ngược lại false.
+     */
     public function unlink_course_instructor(string $courseID, string $instructorID): bool
     {
-        $sql = "BEGIN COURSE_INSTRUCTOR_PKG.UNLINK_COURSE_INSTRUCTOR_PROC(:courseID, :instructorID); END;";
+        // Câu lệnh SQL để xóa một bản ghi khỏi CourseInstructor
+        $sql = "DELETE FROM CourseInstructor WHERE CourseID = ? AND InstructorID = ?";
 
-        $bindParams = [
-            ':courseID'  => $courseID,
-            ':instructorID' => $instructorID,
-        ];
+        // Mảng chứa các tham số để bind
+        $bindParams = [$courseID, $instructorID];
 
-        $stid = $this->executePrepared($sql, $bindParams);
-        return ($stid !== false);
+        // Thực thi câu lệnh đã chuẩn bị
+        $result = $this->executePrepared($sql, $bindParams);
+
+        // Trả về true nếu có ít nhất một hàng bị ảnh hưởng (tức là xóa thành công)
+        return $this->getAffectedRows() > 0;
     }
 
+    /**
+     * Lấy thông tin một phân công cụ thể.
+     * @param string $courseID ID của khóa học.
+     * @param string $instructorID ID của giảng viên.
+     * @return CourseInstructorDTO|null Trả về đối tượng DTO nếu tìm thấy, ngược lại null.
+     */
     public function get_assignment(string $courseID, string $instructorID): ?CourseInstructorDTO
     {
-        $sql = "BEGIN :result_cursor := COURSE_INSTRUCTOR_PKG.GET_ASSIGNMENT_FUNC(:courseID_param, :instructorID_param); END;";
-        $bindParams = [
-            ':courseID_param'     => $courseID,
-            ':instructorID_param' => $instructorID,
-        ];
+        // Câu lệnh SQL để lấy một phân công, định dạng lại cột created_at
+        $sql = "SELECT CourseID, InstructorID, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted FROM CourseInstructor WHERE CourseID = ? AND InstructorID = ?";
+        
+        // Mảng chứa các tham số để bind
+        $bindParams = [$courseID, $instructorID];
 
-        $dto = null;
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CourseInstructorBLL] Failed to create new cursor for GET_ASSIGNMENT_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return null;
+        // Thực thi câu lệnh và lấy kết quả
+        $result = $this->executePrepared($sql, $bindParams);
+
+        if ($result && $result->num_rows > 0) {
+            // Lấy hàng dữ liệu đầu tiên dưới dạng mảng kết hợp
+            $row = $result->fetch_assoc();
+            // Tạo và trả về đối tượng DTO từ dữ liệu
+            return new CourseInstructorDTO(
+                $row['CourseID'],
+                $row['InstructorID'],
+                $row['created_at_formatted']
+            );
         }
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CourseInstructorBLL] OCI Parse failed for GET_ASSIGNMENT_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        @oci_bind_by_name($parsed_stid, ':courseID_param', $bindParams[':courseID_param']);
-        @oci_bind_by_name($parsed_stid, ':instructorID_param', $bindParams[':instructorID_param']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CourseInstructorBLL] OCI Execute failed for GET_ASSIGNMENT_FUNC block. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CourseInstructorBLL] OCI Execute failed for result cursor of GET_ASSIGNMENT_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return null;
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            if (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
-                $dto = new CourseInstructorDTO(
-                    $row['COURSEID'],
-                    $row['INSTRUCTORID'],
-                    $row['CREATED_AT_FORMATTED'] ?? null
-                );
-            }
-            @oci_free_statement($stid_cursor);
-        }
-        @oci_free_statement($parsed_stid);
-
-        return $dto;
+        return null;
     }
 
+    /**
+     * Lấy danh sách tất cả các giảng viên được phân công cho một khóa học.
+     * @param string $courseID ID của khóa học.
+     * @return array Mảng các đối tượng CourseInstructorDTO.
+     */
     public function get_instructors_by_course_id(string $courseID): array
     {
-        $sql = "BEGIN :result_cursor := COURSE_INSTRUCTOR_PKG.GET_INSTR_BY_COURSE_FUNC(:courseID); END;";
-        $bindParams = [
-            ':courseID' => $courseID
-        ];
+        // Câu lệnh SQL để lấy tất cả phân công của một khóa học
+        $sql = "SELECT CourseID, InstructorID, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted FROM CourseInstructor WHERE CourseID = ?";
+        
+        // Mảng chứa tham số để bind
+        $bindParams = [$courseID];
 
         $list = [];
-        $out_cursor = @oci_new_cursor($this->conn);
-        if (!$out_cursor) {
-            error_log('[CourseInstructorBLL] Failed to create new cursor for GET_INSTR_BY_COURSE_FUNC: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            return [];
-        }
+        // Thực thi câu lệnh và lấy kết quả
+        $result = $this->executePrepared($sql, $bindParams);
 
-        $parsed_stid = @oci_parse($this->conn, $sql);
-        if (!$parsed_stid) {
-            error_log('[CourseInstructorBLL] OCI Parse failed for GET_INSTR_BY_COURSE_FUNC. SQL: ' . $sql . ' Error: ' . ($this->conn ? oci_error($this->conn)['message'] : 'No connection'));
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        @oci_bind_by_name($parsed_stid, ':courseID', $bindParams[':courseID']);
-        @oci_bind_by_name($parsed_stid, ':result_cursor', $out_cursor, -1, OCI_B_CURSOR);
-
-        $execute_mode = ($this->inTransaction) ? OCI_NO_AUTO_COMMIT : OCI_DEFAULT;
-        if (!@oci_execute($parsed_stid, $execute_mode)) {
-            error_log('[CourseInstructorBLL] OCI Execute failed for GET_INSTR_BY_COURSE_FUNC. Error: ' . ($parsed_stid ? oci_error($parsed_stid)['message'] : 'No statement handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-
-        if (!@oci_execute($out_cursor, $execute_mode)) {
-            error_log('[CourseInstructorBLL] OCI Execute failed for result cursor of GET_INSTR_BY_COURSE_FUNC. Error: ' . ($out_cursor ? oci_error($out_cursor)['message'] : 'No cursor handle'));
-            @oci_free_statement($parsed_stid);
-            @oci_free_cursor($out_cursor);
-            return [];
-        }
-        $stid_cursor = $out_cursor;
-
-        if ($stid_cursor) {
-            while (($row = @oci_fetch_array($stid_cursor, OCI_ASSOC + OCI_RETURN_NULLS))) {
+        if ($result) {
+            // Lặp qua tất cả các hàng trong kết quả
+            while ($row = $result->fetch_assoc()) {
+                // Tạo đối tượng DTO cho mỗi hàng và thêm vào danh sách
                 $list[] = new CourseInstructorDTO(
-                    $row['COURSEID'],
-                    $row['INSTRUCTORID'],
-                    $row['CREATED_AT_FORMATTED'] ?? null
+                    $row['CourseID'],
+                    $row['InstructorID'],
+                    $row['created_at_formatted']
                 );
             }
-            @oci_free_statement($stid_cursor);
         }
-        @oci_free_statement($parsed_stid);
 
         return $list;
     }
