@@ -1,0 +1,1 @@
+{"version":1,"defects":{"ApiTest::testGetPosts":8,"ApiTest::testPostNewItem":8},"times":{"ApiTest::testGetPosts":0.017,"ApiTest::testPostNewItem":0.001}}
