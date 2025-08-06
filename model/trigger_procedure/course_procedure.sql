@@ -1,346 +1,216 @@
--- Package Specification
-CREATE OR REPLACE PACKAGE COURSE_PKG AS
+-- MySQL-Compatible Stored Procedures for Course Management
+--
+-- This script converts the Oracle PL/SQL package `COURSE_PKG`
+-- into standalone MySQL stored procedures.
+--
+-- Key Differences from Oracle Version:
+-- 1. No Packages: MySQL does not have packages, so each procedure is a separate object.
+-- 2. CREATE/DROP Syntax: Uses `DROP PROCEDURE IF EXISTS` and `CREATE PROCEDURE`.
+-- 3. No %TYPE: Parameter data types are explicitly defined (e.g., INT, VARCHAR, TEXT, DECIMAL).
+-- 4. No SYS_REFCURSOR: Procedures that return data simply execute a SELECT statement.
+-- 5. Error Handling: Uses `DECLARE HANDLER` and `SIGNAL SQLSTATE '45000'` to raise custom errors.
+-- 6. Row Count: Uses `ROW_COUNT()` instead of `SQL%ROWCOUNT`.
+-- 7. Date Formatting: Uses `DATE_FORMAT()` instead of `TO_CHAR()`.
+-- 8. Pagination: Uses `LIMIT ... OFFSET ...` instead of Oracle's `OFFSET ... FETCH ...` syntax.
 
-    PROCEDURE CREATE_COURSE_PROC(
-        p_CourseID   IN COURSE.CourseID%TYPE,
-        p_Title      IN COURSE.Title%TYPE,
-        p_Description IN COURSE.Description%TYPE,
-        p_Price      IN COURSE.Price%TYPE,
-        p_Difficulty IN COURSE.Difficulty%TYPE,
-        p_Language   IN COURSE.Language%TYPE,
-        p_CreatedBy  IN COURSE.CreatedBy%TYPE
-    );
+-- Change the delimiter to allow for semicolons within the procedures.
+DELIMITER $$
 
-    PROCEDURE DELETE_COURSE_PROC(
-        p_CourseID IN COURSE.CourseID%TYPE
-    );
-
-    PROCEDURE UPDATE_COURSE_PROC(
-        p_CourseID_where IN COURSE.CourseID%TYPE,
-        p_Title      IN COURSE.Title%TYPE,
-        p_Description IN COURSE.Description%TYPE,
-        p_Price      IN COURSE.Price%TYPE,
-        p_Difficulty IN COURSE.Difficulty%TYPE,
-        p_Language   IN COURSE.Language%TYPE
-    );
-
-    FUNCTION GET_COURSE_BY_ID_FUNC(
-        p_CourseID_param IN COURSE.CourseID%TYPE
-    ) RETURN SYS_REFCURSOR;
-
-    FUNCTION GET_ALL_COURSES_FUNC
-        RETURN SYS_REFCURSOR;
-
-    FUNCTION GET_COURSES_BY_TITLE_FUNC(
-        p_Title_param IN COURSE.Title%TYPE,
-        p_difficulty  IN COURSE.Difficulty%TYPE DEFAULT NULL,
-        p_language    IN COURSE.Language%TYPE DEFAULT NULL
-    ) RETURN SYS_REFCURSOR;
-
-    FUNCTION GET_COURSES_BY_DIFFICULTY_LANG_FUNC(
-        p_difficulty IN COURSE.Difficulty%TYPE,
-        p_language   IN COURSE.Language%TYPE
-    ) RETURN SYS_REFCURSOR;
-
-    FUNCTION GET_COURSES_BY_LANGUAGE_FUNC(
-        p_language IN COURSE.Language%TYPE
-    ) RETURN SYS_REFCURSOR;
-
-    FUNCTION GET_COURSES_BY_DIFFICULTY_FUNC(
-        p_difficulty IN COURSE.Difficulty%TYPE
-    ) RETURN SYS_REFCURSOR;
-
-    FUNCTION GET_COURSES_PAGINATED_FUNC(
-        p_page_number     IN NUMBER,
-        p_page_size       IN NUMBER,
-        p_filter_difficulty IN COURSE.Difficulty%TYPE,
-        p_filter_language   IN COURSE.Language%TYPE
-    ) RETURN SYS_REFCURSOR;
-
-END COURSE_PKG;
-/
-
--- Package Body
-CREATE OR REPLACE PACKAGE BODY COURSE_PKG AS
-
-    PROCEDURE CREATE_COURSE_PROC(
-        p_CourseID   IN COURSE.CourseID%TYPE,
-        p_Title      IN COURSE.Title%TYPE,
-        p_Description IN COURSE.Description%TYPE,
-        p_Price      IN COURSE.Price%TYPE,
-        p_Difficulty IN COURSE.Difficulty%TYPE,
-        p_Language   IN COURSE.Language%TYPE,
-        p_CreatedBy  IN COURSE.CreatedBy%TYPE
-    ) IS
+-- =================================================================
+-- Procedure to create a new course.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `CREATE_COURSE_PROC`$$
+CREATE PROCEDURE `CREATE_COURSE_PROC`(
+    IN p_CourseID INT,
+    IN p_Title VARCHAR(255),
+    IN p_Description TEXT,
+    IN p_Price DECIMAL(10, 2),
+    IN p_Difficulty VARCHAR(50),
+    IN p_Language VARCHAR(50),
+    IN p_CreatedBy INT
+)
+BEGIN
+    -- Declare an exit handler for duplicate primary key errors.
+    DECLARE EXIT HANDLER FOR 1062
     BEGIN
-        INSERT INTO COURSE (
-            CourseID,
-            Title,
-            Description,
-            Price,
-            Difficulty,
-            Language,
-            CreatedBy
-        ) VALUES (
-            p_CourseID,
-            p_Title,
-            p_Description,
-            p_Price,
-            p_Difficulty,
-            p_Language,
-            p_CreatedBy
-        );
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END CREATE_COURSE_PROC;
+        SET @message = CONCAT('Course with CourseID ''', p_CourseID, ''' already exists.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
+    END;
 
-    PROCEDURE DELETE_COURSE_PROC(
-        p_CourseID IN COURSE.CourseID%TYPE
-    ) IS
-    BEGIN
-        DELETE FROM COURSE
-        WHERE CourseID = p_CourseID;
+    -- Insert the new course record.
+    INSERT INTO COURSE (CourseID, Title, Description, Price, Difficulty, Language, CreatedBy)
+    VALUES (p_CourseID, p_Title, p_Description, p_Price, p_Difficulty, p_Language, p_CreatedBy);
+END$$
 
-        IF SQL%ROWCOUNT = 0 THEN
-            RAISE_APPLICATION_ERROR(-20031, 'Course with ID ''' || p_CourseID || ''' not found, or no rows deleted.');
-        END IF;
-    EXCEPTION
-        WHEN OTHERS THEN
-            IF SQLCODE = -20031 THEN
-                RAISE;
-            ELSE
-                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in DELETE_COURSE_PROC: ' || SQLERRM);
-            END IF;
-    END DELETE_COURSE_PROC;
+-- =================================================================
+-- Procedure to delete a course by its ID.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `DELETE_COURSE_PROC`$$
+CREATE PROCEDURE `DELETE_COURSE_PROC`(
+    IN p_CourseID INT
+)
+BEGIN
+    DELETE FROM COURSE WHERE CourseID = p_CourseID;
 
-    PROCEDURE UPDATE_COURSE_PROC(
-        p_CourseID_where IN COURSE.CourseID%TYPE,
-        p_Title      IN COURSE.Title%TYPE,
-        p_Description IN COURSE.Description%TYPE,
-        p_Price      IN COURSE.Price%TYPE,
-        p_Difficulty IN COURSE.Difficulty%TYPE,
-        p_Language   IN COURSE.Language%TYPE
-    ) IS
-    BEGIN
-        UPDATE COURSE
-        SET Title       = p_Title,
-            Description = p_Description,
-            Price       = p_Price,
-            Difficulty  = p_Difficulty,
-            Language    = p_Language
-        WHERE CourseID = p_CourseID_where;
+    IF ROW_COUNT() = 0 THEN
+        SET @message = CONCAT('Course with ID ''', p_CourseID, ''' not found, or no rows deleted.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
+    END IF;
+END$$
 
-        IF SQL%ROWCOUNT = 0 THEN
-            RAISE_APPLICATION_ERROR(-20032, 'Course with ID ''' || p_CourseID_where || ''' not found for update, or no data changed.');
-        END IF;
-    EXCEPTION
-        WHEN OTHERS THEN
-            IF SQLCODE = -20032 THEN
-                RAISE;
-            ELSE
-                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in UPDATE_COURSE_PROC: ' || SQLERRM);
-            END IF;
-    END UPDATE_COURSE_PROC;
+-- =================================================================
+-- Procedure to update an existing course.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `UPDATE_COURSE_PROC`$$
+CREATE PROCEDURE `UPDATE_COURSE_PROC`(
+    IN p_CourseID_where INT,
+    IN p_Title VARCHAR(255),
+    IN p_Description TEXT,
+    IN p_Price DECIMAL(10, 2),
+    IN p_Difficulty VARCHAR(50),
+    IN p_Language VARCHAR(50)
+)
+BEGIN
+    UPDATE COURSE
+    SET Title = p_Title,
+        Description = p_Description,
+        Price = p_Price,
+        Difficulty = p_Difficulty,
+        Language = p_Language
+    WHERE CourseID = p_CourseID_where;
 
-    FUNCTION GET_COURSE_BY_ID_FUNC(
-        p_CourseID_param IN COURSE.CourseID%TYPE
-    ) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-    BEGIN
-        OPEN v_cursor FOR
-        SELECT
-            CourseID,
-            Title,
-            Description,
-            Price,
-            Difficulty,
-            Language,
-            CreatedBy,
-            TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED
-        FROM
-            COURSE
-        WHERE
-            CourseID = p_CourseID_param;
-        RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END GET_COURSE_BY_ID_FUNC;
+    IF ROW_COUNT() = 0 THEN
+        SET @message = CONCAT('Course with ID ''', p_CourseID_where, ''' not found for update, or no data changed.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
+    END IF;
+END$$
 
-    FUNCTION GET_ALL_COURSES_FUNC
-        RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-    BEGIN
-        OPEN v_cursor FOR
-        SELECT
-            CourseID,
-            Title,
-            Description,
-            Price,
-            Difficulty,
-            Language,
-            CreatedBy,
-            TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED
-        FROM
-            COURSE
-        ORDER BY Title ASC;
-        RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END GET_ALL_COURSES_FUNC;
+-- =================================================================
+-- Procedure to get a single course by its ID.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `GET_COURSE_BY_ID_PROC`$$
+CREATE PROCEDURE `GET_COURSE_BY_ID_PROC`(
+    IN p_CourseID_param INT
+)
+BEGIN
+    SELECT
+        CourseID, Title, Description, Price, Difficulty, Language, CreatedBy,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS CREATED_AT_FORMATTED
+    FROM COURSE
+    WHERE CourseID = p_CourseID_param;
+END$$
 
-    -- === START MODIFICATION: Updated function implementation ===
-    FUNCTION GET_COURSES_BY_TITLE_FUNC(
-        p_Title_param IN COURSE.Title%TYPE,
-        p_difficulty  IN COURSE.Difficulty%TYPE DEFAULT NULL,
-        p_language    IN COURSE.Language%TYPE DEFAULT NULL
-    ) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-    BEGIN
-        OPEN v_cursor FOR
-        SELECT
-            CourseID,
-            Title,
-            Description,
-            Price,
-            Difficulty,
-            Language,
-            CreatedBy,
-            TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED
-        FROM
-            COURSE
-        WHERE
-            -- Condition for title search (always active)
-            UPPER(Title) LIKE '%' || UPPER(p_Title_param) || '%'
-            -- Optional condition for difficulty
-            AND (p_difficulty IS NULL OR Difficulty = p_difficulty)
-            -- Optional condition for language
-            AND (p_language IS NULL OR Language = p_language)
-        ORDER BY Title ASC;
-        RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END GET_COURSES_BY_TITLE_FUNC;
-    -- === END MODIFICATION ===
+-- =================================================================
+-- Procedure to get all courses.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `GET_ALL_COURSES_PROC`$$
+CREATE PROCEDURE `GET_ALL_COURSES_PROC`()
+BEGIN
+    SELECT
+        CourseID, Title, Description, Price, Difficulty, Language, CreatedBy,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS CREATED_AT_FORMATTED
+    FROM COURSE
+    ORDER BY Title ASC;
+END$$
 
-    FUNCTION GET_COURSES_BY_DIFFICULTY_LANG_FUNC(
-        p_difficulty IN COURSE.Difficulty%TYPE,
-        p_language   IN COURSE.Language%TYPE
-    ) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-    BEGIN
-        OPEN v_cursor FOR
-        SELECT
-            CourseID,
-            Title,
-            Description,
-            Price,
-            Difficulty,
-            Language,
-            CreatedBy,
-            TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED
-        FROM
-            COURSE
-        WHERE
-            Difficulty = p_difficulty
-          AND Language = p_language
-        ORDER BY Title ASC;
-        RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END GET_COURSES_BY_DIFFICULTY_LANG_FUNC;
+-- =================================================================
+-- Procedure to get courses by title, with optional filters.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `GET_COURSES_BY_TITLE_PROC`$$
+CREATE PROCEDURE `GET_COURSES_BY_TITLE_PROC`(
+    IN p_Title_param VARCHAR(255),
+    IN p_difficulty VARCHAR(50),
+    IN p_language VARCHAR(50)
+)
+BEGIN
+    SELECT
+        CourseID, Title, Description, Price, Difficulty, Language, CreatedBy,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS CREATED_AT_FORMATTED
+    FROM COURSE
+    WHERE
+        -- Condition for title search (always active)
+        UPPER(Title) LIKE CONCAT('%', UPPER(p_Title_param), '%')
+        -- Optional condition for difficulty
+        AND (p_difficulty IS NULL OR Difficulty = p_difficulty)
+        -- Optional condition for language
+        AND (p_language IS NULL OR Language = p_language)
+    ORDER BY Title ASC;
+END$$
 
-    FUNCTION GET_COURSES_BY_LANGUAGE_FUNC(
-        p_language IN COURSE.Language%TYPE
-    ) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-    BEGIN
-        OPEN v_cursor FOR
-        SELECT
-            CourseID,
-            Title,
-            Description,
-            Price,
-            Difficulty,
-            Language,
-            CreatedBy,
-            TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED
-        FROM
-            COURSE
-        WHERE
-            Language = p_language
-        ORDER BY Title ASC;
-        RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END GET_COURSES_BY_LANGUAGE_FUNC;
+-- =================================================================
+-- Procedure to get courses by both difficulty and language.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `GET_COURSES_BY_DIFFICULTY_LANG_PROC`$$
+CREATE PROCEDURE `GET_COURSES_BY_DIFFICULTY_LANG_PROC`(
+    IN p_difficulty VARCHAR(50),
+    IN p_language VARCHAR(50)
+)
+BEGIN
+    SELECT
+        CourseID, Title, Description, Price, Difficulty, Language, CreatedBy,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS CREATED_AT_FORMATTED
+    FROM COURSE
+    WHERE
+        Difficulty = p_difficulty AND Language = p_language
+    ORDER BY Title ASC;
+END$$
 
-    FUNCTION GET_COURSES_BY_DIFFICULTY_FUNC(
-        p_difficulty IN COURSE.Difficulty%TYPE
-    ) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-    BEGIN
-        OPEN v_cursor FOR
-        SELECT
-            CourseID,
-            Title,
-            Description,
-            Price,
-            Difficulty,
-            Language,
-            CreatedBy,
-            TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED
-        FROM
-            COURSE
-        WHERE
-            Difficulty = p_difficulty
-        ORDER BY Title ASC;
-        RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END GET_COURSES_BY_DIFFICULTY_FUNC;
+-- =================================================================
+-- Procedure to get courses by language only.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `GET_COURSES_BY_LANGUAGE_PROC`$$
+CREATE PROCEDURE `GET_COURSES_BY_LANGUAGE_PROC`(
+    IN p_language VARCHAR(50)
+)
+BEGIN
+    SELECT
+        CourseID, Title, Description, Price, Difficulty, Language, CreatedBy,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS CREATED_AT_FORMATTED
+    FROM COURSE
+    WHERE Language = p_language
+    ORDER BY Title ASC;
+END$$
 
-    FUNCTION GET_COURSES_PAGINATED_FUNC(
-        p_page_number     IN NUMBER,
-        p_page_size       IN NUMBER,
-        p_filter_difficulty IN COURSE.Difficulty%TYPE,
-        p_filter_language   IN COURSE.Language%TYPE
-    ) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-        v_offset NUMBER;
-    BEGIN
-        v_offset := (p_page_number - 1) * p_page_size;
+-- =================================================================
+-- Procedure to get courses by difficulty only.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `GET_COURSES_BY_DIFFICULTY_PROC`$$
+CREATE PROCEDURE `GET_COURSES_BY_DIFFICULTY_PROC`(
+    IN p_difficulty VARCHAR(50)
+)
+BEGIN
+    SELECT
+        CourseID, Title, Description, Price, Difficulty, Language, CreatedBy,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS CREATED_AT_FORMATTED
+    FROM COURSE
+    WHERE Difficulty = p_difficulty
+    ORDER BY Title ASC;
+END$$
 
-        OPEN v_cursor FOR
-        SELECT
-            CourseID,
-            Title,
-            Description,
-            Price,
-            Difficulty,
-            Language,
-            CreatedBy,
-            TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED
-        FROM
-            COURSE
-        WHERE
-            (p_filter_difficulty IS NULL OR Difficulty = p_filter_difficulty)
-          AND (p_filter_language IS NULL OR Language = p_filter_language)
-        ORDER BY
-            Title ASC
-        OFFSET v_offset ROWS
-            FETCH NEXT p_page_size ROWS ONLY;
-        RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END GET_COURSES_PAGINATED_FUNC;
+-- =================================================================
+-- Procedure to get courses with pagination and optional filters.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `GET_COURSES_PAGINATED_PROC`$$
+CREATE PROCEDURE `GET_COURSES_PAGINATED_PROC`(
+    IN p_page_number INT,
+    IN p_page_size INT,
+    IN p_filter_difficulty VARCHAR(50),
+    IN p_filter_language VARCHAR(50)
+)
+BEGIN
+    DECLARE v_offset INT;
+    SET v_offset = (p_page_number - 1) * p_page_size;
 
-END COURSE_PKG;
-/
+    SELECT
+        CourseID, Title, Description, Price, Difficulty, Language, CreatedBy,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS CREATED_AT_FORMATTED
+    FROM COURSE
+    WHERE
+        (p_filter_difficulty IS NULL OR Difficulty = p_filter_difficulty)
+        AND (p_filter_language IS NULL OR Language = p_filter_language)
+    ORDER BY Title ASC
+    LIMIT p_page_size OFFSET v_offset;
+END$$
+
+-- Reset the delimiter back to the default.
+DELIMITER ;
