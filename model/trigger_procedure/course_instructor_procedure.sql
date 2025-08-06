@@ -1,152 +1,152 @@
-CREATE OR REPLACE PACKAGE COURSE_INSTRUCTOR_PKG AS
+-- MySQL-Compatible Stored Procedures for Course-Instructor Management
+--
+-- This script converts the Oracle PL/SQL package `COURSE_INSTRUCTOR_PKG`
+-- into standalone MySQL stored procedures.
+--
+-- Key Differences from Oracle Version:
+-- 1. No Packages: MySQL does not have packages, so each procedure is a separate object.
+-- 2. CREATE/DROP Syntax: Uses `DROP PROCEDURE IF EXISTS` and `CREATE PROCEDURE`.
+-- 3. No %TYPE: Parameter data types are explicitly defined (e.g., INT).
+-- 4. No SYS_REFCURSOR: Procedures that return data simply execute a SELECT statement.
+--    The original functions have been converted to procedures for this reason.
+-- 5. Error Handling: Uses `DECLARE HANDLER` and `SIGNAL SQLSTATE '45000'` to raise custom errors.
+-- 6. Row Count: Uses `ROW_COUNT()` instead of `SQL%ROWCOUNT`.
+-- 7. Date Formatting: Uses `DATE_FORMAT()` instead of `TO_CHAR()`.
 
-    PROCEDURE ADD_COURSE_INSTRUCTOR_PROC(
-        p_CourseID     IN COURSEINSTRUCTOR.CourseID%TYPE,
-        p_InstructorID IN COURSEINSTRUCTOR.InstructorID%TYPE
-    );
+-- Change the delimiter to allow for semicolons within the procedures.
+DELIMITER $$
 
-    PROCEDURE UPDATE_COURSE_INSTRUCTOR_PROC(
-        p_OldCourseID     IN COURSEINSTRUCTOR.CourseID%TYPE,
-        p_OldInstructorID IN COURSEINSTRUCTOR.InstructorID%TYPE,
-        p_NewCourseID     IN COURSEINSTRUCTOR.CourseID%TYPE,
-        p_NewInstructorID IN COURSEINSTRUCTOR.InstructorID%TYPE
-    );
-
-    PROCEDURE UNLINK_COURSE_INSTRUCTOR_PROC(
-        p_CourseID     IN COURSEINSTRUCTOR.CourseID%TYPE,
-        p_InstructorID IN COURSEINSTRUCTOR.InstructorID%TYPE
-    );
-
-    FUNCTION GET_ASSIGNMENT_FUNC(
-        p_CourseID     IN COURSEINSTRUCTOR.CourseID%TYPE,
-        p_InstructorID IN COURSEINSTRUCTOR.InstructorID%TYPE
-    ) RETURN SYS_REFCURSOR;
-
-    FUNCTION GET_INSTR_BY_COURSE_FUNC(
-        p_CourseID IN COURSEINSTRUCTOR.CourseID%TYPE
-    ) RETURN SYS_REFCURSOR;
-
-END COURSE_INSTRUCTOR_PKG;
-/
-
-CREATE OR REPLACE PACKAGE BODY COURSE_INSTRUCTOR_PKG AS
-
-    PROCEDURE ADD_COURSE_INSTRUCTOR_PROC(
-        p_CourseID     IN COURSEINSTRUCTOR.CourseID%TYPE,
-        p_InstructorID IN COURSEINSTRUCTOR.InstructorID%TYPE
-    ) IS
+-- =================================================================
+-- Procedure to add a new course-instructor assignment.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `ADD_COURSE_INSTRUCTOR_PROC`$$
+CREATE PROCEDURE `ADD_COURSE_INSTRUCTOR_PROC`(
+    IN p_CourseID INT,
+    IN p_InstructorID INT
+)
+BEGIN
+    -- Declare an exit handler for duplicate key errors (e.g., primary key violation).
+    -- MySQL error code 1062 is for duplicate entry.
+    DECLARE EXIT HANDLER FOR 1062
     BEGIN
-        INSERT INTO COURSEINSTRUCTOR (CourseID, InstructorID)
-        VALUES (p_CourseID, p_InstructorID);
-        -- PHP BLL checks for affectedRows === 1. SQL%ROWCOUNT will be 1 on success.
-        -- Oracle will handle PK violation (DUP_VAL_ON_INDEX if link exists).
-        -- Oracle will handle FK violation (if CourseID or InstructorID does not exist).
-    EXCEPTION
-        WHEN DUP_VAL_ON_INDEX THEN
-            RAISE_APPLICATION_ERROR(-20060, 'Assignment for CourseID ''' || p_CourseID || ''' and InstructorID ''' || p_InstructorID || ''' already exists.');
-        WHEN OTHERS THEN
-            RAISE;
-    END ADD_COURSE_INSTRUCTOR_PROC;
+        SET @message = CONCAT('Assignment for CourseID ''', p_CourseID, ''' and InstructorID ''', p_InstructorID, ''' already exists.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
+    END;
 
-    PROCEDURE UPDATE_COURSE_INSTRUCTOR_PROC(
-        p_OldCourseID     IN COURSEINSTRUCTOR.CourseID%TYPE,
-        p_OldInstructorID IN COURSEINSTRUCTOR.InstructorID%TYPE,
-        p_NewCourseID     IN COURSEINSTRUCTOR.CourseID%TYPE,
-        p_NewInstructorID IN COURSEINSTRUCTOR.InstructorID%TYPE
-    ) IS
-        v_row_exists NUMBER;
+    -- Insert the new assignment.
+    -- Foreign key constraints will automatically handle non-existent CourseID or InstructorID.
+    INSERT INTO COURSEINSTRUCTOR (CourseID, InstructorID)
+    VALUES (p_CourseID, p_InstructorID);
+END$$
+
+-- =================================================================
+-- Procedure to update an existing course-instructor assignment.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `UPDATE_COURSE_INSTRUCTOR_PROC`$$
+CREATE PROCEDURE `UPDATE_COURSE_INSTRUCTOR_PROC`(
+    IN p_OldCourseID INT,
+    IN p_OldInstructorID INT,
+    IN p_NewCourseID INT,
+    IN p_NewInstructorID INT
+)
+BEGIN
+    DECLARE v_row_exists INT DEFAULT 0;
+
+    -- Declare an exit handler for duplicate key errors on update.
+    DECLARE EXIT HANDLER FOR 1062
     BEGIN
-        SELECT COUNT(*)
-        INTO v_row_exists
-        FROM COURSEINSTRUCTOR
-        WHERE CourseID = p_OldCourseID AND InstructorID = p_OldInstructorID;
+        SET @message = CONCAT('Cannot update: New assignment for CourseID ''', p_NewCourseID, ''' and InstructorID ''', p_NewInstructorID, ''' would create a duplicate.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
+    END;
 
-        IF v_row_exists = 0 THEN
-            RAISE_APPLICATION_ERROR(-20063, 'Original assignment for CourseID ''' || p_OldCourseID || ''' and InstructorID ''' || p_OldInstructorID || ''' not found for update.');
-        END IF;
+    -- Check if the original assignment exists before attempting to update.
+    SELECT COUNT(*)
+    INTO v_row_exists
+    FROM COURSEINSTRUCTOR
+    WHERE CourseID = p_OldCourseID AND InstructorID = p_OldInstructorID;
 
-        UPDATE COURSEINSTRUCTOR
-        SET CourseID = p_NewCourseID,
-            InstructorID = p_NewInstructorID
-        WHERE CourseID = p_OldCourseID AND InstructorID = p_OldInstructorID;
+    IF v_row_exists = 0 THEN
+        SET @message = CONCAT('Original assignment for CourseID ''', p_OldCourseID, ''' and InstructorID ''', p_OldInstructorID, ''' not found for update.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
+    END IF;
 
-        IF SQL%ROWCOUNT = 0 THEN
-            RAISE_APPLICATION_ERROR(-20061, 'Assignment for CourseID ''' || p_OldCourseID || ''' and InstructorID ''' || p_OldInstructorID || ''' not found for update, or no changes made.');
-        END IF;
-        -- PHP BLL checks ($stid !== false), implying success if no Oracle error.
-    EXCEPTION
-        WHEN DUP_VAL_ON_INDEX THEN
-            RAISE_APPLICATION_ERROR(-20060, 'Cannot update: New assignment for CourseID ''' || p_NewCourseID || ''' and InstructorID ''' || p_NewInstructorID || ''' would create a duplicate.');
-        WHEN OTHERS THEN
-            IF SQLCODE = -20061 OR SQLCODE = -20063 THEN
-                RAISE;
-            ELSE
-                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in UPDATE_COURSE_INSTRUCTOR_PROC: ' || SQLERRM);
-            END IF;
-    END UPDATE_COURSE_INSTRUCTOR_PROC;
+    -- Perform the update.
+    UPDATE COURSEINSTRUCTOR
+    SET CourseID = p_NewCourseID,
+        InstructorID = p_NewInstructorID
+    WHERE CourseID = p_OldCourseID AND InstructorID = p_OldInstructorID;
 
-    PROCEDURE UNLINK_COURSE_INSTRUCTOR_PROC(
-        p_CourseID     IN COURSEINSTRUCTOR.CourseID%TYPE,
-        p_InstructorID IN COURSEINSTRUCTOR.InstructorID%TYPE
-    ) IS
-    BEGIN
-        DELETE FROM COURSEINSTRUCTOR
-        WHERE CourseID = p_CourseID AND InstructorID = p_InstructorID;
+    -- Check if any row was actually updated.
+    IF ROW_COUNT() = 0 THEN
+        SET @message = CONCAT('Assignment for CourseID ''', p_OldCourseID, ''' and InstructorID ''', p_OldInstructorID, ''' not found for update, or no changes made.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
+    END IF;
+END$$
 
-        IF SQL%ROWCOUNT = 0 THEN
-            RAISE_APPLICATION_ERROR(-20062, 'Assignment for CourseID ''' || p_CourseID || ''' and InstructorID ''' || p_InstructorID || ''' not found for deletion.');
-        END IF;
-    EXCEPTION
-        WHEN OTHERS THEN
-            IF SQLCODE = -20062 THEN
-                RAISE;
-            ELSE
-                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in UNLINK_COURSE_INSTRUCTOR_PROC: ' || SQLERRM);
-            END IF;
-    END UNLINK_COURSE_INSTRUCTOR_PROC;
+-- =================================================================
+-- Procedure to delete (unlink) a course-instructor assignment.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `UNLINK_COURSE_INSTRUCTOR_PROC`$$
+CREATE PROCEDURE `UNLINK_COURSE_INSTRUCTOR_PROC`(
+    IN p_CourseID INT,
+    IN p_InstructorID INT
+)
+BEGIN
+    -- Perform the deletion.
+    DELETE FROM COURSEINSTRUCTOR
+    WHERE CourseID = p_CourseID AND InstructorID = p_InstructorID;
 
-    FUNCTION GET_ASSIGNMENT_FUNC(
-        p_CourseID     IN COURSEINSTRUCTOR.CourseID%TYPE,
-        p_InstructorID IN COURSEINSTRUCTOR.InstructorID%TYPE
-    ) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-    BEGIN
-        OPEN v_cursor FOR
-            SELECT
-                CourseID,
-                InstructorID,
-                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-            FROM
-                COURSEINSTRUCTOR
-            WHERE
-                CourseID = p_CourseID AND InstructorID = p_InstructorID;
-        RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END GET_ASSIGNMENT_FUNC;
+    -- Check if a row was deleted. If not, the record was not found.
+    IF ROW_COUNT() = 0 THEN
+        SET @message = CONCAT('Assignment for CourseID ''', p_CourseID, ''' and InstructorID ''', p_InstructorID, ''' not found for deletion.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
+    END IF;
+END$$
 
-    FUNCTION GET_INSTR_BY_COURSE_FUNC(
-        p_CourseID IN COURSEINSTRUCTOR.CourseID%TYPE
-    ) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-    BEGIN
-        OPEN v_cursor FOR
-            SELECT
-                ci.CourseID,
-                ci.InstructorID,
-                TO_CHAR(ci.created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-            FROM
-                COURSEINSTRUCTOR ci
-            WHERE
-                ci.CourseID = p_CourseID
-            ORDER BY
-                ci.InstructorID ASC;
-        RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END GET_INSTR_BY_COURSE_FUNC;
+-- =================================================================
+-- Procedure to get a specific assignment.
+-- This was a FUNCTION in Oracle, but must be a PROCEDURE in MySQL
+-- to return a result set.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `GET_ASSIGNMENT_PROC`$$
+CREATE PROCEDURE `GET_ASSIGNMENT_PROC`(
+    IN p_CourseID INT,
+    IN p_InstructorID INT
+)
+BEGIN
+    -- Select the data to return it as a result set.
+    SELECT
+        CourseID,
+        InstructorID,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
+    FROM
+        COURSEINSTRUCTOR
+    WHERE
+        CourseID = p_CourseID AND InstructorID = p_InstructorID;
+END$$
 
-END COURSE_INSTRUCTOR_PKG;
-/
+-- =================================================================
+-- Procedure to get all instructors for a given course.
+-- This was a FUNCTION in Oracle, but must be a PROCEDURE in MySQL
+-- to return a result set.
+-- =================================================================
+DROP PROCEDURE IF EXISTS `GET_INSTR_BY_COURSE_PROC`$$
+CREATE PROCEDURE `GET_INSTR_BY_COURSE_PROC`(
+    IN p_CourseID INT
+)
+BEGIN
+    -- Select the data to return it as a result set.
+    SELECT
+        ci.CourseID,
+        ci.InstructorID,
+        DATE_FORMAT(ci.created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
+    FROM
+        COURSEINSTRUCTOR ci
+    WHERE
+        ci.CourseID = p_CourseID
+    ORDER BY
+        ci.InstructorID ASC;
+END$$
+
+-- Reset the delimiter back to the default.
+DELIMITER ;

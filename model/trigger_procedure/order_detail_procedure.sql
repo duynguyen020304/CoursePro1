@@ -1,150 +1,122 @@
--- SQL for Oracle Database 19c
--- Package for ORDER_DETAIL Business Logic Layer
+-- SQL for MySQL Database
+-- This script provides stored procedures for managing order details,
+-- converted from an Oracle PL/SQL package.
 
-CREATE OR REPLACE PACKAGE ORDER_DETAIL_PKG AS
+-- Drop procedures if they already exist to allow for recreation.
+DROP PROCEDURE IF EXISTS ADD_DETAIL_PROC;
+DROP PROCEDURE IF EXISTS GET_DETAILS_BY_ORDER_PROC;
+DROP PROCEDURE IF EXISTS UPDATE_DETAIL_PROC;
+DROP PROCEDURE IF EXISTS GET_DETAIL_PROC;
+DROP PROCEDURE IF EXISTS DELETE_DETAIL_PROC;
 
-    PROCEDURE ADD_DETAIL_PROC(
-        p_OrderID  IN ORDERDETAIL.OrderID%TYPE,
-        p_CourseID IN ORDERDETAIL.CourseID%TYPE,
-        p_Price    IN ORDERDETAIL.Price%TYPE
-    );
+DELIMITER $$
 
-    FUNCTION GET_DETAILS_BY_ORDER_FUNC(
-        p_OrderID IN ORDERDETAIL.OrderID%TYPE
-    ) RETURN SYS_REFCURSOR;
-
-    PROCEDURE UPDATE_DETAIL_PROC(
-        p_OrderID  IN ORDERDETAIL.OrderID%TYPE,
-        p_CourseID IN ORDERDETAIL.CourseID%TYPE,
-        p_Price    IN ORDERDETAIL.Price%TYPE
-    );
-
-    FUNCTION GET_DETAIL_FUNC(
-        p_OrderID  IN ORDERDETAIL.OrderID%TYPE,
-        p_CourseID IN ORDERDETAIL.CourseID%TYPE
-    ) RETURN SYS_REFCURSOR;
-
-    PROCEDURE DELETE_DETAIL_PROC(
-        p_OrderID  IN ORDERDETAIL.OrderID%TYPE,
-        p_CourseID IN ORDERDETAIL.CourseID%TYPE
-    );
-
-END ORDER_DETAIL_PKG;
-/
-
-CREATE OR REPLACE PACKAGE BODY ORDER_DETAIL_PKG AS
-
-    PROCEDURE ADD_DETAIL_PROC(
-        p_OrderID  IN ORDERDETAIL.OrderID%TYPE,
-        p_CourseID IN ORDERDETAIL.CourseID%TYPE,
-        p_Price    IN ORDERDETAIL.Price%TYPE
-    ) IS
+-- Procedure to add a new order detail record.
+-- It prevents adding details with negative prices and handles duplicate entries.
+CREATE PROCEDURE ADD_DETAIL_PROC(
+    IN p_OrderID  INT,
+    IN p_CourseID INT,
+    IN p_Price    DECIMAL(10, 2)
+)
+BEGIN
+    -- Declare a handler for duplicate key errors (MySQL error code 1062).
+    -- This is equivalent to Oracle's DUP_VAL_ON_INDEX exception.
+    DECLARE EXIT HANDLER FOR 1062
     BEGIN
-        IF p_Price < 0 THEN
-            RAISE_APPLICATION_ERROR(-20123, 'Price cannot be negative.');
-        END IF;
+        SET @message = CONCAT('OrderDetail for OrderID ''', p_OrderID, ''' and CourseID ''', p_CourseID, ''' already exists.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
+    END;
 
-        INSERT INTO ORDERDETAIL (OrderID, CourseID, Price)
-        VALUES (p_OrderID, p_CourseID, p_Price);
+    -- Validate that the price is not negative.
+    IF p_Price < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Price cannot be negative.';
+    END IF;
 
-    EXCEPTION
-        WHEN DUP_VAL_ON_INDEX THEN
-            RAISE_APPLICATION_ERROR(-20120, 'OrderDetail for OrderID ''' || p_OrderID || ''' and CourseID ''' || p_CourseID || ''' already exists.');
-        WHEN OTHERS THEN
-            RAISE;
-    END ADD_DETAIL_PROC;
+    -- Insert the new order detail into the table.
+    INSERT INTO ORDERDETAIL (OrderID, CourseID, Price)
+    VALUES (p_OrderID, p_CourseID, p_Price);
+END$$
 
-    FUNCTION GET_DETAILS_BY_ORDER_FUNC(
-        p_OrderID IN ORDERDETAIL.OrderID%TYPE
-    ) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-    BEGIN
-        OPEN v_cursor FOR
-            SELECT
-                OrderID,
-                CourseID,
-                Price,
-                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-            FROM
-                ORDERDETAIL
-            WHERE
-                OrderID = p_OrderID
-            ORDER BY CourseID ASC;
-        RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END GET_DETAILS_BY_ORDER_FUNC;
+-- Procedure to retrieve all details for a specific order.
+-- In MySQL, procedures can return result sets directly by using a SELECT statement.
+CREATE PROCEDURE GET_DETAILS_BY_ORDER_PROC(
+    IN p_OrderID INT
+)
+BEGIN
+    -- Select the records, formatting the timestamp for consistency.
+    -- DATE_FORMAT is the MySQL equivalent of Oracle's TO_CHAR for dates.
+    SELECT
+        OrderID,
+        CourseID,
+        Price,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
+    FROM
+        ORDERDETAIL
+    WHERE
+        OrderID = p_OrderID
+    ORDER BY CourseID ASC;
+END$$
 
-    PROCEDURE UPDATE_DETAIL_PROC(
-        p_OrderID  IN ORDERDETAIL.OrderID%TYPE,
-        p_CourseID IN ORDERDETAIL.CourseID%TYPE,
-        p_Price    IN ORDERDETAIL.Price%TYPE
-    ) IS
-    BEGIN
-        IF p_Price < 0 THEN
-            RAISE_APPLICATION_ERROR(-20123, 'Price cannot be negative for update.');
-        END IF;
+-- Procedure to update the price of an existing order detail.
+-- It checks if the record exists before updating.
+CREATE PROCEDURE UPDATE_DETAIL_PROC(
+    IN p_OrderID  INT,
+    IN p_CourseID INT,
+    IN p_Price    DECIMAL(10, 2)
+)
+BEGIN
+    -- Validate that the new price is not negative.
+    IF p_Price < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Price cannot be negative for update.';
+    END IF;
 
-        UPDATE ORDERDETAIL
-        SET Price = p_Price
-        WHERE OrderID = p_OrderID AND CourseID = p_CourseID;
+    -- Update the specified order detail.
+    UPDATE ORDERDETAIL
+    SET Price = p_Price
+    WHERE OrderID = p_OrderID AND CourseID = p_CourseID;
 
-        IF SQL%ROWCOUNT = 0 THEN
-            RAISE_APPLICATION_ERROR(-20121, 'OrderDetail for OrderID ''' || p_OrderID || ''' and CourseID ''' || p_CourseID || ''' not found for update.');
-        END IF;
-        -- PHP BLL checks ($stid !== false). SQL%ROWCOUNT check here ensures row was found.
-    EXCEPTION
-        WHEN OTHERS THEN
-            IF SQLCODE = -20121 OR SQLCODE = -20123 THEN
-                RAISE;
-            ELSE
-                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in UPDATE_DETAIL_PROC: ' || SQLERRM);
-            END IF;
-    END UPDATE_DETAIL_PROC;
+    -- Check if any row was actually updated.
+    -- ROW_COUNT() is the MySQL equivalent of Oracle's SQL%ROWCOUNT.
+    IF ROW_COUNT() = 0 THEN
+        SET @message = CONCAT('OrderDetail for OrderID ''', p_OrderID, ''' and CourseID ''', p_CourseID, ''' not found for update.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
+    END IF;
+END$$
 
-    FUNCTION GET_DETAIL_FUNC(
-        p_OrderID  IN ORDERDETAIL.OrderID%TYPE,
-        p_CourseID IN ORDERDETAIL.CourseID%TYPE
-    ) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-    BEGIN
-        OPEN v_cursor FOR
-            SELECT
-                OrderID,
-                CourseID,
-                Price,
-                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
-            FROM
-                ORDERDETAIL
-            WHERE
-                OrderID = p_OrderID AND CourseID = p_CourseID;
-        RETURN v_cursor;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE;
-    END GET_DETAIL_FUNC;
+-- Procedure to retrieve a single, specific order detail.
+CREATE PROCEDURE GET_DETAIL_PROC(
+    IN p_OrderID  INT,
+    IN p_CourseID INT
+)
+BEGIN
+    -- Select the specific record.
+    SELECT
+        OrderID,
+        CourseID,
+        Price,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
+    FROM
+        ORDERDETAIL
+    WHERE
+        OrderID = p_OrderID AND CourseID = p_CourseID;
+END$$
 
-    PROCEDURE DELETE_DETAIL_PROC(
-        p_OrderID  IN ORDERDETAIL.OrderID%TYPE,
-        p_CourseID IN ORDERDETAIL.CourseID%TYPE
-    ) IS
-    BEGIN
-        DELETE FROM ORDERDETAIL
-        WHERE OrderID = p_OrderID AND CourseID = p_CourseID;
+-- Procedure to delete a specific order detail.
+-- It checks if the record exists before attempting deletion.
+CREATE PROCEDURE DELETE_DETAIL_PROC(
+    IN p_OrderID  INT,
+    IN p_CourseID INT
+)
+BEGIN
+    -- Delete the specified record.
+    DELETE FROM ORDERDETAIL
+    WHERE OrderID = p_OrderID AND CourseID = p_CourseID;
 
-        IF SQL%ROWCOUNT = 0 THEN
-            RAISE_APPLICATION_ERROR(-20122, 'OrderDetail for OrderID ''' || p_OrderID || ''' and CourseID ''' || p_CourseID || ''' not found for deletion.');
-        END IF;
-    EXCEPTION
-        WHEN OTHERS THEN
-            IF SQLCODE = -20122 THEN
-                RAISE;
-            ELSE
-                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in DELETE_DETAIL_PROC: ' || SQLERRM);
-            END IF;
-    END DELETE_DETAIL_PROC;
+    -- Check if a row was actually deleted.
+    IF ROW_COUNT() = 0 THEN
+        SET @message = CONCAT('OrderDetail for OrderID ''', p_OrderID, ''' and CourseID ''', p_CourseID, ''' not found for deletion.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
+    END IF;
+END$$
 
-END ORDER_DETAIL_PKG;
-/
-
+DELIMITER ;
