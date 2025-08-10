@@ -56,6 +56,236 @@ class InitDatabase extends Database
         }
     }
 
+    public function init_student(string $filePath, bool $isCli): bool {
+        if (!file_exists($filePath)) {
+            $errorMsg = "INIT FAILED: JSON file not found at {$filePath}";
+            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+            error_log($errorMsg);
+            return false;
+        }
+
+        $jsonData = file_get_contents($filePath);
+        if ($jsonData === false) {
+            $errorMsg = "INIT FAILED: Could not read JSON file {$filePath}";
+            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+            error_log($errorMsg);
+            return false;
+        }
+
+        echo $isCli ? "Attempting to execute JSON file: " . basename($filePath) . "...\n" : "<p>Attempting to execute JSON file: " . htmlspecialchars(basename($filePath)) . "...</p>";
+
+        $studentData = json_decode($jsonData, true);
+
+        switch (json_last_error()) {
+            case JSON_ERROR_NONE:
+                foreach ($studentData as $student) {
+                    $biography = "NOT_SET";
+                    if (isset($student['biography'])) {
+                        $biography = $student['biography'];
+                    }
+                    $response = $this->userService->create_user(
+                        $student['email'],
+                        $student['password'],
+                        $student['firstName'],
+                        $student['lastName'],
+                        $student['role'],
+                        $biography,
+                        $student['profileImage']
+                    );
+
+                    if ($response->success) {
+                        echo "Created student: {$student['firstName']} {$student['lastName']} ({$student['email']})\n";
+                    } else {
+                        echo "Failed to create student {$student['email']}: {$response->message}\n";
+                        $isGenerateStudentSuccess = false;
+                    }
+                }
+                break;
+            case JSON_ERROR_DEPTH:
+                $errorMsg = 'INIT FAILED: Maximum stack depth exceeded.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_STATE_MISMATCH:
+                $errorMsg = 'INIT FAILED: Underflow or the modes mismatch.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_CTRL_CHAR:
+                $errorMsg = 'INIT FAILED: Unexpected control character found.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_SYNTAX:
+                $errorMsg = 'INIT FAILED: Syntax error, malformed JSON.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_UTF8:
+                $errorMsg = 'INIT FAILED: Malformed UTF-8 characters, possibly incorrectly encoded.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_RECURSION:
+                $errorMsg = 'INIT FAILED: One or more recursive references in the value to be encoded.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_INF_OR_NAN:
+                $errorMsg = 'INIT FAILED: One or more NAN or INF values in the value to be encoded.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_UNSUPPORTED_TYPE:
+                $errorMsg = 'INIT FAILED: A value of a type that cannot be encoded was given.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            default:
+                $errorMsg = 'INIT FAILED: Unknown JSON error occurred.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+        }
+
+        $success = true;
+
+        if ($success) {
+            $successMsg = "Successfully executed " . basename($filePath);
+            echo $isCli ? $successMsg . "\n" : "<p style='color:green;'>" . htmlspecialchars($successMsg) . "</p>";
+            return true;
+        } else {
+            $errorDetail = htmlspecialchars($this->getLastError() ?? 'Unknown error during script execution.');
+            $lastQueryAttempted = htmlspecialchars(substr($this->getLastQuery() ?? 'N/A', 0, 1000));
+            $failMsg = "FAILED to execute " . basename($filePath) . ". Last Error: " . $errorDetail;
+            $queryInfo = "\nLast Statement Attempted from " . basename($filePath) . ":\n" . $lastQueryAttempted;
+
+            if ($isCli) {
+                echo $failMsg . $queryInfo . "\n";
+            } else {
+                echo "<p style='color:red;'>" . $failMsg . "</p><pre>" . $queryInfo . "</pre>";
+            }
+            error_log($failMsg . " (Raw: " . $this->getLastError() . ")" . $queryInfo);
+            return false;
+        }
+    }
+
+    public function init_instructor(string $filePath, bool $isCli = true): bool {
+        if (!file_exists($filePath)) {
+            $errorMsg = "INIT FAILED: JSON file not found at {$filePath}";
+            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+            error_log($errorMsg);
+            return false;
+        }
+
+        $jsonData = file_get_contents($filePath);
+        if ($jsonData === false) {
+            $errorMsg = "INIT FAILED: Could not read JSON file {$filePath}";
+            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+            error_log($errorMsg);
+            return false;
+        }
+
+        echo $isCli ? "Attempting to execute JSON file: " . basename($filePath) . "...\n" : "<p>Attempting to execute JSON file: " . htmlspecialchars(basename($filePath)) . "...</p>";
+
+        $studentData = json_decode($jsonData, true);
+
+        switch (json_last_error()) {
+            case JSON_ERROR_NONE:
+                echo "Creating instructor accounts...\n";
+                foreach ($instructors as $instructor) {
+                    $biography = "NOT_SET";
+                    if (isset($instructor['biography'])) {
+                        $biography = $instructor['biography'];
+                    }
+                    $response = $this->userService->create_user(
+                        $instructor['email'],
+                        $instructor['password'],
+                        $instructor['firstName'],
+                        $instructor['lastName'],
+                        $instructor['role'],
+                        $biography,
+                        $instructor['profileImage']
+                    );
+
+                    if ($response->success) {
+                        echo "Created instructor: {$instructor['firstName']} {$instructor['lastName']} ({$instructor['email']})\n";
+                    } else {
+                        echo "Failed to create instructor {$instructor['email']}: {$response->message}\n";
+                        $isGenerateInstructorSuccess = false;
+                    }
+                }
+                break;
+            case JSON_ERROR_DEPTH:
+                $errorMsg = 'INIT FAILED: Maximum stack depth exceeded.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_STATE_MISMATCH:
+                $errorMsg = 'INIT FAILED: Underflow or the modes mismatch.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_CTRL_CHAR:
+                $errorMsg = 'INIT FAILED: Unexpected control character found.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_SYNTAX:
+                $errorMsg = 'INIT FAILED: Syntax error, malformed JSON.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_UTF8:
+                $errorMsg = 'INIT FAILED: Malformed UTF-8 characters, possibly incorrectly encoded.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_RECURSION:
+                $errorMsg = 'INIT FAILED: One or more recursive references in the value to be encoded.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_INF_OR_NAN:
+                $errorMsg = 'INIT FAILED: One or more NAN or INF values in the value to be encoded.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            case JSON_ERROR_UNSUPPORTED_TYPE:
+                $errorMsg = 'INIT FAILED: A value of a type that cannot be encoded was given.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+            default:
+                $errorMsg = 'INIT FAILED: Unknown JSON error occurred.';
+                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
+                error_log($errorMsg);
+                return false;
+        }
+
+        $success = true;
+
+        if ($success) {
+            $successMsg = "Successfully executed " . basename($filePath);
+            echo $isCli ? $successMsg . "\n" : "<p style='color:green;'>" . htmlspecialchars($successMsg) . "</p>";
+            return true;
+        } else {
+            $errorDetail = htmlspecialchars($this->getLastError() ?? 'Unknown error during script execution.');
+            $lastQueryAttempted = htmlspecialchars(substr($this->getLastQuery() ?? 'N/A', 0, 1000));
+            $failMsg = "FAILED to execute " . basename($filePath) . ". Last Error: " . $errorDetail;
+            $queryInfo = "\nLast Statement Attempted from " . basename($filePath) . ":\n" . $lastQueryAttempted;
+
+            if ($isCli) {
+                echo $failMsg . $queryInfo . "\n";
+            } else {
+                echo "<p style='color:red;'>" . $failMsg . "</p><pre>" . $queryInfo . "</pre>";
+            }
+            error_log($failMsg . " (Raw: " . $this->getLastError() . ")" . $queryInfo);
+            return false;
+        }
+    }
+
+
     public function create_structure_and_procedures(): void
     {
         $isCli = php_sapi_name() === 'cli';
@@ -145,4 +375,8 @@ if ($db_user === 'root' && $db_pass === '') {
 }
 
 $myinit = new InitDatabase($db_host, $db_user, $db_pass, $db_name, $db_port, $db_charset);
+$student_data_path = "students-20250810_105322.json";
+$instructor_data_path = "instructors-20250810_101621.json";
 $myinit->create_structure_and_procedures();
+$myinit->init_instructor(__DIR__ + "/" + $instructor_data_path);
+$myinit->init_student(__DIR__ + "/" + $student_data_path);
