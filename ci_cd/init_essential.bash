@@ -91,7 +91,7 @@ PROJECT_NAME=${REPO_URL##*/}
 PROJECT_NAME="${PROJECT_NAME%.git}" 
 
 sudo rm -rf "$PROJECT_NAME"
-BRANCH="oracle"
+BRANCH="feature/mysql"
 git clone -b "$BRANCH" "$REPO_URL"
 
 APACHE_PROJECT_DESTINATION="/var/www"
@@ -143,12 +143,13 @@ sudo a2dissite 000-default.conf
 sudo apache2ctl configtest
 sudo systemctl restart apache2
 
-sudo mysql <<'EOF'
+sudo mysql << 'EOF'
 ALTER USER 'root'@'localhost'
   IDENTIFIED VIA mysql_native_password
   USING PASSWORD('30112004');
 FLUSH PRIVILEGES;
 EOF
+
 
 elapsed=$SECONDS
 echo "Elapsed: ${elapsed}s"
