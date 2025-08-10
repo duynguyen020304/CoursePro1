@@ -1,13 +1,5 @@
--- MySQL compatible stored procedures for COURSEVIDEO management.
--- The original Oracle PL/SQL package has been converted into individual procedures.
-
--- A delimiter is used to allow for the semicolon within the procedure body.
 DELIMITER $$
 
--- =================================================================================
--- Procedure to create a new course video.
--- Equivalent to Oracle's CREATE_VIDEO_PROC.
--- =================================================================================
 CREATE PROCEDURE `CREATE_VIDEO_PROC`(
     IN p_VideoID   INT,
     IN p_LessonID  INT,
@@ -17,41 +9,69 @@ CREATE PROCEDURE `CREATE_VIDEO_PROC`(
     IN p_SortOrder INT
 )
 BEGIN
-    -- Declare a handler for duplicate key errors (MySQL error code 1062).
-    DECLARE EXIT HANDLER FOR 1062
-    BEGIN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = CONCAT('Video with VideoID ''', p_VideoID, ''' already exists.');
-    END;
+    DECLARE v_error_message VARCHAR(255);
+    DECLARE v_exists INT DEFAULT 0;
 
-    -- Insert the new video into the CourseVideo table.
-    INSERT INTO `CourseVideo` (`VideoID`, `LessonID`, `Url`, `Title`, `Duration`, `SortOrder`)
-    VALUES (p_VideoID, p_LessonID, p_Url, p_Title, p_Duration, p_SortOrder);
+    -- Kiểm tra VideoID đã tồn tại
+    SELECT COUNT(*) INTO v_exists
+    FROM `CourseVideo`
+    WHERE `VideoID` = p_VideoID;
+
+    IF v_exists > 0 THEN
+        SET v_error_message = CONCAT(
+            'Video with VideoID ''',
+            p_VideoID,
+            ''' already exists.'
+        );
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = v_error_message;
+    END IF;
+
+    INSERT INTO `CourseVideo` (
+        `VideoID`, `LessonID`, `Url`, `Title`, `Duration`, `SortOrder`
+    )
+    VALUES (
+        p_VideoID, p_LessonID, p_Url, p_Title, p_Duration, p_SortOrder
+    );
 END$$
 
--- =================================================================================
--- Procedure to delete a video by its ID.
--- Equivalent to Oracle's DELETE_VIDEO_PROC.
--- =================================================================================
 CREATE PROCEDURE `DELETE_VIDEO_PROC`(
     IN p_VideoID INT
 )
 BEGIN
-    -- Delete the video from the CourseVideo table.
+    DECLARE v_error_message VARCHAR(255);
+    DECLARE v_exists INT DEFAULT 0;
+
+    -- Kiểm tra tồn tại trước khi xóa
+    SELECT COUNT(*) INTO v_exists
+    FROM `CourseVideo`
+    WHERE `VideoID` = p_VideoID;
+
+    IF v_exists = 0 THEN
+        SET v_error_message = CONCAT(
+            'Video with VideoID ''',
+            p_VideoID,
+            ''' not found for deletion.'
+        );
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = v_error_message;
+    END IF;
+
     DELETE FROM `CourseVideo`
     WHERE `VideoID` = p_VideoID;
 
-    -- Check if any row was actually deleted.
+    -- Bảo hiểm chống race-condition nhỏ
     IF ROW_COUNT() = 0 THEN
+        SET v_error_message = CONCAT(
+            'Video with VideoID ''',
+            p_VideoID,
+            ''' not found for deletion.'
+        );
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = CONCAT('Video with VideoID ''', p_VideoID, ''' not found for deletion.');
+            SET MESSAGE_TEXT = v_error_message;
     END IF;
 END$$
 
--- =================================================================================
--- Procedure to update an existing video's details.
--- Equivalent to Oracle's UPDATE_VIDEO_PROC.
--- =================================================================================
 CREATE PROCEDURE `UPDATE_VIDEO_PROC`(
     IN p_VideoID   INT,
     IN p_LessonID  INT,
@@ -61,7 +81,24 @@ CREATE PROCEDURE `UPDATE_VIDEO_PROC`(
     IN p_SortOrder INT
 )
 BEGIN
-    -- Update the video details for the given VideoID.
+    DECLARE v_error_message VARCHAR(255);
+    DECLARE v_exists INT DEFAULT 0;
+
+    -- Kiểm tra tồn tại trước khi cập nhật
+    SELECT COUNT(*) INTO v_exists
+    FROM `CourseVideo`
+    WHERE `VideoID` = p_VideoID;
+
+    IF v_exists = 0 THEN
+        SET v_error_message = CONCAT(
+            'Video with VideoID ''',
+            p_VideoID,
+            ''' not found for update.'
+        );
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = v_error_message;
+    END IF;
+
     UPDATE `CourseVideo`
     SET
         `LessonID`  = p_LessonID,
@@ -72,22 +109,22 @@ BEGIN
     WHERE
         `VideoID` = p_VideoID;
 
-    -- Check if any row was actually updated.
+    -- Bảo hiểm nếu có race-condition
     IF ROW_COUNT() = 0 THEN
+        SET v_error_message = CONCAT(
+            'Video with VideoID ''',
+            p_VideoID,
+            ''' not found for update.'
+        );
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = CONCAT('Video with VideoID ''', p_VideoID, ''' not found for update.');
+            SET MESSAGE_TEXT = v_error_message;
     END IF;
 END$$
 
--- =================================================================================
--- Procedure to get a video by its ID.
--- Equivalent to Oracle's GET_VIDEO_BY_ID_FUNC.
--- =================================================================================
 CREATE PROCEDURE `GET_VIDEO_BY_ID_PROC`(
     IN p_VideoID INT
 )
 BEGIN
-    -- Select the video details and format the created_at timestamp.
     SELECT
         `VideoID`,
         `LessonID`,
@@ -95,22 +132,18 @@ BEGIN
         `Title`,
         `SortOrder`,
         `Duration`,
-        DATE_FORMAT(`created_at`, '%Y-%m-%d %H:%i:%s.%f') AS `created_at_formatted`
+        DATE_FORMAT(`created_at`, '%Y-%m-%d %H:%i:%s.%f') AS
+            `created_at_formatted`
     FROM
         `CourseVideo`
     WHERE
         `VideoID` = p_VideoID;
 END$$
 
--- =================================================================================
--- Procedure to get all videos for a specific lesson.
--- Equivalent to Oracle's GET_VIDEOS_BY_LESSON_FUNC.
--- =================================================================================
 CREATE PROCEDURE `GET_VIDEOS_BY_LESSON_PROC`(
     IN p_LessonID INT
 )
 BEGIN
-    -- Select all videos for a given lesson, ordered by SortOrder.
     SELECT
         `VideoID`,
         `LessonID`,
@@ -118,7 +151,8 @@ BEGIN
         `Title`,
         `SortOrder`,
         `Duration`,
-        DATE_FORMAT(`created_at`, '%Y-%m-%d %H:%i:%s.%f') AS `created_at_formatted`
+        DATE_FORMAT(`created_at`, '%Y-%m-%d %H:%i:%s.%f') AS
+            `created_at_formatted`
     FROM
         `CourseVideo`
     WHERE
@@ -126,5 +160,4 @@ BEGIN
     ORDER BY `SortOrder` ASC;
 END$$
 
--- Reset the delimiter back to the default semicolon.
 DELIMITER ;
