@@ -889,4 +889,4 @@ $student_data_path = "students-20250810_105322.json";
 $instructor_data_path = "instructors-20250810_101621.json";
 $myinit->create_structure_and_procedures();
 $myinit->init_instructor(__DIR__ . "/" . $instructor_data_path);
-$myinit->init_student(__DIR__ . "/" . $student_data_path);
+//$myinit->init_student(__DIR__ . "/" . $student_data_path);
