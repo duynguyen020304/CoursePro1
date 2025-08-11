@@ -1,6 +1,6 @@
 <?php
 // Thay đổi đường dẫn để trỏ đến tệp kết nối MySQL
-require_once __DIR__ . '/../database_mysql.php';
+require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../dto/course_category_dto.php';
 
 class CourseCategoryBLL extends Database

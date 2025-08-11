@@ -6,7 +6,7 @@ class Database
 {
     private string $host = 'localhost';
     private string $user = 'root';
-    private string $pass = '';
+    private string $pass = '30112004';
     private string $dbname = 'ecourse';
     private string $charset = 'utf8mb4';
     private int $databasePort = 3306;
