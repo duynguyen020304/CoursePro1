@@ -92,7 +92,7 @@ class UserBLL extends Database
         // Chỉ cập nhật mật khẩu nếu một mật khẩu mới được cung cấp
         if (!empty($user->password)) {
             $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
-            $sql = "UPDATE users SET firstName = ?, lastName = ?, password = ?, roleID = ?, profileImage = ? WHERE userID = ?";
+            $sql = "UPDATE Users SET firstName = ?, lastName = ?, password = ?, roleID = ?, profileImage = ? WHERE userID = ?";
             $params = [
                 $user->firstName,
                 $user->lastName,
@@ -103,7 +103,7 @@ class UserBLL extends Database
             ];
         } else {
             // Cập nhật không bao gồm mật khẩu
-            $sql = "UPDATE users SET firstName = ?, lastName = ?, roleID = ?, profileImage = ? WHERE userID = ?";
+            $sql = "UPDATE Users SET firstName = ?, lastName = ?, roleID = ?, profileImage = ? WHERE userID = ?";
             $params = [
                 $user->firstName,
                 $user->lastName,
@@ -125,7 +125,7 @@ class UserBLL extends Database
      */
     public function get_user_by_user_id(string $userID, string $purpose = "get"): ?UserDTO
     {
-        $sql = "SELECT userID, firstName, lastName, email, password, roleID, profileImage, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') AS created_at_formatted FROM users WHERE userID = ?";
+        $sql = "SELECT userID, firstName, lastName, email, password, roleID, profileImage, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') AS created_at_formatted FROM Users WHERE userID = ?";
         $params = [$userID];
 
         $result = $this->executePrepared($sql, $params);
@@ -160,7 +160,7 @@ class UserBLL extends Database
      */
     public function get_user_by_email(string $email): ?UserDTO
     {
-        $sql = "SELECT userID, firstName, lastName, email, roleID, profileImage, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') AS created_at_formatted FROM users WHERE email = ?";
+        $sql = "SELECT userID, firstName, lastName, email, roleID, profileImage, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') AS created_at_formatted FROM Users WHERE email = ?";
         $params = [$email];
 
         $result = $this->executePrepared($sql, $params);
@@ -187,7 +187,7 @@ class UserBLL extends Database
      */
     public function get_all_users(): array
     {
-        $sql = "SELECT userID, firstName, lastName, email, roleID, profileImage, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') AS created_at_formatted FROM users ORDER BY created_at DESC";
+        $sql = "SELECT userID, firstName, lastName, email, roleID, profileImage, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') AS created_at_formatted FROM Users ORDER BY created_at DESC";
         $users = [];
         
         $result = $this->executePrepared($sql);
@@ -219,10 +219,10 @@ class UserBLL extends Database
     {
         $params = [];
         if ($excludeUserID !== null) {
-            $sql = "SELECT COUNT(*) as count FROM users WHERE email = ? AND userID != ?";
+            $sql = "SELECT COUNT(*) as count FROM Users WHERE email = ? AND userID != ?";
             $params = [$email, $excludeUserID];
         } else {
-            $sql = "SELECT COUNT(*) as count FROM users WHERE email = ?";
+            $sql = "SELECT COUNT(*) as count FROM Users WHERE email = ?";
             $params = [$email];
         }
 
