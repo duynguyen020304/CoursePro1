@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../database_mysql.php';
+require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../dto/role_dto.php';
 
 class RoleBLL extends Database

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../database_mysql.php';
+require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../dto/payment_dto.php';
 
 class PaymentBLL extends Database

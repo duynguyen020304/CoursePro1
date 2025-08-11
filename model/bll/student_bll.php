@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../database_mysql.php';
+require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../dto/student_dto.php';
 
 class StudentBLL extends Database
