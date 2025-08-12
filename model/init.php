@@ -141,7 +141,7 @@ class InitDatabase extends Database
     private InstructorService $instructorService;
     private CourseImageService $courseImageService;
     private UserService $userService;
-    
+
 
     public function __construct(
         string $host = '',
@@ -150,7 +150,7 @@ class InitDatabase extends Database
         string $dbname = '',
         int $port = 0,
         string $charset = ''
-        
+
     ) {
         parent::__construct($host, $user, $pass, $dbname, $port, $charset);
         $this->bootServices();
@@ -169,7 +169,7 @@ class InitDatabase extends Database
         $this->courseImageService = new CourseImageService();
         $this->userService = new UserService();
     }
-    private function executeSqlFile(string $filePath, bool $isCli): bool
+    private function executeSqlFile(string $filePath, bool $isCli = true): bool
     {
         if (!file_exists($filePath)) {
             $errorMsg = "INIT FAILED: SQL file not found at {$filePath}";
@@ -209,7 +209,8 @@ class InitDatabase extends Database
         }
     }
 
-    public function init_student(string $filePath, bool $isCli): bool {
+    public function init_student(string $filePath, bool $isCli = true): bool
+    {
         if (!file_exists($filePath)) {
             $errorMsg = "INIT FAILED: JSON file not found at {$filePath}";
             echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
@@ -323,7 +324,8 @@ class InitDatabase extends Database
         }
     }
 
-    public function init_instructor(string $filePath, bool $isCli = true): bool {
+    public function init_instructor(string $filePath, bool $isCli = true): bool
+    {
         if (!file_exists($filePath)) {
             $errorMsg = "INIT FAILED: Instructor Dataset JSON file not found at {$filePath}";
             echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
@@ -522,7 +524,7 @@ class InitDatabase extends Database
         return $createdCourses;
     }
 
-    private function save_and_update_image(string $courseId, string $courseTitle, string $imageData): void
+    public function save_and_update_image(string $courseId, string $courseTitle, string $imageData): void
     {
         $safeCourseId = preg_replace('/[^a-zA-Z0-9_-]/', '_', $courseId);
         $projectRoot = dirname(__DIR__) . "/";
@@ -556,7 +558,7 @@ class InitDatabase extends Database
         }
     }
 
-    private function add_course_details(string $courseId, array $courseData): void
+    public function add_course_details(string $courseId, array $courseData): void
     {
         if (!empty($courseData['requirements'])) {
             foreach ($courseData['requirements'] as $requirementText) {
@@ -605,7 +607,7 @@ class InitDatabase extends Database
         }
     }
 
-    private function ensure_upload_directory(string $absoluteDirectoryPath): bool
+    public function ensure_upload_directory(string $absoluteDirectoryPath): bool
     {
         if (!is_dir($absoluteDirectoryPath)) {
             if (!mkdir($absoluteDirectoryPath, 0755, true)) {
@@ -634,15 +636,15 @@ class InitDatabase extends Database
 
         $mh = curl_multi_init();
         $courseMap = [];
-        $courseQueue = $courses; 
+        $courseQueue = $courses;
 
         $activeRequests = 0;
         $processedCount = 0;
 
         while ($activeRequests > 0 || !empty($courseQueue)) {
             while ($activeRequests < $maxConcurrentRequests && !empty($courseQueue)) {
-                $course = array_shift($courseQueue); 
-                
+                $course = array_shift($courseQueue);
+
                 $courseId = $course['id'];
                 $courseTitle = $course['title'];
                 $courseLanguage = $course['language'];
@@ -651,17 +653,17 @@ class InitDatabase extends Database
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $apiUrl);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1000000000); 
-                curl_setopt($ch, CURLOPT_TIMEOUT, 6000000000);      
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1000000000);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 6000000000);
 
                 curl_multi_add_handle($mh, $ch);
-                
+
                 $courseMap[(int)$ch] = ['id' => $courseId, 'title' => $courseTitle];
                 $activeRequests++;
             }
 
             $status = curl_multi_exec($mh, $running);
-            
+
             if ($running < $activeRequests) {
                 while ($done = curl_multi_info_read($mh)) {
                     $ch = $done['handle'];
@@ -691,9 +693,9 @@ class InitDatabase extends Database
                     $activeRequests--;
                 }
             }
-            
+
             if ($running > 0) {
-                curl_multi_select($mh, 0.1); 
+                curl_multi_select($mh, 0.1);
             }
         }
 
@@ -701,7 +703,8 @@ class InitDatabase extends Database
         echo "\nParallel image assignment finished.\n";
     }
 
-    public function init_courses(string $filePath, bool $isCli = true): bool {
+    public function init_courses(string $filePath, bool $isCli = true): bool
+    {
         if (!file_exists($filePath)) {
             $errorMsg = "INIT FAILED: Course Dataset JSON file not found at {$filePath}";
             echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
@@ -724,7 +727,12 @@ class InitDatabase extends Database
         switch (json_last_error()) {
             case JSON_ERROR_NONE:
                 echo "Creating instructor accounts...\n";
-                initialize_course($courseData);
+                // initialize_course($courseData);
+                $createdCourses = $this->initialize_course($courseData);
+
+                if (!empty($createdCourses)) {
+                    $this->assign_images_in_parallel($createdCourses);
+                }
                 break;
             case JSON_ERROR_DEPTH:
                 $errorMsg = 'INIT FAILED: Maximum stack depth exceeded.';
@@ -887,6 +895,8 @@ if ($db_user === 'root' && $db_pass === '') {
 $myinit = new InitDatabase($db_host, $db_user, $db_pass, $db_name, $db_port, $db_charset);
 $student_data_path = "students-20250810_105322.json";
 $instructor_data_path = "instructors-20250810_101621.json";
+$course_data_path = "courses-20250810_110716.json";
 $myinit->create_structure_and_procedures();
 $myinit->init_instructor(__DIR__ . "/" . $instructor_data_path);
-//$myinit->init_student(__DIR__ . "/" . $student_data_path);
+$myinit->init_student(__DIR__ . "/" . $student_data_path);
+$myinit->init_courses(__DIR__ . "/" . $course_data_path);
