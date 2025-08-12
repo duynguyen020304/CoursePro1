@@ -81,7 +81,7 @@ sudo apt install -y apache2 mariadb-server php php-cli \
   libapache2-mod-php php-mysql php-xml php-curl php-gd \
   php-mbstring php-zip php-intl php-bcmath php-opcache \
   php-fpm openssl curl wget unzip git composer imagemagick \
-  php-imagick proftpd-basic
+  php-imagick proftpd-basic php-pear php-dev build-essential autoconf pkg-config
 
 
 # Cloning module

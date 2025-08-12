@@ -12,7 +12,7 @@ class ResourceBLL extends Database
      */
     public function create_resource(ResourceDTO $resource): bool
     {
-        $sql = "INSERT INTO COURSERESOURCES (ResourceID, LessonID, ResourcePath, Title, SortOrder) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO CourseResource (ResourceID, LessonID, ResourcePath, Title, SortOrder) VALUES (?, ?, ?, ?, ?)";
         
         $params = [
             $resource->resourceID,
@@ -36,7 +36,7 @@ class ResourceBLL extends Database
     {
         $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM COURSERESOURCES
+                FROM CourseResource
                 WHERE ResourceID = ?";
         $params = [$resourceID];
         $result = $this->executePrepared($sql, $params);
@@ -68,7 +68,7 @@ class ResourceBLL extends Database
     {
         $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM COURSERESOURCES
+                FROM CourseResource
                 WHERE LessonID = ?
                 ORDER BY SortOrder ASC";
         $params = [$lessonID];
@@ -100,7 +100,7 @@ class ResourceBLL extends Database
     {
         $sql = "SELECT ResourceID, LessonID, ResourcePath, Title, SortOrder,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM COURSERESOURCES
+                FROM CourseResource
                 ORDER BY LessonID, SortOrder ASC";
         $result = $this->execute($sql);
         $resources = [];
@@ -129,7 +129,7 @@ class ResourceBLL extends Database
      */
     public function update_resource(ResourceDTO $resource): bool
     {
-        $sql = "UPDATE COURSERESOURCES SET LessonID = ?, ResourcePath = ?, Title = ?, SortOrder = ? 
+        $sql = "UPDATE CourseResource SET LessonID = ?, ResourcePath = ?, Title = ?, SortOrder = ? 
                 WHERE ResourceID = ?";
         
         $params = [
@@ -152,7 +152,7 @@ class ResourceBLL extends Database
      */
     public function delete_resource(string $resourceID): bool
     {
-        $sql = "DELETE FROM COURSERESOURCES WHERE ResourceID = ?";
+        $sql = "DELETE FROM CourseResource WHERE ResourceID = ?";
         $params = [$resourceID];
         $result = $this->executePrepared($sql, $params);
         return ($result !== false) && ($this->getAffectedRows() === 1);

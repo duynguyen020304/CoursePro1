@@ -33,7 +33,7 @@ class CourseBLL extends Database
     public function create_course(CourseDTO $c): bool
     {
         // Câu lệnh INSERT chuẩn của MySQL
-        $sql = "INSERT INTO courses (courseID, title, description, price, difficulty, language, createdBy) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO Course (courseID, title, description, price, difficulty, language, createdBy) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         // Tham số cho prepared statement
         $bindParams = [
@@ -59,7 +59,7 @@ class CourseBLL extends Database
     public function delete_course(string $courseID): bool
     {
         // Câu lệnh DELETE chuẩn của MySQL
-        $sql = "DELETE FROM courses WHERE courseID = ?";
+        $sql = "DELETE FROM Course WHERE courseID = ?";
         $bindParams = [$courseID];
 
         $result = $this->executePrepared($sql, $bindParams);
@@ -74,7 +74,7 @@ class CourseBLL extends Database
     public function update_course(CourseDTO $c): bool
     {
         // Câu lệnh UPDATE chuẩn của MySQL
-        $sql = "UPDATE courses SET title = ?, description = ?, price = ?, difficulty = ?, language = ? WHERE courseID = ?";
+        $sql = "UPDATE Course SET title = ?, description = ?, price = ?, difficulty = ?, language = ? WHERE courseID = ?";
 
         $bindParams = [
             $c->title,
@@ -97,7 +97,7 @@ class CourseBLL extends Database
     public function get_course(string $courseID): ?CourseDTO
     {
         // Câu lệnh SELECT với định dạng ngày tháng
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses WHERE courseID = ?";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course WHERE courseID = ?";
         $bindParams = [$courseID];
 
         $result = $this->executePrepared($sql, $bindParams);
@@ -116,7 +116,7 @@ class CourseBLL extends Database
      */
     public function get_all_courses(): array
     {
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course";
         $list = [];
         $result = $this->execute($sql); // Không cần prepared statement vì không có tham số
 
@@ -137,7 +137,7 @@ class CourseBLL extends Database
      */
     public function search_courses_by_title(string $title, ?string $difficulty = null, ?string $language = null): array
     {
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses WHERE title LIKE ?";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course WHERE title LIKE ?";
         $bindParams = ["%{$title}%"];
         $list = [];
 
@@ -188,7 +188,7 @@ class CourseBLL extends Database
      */
     public function get_courses_by_language(string $language): array
     {
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses WHERE language = ?";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course WHERE language = ?";
         $bindParams = [$language];
         $list = [];
 
@@ -208,7 +208,7 @@ class CourseBLL extends Database
      */
     public function get_courses_by_difficulty(string $difficulty): array
     {
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses WHERE difficulty = ?";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course WHERE difficulty = ?";
         $bindParams = [$difficulty];
         $list = [];
 
@@ -236,7 +236,7 @@ class CourseBLL extends Database
         $bindParams = [];
         $list = [];
 
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course";
 
         if ($filterDifficulty !== null && $filterDifficulty !== '') {
             $whereClauses[] = "difficulty = ?";

@@ -12,7 +12,7 @@ class CartItemBLL extends Database
      */
     public function create_item(CartItemDTO $item): bool
     {
-        $sql = "INSERT INTO cart_items (cartItemID, cartID, courseID, quantity) VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO CartItem (cartItemID, cartID, courseID, quantity) VALUES (?, ?, ?, ?)";
         
         $bindParams = [
             $item->cartItemID,
@@ -34,7 +34,7 @@ class CartItemBLL extends Database
     public function get_items_by_cart(string $cartID): array
     {
         $sql = "SELECT cartItemID, cartID, courseID, quantity, created_at 
-                FROM cart_items 
+                FROM CartItem 
                 WHERE cartID = ? 
                 ORDER BY courseID ASC";
         
@@ -80,7 +80,7 @@ class CartItemBLL extends Database
     public function get_item_by_id(string $cartItemID): ?CartItemDTO
     {
         $sql = "SELECT cartItemID, cartID, courseID, quantity, created_at 
-                FROM cart_items 
+                FROM CartItem 
                 WHERE cartItemID = ?";
         
         $bindParams = [$cartItemID];
@@ -114,7 +114,7 @@ class CartItemBLL extends Database
             return $this->delete_item($cartItemID);
         }
 
-        $sql = "UPDATE cart_items SET quantity = ? WHERE cartItemID = ?";
+        $sql = "UPDATE CartItem SET quantity = ? WHERE cartItemID = ?";
         
         $bindParams = [
             $quantity,
@@ -133,7 +133,7 @@ class CartItemBLL extends Database
      */
     public function clear_cart(string $cartID): bool
     {
-        $sql = "DELETE FROM cart_items WHERE cartID = ?";
+        $sql = "DELETE FROM CartItem WHERE cartID = ?";
         $bindParams = [$cartID];
         $result = $this->executePrepared($sql, $bindParams);
         return $result !== false;

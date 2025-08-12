@@ -11,9 +11,9 @@ class ChapterBLL extends Database
      */
     public function create_chapter(ChapterDTO $chapter): bool
     {
-        // Câu lệnh SQL để chèn một chương mới vào bảng 'chapters'.
+        // Câu lệnh SQL để chèn một chương mới vào bảng 'CourseChapter'.
         // Sử dụng các placeholder (?) để tránh tấn công SQL injection.
-        $sql = "INSERT INTO chapters (chapterID, courseID, title, description, sortOrder) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO CourseChapter (chapterID, courseID, title, description, sortOrder) VALUES (?, ?, ?, ?, ?)";
 
         // Mảng chứa các giá trị để ràng buộc vào câu lệnh đã chuẩn bị.
         $bindParams = [
@@ -38,8 +38,8 @@ class ChapterBLL extends Database
      */
     public function update_chapter(ChapterDTO $chapter): bool
     {
-        // Câu lệnh SQL để cập nhật một chương trong bảng 'chapters'.
-        $sql = "UPDATE chapters SET courseID = ?, title = ?, description = ?, sortOrder = ? WHERE chapterID = ?";
+        // Câu lệnh SQL để cập nhật một chương trong bảng 'CourseChapter'.
+        $sql = "UPDATE CourseChapter SET courseID = ?, title = ?, description = ?, sortOrder = ? WHERE chapterID = ?";
 
         // Mảng chứa các giá trị để ràng buộc.
         $bindParams = [
@@ -63,7 +63,7 @@ class ChapterBLL extends Database
     public function delete_chapter(string $chapterID): bool
     {
         // Câu lệnh SQL để xóa một chương.
-        $sql = "DELETE FROM chapters WHERE chapterID = ?";
+        $sql = "DELETE FROM CourseChapter WHERE chapterID = ?";
         $bindParams = [$chapterID];
 
         // Thực thi câu lệnh.
@@ -78,7 +78,7 @@ class ChapterBLL extends Database
     public function get_all_chapters(): array
     {
         // Câu lệnh SQL để lấy tất cả các chương, sắp xếp theo thứ tự.
-        $sql = "SELECT chapterID, courseID, title, description, sortOrder, created_at FROM chapters ORDER BY sortOrder ASC, created_at DESC";
+        $sql = "SELECT chapterID, courseID, title, description, sortOrder, created_at FROM CourseChapter ORDER BY sortOrder ASC, created_at DESC";
         $list = [];
 
         // Thực thi câu lệnh và lấy kết quả.
@@ -113,7 +113,7 @@ class ChapterBLL extends Database
     public function get_chapter_by_id(string $chapterID): ?ChapterDTO
     {
         // Câu lệnh SQL để lấy một chương theo ID.
-        $sql = "SELECT chapterID, courseID, title, description, sortOrder, created_at FROM chapters WHERE chapterID = ?";
+        $sql = "SELECT chapterID, courseID, title, description, sortOrder, created_at FROM CourseChapter WHERE chapterID = ?";
         $bindParams = [$chapterID];
         $dto = null;
 
@@ -147,7 +147,7 @@ class ChapterBLL extends Database
     public function get_chapters_by_course_id(string $courseID): array
     {
         // Câu lệnh SQL để lấy các chương theo courseID, sắp xếp theo thứ tự.
-        $sql = "SELECT chapterID, courseID, title, description, sortOrder, created_at FROM chapters WHERE courseID = ? ORDER BY sortOrder ASC, created_at DESC";
+        $sql = "SELECT chapterID, courseID, title, description, sortOrder, created_at FROM CourseChapter WHERE courseID = ? ORDER BY sortOrder ASC, created_at DESC";
         $bindParams = [$courseID];
         $list = [];
 

@@ -16,7 +16,7 @@ class UserBLL extends Database
         $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
         
         // Câu lệnh SQL INSERT cho MySQL
-        $sql = "INSERT INTO users (userID, firstName, lastName, email, password, roleID, profileImage) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO Users (userID, firstName, lastName, email, password, roleID, profileImage) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         // Tham số cho prepared statement
         $params = [
@@ -43,7 +43,7 @@ class UserBLL extends Database
     public function authenticate(string $email, string $password): ?UserDTO
     {
         // Câu lệnh SELECT để lấy thông tin người dùng cho việc xác thực
-        $sql = "SELECT userID, firstName, lastName, email, password, roleID, profileImage, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') AS created_at_formatted FROM users WHERE email = ?";
+        $sql = "SELECT userID, firstName, lastName, email, password, roleID, profileImage, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') AS created_at_formatted FROM Users WHERE email = ?";
         $params = [$email];
 
         $result = $this->executePrepared($sql, $params);

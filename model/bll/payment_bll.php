@@ -12,7 +12,7 @@ class PaymentBLL extends Database
      */
     public function create_payment(PaymentDTO $p): bool
     {
-        $sql = "INSERT INTO PAYMENTS (PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount) 
+        $sql = "INSERT INTO Payment (PaymentID, OrderID, PaymentDate, PaymentMethod, Paymenttatus, Amount) 
                 VALUES (?, ?, ?, ?, ?, ?)";
 
         $paymentDateString = null;
@@ -43,7 +43,7 @@ class PaymentBLL extends Database
     {
         $sql = "SELECT PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM PAYMENTS
+                FROM Payment
                 WHERE OrderID = ?";
         $params = [$orderID];
         $result = $this->executePrepared($sql, $params);
@@ -84,7 +84,7 @@ class PaymentBLL extends Database
     {
         $sql = "SELECT PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM PAYMENTS
+                FROM Payment
                 WHERE PaymentID = ?";
         $params = [$paymentID];
         $result = $this->executePrepared($sql, $params);
@@ -123,7 +123,7 @@ class PaymentBLL extends Database
      */
     public function update_payment(PaymentDTO $p): bool
     {
-        $sql = "UPDATE PAYMENTS SET OrderID = ?, PaymentDate = ?, PaymentMethod = ?, PaymentStatus = ?, Amount = ? 
+        $sql = "UPDATE Payment SET OrderID = ?, PaymentDate = ?, PaymentMethod = ?, PaymentStatus = ?, Amount = ? 
                 WHERE PaymentID = ?";
 
         $paymentDateString = null;
@@ -152,7 +152,7 @@ class PaymentBLL extends Database
      */
     public function delete_payment(string $paymentID): bool
     {
-        $sql = "DELETE FROM PAYMENTS WHERE PaymentID = ?";
+        $sql = "DELETE FROM Payment WHERE PaymentID = ?";
         $params = [$paymentID];
         $result = $this->executePrepared($sql, $params);
         return ($result !== false) && ($this->getAffectedRows() === 1);
