@@ -12,7 +12,7 @@ class OrderDetailBLL extends Database
      */
     public function add_detail(OrderDetailDTO $detail): bool
     {
-        $sql = "INSERT INTO ORDERDETAILS (OrderID, CourseID, Price) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO OrderDetail (OrderID, CourseID, Price) VALUES (?, ?, ?)";
 
         $params = [
             $detail->orderID,
@@ -34,7 +34,7 @@ class OrderDetailBLL extends Database
     {
         $sql = "SELECT OrderID, CourseID, Price,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM ORDERDETAILS
+                FROM OrderDetail
                 WHERE OrderID = ?";
         $params = [$orderID];
         $result = $this->executePrepared($sql, $params);
@@ -67,7 +67,7 @@ class OrderDetailBLL extends Database
             return false;
         }
 
-        $sql = "UPDATE ORDERDETAILS SET Price = ? WHERE OrderID = ? AND CourseID = ?";
+        $sql = "UPDATE OrderDetail SET Price = ? WHERE OrderID = ? AND CourseID = ?";
 
         $params = [
             (float)$detail->price,
@@ -90,7 +90,7 @@ class OrderDetailBLL extends Database
     {
         $sql = "SELECT OrderID, CourseID, Price,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM ORDERDETAILS
+                FROM OrderDetail
                 WHERE OrderID = ? AND CourseID = ?";
         $params = [$orderID, $courseID];
         $result = $this->executePrepared($sql, $params);
@@ -119,7 +119,7 @@ class OrderDetailBLL extends Database
      */
     public function delete_detail(string $orderID, string $courseID): bool
     {
-        $sql = "DELETE FROM ORDERDETAILS WHERE OrderID = ? AND CourseID = ?";
+        $sql = "DELETE FROM OrderDetail WHERE OrderID = ? AND CourseID = ?";
 
         $params = [
             $orderID,

@@ -12,7 +12,7 @@ class StudentBLL extends Database
      */
     public function create_student(StudentDTO $stu): bool
     {
-        $sql = "INSERT INTO STUDENTS (StudentID, UserID) VALUES (?, ?)";
+        $sql = "INSERT INTO Student (StudentID, UserID) VALUES (?, ?)";
         $params = [
             $stu->studentID,
             $stu->userID,
@@ -29,7 +29,7 @@ class StudentBLL extends Database
      */
     public function delete_student(string $studentID): bool
     {
-        $sql = "DELETE FROM STUDENTS WHERE StudentID = ?";
+        $sql = "DELETE FROM Student WHERE StudentID = ?";
         $params = [$studentID];
         $result = $this->executePrepared($sql, $params);
         return ($result !== false) && ($this->getAffectedRows() === 1);
@@ -43,7 +43,7 @@ class StudentBLL extends Database
      */
     public function update_student(StudentDTO $stu): bool
     {
-        $sql = "UPDATE STUDENTS SET UserID = ? WHERE StudentID = ?";
+        $sql = "UPDATE Student SET UserID = ? WHERE StudentID = ?";
         $params = [
             $stu->userID,
             $stu->studentID,
@@ -62,7 +62,7 @@ class StudentBLL extends Database
     {
         $sql = "SELECT StudentID, UserID,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM STUDENTS
+                FROM Student
                 WHERE StudentID = ?";
         $params = [$studentID];
         $result = $this->executePrepared($sql, $params);
@@ -91,7 +91,7 @@ class StudentBLL extends Database
     {
         $sql = "SELECT StudentID, UserID,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM STUDENTS
+                FROM Student
                 WHERE UserID = ?";
         $params = [$userID];
         $result = $this->executePrepared($sql, $params);
@@ -119,7 +119,7 @@ class StudentBLL extends Database
     {
         $sql = "SELECT StudentID, UserID,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM STUDENTS
+                FROM Student
                 ORDER BY created_at DESC";
         $result = $this->execute($sql);
         $list = [];
