@@ -57,7 +57,7 @@ class CourseService
         $this->resourceBll = new ResourceBLL();
     }
 
-    public function create_course(string $title, ?string $description, float $price, array $instructorID, array $categoryIDs, ?string $difficulty = "All Level", ?string $language = "UNKNOWN", string $createdBy = "UNKNOWN"): ServiceResponse
+    public function create_course(string $title, ?string $description, float $price, array $instructorID, array $categoryIDs, ?string $difficulty = "All Level", ?string $language = "UNKNOWN", ?string $createdBy = "UNKNOWN"): ServiceResponse
     {
         $courseID = str_replace('.', '_', uniqid('course_', true));
         $dto = new CourseDTO($courseID, $title, $description, $price, $difficulty, $language, $createdBy);
@@ -77,7 +77,7 @@ class CourseService
                 }
                 return new ServiceResponse(true, 'Tạo khóa học thành công', $courseID);
             }
-            return new ServiceResponse(true, 'Tạo khóa học thất bại');
+            return new ServiceResponse(false, 'Tạo khóa học thất bại');
         } catch (Exception $e) {
             return new ServiceResponse(false, 'Lỗi khi tạo khóa học: ' . $e->getMessage());
         }

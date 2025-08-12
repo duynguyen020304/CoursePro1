@@ -317,7 +317,44 @@ INSERT INTO categories (id, name, parent_id, sort_order) VALUES (80, 'Vật lý'
 INSERT INTO categories (id, name, parent_id, sort_order) VALUES (81, 'Lập trình cho trẻ em', 78, 3) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
 INSERT INTO categories (id, name, parent_id, sort_order) VALUES (82, 'Khoa học máy tính', 78, 4) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
 INSERT INTO categories (id, name, parent_id, sort_order) VALUES (83, 'IELTS, TOEIC, TOEFL', 78, 5) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (84, 'Ngoại ngữ', NULL, 10) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (85, 'Tiếng Anh', 84, 1) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (86, 'Tiếng Nhật', 84, 2) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (87, 'Tiếng Hàn', 84, 3) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (88, 'Tiếng Trung', 84, 4) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (89, 'Tiếng Pháp', 84, 5) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (90, 'Tiếng Đức', 84, 6) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
 
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (91, 'Cloud Computing (AWS, Azure, GCP)', 41, 8) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (92, 'Data Engineering', 41, 9) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (95, 'Machine Learning', 41, 10) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (96, 'Database Management (SQL, NoSQL)', 41, 11) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (97, 'Cybersecurity Chuyên sâu', 41, 12) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (93, 'E-commerce', 33, 8) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (94, 'Đầu tư (Chứng khoán, Bất động sản)', 33, 9) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (98, 'Animation (2D/3D)', 49, 7) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (99, 'Video Editing (Premiere, Final Cut)', 49, 8) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (100, 'Figma', 49, 9) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (101, 'Social Media Marketing', 56, 7) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (102, 'Branding & Xây dựng thương hiệu', 56, 8) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (103, 'Năng suất & Tổ chức công việc', 63, 6) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (104, 'Trí tuệ cảm xúc (EQ)', 63, 7) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (105, 'Lý thuyết âm nhạc', 69, 4) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (106, 'Thanh nhạc', 69, 5) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (107, 'Sơ cứu & Chăm sóc sức khỏe cơ bản', 73, 5) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (108, 'Mindfulness & Giảm căng thẳng', 73, 6) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (109, 'Hóa học', 78, 6) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (110, 'Sinh học', 78, 7) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (111, 'Lịch sử', 78, 8) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (112, 'Địa lý', 78, 9) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
+INSERT INTO categories (id, name, parent_id, sort_order) VALUES (113, 'Văn học', 78, 10) ON DUPLICATE KEY UPDATE name=VALUES(name), parent_id=VALUES(parent_id), sort_order=VALUES(sort_order);
 CREATE TABLE IF NOT EXISTS categories_History (
     HistoryID INT AUTO_INCREMENT PRIMARY KEY,
     id INT,
@@ -369,8 +406,7 @@ CREATE TABLE IF NOT EXISTS Course (
     Difficulty VARCHAR(40),
     Language VARCHAR(40),
     CreatedBy VARCHAR(40) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (CreatedBy) REFERENCES Instructor(InstructorID)
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Course_History (

@@ -16,6 +16,7 @@ require_once __DIR__ . '/../service/service_course_image.php';
 
 class InitDatabase extends Database
 {
+    // ... (Các hằng số và thuộc tính không thay đổi)
     private const ADMIN_USER_ID_CREATED_BY = 'user_admin_001';
     private const CATEGORIES_DATA = [
         1 => 'Phát triển',
@@ -142,6 +143,11 @@ class InitDatabase extends Database
     private CourseImageService $courseImageService;
     private UserService $userService;
 
+    /**
+     * @var bool Flag to ensure HTML header is printed only once.
+     */
+    private bool $htmlHeaderPrinted = false;
+
 
     public function __construct(
         string $host = '',
@@ -150,7 +156,6 @@ class InitDatabase extends Database
         string $dbname = '',
         int $port = 0,
         string $charset = ''
-
     ) {
         parent::__construct($host, $user, $pass, $dbname, $port, $charset);
         $this->bootServices();
@@ -158,7 +163,7 @@ class InitDatabase extends Database
 
     private function bootServices(): void
     {
-        // Điều chỉnh nếu service cần DB handle/Container...
+        // ... (bootServices không thay đổi)
         $this->courseService = new CourseService();
         $this->categoryService = new CategoryService();
         $this->chapterService = new ChapterService();
@@ -169,157 +174,202 @@ class InitDatabase extends Database
         $this->courseImageService = new CourseImageService();
         $this->userService = new UserService();
     }
+
+    /**
+     * Logs a message to either the CLI or a formatted HTML view.
+     *
+     * @param string $message The message to log.
+     * @param string $type    The type of message (info, success, error, warning, title, pre).
+     * @param bool   $isCli   Whether the current environment is Command Line Interface.
+     */
+    public function log(string $message, string $type = 'info', bool $isCli = false): void
+    {
+        // For web view, ensure the header is printed once.
+        if (!$isCli && !$this->htmlHeaderPrinted) {
+            echo <<<HTML
+            <!DOCTYPE html>
+            <html lang="vi">
+            <head>
+                <meta charset="UTF-8">
+                <title>Database Initialization Log</title>
+                <style>
+                    body {
+                        background-color: #1a1a1a;
+                        color: #e0e0e0;
+                        font-family: 'Menlo', 'Monaco', 'Consolas', "Courier New", monospace;
+                        font-size: 14px;
+                        line-height: 1.6;
+                        padding: 20px;
+                        margin: 0;
+                    }
+                    div {
+                        padding: 2px 0;
+                        border-left: 3px solid transparent;
+                        padding-left: 10px;
+                        word-wrap: break-word;
+                    }
+                    .info { border-left-color: #6c757d; color: #ced4da; }
+                    .success { border-left-color: #28a745; color: #a3d9a5; }
+                    .error { border-left-color: #dc3545; color: #f8d7da; }
+                    .warning { border-left-color: #ffc107; color: #ffeeba; }
+                    .title {
+                        font-size: 1.2em;
+                        font-weight: bold;
+                        color: #17a2b8;
+                        margin-top: 15px;
+                        margin-bottom: 5px;
+                        border-left: none;
+                        padding-left: 0;
+                    }
+                    pre {
+                        background-color: #343a40;
+                        color: #f8d7da;
+                        padding: 10px;
+                        border-radius: 5px;
+                        border: 1px solid #495057;
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                        margin-left: 13px;
+                    }
+                </style>
+            </head>
+            <body>
+            HTML;
+            $this->htmlHeaderPrinted = true;
+        }
+
+        $timestamp = date('H:i:s');
+        $safeMessage = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+
+        if ($isCli) {
+            echo "[$timestamp] " . strtoupper($type) . ": " . $message . "\n";
+        } else {
+            // Web output with classes
+            if ($type === 'pre') {
+                echo "<pre>$safeMessage</pre>";
+            } else {
+                echo "<div class='{$type}'>[$timestamp] {$safeMessage}</div>";
+            }
+        }
+    }
+
+    /**
+     * Prints the closing HTML tags if the header was printed.
+     */
+    public function printHtmlFooter(): void
+    {
+        if ($this->htmlHeaderPrinted) {
+            echo '</body></html>';
+        }
+    }
+
     private function executeSqlFile(string $filePath, bool $isCli = true): bool
     {
         if (!file_exists($filePath)) {
-            $errorMsg = "INIT FAILED: SQL file not found at {$filePath}";
-            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-            error_log($errorMsg);
+            $this->log("INIT FAILED: SQL file not found at {$filePath}", 'error', $isCli);
+            error_log("INIT FAILED: SQL file not found at {$filePath}");
             return false;
         }
 
         $sql = file_get_contents($filePath);
         if ($sql === false) {
-            $errorMsg = "INIT FAILED: Could not read SQL file {$filePath}";
-            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-            error_log($errorMsg);
+            $this->log("INIT FAILED: Could not read SQL file {$filePath}", 'error', $isCli);
+            error_log("INIT FAILED: Could not read SQL file {$filePath}");
             return false;
         }
 
-        echo $isCli ? "Attempting to execute SQL file: " . basename($filePath) . "...\n" : "<p>Attempting to execute SQL file: " . htmlspecialchars(basename($filePath)) . "...</p>";
+        $this->log("Attempting to execute SQL file: " . basename($filePath) . "...", 'info', $isCli);
         $success = $this->runScript($sql);
 
         if ($success) {
-            $successMsg = "Successfully executed " . basename($filePath);
-            echo $isCli ? $successMsg . "\n" : "<p style='color:green;'>" . htmlspecialchars($successMsg) . "</p>";
+            $this->log("Successfully executed " . basename($filePath), 'success', $isCli);
             return true;
         } else {
-            $errorDetail = htmlspecialchars($this->getLastError() ?? 'Unknown error during script execution.');
-            $lastQueryAttempted = htmlspecialchars(substr($this->getLastQuery() ?? 'N/A', 0, 1000));
+            $errorDetail = $this->getLastError() ?? 'Unknown error during script execution.';
+            $lastQueryAttempted = substr($this->getLastQuery() ?? 'N/A', 0, 1000);
             $failMsg = "FAILED to execute " . basename($filePath) . ". Last Error: " . $errorDetail;
-            $queryInfo = "\nLast Statement Attempted from " . basename($filePath) . ":\n" . $lastQueryAttempted;
+            $queryInfo = "Last Statement Attempted from " . basename($filePath) . ":\n" . $lastQueryAttempted;
 
-            if ($isCli) {
-                echo $failMsg . $queryInfo . "\n";
-            } else {
-                echo "<p style='color:red;'>" . $failMsg . "</p><pre>" . $queryInfo . "</pre>";
-            }
+            $this->log($failMsg, 'error', $isCli);
+            $this->log($queryInfo, 'pre', $isCli); // Use 'pre' for formatted code block
+
             error_log($failMsg . " (Raw: " . $this->getLastError() . ")" . $queryInfo);
             return false;
         }
     }
 
+    private function handleJsonErrors(bool $isCli): bool
+    {
+        $errorMessages = [
+            JSON_ERROR_DEPTH => 'Maximum stack depth exceeded.',
+            JSON_ERROR_STATE_MISMATCH => 'Underflow or the modes mismatch.',
+            JSON_ERROR_CTRL_CHAR => 'Unexpected control character found.',
+            JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON.',
+            JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded.',
+            JSON_ERROR_RECURSION => 'One or more recursive references in the value to be encoded.',
+            JSON_ERROR_INF_OR_NAN => 'One or more NAN or INF values in the value to be encoded.',
+            JSON_ERROR_UNSUPPORTED_TYPE => 'A value of a type that cannot be encoded was given.'
+        ];
+
+        $jsonError = json_last_error();
+        if ($jsonError !== JSON_ERROR_NONE) {
+            $errorMsg = 'INIT FAILED: ' . ($errorMessages[$jsonError] ?? 'Unknown JSON error occurred.');
+            $this->log($errorMsg, 'error', $isCli);
+            error_log($errorMsg);
+            return false;
+        }
+        return true;
+    }
+
     public function init_student(string $filePath, bool $isCli = true): bool
     {
         if (!file_exists($filePath)) {
-            $errorMsg = "INIT FAILED: JSON file not found at {$filePath}";
-            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-            error_log($errorMsg);
+            $this->log("INIT FAILED: JSON file not found at {$filePath}", 'error', $isCli);
+            error_log("INIT FAILED: JSON file not found at {$filePath}");
             return false;
         }
 
         $jsonData = file_get_contents($filePath);
         if ($jsonData === false) {
-            $errorMsg = "INIT FAILED: Could not read JSON file {$filePath}";
-            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-            error_log($errorMsg);
+            $this->log("INIT FAILED: Could not read JSON file {$filePath}", 'error', $isCli);
+            error_log("INIT FAILED: Could not read JSON file {$filePath}");
             return false;
         }
 
-        echo $isCli ? "Attempting to execute JSON file: " . basename($filePath) . "...\n" : "<p>Attempting to execute JSON file: " . htmlspecialchars(basename($filePath)) . "...</p>";
+        $this->log("Attempting to execute JSON file: " . basename($filePath) . "...", 'title', $isCli);
 
         $studentData = json_decode($jsonData, true);
 
-        switch (json_last_error()) {
-            case JSON_ERROR_NONE:
-                foreach ($studentData as $student) {
-                    $biography = "NOT_SET";
-                    if (isset($student['biography'])) {
-                        $biography = $student['biography'];
-                    }
-                    $response = $this->userService->create_user(
-                        $student['email'],
-                        $student['password'],
-                        $student['firstName'],
-                        $student['lastName'],
-                        $student['role'],
-                        $biography,
-                        $student['profileImage']
-                    );
-
-                    if ($response->success) {
-                        echo "Created student: {$student['firstName']} {$student['lastName']} ({$student['email']})\n";
-                    } else {
-                        echo "Failed to create student {$student['email']}: {$response->message}\n";
-                        $isGenerateStudentSuccess = false;
-                    }
-                }
-                break;
-            case JSON_ERROR_DEPTH:
-                $errorMsg = 'INIT FAILED: Maximum stack depth exceeded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_STATE_MISMATCH:
-                $errorMsg = 'INIT FAILED: Underflow or the modes mismatch.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_CTRL_CHAR:
-                $errorMsg = 'INIT FAILED: Unexpected control character found.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_SYNTAX:
-                $errorMsg = 'INIT FAILED: Syntax error, malformed JSON.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_UTF8:
-                $errorMsg = 'INIT FAILED: Malformed UTF-8 characters, possibly incorrectly encoded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_RECURSION:
-                $errorMsg = 'INIT FAILED: One or more recursive references in the value to be encoded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_INF_OR_NAN:
-                $errorMsg = 'INIT FAILED: One or more NAN or INF values in the value to be encoded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_UNSUPPORTED_TYPE:
-                $errorMsg = 'INIT FAILED: A value of a type that cannot be encoded was given.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            default:
-                $errorMsg = 'INIT FAILED: Unknown JSON error occurred.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
+        if (!$this->handleJsonErrors($isCli)) {
+            return false;
         }
 
-        $success = true;
+        $allSuccess = true;
+        foreach ($studentData as $student) {
+            $biography = $student['biography'] ?? "NOT_SET";
+            $response = $this->userService->create_user(
+                $student['email'],
+                $student['password'],
+                $student['firstName'],
+                $student['lastName'],
+                $student['role'],
+                $biography,
+                $student['profileImage']
+            );
 
-        if ($success) {
-            $successMsg = "Successfully executed " . basename($filePath);
-            echo $isCli ? $successMsg . "\n" : "<p style='color:green;'>" . htmlspecialchars($successMsg) . "</p>";
+            if ($response->success) {
+                $this->log("Created student: {$student['firstName']} {$student['lastName']} ({$student['email']})", 'info', $isCli);
+            } else {
+                $this->log("Failed to create student {$student['email']}: {$response->message}", 'error', $isCli);
+                $allSuccess = false;
+            }
+        }
+
+        if ($allSuccess) {
+            $this->log("Successfully processed all students in " . basename($filePath), 'success', $isCli);
             return true;
         } else {
-            $errorDetail = htmlspecialchars($this->getLastError() ?? 'Unknown error during script execution.');
-            $lastQueryAttempted = htmlspecialchars(substr($this->getLastQuery() ?? 'N/A', 0, 1000));
-            $failMsg = "FAILED to execute " . basename($filePath) . ". Last Error: " . $errorDetail;
-            $queryInfo = "\nLast Statement Attempted from " . basename($filePath) . ":\n" . $lastQueryAttempted;
-
-            if ($isCli) {
-                echo $failMsg . $queryInfo . "\n";
-            } else {
-                echo "<p style='color:red;'>" . $failMsg . "</p><pre>" . $queryInfo . "</pre>";
-            }
-            error_log($failMsg . " (Raw: " . $this->getLastError() . ")" . $queryInfo);
+            $this->log("Some students failed to be created from " . basename($filePath), 'warning', $isCli);
             return false;
         }
     }
@@ -327,173 +377,103 @@ class InitDatabase extends Database
     public function init_instructor(string $filePath, bool $isCli = true): bool
     {
         if (!file_exists($filePath)) {
-            $errorMsg = "INIT FAILED: Instructor Dataset JSON file not found at {$filePath}";
-            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-            error_log($errorMsg);
+            $this->log("INIT FAILED: Instructor Dataset JSON file not found at {$filePath}", 'error', $isCli);
+            error_log("INIT FAILED: Instructor Dataset JSON file not found at {$filePath}");
             return false;
         }
 
         $jsonData = file_get_contents($filePath);
         if ($jsonData === false) {
-            $errorMsg = "INIT FAILED: Could not read JSON file {$filePath}";
-            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-            error_log($errorMsg);
+            $this->log("INIT FAILED: Could not read JSON file {$filePath}", 'error', $isCli);
+            error_log("INIT FAILED: Could not read JSON file {$filePath}");
             return false;
         }
 
-        echo $isCli ? "Attempting to execute JSON file: " . basename($filePath) . "...\n" : "<p>Attempting to execute JSON file: " . htmlspecialchars(basename($filePath)) . "...</p>";
+        $this->log("Attempting to execute JSON file: " . basename($filePath) . "...", 'title', $isCli);
 
         $instructorData = json_decode($jsonData, true);
 
-        switch (json_last_error()) {
-            case JSON_ERROR_NONE:
-                echo "Creating instructor accounts...\n";
-                foreach ($instructorData as $instructor) {
-                    $biography = "NOT_SET";
-                    if (isset($instructor['biography'])) {
-                        $biography = $instructor['biography'];
-                    }
-                    $response = $this->userService->create_user(
-                        $instructor['email'],
-                        $instructor['password'],
-                        $instructor['firstName'],
-                        $instructor['lastName'],
-                        $instructor['role'],
-                        $biography,
-                        $instructor['profileImage']
-                    );
-
-                    if ($response->success) {
-                        echo "Created instructor: {$instructor['firstName']} {$instructor['lastName']} ({$instructor['email']})\n";
-                    } else {
-                        echo "Failed to create instructor {$instructor['email']}: {$response->message}\n";
-                        $isGenerateInstructorSuccess = false;
-                    }
-                }
-                break;
-            case JSON_ERROR_DEPTH:
-                $errorMsg = 'INIT FAILED: Maximum stack depth exceeded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_STATE_MISMATCH:
-                $errorMsg = 'INIT FAILED: Underflow or the modes mismatch.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_CTRL_CHAR:
-                $errorMsg = 'INIT FAILED: Unexpected control character found.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_SYNTAX:
-                $errorMsg = 'INIT FAILED: Syntax error, malformed JSON.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_UTF8:
-                $errorMsg = 'INIT FAILED: Malformed UTF-8 characters, possibly incorrectly encoded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_RECURSION:
-                $errorMsg = 'INIT FAILED: One or more recursive references in the value to be encoded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_INF_OR_NAN:
-                $errorMsg = 'INIT FAILED: One or more NAN or INF values in the value to be encoded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_UNSUPPORTED_TYPE:
-                $errorMsg = 'INIT FAILED: A value of a type that cannot be encoded was given.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            default:
-                $errorMsg = 'INIT FAILED: Unknown JSON error occurred.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
+        if (!$this->handleJsonErrors($isCli)) {
+            return false;
         }
 
-        $success = true;
+        $allSuccess = true;
+        $this->log("Creating instructor accounts...", 'info', $isCli);
+        foreach ($instructorData as $instructor) {
+            $biography = $instructor['biography'] ?? "NOT_SET";
+            $response = $this->userService->create_user(
+                $instructor['email'],
+                $instructor['password'],
+                $instructor['firstName'],
+                $instructor['lastName'],
+                $instructor['role'],
+                $biography,
+                $instructor['profileImage']
+            );
 
-        if ($success) {
-            $successMsg = "Successfully executed " . basename($filePath);
-            echo $isCli ? $successMsg . "\n" : "<p style='color:green;'>" . htmlspecialchars($successMsg) . "</p>";
+            if ($response->success) {
+                $this->log("Created instructor: {$instructor['firstName']} {$instructor['lastName']} ({$instructor['email']})", 'info', $isCli);
+            } else {
+                $this->log("Failed to create instructor {$instructor['email']}: {$response->message}", 'error', $isCli);
+                $allSuccess = false;
+            }
+        }
+
+        if ($allSuccess) {
+            $this->log("Successfully processed all instructors in " . basename($filePath), 'success', $isCli);
             return true;
         } else {
-            $errorDetail = htmlspecialchars($this->getLastError() ?? 'Unknown error during script execution.');
-            $lastQueryAttempted = htmlspecialchars(substr($this->getLastQuery() ?? 'N/A', 0, 1000));
-            $failMsg = "FAILED to execute " . basename($filePath) . ". Last Error: " . $errorDetail;
-            $queryInfo = "\nLast Statement Attempted from " . basename($filePath) . ":\n" . $lastQueryAttempted;
-
-            if ($isCli) {
-                echo $failMsg . $queryInfo . "\n";
-            } else {
-                echo "<p style='color:red;'>" . $failMsg . "</p><pre>" . $queryInfo . "</pre>";
-            }
-            error_log($failMsg . " (Raw: " . $this->getLastError() . ")" . $queryInfo);
+            $this->log("Some instructors failed to be created from " . basename($filePath), 'warning', $isCli);
             return false;
         }
     }
 
-    public function initialize_course($coursesToInitialize): array
+    public function initialize_course($coursesToInitialize, bool $isCli): array
     {
-        echo "Starting course initialization...\n";
+        $this->log("Starting course initialization...", 'title', $isCli);
         $createdCourses = [];
-        $admin_id = $_GET['admin_id'] ?? null;
+        $admin_id = $_GET['admin_id'] ?? "duynguyen";
 
         $allInstructorsResponse = $this->instructorService->get_all_instructors();
         $availableInstructorIDs = [];
         if ($allInstructorsResponse->success && !empty($allInstructorsResponse->data)) {
             foreach ($allInstructorsResponse->data as $instructorData) {
-                if (is_array($instructorData) && isset($instructorData['instructorID'])) {
-                    $availableInstructorIDs[] = $instructorData['instructorID'];
-                } elseif (is_object($instructorData) && isset($instructorData->instructorID)) {
-                    $availableInstructorIDs[] = $instructorData->instructorID;
-                }
+                $availableInstructorIDs[] = is_array($instructorData) ? $instructorData['instructorID'] : $instructorData->instructorID;
             }
-            echo count($availableInstructorIDs) . " instructors fetched successfully.\n";
+            $this->log(count($availableInstructorIDs) . " instructors fetched successfully.", 'info', $isCli);
         } else {
-            $errorMessage = htmlspecialchars($allInstructorsResponse->message ?? "N/A", ENT_QUOTES, 'UTF-8');
-            echo "WARNING: Failed to fetch instructors or no instructors found. (Message: {$errorMessage}).\n";
+            $this->log("Failed to fetch instructors or no instructors found. (Message: {$allInstructorsResponse->message})", 'warning', $isCli);
         }
 
         if (empty(self::ADMIN_USER_ID_CREATED_BY)) {
-            echo "ERROR: ADMIN_USER_ID_CREATED_BY is not configured. Aborting.\n";
+            $this->log("ADMIN_USER_ID_CREATED_BY is not configured. Aborting.", 'error', $isCli);
             return [];
         }
 
         foreach ($coursesToInitialize as $courseData) {
-            $courseTitle = htmlspecialchars($courseData['title'], ENT_QUOTES, 'UTF-8');
-            echo "\nInitializing course: '{$courseTitle}'...\n";
+            $this->log("Initializing course: '{$courseData['title']}'...", 'info', $isCli);
 
             if (empty($availableInstructorIDs)) {
-                echo " WARNING: No instructors available. Skipping course '{$courseTitle}'.\n";
+                $this->log("No instructors available. Skipping course '{$courseData['title']}'.", 'warning', $isCli);
                 continue;
             }
 
             $numInstructorsToAssign = rand(1, min(3, count($availableInstructorIDs)));
             $randomInstructorKeys = (array)array_rand($availableInstructorIDs, $numInstructorsToAssign);
             $currentCourseInstructorIDs = array_map(fn($key) => $availableInstructorIDs[$key], $randomInstructorKeys);
-            echo " Assigned " . count($currentCourseInstructorIDs) . " instructor(s): " . implode(', ', $currentCourseInstructorIDs) . "\n";
+            $this->log("Assigned " . count($currentCourseInstructorIDs) . " instructor(s): " . implode(', ', $currentCourseInstructorIDs), 'info', $isCli);
 
             $currentCourseCategoryIDs = [];
             foreach ($courseData['categoryIds'] as $categoryId) {
                 if (isset(self::CATEGORIES_DATA[$categoryId])) {
                     $currentCourseCategoryIDs[] = (string)$categoryId;
-                    $categoryName = htmlspecialchars(self::CATEGORIES_DATA[$categoryId], ENT_QUOTES, 'UTF-8');
-                    echo " Assigned category: '{$categoryName}' (ID: {$categoryId})\n";
                 } else {
-                    echo " WARNING: Category ID {$categoryId} not found. Skipping.\n";
+                    $this->log("Category ID {$categoryId} not found. Skipping.", 'warning', $isCli);
                 }
             }
 
             if (empty($currentCourseCategoryIDs) && !empty($courseData['categoryIds'])) {
-                echo " ERROR: No valid categories for course '{$courseTitle}'. Skipping.\n";
+                $this->log("No valid categories for course '{$courseData['title']}'. Skipping.", 'error', $isCli);
                 continue;
             }
 
@@ -509,69 +489,34 @@ class InitDatabase extends Database
             );
 
             if (!$courseResponse->success) {
-                $responseMessage = htmlspecialchars($courseResponse->message, ENT_QUOTES, 'UTF-8');
-                echo " Failed to create course '{$courseTitle}': {$responseMessage}\n";
+                $this->log("Failed to create course '{$courseData['title']}': {$courseResponse->message}", 'error', $isCli);
                 continue;
             }
 
             $courseId = $courseResponse->data;
-            echo " Course '{$courseTitle}' created successfully with ID: {$courseId}\n";
+            $this->log("Course '{$courseData['title']}' created successfully with ID: {$courseId}", 'success', $isCli);
             $createdCourses[] = ['id' => $courseId, 'title' => $courseData['title'], 'language' => $courseData['language']];
-            $this->add_course_details($courseId, $courseData);
+            $this->add_course_details($courseId, $courseData, $isCli);
         }
 
-        echo "\nCourse data initialization finished.\n";
+        $this->log("Course data initialization finished.", 'success', $isCli);
         return $createdCourses;
     }
 
-    public function save_and_update_image(string $courseId, string $courseTitle, string $imageData): void
-    {
-        $safeCourseId = preg_replace('/[^a-zA-Z0-9_-]/', '_', $courseId);
-        $projectRoot = dirname(__DIR__) . "/";
-        $relativeUploadPath = 'uploads/' . $safeCourseId . '/';
-        $absoluteUploadDir = $projectRoot . $relativeUploadPath;
-
-        if (!$this->ensure_upload_directory($absoluteUploadDir)) {
-            echo " ERROR: Could not create or write to upload directory: {$absoluteUploadDir}\n";
-            return;
-        }
-
-        $imageId = str_replace('.', '_', uniqid('img_', true));
-        $imageFileName = $imageId . ".webp";
-        $destinationPath = $absoluteUploadDir . $imageFileName;
-
-        if (file_put_contents($destinationPath, $imageData) === false) {
-            echo " ERROR: Failed to save fetched image to {$destinationPath}\n";
-            return;
-        }
-
-        $safeTitle = htmlspecialchars($courseTitle, ENT_QUOTES, 'UTF-8');
-        echo " Image for '{$safeTitle}' saved to: {$destinationPath}\n";
-
-        $imageResponse = $this->courseImageService->add_image($imageId, $courseId, $imageFileName, null, 0);
-
-        if ($imageResponse->success) {
-            echo " Successfully linked image in database for course ID {$courseId}.\n";
-        } else {
-            $errorMessage = htmlspecialchars($imageResponse->message ?? 'Unknown error', ENT_QUOTES, 'UTF-8');
-            echo " ERROR: Failed to save image path to database for course ID {$courseId}: {$errorMessage}\n";
-        }
-    }
-
-    public function add_course_details(string $courseId, array $courseData): void
+    public function add_course_details(string $courseId, array $courseData, bool $isCli): void
     {
         if (!empty($courseData['requirements'])) {
             foreach ($courseData['requirements'] as $requirementText) {
                 $this->courseRequirementService->create($courseId, $requirementText);
             }
-            echo " Added " . count($courseData['requirements']) . " requirements.\n";
+            $this->log("Added " . count($courseData['requirements']) . " requirements.", 'info', $isCli);
         }
 
         if (!empty($courseData['objectives'])) {
             foreach ($courseData['objectives'] as $objectiveText) {
                 $this->courseObjectiveService->create($courseId, $objectiveText);
             }
-            echo " Added " . count($courseData['objectives']) . " objectives.\n";
+            $this->log("Added " . count($courseData['objectives']) . " objectives.", 'info', $isCli);
         }
 
         if (!empty($courseData['chapters'])) {
@@ -585,7 +530,7 @@ class InitDatabase extends Database
 
                 if ($chapterResponse->success && isset($chapterResponse->data->chapterID)) {
                     $chapterId = $chapterResponse->data->chapterID;
-                    echo "  Chapter '{$chapterData['title']}' created with ID: {$chapterId}\n";
+                    $this->log("Chapter '{$chapterData['title']}' created with ID: {$chapterId}", 'info', $isCli);
 
                     if (!empty($chapterData['lessons'])) {
                         foreach ($chapterData['lessons'] as $lessonData) {
@@ -598,41 +543,115 @@ class InitDatabase extends Database
                                 $lessonData['sortOrder']
                             );
                         }
-                        echo "   Added " . count($chapterData['lessons']) . " lessons.\n";
+                        $this->log("Added " . count($chapterData['lessons']) . " lessons to chapter '{$chapterData['title']}'.", 'info', $isCli);
                     }
                 } else {
-                    echo "  Failed to create chapter '{$chapterData['title']}'.\n";
+                    $this->log("Failed to create chapter '{$chapterData['title']}'.", 'error', $isCli);
                 }
             }
         }
     }
 
-    public function ensure_upload_directory(string $absoluteDirectoryPath): bool
+
+    public function init_courses(string $filePath, bool $isCli = true): bool
     {
-        if (!is_dir($absoluteDirectoryPath)) {
-            if (!mkdir($absoluteDirectoryPath, 0755, true)) {
-                error_log("UPLOAD_ERROR: Cannot create directory: " . $absoluteDirectoryPath);
-                return false;
-            }
-        }
-        if (!is_writable($absoluteDirectoryPath)) {
-            error_log("UPLOAD_ERROR: Directory is not writable: " . $absoluteDirectoryPath);
+        if (!file_exists($filePath)) {
+            $this->log("INIT FAILED: Course Dataset JSON file not found at {$filePath}", 'error', $isCli);
+            error_log("INIT FAILED: Course Dataset JSON file not found at {$filePath}");
             return false;
         }
+
+        $jsonData = file_get_contents($filePath);
+        if ($jsonData === false) {
+            $this->log("INIT FAILED: Could not read JSON file {$filePath}", 'error', $isCli);
+            error_log("INIT FAILED: Could not read JSON file {$filePath}");
+            return false;
+        }
+
+        $this->log("Attempting to execute Course Dataset JSON file: " . basename($filePath) . "...", 'title', $isCli);
+
+        $courseData = json_decode($jsonData, true);
+
+        if (!$this->handleJsonErrors($isCli)) {
+            return false;
+        }
+
+        $this->log("Creating courses from dataset...", 'info', $isCli);
+        $createdCourses = $this->initialize_course($courseData, $isCli);
+
+        if (!empty($createdCourses)) {
+            // Assuming assign_images_in_parallel is defined and works as intended
+            $this->assign_images_in_parallel($createdCourses, $isCli);
+            // $this->log("Skipping image assignment for now.", 'warning', $isCli);
+        }
+        else {
+            $this->log("No courses were created from the dataset.", 'warning', $isCli);
+            return false;
+        }
+
+        $this->log("Successfully processed course dataset file: " . basename($filePath), 'success', $isCli);
         return true;
     }
 
+
+    public function create_structure_and_procedures(): void
+    {
+        $isCli = php_sapi_name() === 'cli';
+
+        if (!$this->isConnected()) {
+            $errorMsg = "INIT FAILED: Not connected to the database. Last Error: " . ($this->getLastError() ?? 'Unknown connection error. Check credentials and database server status.');
+            $this->log($errorMsg, 'error', $isCli);
+            error_log($errorMsg . " (Raw: " . $this->getLastError() . ")");
+            return;
+        }
+
+        $this->log("Attempting to initialize database structure (schema.sql)...", 'title', $isCli);
+        $schemaFilePath = __DIR__ . '/schema.sql';
+
+        if (!$this->executeSqlFile($schemaFilePath, $isCli)) {
+            $this->log("Halting initialization due to error in schema.sql.", 'error', $isCli);
+            return;
+        }
+        $this->log("Database structure (schema.sql) initialized successfully.", 'success', $isCli);
+
+        $proceduresDir = __DIR__ . '/trigger_procedure/';
+        $this->log("Attempting to execute additional SQL scripts from {$proceduresDir}...", 'title', $isCli);
+
+        if (!is_dir($proceduresDir)) {
+            $this->log("Directory not found: {$proceduresDir}", 'warning', $isCli);
+            error_log("INIT WARNING: Directory not found: {$proceduresDir}");
+        } else {
+            $sqlFiles = glob($proceduresDir . '*.sql');
+            if (empty($sqlFiles)) {
+                $this->log("No .sql files found in {$proceduresDir}", 'info', $isCli);
+            } else {
+                $allProceduresSuccessful = true;
+                foreach ($sqlFiles as $sqlFile) {
+                    if (!$this->executeSqlFile($sqlFile, $isCli)) {
+                        $allProceduresSuccessful = false;
+                    }
+                }
+                if ($allProceduresSuccessful) {
+                    $this->log("All additional SQL scripts executed successfully.", 'success', $isCli);
+                } else {
+                    $this->log("Some additional SQL scripts failed to execute. Please check logs.", 'error', $isCli);
+                }
+            }
+        }
+
+        $this->log("INIT PROCESS COMPLETE. Schema created and additional scripts attempted.", 'success', $isCli);
+    }
     public function assign_images_in_parallel(array $courses): void
     {
         if (empty($courses)) {
-            echo "\nNo courses to assign images to.\n";
+            $this->log("\nNo courses to assign images to.\n", 'warning');
             return;
         }
 
         $maxConcurrentRequests = 40;
 
         $totalCourses = count($courses);
-        echo "\nStarting parallel image assignment for " . $totalCourses . " courses (batch size: {$maxConcurrentRequests})...\n";
+        $this->log("\nStarting parallel image assignment for " . $totalCourses . " courses (batch size: {$maxConcurrentRequests})...", 'title');
 
         $mh = curl_multi_init();
         $courseMap = [];
@@ -677,13 +696,13 @@ class InitDatabase extends Database
                     $courseTitle = htmlspecialchars($course['title'], ENT_QUOTES, 'UTF-8');
 
                     $processedCount++;
-                    echo " [{$processedCount}/{$totalCourses}]"; // In tiến trình
+                    $this->log("\n[{$processedCount}/{$totalCourses}]", 'info');
 
                     if ($httpCode !== 200 || $curlError) {
-                        echo " ERROR fetching image for '{$courseTitle}' (ID: {$courseId}): HTTP {$httpCode} - {$curlError}\n";
+                        $this->log("\nERROR fetching image for '{$courseTitle}' (ID: {$courseId}): HTTP {$httpCode} - {$curlError}", 'error');
                     } else {
                         $this->save_and_update_image($courseId, $course['title'], $imageData);
-                        echo " SUCCESS for '{$courseTitle}' (ID: {$courseId})\n";
+                        $this->log("\nSUCCESS for '{$courseTitle}' (ID: {$courseId})", 'success');
                     }
 
                     // Xóa handle đã hoàn thành
@@ -700,181 +719,63 @@ class InitDatabase extends Database
         }
 
         curl_multi_close($mh);
-        echo "\nParallel image assignment finished.\n";
+        $this->log("\nParallel image assignment finished.\n", 'success');
     }
 
-    public function init_courses(string $filePath, bool $isCli = true): bool
+
+    private function save_and_update_image(string $courseId, string $courseTitle, string $imageData): void
     {
-        if (!file_exists($filePath)) {
-            $errorMsg = "INIT FAILED: Course Dataset JSON file not found at {$filePath}";
-            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-            error_log($errorMsg);
-            return false;
+        $safeCourseId = preg_replace('/[^a-zA-Z0-9_-]/', '_', $courseId);
+        $projectRoot = dirname(__DIR__) . "/";
+        $relativeUploadPath = 'uploads/' . $safeCourseId . '/';
+        $absoluteUploadDir = $projectRoot . $relativeUploadPath;
+
+        if (!$this->ensure_upload_directory($absoluteUploadDir)) {
+            $this->log("\nERROR: Could not create or write to upload directory: {$absoluteUploadDir}", 'error');
+            return;
         }
 
-        $jsonData = file_get_contents($filePath);
-        if ($jsonData === false) {
-            $errorMsg = "INIT FAILED: Could not read JSON file {$filePath}";
-            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-            error_log($errorMsg);
-            return false;
+        $imageId = str_replace('.', '_', uniqid('img_', true));
+        $imageFileName = $imageId . ".webp";
+        $destinationPath = $absoluteUploadDir . $imageFileName;
+
+        if (file_put_contents($destinationPath, $imageData) === false) {
+            $this->log("\nERROR: Failed to save fetched image to {$destinationPath}", 'error');
+            return;
         }
 
-        echo $isCli ? "Attempting to execute Course Dataset JSON file: " . basename($filePath) . "...\n" : "<p>Attempting to execute Course Dataset JSON file: " . htmlspecialchars(basename($filePath)) . "...</p>";
+        $safeTitle = htmlspecialchars($courseTitle, ENT_QUOTES, 'UTF-8');
+        $this->log("\nImage for '{$safeTitle}' saved to: {$destinationPath}", 'success');
 
-        $courseData = json_decode($jsonData, true);
+        $imageResponse = $this->courseImageService->add_image($imageId, $courseId, $imageFileName, null, 0);
 
-        switch (json_last_error()) {
-            case JSON_ERROR_NONE:
-                echo "Creating instructor accounts...\n";
-                // initialize_course($courseData);
-                $createdCourses = $this->initialize_course($courseData);
-
-                if (!empty($createdCourses)) {
-                    $this->assign_images_in_parallel($createdCourses);
-                }
-                break;
-            case JSON_ERROR_DEPTH:
-                $errorMsg = 'INIT FAILED: Maximum stack depth exceeded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_STATE_MISMATCH:
-                $errorMsg = 'INIT FAILED: Underflow or the modes mismatch.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_CTRL_CHAR:
-                $errorMsg = 'INIT FAILED: Unexpected control character found.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_SYNTAX:
-                $errorMsg = 'INIT FAILED: Syntax error, malformed JSON.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_UTF8:
-                $errorMsg = 'INIT FAILED: Malformed UTF-8 characters, possibly incorrectly encoded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_RECURSION:
-                $errorMsg = 'INIT FAILED: One or more recursive references in the value to be encoded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_INF_OR_NAN:
-                $errorMsg = 'INIT FAILED: One or more NAN or INF values in the value to be encoded.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            case JSON_ERROR_UNSUPPORTED_TYPE:
-                $errorMsg = 'INIT FAILED: A value of a type that cannot be encoded was given.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-            default:
-                $errorMsg = 'INIT FAILED: Unknown JSON error occurred.';
-                echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-                error_log($errorMsg);
-                return false;
-        }
-
-        $success = true;
-
-        if ($success) {
-            $successMsg = "Successfully executed " . basename($filePath);
-            echo $isCli ? $successMsg . "\n" : "<p style='color:green;'>" . htmlspecialchars($successMsg) . "</p>";
-            return true;
+        if ($imageResponse->success) {
+            $this->log("\nSuccessfully linked image in database for course ID {$courseId}.", 'success');
         } else {
-            $errorDetail = htmlspecialchars($this->getLastError() ?? 'Unknown error during script execution.');
-            $lastQueryAttempted = htmlspecialchars(substr($this->getLastQuery() ?? 'N/A', 0, 1000));
-            $failMsg = "FAILED to execute " . basename($filePath) . ". Last Error: " . $errorDetail;
-            $queryInfo = "\nLast Statement Attempted from " . basename($filePath) . ":\n" . $lastQueryAttempted;
-
-            if ($isCli) {
-                echo $failMsg . $queryInfo . "\n";
-            } else {
-                echo "<p style='color:red;'>" . $failMsg . "</p><pre>" . $queryInfo . "</pre>";
-            }
-            error_log($failMsg . " (Raw: " . $this->getLastError() . ")" . $queryInfo);
-            return false;
+            $errorMessage = htmlspecialchars($imageResponse->message ?? 'Unknown error', ENT_QUOTES, 'UTF-8');
+            $this->log("\nERROR: Failed to save image path to database for course ID {$courseId}: {$errorMessage}", 'error');
         }
     }
 
 
-    public function create_structure_and_procedures(): void
+
+    private function ensure_upload_directory(string $absoluteDirectoryPath): bool
     {
-        $isCli = php_sapi_name() === 'cli';
-
-        // Apply a dark-theme wrapper for web output (non-CLI)
-        if (!$isCli) {
-            // Minimal dark-theme CSS injected into the page (inside body)
-            echo "<style>
-                .dark-theme { background-color: #121212; color: #e0e0e0; padding: 1rem; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
-                .dark-theme p { color: inherit; margin: 0.25rem 0; }
-                .dark-theme .warn { color: #f6c04a; }
-                .dark-theme .err { color: #e57373; }
-                .dark-theme .ok { color: #8bd57a; }
-            </style>";
-            echo "<div class='dark-theme'>";
-        }
-
-        if (!$this->isConnected()) {
-            $errorMsg = "INIT FAILED: Not connected to the database. Last Error: " . htmlspecialchars($this->getLastError() ?? 'Unknown connection error. Check credentials and database server status.');
-            echo $isCli ? $errorMsg . "\n" : "<p style='color:red;'>" . htmlspecialchars($errorMsg) . "</p>";
-            error_log($errorMsg . " (Raw: " . $this->getLastError() . ")");
-            if (!$isCli) echo "</div>";
-            return;
-        }
-
-        echo $isCli ? "Attempting to initialize database structure (schema.sql)...\n" : "<p>Attempting to initialize database structure (schema.sql)...</p>";
-        $schemaFilePath = __DIR__ . '/schema.sql';
-
-        if (!$this->executeSqlFile($schemaFilePath, $isCli)) {
-            echo $isCli ? "Halting initialization due to error in schema.sql.\n" : "<p style='color:red;'>Halting initialization due to error in schema.sql.</p>";
-            if (!$isCli) echo "</div>";
-            return;
-        }
-        echo $isCli ? "Database structure (schema.sql) initialized successfully.\n" : "<p style='color:green;'>Database structure (schema.sql) initialized successfully.</p>";
-
-        $proceduresDir = __DIR__ . '/trigger_procedure/';
-        echo $isCli ? "\nAttempting to execute additional SQL scripts from {$proceduresDir}...\n" : "<hr/><p>Attempting to execute additional SQL scripts from " . htmlspecialchars($proceduresDir) . "...</p>";
-
-        if (!is_dir($proceduresDir)) {
-            $errorMsg = "INIT WARNING: Directory not found: {$proceduresDir}";
-            echo $isCli ? $errorMsg . "\n" : "<p style='color:orange;'>" . htmlspecialchars($errorMsg) . "</p>";
-            error_log($errorMsg);
-        } else {
-            $sqlFiles = glob($proceduresDir . '*.sql');
-            if (empty($sqlFiles)) {
-                $infoMsg = "No .sql files found in {$proceduresDir}";
-                echo $isCli ? $infoMsg . "\n" : "<p>" . htmlspecialchars($infoMsg) . "</p>";
-            } else {
-                $allProceduresSuccessful = true;
-                foreach ($sqlFiles as $sqlFile) {
-                    if (!$this->executeSqlFile($sqlFile, $isCli)) {
-                        $allProceduresSuccessful = false;
-                    }
-                }
-                if ($allProceduresSuccessful) {
-                    echo $isCli ? "All additional SQL scripts executed successfully.\n" : "<p style='color:green;'>All additional SQL scripts executed successfully.</p>";
-                } else {
-                    echo $isCli ? "Some additional SQL scripts failed to execute. Please check logs.\n" : "<p style='color:red;'>Some additional SQL scripts failed to execute. Please check logs.</p>";
-                }
+        if (!is_dir($absoluteDirectoryPath)) {
+            if (!mkdir($absoluteDirectoryPath, 0755, true)) {
+                error_log("UPLOAD_ERROR: Cannot create directory: " . $absoluteDirectoryPath);
+                return false;
             }
         }
-
-        $finalSuccessMsg = "INIT PROCESS COMPLETE. Schema created and additional scripts attempted.";
-        echo $isCli ? $finalSuccessMsg . "\n" : "<p style='color:blue;'>" . $finalSuccessMsg . "</p>";
-
-        if (!$isCli) {
-            echo "<p>Initialization complete. Redirect to user_initializer.php is disabled for review.</p>";
-            echo "</div>"; // close the dark-theme wrapper
+        if (!is_writable($absoluteDirectoryPath)) {
+            error_log("UPLOAD_ERROR: Directory is not writable: " . $absoluteDirectoryPath);
+            return false;
         }
+        return true;
     }
 }
+
+// --- Main Execution ---
 
 $db_host = getenv('DB_HOST') ?: 'localhost';
 $db_user = getenv('DB_USER') ?: 'root';
@@ -882,21 +783,23 @@ $db_pass = getenv('DB_PASS') ?: '30112004';
 $db_name = getenv('DB_NAME') ?: 'ecourse';
 $db_port = (int)(getenv('DB_PORT') ?: 3306);
 $db_charset = getenv('DB_CHARSET') ?: 'utf8mb4';
-
-if ($db_user === 'root' && $db_pass === '') {
-    $warningMsg = "WARNING: Using default MySQL credentials (root with no password). Please set environment variables (DB_HOST, DB_USER, DB_PASS, DB_NAME, etc.) for a production environment.";
-    if (php_sapi_name() === 'cli') {
-        echo $warningMsg . "\n";
-    } else {
-        echo "<p style='color:orange;'>" . htmlspecialchars($warningMsg) . "</p>";
-    }
-}
+$isCli = php_sapi_name() === 'cli';
 
 $myinit = new InitDatabase($db_host, $db_user, $db_pass, $db_name, $db_port, $db_charset);
+
+// Register the shutdown function to ensure the HTML footer is always printed
+register_shutdown_function([$myinit, 'printHtmlFooter']);
+
+if ($db_user === 'root' && $db_pass === '') {
+    $warningMsg = "Using default MySQL credentials (root with no password). Please set environment variables (DB_HOST, DB_USER, DB_PASS, DB_NAME, etc.) for a production environment.";
+    $myinit->log($warningMsg, 'warning', $isCli);
+}
+
 $student_data_path = "students-20250810_105322.json";
 $instructor_data_path = "instructors-20250810_101621.json";
-$course_data_path = "courses-20250810_110716.json";
+$course_data_path = "courses_5.json";
+
 $myinit->create_structure_and_procedures();
-$myinit->init_instructor(__DIR__ . "/" . $instructor_data_path);
-$myinit->init_student(__DIR__ . "/" . $student_data_path);
-$myinit->init_courses(__DIR__ . "/" . $course_data_path);
+$myinit->init_instructor(__DIR__ . "/" . $instructor_data_path, $isCli);
+$myinit->init_student(__DIR__ . "/" . $student_data_path, $isCli);
+$myinit->init_courses(__DIR__ . "/" . $course_data_path, $isCli);
