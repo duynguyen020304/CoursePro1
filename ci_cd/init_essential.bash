@@ -291,6 +291,8 @@ trap 'kill "${SUDO_KEEPALIVE_PID:-}" 2>/dev/null || true; cleanup_gunicorn_servi
 echo "Creating database, tables, trigger"
 php "$APACHE_PROJECT_DESTINATION/$PROJECT_NAME/model/init.php"
 
+echo "Installing all package dependcy for project"
+composer install "$APACHE_PROJECT_DESTINATION/$PROJECT_NAME/"
 
 elapsed=$SECONDS
 echo "Elapsed: ${elapsed}s"
