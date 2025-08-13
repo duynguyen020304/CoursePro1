@@ -421,6 +421,10 @@ class InitDatabase extends Database
 
         if ($allSuccess) {
             $this->log("Successfully processed all instructors in " . basename($filePath), 'success', $isCli);
+            $passwordAdmin = password_hash("duyadmin123", PASSWORD_DEFAULT);
+            $adminID = str_replace('.', '_', uniqid('admin_', true));
+            $admin_sql = "INSERT INTO Users (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage) VALUES ('{$adminID}', 'Duy', 'Admin', 'duyadmin123@example.com', '{$passwordAdmin}', 'admin', 'null')";
+            $this->execute($admin_sql);
             return true;
         } else {
             $this->log("Some instructors failed to be created from " . basename($filePath), 'warning', $isCli);

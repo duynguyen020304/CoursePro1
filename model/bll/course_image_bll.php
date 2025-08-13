@@ -94,7 +94,7 @@ class CourseImageBLL extends Database
     public function get_image_by_image_id(string $imageID): ?CourseImageDTO
     {
         // Câu lệnh SELECT với định dạng ngày tháng
-        $sql = "SELECT imageID, courseID, imagePath, caption, sortOrder, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseImage WHERE imageID = ?";
+        $sql = "SELECT imageID, courseID, imagePath, caption, sortOrder, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseImage WHERE imageID = ?";
         $bindParams = [$imageID];
 
         $result = $this->executePrepared($sql, $bindParams);
@@ -115,7 +115,7 @@ class CourseImageBLL extends Database
     public function get_images_by_course_id(string $courseID): array
     {
         // Câu lệnh SELECT, sắp xếp theo sortOrder để hiển thị đúng thứ tự
-        $sql = "SELECT imageID, courseID, imagePath, caption, sortOrder, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseImage WHERE courseID = ? ORDER BY sortOrder ASC, createdAt ASC";
+        $sql = "SELECT imageID, courseID, imagePath, caption, sortOrder, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseImage WHERE courseID = ? ORDER BY sortOrder ASC, created_at ASC";
         $bindParams = [$courseID];
         $images = [];
 
