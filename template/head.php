@@ -14,7 +14,6 @@ define('BASE_URL', '/CoursePro1');
     <link href="<?= BASE_URL ?>/public/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= BASE_URL ?>/public/css/style.css" rel="stylesheet">
     <link href="<?= BASE_URL ?>/public/css/font_awesome_all.min.css" rel="stylesheet">
-    <!-- CSS riêng cho từng page có thể include ngay sau đây -->
 </head>
 
 <body>
