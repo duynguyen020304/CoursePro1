@@ -428,7 +428,7 @@ class InitDatabase extends Database
         }
     }
 
-    public function initialize_course($coursesToInitialize, bool $isCli=true): array
+    public function initialize_course($coursesToInitialize, bool $isCli = true): array
     {
         $this->log("Starting course initialization...", 'title', $isCli);
         $createdCourses = [];
@@ -503,7 +503,7 @@ class InitDatabase extends Database
         return $createdCourses;
     }
 
-    public function add_course_details(string $courseId, array $courseData, bool $isCli=true): void
+    public function add_course_details(string $courseId, array $courseData, bool $isCli = true): void
     {
         if (!empty($courseData['requirements'])) {
             foreach ($courseData['requirements'] as $requirementText) {
@@ -583,8 +583,7 @@ class InitDatabase extends Database
             // Assuming assign_images_in_parallel is defined and works as intended
             $this->assign_images_in_parallel($createdCourses, $isCli);
             // $this->log("Skipping image assignment for now.", 'warning', $isCli);
-        }
-        else {
+        } else {
             $this->log("No courses were created from the dataset.", 'warning', $isCli);
             return false;
         }
@@ -641,7 +640,7 @@ class InitDatabase extends Database
 
         $this->log("INIT PROCESS COMPLETE. Schema created and additional scripts attempted.", 'success', $isCli);
     }
-    public function assign_images_in_parallel(array $courses, bool $isCli=true): void
+    public function assign_images_in_parallel(array $courses, bool $isCli = true): void
     {
         if (empty($courses)) {
             $this->log("\nNo courses to assign images to.\n", 'warning');
@@ -672,8 +671,8 @@ class InitDatabase extends Database
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $apiUrl);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1000000000);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 6000000000);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 600000);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 600000);
 
                 curl_multi_add_handle($mh, $ch);
 
@@ -723,7 +722,7 @@ class InitDatabase extends Database
     }
 
 
-    private function save_and_update_image(string $courseId, string $courseTitle, string $imageData, bool $isCli=false): void
+    private function save_and_update_image(string $courseId, string $courseTitle, string $imageData, bool $isCli = false): void
     {
         $safeCourseId = preg_replace('/[^a-zA-Z0-9_-]/', '_', $courseId);
         $projectRoot = dirname(__DIR__) . "/";
