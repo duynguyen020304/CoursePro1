@@ -143,7 +143,7 @@ def get_course_image():
     logger.info("Nhận yêu cầu cho title='%s'. Đưa vào hàng đợi xử lý...", title)
     try:
         future = executor.submit(crawl_and_convert_image, title, language)
-        image_data = future.result(timeout=30)
+        image_data = future.result(timeout=600)
         if image_data:
             logger.info("Gửi ảnh thành công cho title: '%s'", title)
             return send_file(
