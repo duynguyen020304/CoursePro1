@@ -81,7 +81,14 @@ sudo apt install -y apache2 mariadb-server php php-cli \
   libapache2-mod-php php-mysql php-xml php-curl php-gd \
   php-mbstring php-zip php-intl php-bcmath php-opcache \
   php-fpm openssl curl wget unzip git composer imagemagick \
-  php-imagick proftpd-basic php-pear php-dev build-essential autoconf pkg-config
+  php-imagick proftpd-basic php-pear php-dev build-essential autoconf pkg-config \
+  make build-essential libssl-dev zlib1g-dev libbz2-dev \
+    libreadline-dev libsqlite3-dev libffi-dev liblzma-dev \
+    tk-dev wget curl git ca-certificates xz-utils \
+    libncursesw5-dev libgdbm-dev libnss3-dev \ build-essential curl git ca-certificates \
+    libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
+    libncurses5-dev libncursesw5-dev libffi-dev liblzma-dev \
+    xz-utils tk-dev
 
 
 # Cloning module
@@ -100,8 +107,8 @@ echo "Moving project to appropriate destination $APACHE_PROJECT_DESTINATION"
 
 sudo rm -rf "$APACHE_PROJECT_DESTINATION/$PROJECT_NAME"
 sudo mv "$PROJECT_NAME" "$APACHE_PROJECT_DESTINATION"
-sudo chown -R $USER:$USER "$APACHE_PROJECT_DESTINATION"
-sudo chmod -R 755 "$APACHE_PROJECT_DESTINATION"
+sudo chown -R $USER:$USER "$APACHE_PROJECT_DESTINATION/$PROJECT_NAME"
+sudo chmod -R 755 "$APACHE_PROJECT_DESTINATION/$PROJECT_NAME"
 
 echo "Creating self singed ssl"
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt -subj "/C=VN/ST=HoChiMinh/L=District1/O=ExampleCompany/OU=IT/CN=nguyenvominhduy.vn"
@@ -143,12 +150,23 @@ sudo a2dissite 000-default.conf
 sudo apache2ctl configtest
 sudo systemctl restart apache2
 
+echo "Configure mysql database"
 sudo mysql << 'EOF'
 ALTER USER 'root'@'localhost'
   IDENTIFIED VIA mysql_native_password
   USING PASSWORD('30112004');
 FLUSH PRIVILEGES;
 EOF
+export DB_HOST=127.0.0.1
+export DB_USER=root
+export DB_PASS='30112004'
+export DB_NAME=ecourse
+export DB_PORT=3306
+export DB_CHARSET=utf8mb4
+
+
+echo "Creating database, tables, trigger"
+php "$APACHE_PROJECT_DESTINATION/$PROJECT_NAM/model/init.php"
 
 
 elapsed=$SECONDS
