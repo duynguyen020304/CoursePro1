@@ -66,7 +66,7 @@ class CourseCategoryBLL extends Database
     public function get_categories_by_course_id(string $courseID): array
     {
         // Câu lệnh SELECT để lấy các liên kết danh mục cho một khóa học
-        $sql = "SELECT courseID, categoryID, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseCategory WHERE courseID = ?";
+        $sql = "SELECT courseID, categoryID, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseCategory WHERE courseID = ?";
         $bindParams = [$courseID];
         $list = [];
 
@@ -87,7 +87,7 @@ class CourseCategoryBLL extends Database
     public function get_courses_by_category_id($categoryID): array
     {
         // Câu lệnh SELECT để lấy các liên kết khóa học cho một danh mục
-        $sql = "SELECT courseID, categoryID, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseCategory WHERE categoryID = ?";
+        $sql = "SELECT courseID, categoryID, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseCategory WHERE categoryID = ?";
         $bindParams = [(int)$categoryID];
         $list = [];
 

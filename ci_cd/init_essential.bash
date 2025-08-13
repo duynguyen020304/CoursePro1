@@ -137,6 +137,17 @@ OUTPUT_FILE="/etc/apache2/sites-available/$PROJECT_NAME.conf"
 echo "Creating config file"
 sudo tee "$OUTPUT_FILE" > /dev/null <<EOF
 <VirtualHost *:80>
+    Alias /$PROJECT_NAME/api/ "/var/www/$PROJECT_NAME/api/"
+    <Directory "/var/www/$PROJECT_NAME/api/">
+        Require all granted
+    </Directory>
+    Alias /$PROJECT_NAME "/var/www/$PROJECT_NAME"
+    <Directory "/var/www/$PROJECT_NAME">
+        DirectoryIndex home.php
+        AllowOverride All
+        Options FollowSymLinks
+        Require all granted
+    </Directory>
     ServerAdmin ubuntu@coursepro1
     ServerName ubuntu
     # Redirect / https://nguyenvominhduy.vn/
@@ -147,6 +158,17 @@ sudo tee "$OUTPUT_FILE" > /dev/null <<EOF
 </VirtualHost>
 
 <VirtualHost *:443>
+    Alias /$PROJECT_NAME/api/ "/var/www/$PROJECT_NAME/api/"
+    <Directory "/var/www/$PROJECT_NAME/api/">
+        Require all granted
+    </Directory>
+    Alias /$PROJECT_NAME "/var/www/$PROJECT_NAME"
+    <Directory "/var/www/$PROJECT_NAME">
+        DirectoryIndex home.php
+        AllowOverride All
+        Options FollowSymLinks
+        Require all granted
+    </Directory>
     ServerAdmin ubuntu@coursepro1
     ServerName ubuntu
     ServerAlias www.nguyenvominhduy.vn
