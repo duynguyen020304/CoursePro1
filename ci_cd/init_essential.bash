@@ -80,6 +80,8 @@ if [ "$ACTION" = "github" ]; then
 elif [ "$ACTION" = "normal" ]; then
   echo "Updating system"
   sudo apt update -y && sudo apt upgrade -y
+else
+  
 fi
 
 echo "Install essential packages for deploying apache"
