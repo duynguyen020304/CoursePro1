@@ -76,12 +76,13 @@ if [[ "${EUID:-}" -ne 0 ]]; then
 fi
 
 if [ "$ACTION" = "github" ]; then
-  # làm gì đó khi ACTION bằng "github"
+  echo "Skipping upgrade system"
+  sudo apt update
 elif [ "$ACTION" = "normal" ]; then
   echo "Updating system"
-  sudo apt update -y && sudo apt upgrade -y
+  sudo apt update && sudo apt upgrade -y
 else
-  
+  echo "Unknown or empty ACTION: ${ACTION:-<empty>}"
 fi
 
 echo "Install essential packages for deploying apache"
