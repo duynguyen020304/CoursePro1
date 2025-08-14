@@ -1,0 +1,22 @@
+includes:
+  - phpstan-baseline.neon
+
+parameters:
+  # cache local
+  tmpDir: .cache/phpstan
+
+  # mức strictness: 0..9 (bắt đầu 0/5 rồi tăng dần)
+  level: 0
+
+  # nơi cần quét
+  paths:
+    - src
+    - tests
+
+  # loại trừ khỏi phân tích
+  excludes_analyse:
+    - vendor/*
+
+  # vài tuỳ chọn hữu ích
+  inferPrivatePropertyTypeFromConstructor: true
+  reportUnmatchedIgnoredErrors: false
