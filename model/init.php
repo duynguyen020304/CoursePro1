@@ -587,6 +587,9 @@ class InitDatabase extends Database
             // Assuming assign_images_in_parallel is defined and works as intended
             $this->assign_images_in_parallel($createdCourses, $isCli);
             // $this->log("Skipping image assignment for now.", 'warning', $isCli);
+        }
+        else if (!empty($createdCourses) && $action == 'github_action') {
+            $this->log("Github action detected, skipping assinged image to course", 'info', $isCli);
         } else {
             $this->log("No courses were created from the dataset.", 'warning', $isCli);
             return false;
@@ -647,14 +650,14 @@ class InitDatabase extends Database
     public function assign_images_in_parallel(array $courses, bool $isCli = true): void
     {
         if (empty($courses)) {
-            $this->log("\nNo courses to assign images to.\n", 'warning');
+            $this->log("\nNo courses to assign images to.\n", 'warning', $isCli);
             return;
         }
 
         $maxConcurrentRequests = 40;
 
         $totalCourses = count($courses);
-        $this->log("\nStarting parallel image assignment for " . $totalCourses . " courses (batch size: {$maxConcurrentRequests})...", 'title');
+        $this->log("\nStarting parallel image assignment for " . $totalCourses . " courses (batch size: {$maxConcurrentRequests})...", 'title', $isCli);
 
         $mh = curl_multi_init();
         $courseMap = [];
@@ -722,7 +725,7 @@ class InitDatabase extends Database
         }
 
         curl_multi_close($mh);
-        $this->log("\nParallel image assignment finished.\n", 'success');
+        $this->log("\nParallel image assignment finished.\n", 'success', $isCli);
     }
 
 
@@ -788,6 +791,9 @@ $db_port = (int)(getenv('DB_PORT') ?: 3306);
 $db_charset = getenv('DB_CHARSET') ?: 'utf8mb4';
 $isCli = php_sapi_name() === 'cli';
 $isGithubAction = getenv('ACTION') ?: 'normal';
+$isRecreateDB = getenv('DB_ACTION') ?: 'no';
+
+
 
 $myinit = new InitDatabase($db_host, $db_user, $db_pass, $db_name, $db_port, $db_charset);
 
@@ -803,7 +809,10 @@ $student_data_path = "students-20250810_105322.json";
 $instructor_data_path = "instructors-20250810_101621.json";
 $course_data_path = "courses_5.json";
 
-$myinit->create_structure_and_procedures();
-$myinit->init_instructor(__DIR__ . "/" . $instructor_data_path, $isCli);
-$myinit->init_student(__DIR__ . "/" . $student_data_path, $isCli);
-$myinit->init_courses(__DIR__ . "/" . $course_data_path, $isCli, $isGithubAction);
+if ($isRecreateDB == 'yes') {
+    $myinit->log("Starting create database", 'info', $isCli);
+    $myinit->create_structure_and_procedures();
+    $myinit->init_instructor(__DIR__ . "/" . $instructor_data_path, $isCli);
+    $myinit->init_student(__DIR__ . "/" . $student_data_path, $isCli);
+    $myinit->init_courses(__DIR__ . "/" . $course_data_path, $isCli, $isGithubAction);
+}
