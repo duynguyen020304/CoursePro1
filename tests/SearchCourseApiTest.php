@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 class SearchCourseApiTest extends TestCase
 {
     private $http;
-    private $baseUrl = 'http://localhost/path/to/your/api/search_course_api.php';
+    private $baseUrl = 'http://localhost/api/search_course_api.php';
 
     protected function setUp(): void
     {

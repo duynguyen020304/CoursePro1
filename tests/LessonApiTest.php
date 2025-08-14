@@ -1,18 +1,15 @@
 <?php
 
-// tests/ResourceApiTest.php
-
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
 
-
-class ResourceApiTest extends TestCase
+class LessonApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    private $baseUrl = 'http://localhost/path/to/your/api/resource_api.php';
+    private $baseUrl = 'http://localhost/api/lesson_api.php';
 
     protected function setUp(): void
     {
@@ -45,30 +42,16 @@ class ResourceApiTest extends TestCase
         $this->assertEquals('Không tìm thấy token xác thực.', $body['message']);
     }
 
-    public function testShouldReturn401ForInvalidSignature()
-    {
-        $payload = [
-            'iat' => time(),
-            'exp' => time() + 3600,
-            'data' => ['userID' => 1]
-        ];
-        $invalidToken = JWT::encode($payload, 'wrong-secret-key', 'HS256');
-        $response = $this->http->request('POST', [
-            'headers' => ['Authorization' => 'Bearer ' . $invalidToken]
-        ]);
-        $this->assertEquals(401, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Chữ ký token không hợp lệ.', $body['message']);
-    }
-
-    public function testGetWithoutIdShouldGetAllResources()
+    public function testGetWithMissingIds()
     {
         $token = $this->generateToken();
         $response = $this->http->request('GET', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token]
         ]);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(400, $response->getStatusCode());
+        $body = json_decode($response->getBody(), true);
+        $this->assertEquals('Thiếu lessonID hoặc chapterID', $body['message']);
     }
 
     public function testPostWithMissingData()
@@ -77,13 +60,14 @@ class ResourceApiTest extends TestCase
         $response = $this->http->request('POST', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
             'json' => [
-                'lessonID' => 'lesson123'
+                'courseID' => 'course123',
+                'chapterID' => 'chap456'
             ]
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu lessonID hoặc resourcePath', $body['message']);
+        $this->assertEquals('Thiếu dữ liệu bắt buộc', $body['message']);
     }
 
     public function testPutWithMissingData()
@@ -92,26 +76,27 @@ class ResourceApiTest extends TestCase
         $response = $this->http->request('PUT', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
             'json' => [
-                'resourceID' => 'res456',
-                'lessonID' => 'lesson123'
+                'lessonID' => 'lesson789',
+                'courseID' => 'course123'
             ]
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu resourceID, lessonID hoặc resourcePath', $body['message']);
+        $this->assertEquals('Thiếu dữ liệu cần cập nhật', $body['message']);
     }
-    
+
     public function testDeleteWithMissingId()
     {
         $token = $this->generateToken();
         $response = $this->http->request('DELETE', '', [
-            'headers' => ['Authorization' => 'Bearer ' . $token]
+            'headers' => ['Authorization' => 'Bearer ' . $token],
+            'json' => []
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu resourceID để xóa', $body['message']);
+        $this->assertEquals('Thiếu lessonID', $body['message']);
     }
 
     public function testInvalidRequestMethod()
@@ -123,6 +108,6 @@ class ResourceApiTest extends TestCase
 
         $this->assertEquals(405, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals("Phương thức PATCH không được hỗ trợ", $body['message']);
+        $this->assertEquals('Phương thức không được hỗ trợ', $body['message']);
     }
 }

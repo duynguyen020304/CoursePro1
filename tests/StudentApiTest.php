@@ -5,11 +5,11 @@ use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
 
-class ReviewApiTest extends TestCase
+class StudentApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    private $baseUrl = 'http://localhost/path/to/your/api/review_api.php';
+    private $baseUrl = 'http://localhost/api/student_api.php';
 
     protected function setUp(): void
     {
@@ -42,25 +42,7 @@ class ReviewApiTest extends TestCase
         $this->assertEquals('Không tìm thấy token xác thực.', $body['message']);
     }
 
-    public function testShouldReturn401ForExpiredToken()
-    {
-        $payload = [
-            'iat' => time() - 3601,
-            'exp' => time() - 3600,
-            'data' => ['userID' => 1]
-        ];
-        $expiredToken = JWT::encode($payload, $this->secretKey, 'HS256');
-
-        $response = $this->http->request('POST', [
-            'headers' => ['Authorization' => 'Bearer ' . $expiredToken]
-        ]);
-
-        $this->assertEquals(401, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Token đã hết hạn.', $body['message']);
-    }
-
-    public function testGetWithoutIdShouldGetAllResources()
+    public function testGetAllStudents()
     {
         $token = $this->generateToken();
         $response = $this->http->request('GET', '', [
@@ -76,15 +58,31 @@ class ReviewApiTest extends TestCase
         $response = $this->http->request('POST', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
             'json' => [
-                'reviewID' => 'rev123',
-                'userID' => 'user456',
-                'courseID' => 'course789'
+                'studentID' => 'std123',
+                'userID' => 'user456'
             ]
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu dữ liệu', $body['message']);
+        $this->assertEquals('Thiếu dữ liệu bắt buộc: studentID, userID hoặc enrollmentDate', $body['message']);
+    }
+
+    public function testPostWithInvalidDateFormat()
+    {
+        $token = $this->generateToken();
+        $response = $this->http->request('POST', '', [
+            'headers' => ['Authorization' => 'Bearer ' . $token],
+            'json' => [
+                'studentID' => 'std123',
+                'userID' => 'user456',
+                'enrollmentDate' => 'not-a-date'
+            ]
+        ]);
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $body = json_decode($response->getBody(), true);
+        $this->assertEquals('Định dạng enrollmentDate không hợp lệ', $body['message']);
     }
 
     public function testPutWithMissingData()
@@ -93,14 +91,13 @@ class ReviewApiTest extends TestCase
         $response = $this->http->request('PUT', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
             'json' => [
-                'reviewID' => 'rev123',
-                'userID' => 'user456'
+                'studentID' => 'std123'
             ]
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu dữ liệu', $body['message']);
+        $this->assertEquals('Thiếu dữ liệu cần cập nhật: studentID, userID hoặc enrollmentDate', $body['message']);
     }
 
     public function testDeleteWithMissingId()
@@ -113,7 +110,7 @@ class ReviewApiTest extends TestCase
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu reviewID', $body['message']);
+        $this->assertEquals('Thiếu studentID để xóa', $body['message']);
     }
 
     public function testInvalidRequestMethod()
@@ -125,6 +122,6 @@ class ReviewApiTest extends TestCase
 
         $this->assertEquals(405, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Phương thức không hỗ trợ', $body['message']);
+        $this->assertEquals('Phương thức không được hỗ trợ', $body['message']);
     }
 }

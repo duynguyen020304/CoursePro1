@@ -12,7 +12,7 @@ class LoginApiTest extends TestCase
 
     protected function setUp(): void
     {
-        $baseUrl = 'http://localhost/path/to/your/api/login_api.php';
+        $baseUrl = 'http://localhost/api/login_api.php';
         
         $this->http = new Client([
             'base_uri' => $baseUrl,

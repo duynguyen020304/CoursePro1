@@ -3,11 +3,10 @@
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 
-
 class CourseCategoryApiTest extends TestCase
 {
     private $http;
-    private $baseUrl = 'http://localhost/path/to/your/api/course_category_api.php';
+    private $baseUrl = 'http://localhost/api/course_category_api.php';
 
     protected function setUp(): void
     {
