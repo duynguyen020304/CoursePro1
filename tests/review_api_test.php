@@ -4,32 +4,6 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-if (!class_exists('ReviewService')) {
-    class ReviewService
-    {
-        public function get_reviews_by_course($courseID) {}
-        public function create_review($reviewID, $userID, $courseID, $rating, $comment) {}
-        public function update_review($reviewID, $userID, $courseID, $rating, $comment) {}
-        public function delete_review($reviewID) {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
-
 
 class ReviewApiTest extends TestCase
 {

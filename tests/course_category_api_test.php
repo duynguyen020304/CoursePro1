@@ -3,32 +3,6 @@
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 
-if (!class_exists('CourseCategoryService')) {
-    class CourseCategoryService
-    {
-        public function get_courses_by_category_id($categoryID) {}
-        public function get_categories_by_course_id($courseID) {}
-        public function add_category_to_course($courseID, $categoryID) {}
-        public function unlink_course_category($courseID, $categoryID) {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
-
 
 class CourseCategoryApiTest extends TestCase
 {

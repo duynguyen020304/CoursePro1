@@ -3,32 +3,6 @@
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 
-if (!class_exists('CourseService')) {
-    class CourseService
-    {
-        public function search_courses_by_title_for_course_management($title) {}
-        public function search_courses_by_title($title) {}
-        public function get_all_courses() {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
-
-
 class SearchCourseApiTest extends TestCase
 {
     private $http;

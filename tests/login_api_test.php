@@ -4,32 +4,6 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-if (!class_exists('UserService')) {
-    class UserService
-    {
-        public function create_user($email, $pass, $first, $last, $role, $bio, $img) {}
-        public function update_user_partial($data) {}
-        public function authenticate($email, $password) {}
-    }
-}
-if (!class_exists('UserDTO')) {
-    class UserDTO {}
-}
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
 
 class LoginApiTest extends TestCase
 {
@@ -44,8 +18,6 @@ class LoginApiTest extends TestCase
             'base_uri' => $baseUrl,
             'http_errors' => false,
         ]);
-
-        $this->serviceMock = $this->createMock(UserService::class);
     }
 
     protected function tearDown(): void

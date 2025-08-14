@@ -4,34 +4,6 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-if (!class_exists('VideoService')) {
-    class VideoService
-    {
-        public function get_video($videoID) {}
-        public function get_videos_by_lesson($lessonID) {}
-        public function create_video($videoID, $lessonID, $url, $title, $sortOrder, $duration) {}
-        public function update_video($videoID, $lessonID, $url, $title, $sortOrder, $duration) {}
-        public function delete_video($videoID) {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
-
-
 class VideoApiTest extends TestCase
 {
     private $http;

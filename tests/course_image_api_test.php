@@ -4,30 +4,6 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-if (!class_exists('CourseImageService')) {
-    class CourseImageService
-    {
-        public function get_images($courseID) {}
-        public function add_image($imageID, $courseID, $imagePath, $caption, $sortOrder) {}
-        public function unlink_image_course($imageID, $courseID) {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
 
 
 class CourseImageApiTest extends TestCase

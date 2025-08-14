@@ -4,39 +4,6 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-if (!class_exists('CourseService')) {
-    class CourseService
-    {
-        public function get_courses_paginated_service($page, $size, $diff, $lang) {}
-        public function get_courses_by_difficulty_lang_service($diff, $lang) {}
-        public function get_all_courses() {}
-        public function get_k_courses_for_home_page($k) {}
-        public function get_all_courses_for_course_management() {}
-        public function get_all_courses_for_upload_video() {}
-        public function get_course_by_id_for_category_filter($id) {}
-        public function get_course_for_recommend($id) {}
-        public function get_course_by_id($id) {}
-        public function create_course($title, $desc, $price, $instructors, $cats, $diff, $lang, $creator) {}
-        public function update_course($id, $title, $desc, $price, $instructors, $cats, $diff, $lang) {}
-        public function delete_course($id) {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
 
 
 class CourseApiTest extends TestCase

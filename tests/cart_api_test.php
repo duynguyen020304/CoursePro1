@@ -9,17 +9,6 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\RequestException;
 
-if (!class_exists('CartService')) {
-    class CartService
-    {
-        public function get_cart_by_user($userID) {}
-        public function create_cart($userID) {}
-        public function update_cart($cartID, $userID) {}
-        public function delete_cart($cartID) {}
-    }
-}
-
-
 class CartApiTest extends TestCase
 {
     private $http;
@@ -101,28 +90,14 @@ class CartApiTest extends TestCase
 
     public function testGetCartSuccess()
     {
-        $cartServiceMock = $this->createMock(CartService::class);
-        
-        $mockCart = new stdClass();
-        $mockCart->cartID = 123;
-        $cartServiceMock->expects($this->once())
-                        ->method('get_cart_by_user')
-                        ->with($this->equalTo(1))
-                        ->willReturn($mockCart);
-
-        $this->markTestSkipped(
-            'This test requires a live server and a way to mock the service layer, which is complex in this setup.'
-        );
-        
-        // Example of how the test would look if we could proceed:
-        // $token = $this->generateToken(1, time() + 3600);
-        // $response = $this->http->request('GET', '', [
-        //     'headers' => ['Authorization' => 'Bearer ' . $token]
-        // ]);
-        // $this->assertEquals(200, $response->getStatusCode());
-        // $body = json_decode($response->getBody(), true);
-        // $this->assertTrue($body['sucesss']);
-        // $this->assertEquals(123, $body['cartID']);
+        $token = $this->generateToken(1, time() + 3600);
+        $response = $this->http->request('GET', '', [
+            'headers' => ['Authorization' => 'Bearer ' . $token]
+        ]);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = json_decode($response->getBody(), true);
+        $this->assertTrue($body['sucesss']);
+        $this->assertEquals(123, $body['cartID']);
     }
     
     public function testPostCartMissingUserID()
