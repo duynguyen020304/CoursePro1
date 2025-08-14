@@ -9,7 +9,7 @@ class RoleApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    private $baseUrl = 'http://localhost/path/to/your/api/role_api.php';
+    private $baseUrl = 'http://localhost/api/role_api.php';
 
     protected function setUp(): void
     {

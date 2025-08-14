@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 class CourseObjectiveApiTest extends TestCase
 {
     private $http;
-    private $baseUrl = 'http://localhost/path/to/your/api/course_objective_api.php';
+    private $baseUrl = 'http://localhost/api/course_objective_api.php';
 
     protected function setUp(): void
     {

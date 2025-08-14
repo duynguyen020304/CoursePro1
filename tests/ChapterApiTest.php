@@ -8,7 +8,7 @@ use Firebase\JWT\JWT;
 class ChapterApiTest extends TestCase
 {
     private $http;
-    private $baseUrl = 'http://localhost/path/to/your/api/chapter_api.php';
+    private $baseUrl = 'http://localhost/api/chapter_api.php';
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
 
     protected function setUp(): void

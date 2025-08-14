@@ -1,13 +1,14 @@
 <?php
 
+// Note: The following is the cleaned version without comments.
+
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 
-
-class OrderDetailApiTest extends TestCase
+class OrderApiTest extends TestCase
 {
     private $http;
-    private $baseUrl = 'http://localhost/path/to/your/api/order_detail_api.php';
+    private $baseUrl = 'http://localhost/api/order_api.php';
 
     protected function setUp(): void
     {
@@ -22,54 +23,65 @@ class OrderDetailApiTest extends TestCase
         $this->http = null;
     }
 
-    public function testGetWithMissingOrderId()
+    public function testGetWithMissingIds()
     {
         $response = $this->http->request('GET');
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu orderID', $body['message']);
+        $this->assertEquals('Thiếu orderID hoặc userID', $body['message']);
     }
 
     public function testPostWithMissingData()
     {
         $response = $this->http->request('POST', '', [
-            'json' => [
-                'orderID' => 'order123',
-                'courseID' => 'course456'
-            ]
+            'json' => ['userID' => 'user123']
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu orderID, courseID hoặc price', $body['message']);
+        $this->assertEquals('Thiếu dữ liệu: userID, orderDate, totalAmount', $body['message']);
     }
     
     public function testPutWithMissingData()
     {
         $response = $this->http->request('PUT', '', [
             'json' => [
-                'orderID' => 'order123',
-                'price' => 99.99
+                'orderID' => 'order456',
+                'userID' => 'user123'
             ]
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu orderID, courseID hoặc price', $body['message']);
+        $this->assertEquals('Thiếu dữ liệu cần cập nhật', $body['message']);
     }
 
-    public function testDeleteWithMissingData()
+    public function testPutWithInvalidDateFormat()
     {
-        $response = $this->http->request('DELETE', '', [
+        $response = $this->http->request('PUT', '', [
             'json' => [
-                'orderID' => 'order123'
+                'orderID' => 'order456',
+                'userID' => 'user123',
+                'orderDate' => 'invalid-date',
+                'totalAmount' => 100.0
             ]
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu orderID hoặc courseID', $body['message']);
+        $this->assertEquals('Định dạng orderDate không hợp lệ', $body['message']);
+    }
+
+    public function testDeleteWithMissingId()
+    {
+        $response = $this->http->request('DELETE', '', [
+            'json' => []
+        ]);
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $body = json_decode($response->getBody(), true);
+        $this->assertEquals('Thiếu orderID', $body['message']);
     }
 
     public function testInvalidRequestMethod()

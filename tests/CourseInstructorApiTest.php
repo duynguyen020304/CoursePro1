@@ -4,11 +4,12 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-class VideoApiTest extends TestCase
+
+class CourseInstructorApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    private $baseUrl = 'http://localhost/path/to/your/api/video_api.php';
+    private $baseUrl = 'http://localhost/api/course_instructor_api.php';
 
     protected function setUp(): void
     {
@@ -41,68 +42,44 @@ class VideoApiTest extends TestCase
         $this->assertEquals('Không tìm thấy token xác thực.', $body['message']);
     }
 
-    public function testShouldReturn401ForExpiredToken()
-    {
-        $payload = [
-            'iat' => time() - 3601,
-            'exp' => time() - 3600,
-            'data' => ['userID' => 1]
-        ];
-        $expiredToken = JWT::encode($payload, $this->secretKey, 'HS256');
 
-        $response = $this->http->request('POST', [
-            'headers' => ['Authorization' => 'Bearer ' . $expiredToken]
-        ]);
 
-        $this->assertEquals(401, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Token đã hết hạn.', $body['message']);
-    }
-
-    public function testGetWithMissingIds()
+    public function testGetWithMissingCourseId()
     {
         $token = $this->generateToken();
         $response = $this->http->request('GET', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token]
         ]);
 
-        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu videoID hoặc lessonID', $body['message']);
+        $this->assertFalse($body['success']);
+        $this->assertEquals('Thiếu parameter: courseID', $body['message']);
     }
 
-    public function testPostWithMissingData()
+    public function testPostWithoutBody()
     {
         $token = $this->generateToken();
         $response = $this->http->request('POST', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => [
-                'lessonID' => 'lesson123'
-            ]
+            'json' => []
         ]);
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu lessonID hoặc url', $body['message']);
+        $this->assertEquals(200, $response->getStatusCode());
     }
-
-    public function testPutWithMissingData()
+    
+    public function testPutWithoutBody()
     {
         $token = $this->generateToken();
         $response = $this->http->request('PUT', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => [
-                'videoID' => 'vid456',
-                'lessonID' => 'lesson123'
-            ]
+            'json' => []
         ]);
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu videoID, lessonID hoặc url', $body['message']);
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testDeleteWithMissingId()
+    public function testDeleteWithoutBody()
     {
         $token = $this->generateToken();
         $response = $this->http->request('DELETE', '', [
@@ -110,9 +87,7 @@ class VideoApiTest extends TestCase
             'json' => []
         ]);
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu videoID', $body['message']);
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     public function testInvalidRequestMethod()
@@ -124,6 +99,7 @@ class VideoApiTest extends TestCase
 
         $this->assertEquals(405, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Phương thức không hỗ trợ', $body['message']);
+        $this->assertFalse($body['success']);
+        $this->assertEquals('Method Not Allowed', $body['message']);
     }
 }

@@ -4,12 +4,11 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-
-class StudentApiTest extends TestCase
+class InstructorApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    private $baseUrl = 'http://localhost/path/to/your/api/student_api.php';
+    private $baseUrl = 'http://localhost/api/instructor_api.php';
 
     protected function setUp(): void
     {
@@ -34,40 +33,36 @@ class StudentApiTest extends TestCase
         return JWT::encode($payload, $this->secretKey, 'HS256');
     }
 
-    public function testShouldReturn401WhenNoTokenIsProvided()
+    public function testPostShouldFailWithoutToken()
     {
-        $response = $this->http->request('GET');
+        $response = $this->http->request('POST', '', ['json' => []]);
         $this->assertEquals(401, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
         $this->assertEquals('Không tìm thấy token xác thực.', $body['message']);
     }
 
-    public function testShouldReturn401ForExpiredToken()
+    public function testGetShouldFailWithoutTokenAndFlag()
     {
-        $payload = [
-            'iat' => time() - 3601,
-            'exp' => time() - 3600,
-            'data' => ['userID' => 1]
-        ];
-        $expiredToken = JWT::encode($payload, $this->secretKey, 'HS256');
-
-        $response = $this->http->request('POST', [
-            'headers' => ['Authorization' => 'Bearer ' . $expiredToken]
-        ]);
-
+        $response = $this->http->request('GET');
         $this->assertEquals(401, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Token đã hết hạn.', $body['message']);
     }
 
-    public function testGetAllStudents()
+    public function testGetShouldSucceedWithoutTokenWhenHomePageFlagIsSet()
+    {
+        $response = $this->http->request('GET', '', ['query' => ['isGetInstructorHomePage' => 'true']]);
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    public function testGetByInstructorIdRequiresToken()
     {
         $token = $this->generateToken();
         $response = $this->http->request('GET', '', [
-            'headers' => ['Authorization' => 'Bearer ' . $token]
+            'headers' => ['Authorization' => 'Bearer ' . $token],
+            'query' => ['instructorID' => 'instr123']
         ]);
-
         $this->assertEquals(200, $response->getStatusCode());
+        $body = json_decode($response->getBody(), true);
+        $this->assertArrayHasKey('data', $body);
     }
 
     public function testPostWithMissingData()
@@ -75,32 +70,12 @@ class StudentApiTest extends TestCase
         $token = $this->generateToken();
         $response = $this->http->request('POST', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => [
-                'studentID' => 'std123',
-                'userID' => 'user456'
-            ]
+            'json' => ['instructorID' => 'instr123']
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu dữ liệu bắt buộc: studentID, userID hoặc enrollmentDate', $body['message']);
-    }
-
-    public function testPostWithInvalidDateFormat()
-    {
-        $token = $this->generateToken();
-        $response = $this->http->request('POST', '', [
-            'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => [
-                'studentID' => 'std123',
-                'userID' => 'user456',
-                'enrollmentDate' => 'not-a-date'
-            ]
-        ]);
-
-        $this->assertEquals(400, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Định dạng enrollmentDate không hợp lệ', $body['message']);
+        $this->assertEquals('Thiếu instructorID hoặc userID', $body['message']);
     }
 
     public function testPutWithMissingData()
@@ -108,14 +83,12 @@ class StudentApiTest extends TestCase
         $token = $this->generateToken();
         $response = $this->http->request('PUT', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => [
-                'studentID' => 'std123'
-            ]
+            'json' => ['userID' => 'user456']
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu dữ liệu cần cập nhật: studentID, userID hoặc enrollmentDate', $body['message']);
+        $this->assertEquals('Thiếu instructorID hoặc userID', $body['message']);
     }
 
     public function testDeleteWithMissingId()
@@ -128,7 +101,7 @@ class StudentApiTest extends TestCase
 
         $this->assertEquals(400, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu studentID để xóa', $body['message']);
+        $this->assertEquals('Thiếu instructorID để xóa', $body['message']);
     }
 
     public function testInvalidRequestMethod()

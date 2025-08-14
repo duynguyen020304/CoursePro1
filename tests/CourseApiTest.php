@@ -4,13 +4,11 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-
-
 class CourseApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    private $baseUrl = 'http://localhost/path/to/your/api/course_api.php';
+    private $baseUrl = 'http://localhost/api/course_api.php';
 
     protected function setUp(): void
     {
