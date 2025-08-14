@@ -4,6 +4,10 @@ set -euo pipefail
 
 SECONDS=0
 
+ACTION=${1:-normal}
+DB_ACTION=${2:-no}
+
+export ACTION DB_ACTION
 #Updating module
 
 detect_distro() {
@@ -71,9 +75,12 @@ if [[ "${EUID:-}" -ne 0 ]]; then
   trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
 fi
 
-echo "Updating system"
-
-sudo apt update -y && sudo apt upgrade -y
+if [ "$ACTION" = "github" ]; then
+  # làm gì đó khi ACTION bằng "github"
+elif [ "$ACTION" = "normal" ]; then
+  echo "Updating system"
+  sudo apt update -y && sudo apt upgrade -y
+fi
 
 echo "Install essential packages for deploying apache"
 
@@ -288,10 +295,7 @@ cleanup_gunicorn_service() {
 trap 'kill "${SUDO_KEEPALIVE_PID:-}" 2>/dev/null || true; cleanup_gunicorn_service' EXIT
 # --- End: systemd service section ---
 
-ACTION=${1:-normal}
-DB_ACTION=${2:-no}
 
-export ACTION DB_ACTION
 
 echo "Creating database, tables, trigger"
 php "$APACHE_PROJECT_DESTINATION/$PROJECT_NAME/model/init.php"

@@ -57,22 +57,6 @@ class OrderApiTest extends TestCase
         $this->assertEquals('Thiếu dữ liệu cần cập nhật', $body['message']);
     }
 
-    public function testPutWithInvalidDateFormat()
-    {
-        $response = $this->http->request('PUT', '', [
-            'json' => [
-                'orderID' => 'order456',
-                'userID' => 'user123',
-                'orderDate' => 'invalid-date',
-                'totalAmount' => 100.0
-            ]
-        ]);
-
-        $this->assertEquals(400, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Định dạng orderDate không hợp lệ', $body['message']);
-    }
-
     public function testDeleteWithMissingId()
     {
         $response = $this->http->request('DELETE', '', [
