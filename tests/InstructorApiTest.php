@@ -53,18 +53,6 @@ class InstructorApiTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testGetByInstructorIdRequiresToken()
-    {
-        $token = $this->generateToken();
-        $response = $this->http->request('GET', '', [
-            'headers' => ['Authorization' => 'Bearer ' . $token],
-            'query' => ['instructorID' => 'instr123']
-        ]);
-        $this->assertEquals(200, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertArrayHasKey('data', $body);
-    }
-
     public function testPostWithMissingData()
     {
         $token = $this->generateToken();

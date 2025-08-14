@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'])) {
     $token = randomToken(6);
     $created_at = date('Y-m-d H:i:s');
 
-    $db->execute("DELETE FROM \"PASSWORD_RESETS\" WHERE email = '{$emailSafe}'");
-    $result = $db->execute("INSERT INTO \"PASSWORD_RESETS\" (email, token) VALUES ('{$emailSafe}', '{$token}')");
+    $db->execute("DELETE FROM password_resets WHERE email = '{$emailSafe}'");
+    $result = $db->execute("INSERT INTO password_resets (email, token) VALUES ('{$emailSafe}', '{$token}')");
     if (!$result) {
         $_SESSION['error'] = 'Không lưu được token đặt lại mật khẩu.';
         header('Location: ../forgot-password.php');

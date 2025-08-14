@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
     $emailSafe = addslashes($email);
     $tokenSafe = addslashes($code);
 
-    $reset = $db->fetchRow("SELECT EMAIL, TOKEN, TO_CHAR(CREATED_AT, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT_FORMATTED FROM \"PASSWORD_RESETS\" WHERE email = '{$emailSafe}' AND UPPER(token) = '{$tokenSafe}'");
+    $reset = $db->fetchRow("SELECT EMAIL, TOKEN, DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i:%s.%f') AS CREATED_AT_FORMATTED FROM password_resets WHERE email = '{$emailSafe}' AND UPPER(token) = '{$tokenSafe}'");
     if (!$reset) {
         $_SESSION['error'] = 'Mã xác nhận không đúng.';
         header("Location: ../verify-code.php?email=" . urlencode($email));

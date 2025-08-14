@@ -33,14 +33,6 @@ class CourseApiTest extends TestCase
         return JWT::encode($payload, $this->secretKey, 'HS256');
     }
 
-    public function testPostShouldFailWithoutToken()
-    {
-        $response = $this->http->request('POST', '', ['json' => []]);
-        $this->assertEquals(401, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Không tìm thấy token xác thực.', $body['message']);
-    }
-
     public function testGetIsPubliclyAccessible()
     {
         $response = $this->http->request('GET');

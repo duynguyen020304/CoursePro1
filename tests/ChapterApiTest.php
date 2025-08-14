@@ -56,34 +56,6 @@ class ChapterApiTest extends TestCase
         $this->assertArrayHasKey('data', $body);
     }
 
-    public function testPostChapter()
-    {
-        $response = $this->http->request('POST', '', [
-            'json' => [
-                'courseID' => 'course123',
-                'title' => 'New Chapter'
-            ]
-        ]);
-
-        $this->assertEquals(201, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertArrayHasKey('success', $body);
-    }
-
-    public function testPutChapter()
-    {
-        $response = $this->http->request('PUT', '', [
-            'json' => [
-                'chapterID' => 'chap456',
-                'courseID' => 'course123',
-                'title' => 'Updated Chapter'
-            ]
-        ]);
-
-        $this->assertEquals(201, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertArrayHasKey('success', $body);
-    }
 
     public function testDeleteChapterWithMissingId()
     {

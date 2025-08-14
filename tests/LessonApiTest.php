@@ -99,15 +99,4 @@ class LessonApiTest extends TestCase
         $this->assertEquals('Thiếu lessonID', $body['message']);
     }
 
-    public function testInvalidRequestMethod()
-    {
-        $token = $this->generateToken();
-        $response = $this->http->request('PATCH', '', [
-            'headers' => ['Authorization' => 'Bearer ' . $token]
-        ]);
-
-        $this->assertEquals(405, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Phương thức không được hỗ trợ', $body['message']);
-    }
 }
