@@ -1,11 +1,8 @@
 <?php
 
-// tests/SearchCourseApiTest.php
-
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 
-// Mock các class phụ thuộc để môi trường test không bị lỗi
 if (!class_exists('CourseService')) {
     class CourseService
     {
@@ -15,7 +12,6 @@ if (!class_exists('CourseService')) {
     }
 }
 
-// Mock lớp ServiceResponse vì nó được sử dụng trong API
 if (!class_exists('ServiceResponse')) {
     class ServiceResponse
     {
@@ -36,15 +32,13 @@ if (!class_exists('ServiceResponse')) {
 class SearchCourseApiTest extends TestCase
 {
     private $http;
-    // QUAN TRỌNG: Hãy thay đổi URL này thành URL thực tế của bạn
     private $baseUrl = 'http://localhost/path/to/your/api/search_course_api.php';
 
     protected function setUp(): void
     {
-        // Khởi tạo Guzzle Client để thực hiện các request HTTP
         $this->http = new Client([
             'base_uri' => $this->baseUrl,
-            'http_errors' => false, // Tắt việc Guzzle tự động ném exception cho response 4xx/5xx
+            'http_errors' => false,
         ]);
     }
 
@@ -53,12 +47,8 @@ class SearchCourseApiTest extends TestCase
         $this->http = null;
     }
 
-    // --- Bắt đầu các Test Case ---
-
     public function testSearchForCourseManagement()
     {
-        // Test trường hợp tìm kiếm cho trang quản lý khóa học.
-        // Test này chỉ xác nhận API trả về 200 OK và có cấu trúc đúng.
         $response = $this->http->request('GET', '', [
             'query' => [
                 'isGetForCourseManagement' => 'true',
@@ -74,20 +64,17 @@ class SearchCourseApiTest extends TestCase
 
     public function testSearchByTitleOnly()
     {
-        // Test trường hợp tìm kiếm chỉ bằng title.
         $response = $this->http->request('GET', '', [
             'query' => ['title' => 'Java']
         ]);
         
         $this->assertEquals(200, $response->getStatusCode());
-        // API này trả về trực tiếp mảng data, không có key 'success' hay 'message'
         $body = json_decode($response->getBody(), true);
         $this->assertIsArray($body);
     }
 
     public function testSearchWithoutTitle()
     {
-        // Test trường hợp không có title, sẽ gọi get_all_courses.
         $response = $this->http->request('GET');
         
         $this->assertEquals(200, $response->getStatusCode());
@@ -97,7 +84,6 @@ class SearchCourseApiTest extends TestCase
 
     public function testInvalidRequestMethod()
     {
-        // Sử dụng phương thức POST không được hỗ trợ
         $response = $this->http->request('POST');
 
         $this->assertEquals(405, $response->getStatusCode());

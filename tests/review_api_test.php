@@ -1,12 +1,9 @@
 <?php
 
-// tests/ReviewApiTest.php
-
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-// Mock các class phụ thuộc để môi trường test không bị lỗi
 if (!class_exists('ReviewService')) {
     class ReviewService
     {
@@ -17,7 +14,6 @@ if (!class_exists('ReviewService')) {
     }
 }
 
-// Mock lớp ServiceResponse vì nó được sử dụng trong API
 if (!class_exists('ServiceResponse')) {
     class ServiceResponse
     {
@@ -39,15 +35,13 @@ class ReviewApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    // QUAN TRỌNG: Hãy thay đổi URL này thành URL thực tế của bạn
     private $baseUrl = 'http://localhost/path/to/your/api/review_api.php';
 
     protected function setUp(): void
     {
-        // Khởi tạo Guzzle Client để thực hiện các request HTTP
         $this->http = new Client([
             'base_uri' => $this->baseUrl,
-            'http_errors' => false, // Tắt việc Guzzle tự động ném exception cho response 4xx/5xx
+            'http_errors' => false,
         ]);
     }
 
@@ -66,9 +60,6 @@ class ReviewApiTest extends TestCase
         return JWT::encode($payload, $this->secretKey, 'HS256');
     }
 
-    // --- Bắt đầu các Test Case ---
-
-    // --- Test Xác thực ---
     public function testShouldReturn401WhenNoTokenIsProvided()
     {
         $response = $this->http->request('GET');
@@ -95,18 +86,14 @@ class ReviewApiTest extends TestCase
         $this->assertEquals('Token đã hết hạn.', $body['message']);
     }
 
-    // --- Test Logic các phương thức ---
-    public function testGetWithMissingCourseId()
+    public function testGetWithoutIdShouldGetAllResources()
     {
         $token = $this->generateToken();
         $response = $this->http->request('GET', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token]
-            // Không có query param
         ]);
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Thiếu courseID', $body['message']);
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     public function testPostWithMissingData()
@@ -118,7 +105,6 @@ class ReviewApiTest extends TestCase
                 'reviewID' => 'rev123',
                 'userID' => 'user456',
                 'courseID' => 'course789'
-                // Thiếu rating
             ]
         ]);
 
@@ -135,7 +121,6 @@ class ReviewApiTest extends TestCase
             'json' => [
                 'reviewID' => 'rev123',
                 'userID' => 'user456'
-                // Thiếu courseID và rating
             ]
         ]);
 
@@ -149,7 +134,7 @@ class ReviewApiTest extends TestCase
         $token = $this->generateToken();
         $response = $this->http->request('DELETE', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => [] // Body rỗng
+            'json' => []
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());

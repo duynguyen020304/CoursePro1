@@ -1,15 +1,9 @@
 <?php
 
-// tests/CartItemApiTest.php
-
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ClientException;
 
-// Mock the dependent classes so the test environment doesn't crash
-// when the API script tries to include them.
 if (!class_exists('CartItemBLL')) {
     class CartItemBLL
     {
@@ -30,15 +24,13 @@ class CartItemApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    // IMPORTANT: Change this to your actual local URL for cart_item_api.php
-    private $baseUrl = 'http://localhost/path/to/your/api/cart_item_api.php'; 
+    private $baseUrl = 'http://localhost/path/to/your/api/cart_item_api.php';
 
     protected function setUp(): void
     {
-        // Setup Guzzle client to make HTTP requests to the API
         $this->http = new Client([
             'base_uri' => $this->baseUrl,
-            'http_errors' => false // Disable Guzzle exceptions on 4xx/5xx responses
+            'http_errors' => false
         ]);
     }
 
@@ -47,9 +39,6 @@ class CartItemApiTest extends TestCase
         $this->http = null;
     }
 
-    /**
-     * Generates a JWT token for testing purposes.
-     */
     private function generateToken(int $userID, int $expirationTime): string
     {
         $payload = [
@@ -61,8 +50,6 @@ class CartItemApiTest extends TestCase
         ];
         return JWT::encode($payload, $this->secretKey, 'HS256');
     }
-
-    // --- Authentication Tests ---
 
     public function testShouldReturn401WhenNoTokenIsProvided()
     {
@@ -99,8 +86,6 @@ class CartItemApiTest extends TestCase
         $this->assertEquals('Chữ ký token không hợp lệ.', $responseBody['message']);
     }
 
-    // --- Endpoint Logic Tests ---
-
     public function testPostCreateItemWithInvalidData()
     {
         $token = $this->generateToken(1, time() + 3600);
@@ -109,11 +94,11 @@ class CartItemApiTest extends TestCase
             'json' => [
                 'cartID' => 'cart123',
                 'courseID' => 'course456',
-                'quantity' => 0 // Invalid quantity
+                'quantity' => 0
             ]
         ]);
 
-        $this->assertEquals(200, $response->getStatusCode()); // API returns 200 even for errors
+        $this->assertEquals(200, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
         $this->assertEquals('error', $body['status']);
         $this->assertEquals('Invalid input data', $body['message']);
@@ -122,7 +107,6 @@ class CartItemApiTest extends TestCase
     public function testGetItemsByCartWithoutCartId()
     {
         $token = $this->generateToken(1, time() + 3600);
-        // Request without cartID query parameter
         $response = $this->http->request('GET', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token]
         ]);
@@ -138,7 +122,7 @@ class CartItemApiTest extends TestCase
         $token = $this->generateToken(1, time() + 3600);
         $response = $this->http->request('DELETE', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => [] // Empty body
+            'json' => []
         ]);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -150,7 +134,7 @@ class CartItemApiTest extends TestCase
     public function testInvalidRequestMethod()
     {
         $token = $this->generateToken(1, time() + 3600);
-        $response = $this->http->request('PUT', '', [ // PUT is not supported
+        $response = $this->http->request('PUT', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token]
         ]);
 
@@ -159,12 +143,4 @@ class CartItemApiTest extends TestCase
         $this->assertEquals('error', $body['status']);
         $this->assertEquals('Invalid request method', $body['message']);
     }
-    
-    /**
-     * NOTE: Success cases (e.g., successfully creating an item) are harder to test
-     * in this black-box setup because they depend on the CartItemBLL.
-     * To properly test them, you would need to refactor the API to use
-     * dependency injection, allowing you to inject a mock BLL object.
-     * The tests here focus on input validation and routing logic within the API file itself.
-     */
 }
