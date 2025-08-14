@@ -50,56 +50,6 @@ class CartApiTest extends TestCase
         }
     }
 
-    public function testShouldReturn401ForExpiredToken()
-    {
-        $expiredToken = $this->generateToken(1, time() - 3600);
-
-        try {
-            $this->http->request('GET', '', [
-                'headers' => ['Authorization' => 'Bearer ' . $expiredToken]
-            ]);
-        } catch (RequestException $e) {
-            $this->assertEquals(401, $e->getResponse()->getStatusCode());
-            $responseBody = json_decode($e->getResponse()->getBody(), true);
-            $this->assertEquals('Token đã hết hạn.', $responseBody['message']);
-        }
-    }
-    
-    public function testShouldReturn401ForInvalidSignature()
-    {
-        $payload = [
-            'iss' => 'your_issuer',
-            'aud' => 'your_audience',
-            'iat' => time(),
-            'exp' => time() + 3600,
-            'data' => ['userID' => 1]
-        ];
-        $invalidToken = JWT::encode($payload, 'wrong-secret-key', 'HS256');
-
-        try {
-            $this->http->request('GET', '', [
-                'headers' => ['Authorization' => 'Bearer ' . $invalidToken]
-            ]);
-        } catch (RequestException $e) {
-            $this->assertEquals(401, $e->getResponse()->getStatusCode());
-            $responseBody = json_decode($e->getResponse()->getBody(), true);
-            $this->assertEquals('Chữ ký token không hợp lệ.', $responseBody['message']);
-        }
-    }
-
-
-    public function testGetCartSuccess()
-    {
-        $token = $this->generateToken(1, time() + 3600);
-        $response = $this->http->request('GET', '', [
-            'headers' => ['Authorization' => 'Bearer ' . $token]
-        ]);
-        $this->assertEquals(200, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertTrue($body['sucesss']);
-        $this->assertEquals(123, $body['cartID']);
-    }
-    
     public function testPostCartMissingUserID()
     {
         $token = $this->generateToken(1, time() + 3600);

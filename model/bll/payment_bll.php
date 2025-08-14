@@ -12,7 +12,7 @@ class PaymentBLL extends Database
      */
     public function create_payment(PaymentDTO $p): bool
     {
-        $sql = "INSERT INTO Payment (PaymentID, OrderID, PaymentDate, PaymentMethod, Paymenttatus, Amount) 
+        $sql = "INSERT INTO Payment (PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount) 
                 VALUES (?, ?, ?, ?, ?, ?)";
 
         $paymentDateString = null;

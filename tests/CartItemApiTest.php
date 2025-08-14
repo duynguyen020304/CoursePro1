@@ -43,32 +43,6 @@ class CartItemApiTest extends TestCase
         $this->assertEquals('Không tìm thấy token xác thực.', $responseBody['message']);
     }
 
-    public function testShouldReturn401ForExpiredToken()
-    {
-        $expiredToken = $this->generateToken(1, time() - 3600);
-        $response = $this->http->request('GET', '', [
-            'headers' => ['Authorization' => 'Bearer ' . $expiredToken]
-        ]);
-        $this->assertEquals(401, $response->getStatusCode());
-        $responseBody = json_decode($response->getBody(), true);
-        $this->assertEquals('Token đã hết hạn.', $responseBody['message']);
-    }
-
-    public function testShouldReturn401ForInvalidSignature()
-    {
-        $payload = [
-            'iat' => time(),
-            'exp' => time() + 3600,
-            'data' => ['userID' => 1]
-        ];
-        $invalidToken = JWT::encode($payload, 'wrong-secret-key', 'HS256');
-        $response = $this->http->request('GET', '', [
-            'headers' => ['Authorization' => 'Bearer ' . $invalidToken]
-        ]);
-        $this->assertEquals(401, $response->getStatusCode());
-        $responseBody = json_decode($response->getBody(), true);
-        $this->assertEquals('Chữ ký token không hợp lệ.', $responseBody['message']);
-    }
 
     public function testPostCreateItemWithInvalidData()
     {

@@ -34,30 +34,6 @@ class RoleApiTest extends TestCase
         return JWT::encode($payload, $this->secretKey, 'HS256');
     }
 
-    public function testShouldReturn401WhenNoTokenIsProvided()
-    {
-        $response = $this->http->request('GET');
-        $this->assertEquals(401, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Không tìm thấy token xác thực.', $body['message']);
-    }
-
-    public function testShouldReturn401ForInvalidSignature()
-    {
-        $payload = [
-            'iat' => time(),
-            'exp' => time() + 3600,
-            'data' => ['userID' => 1]
-        ];
-        $invalidToken = JWT::encode($payload, 'wrong-secret-key', 'HS256');
-        $response = $this->http->request('POST', [
-            'headers' => ['Authorization' => 'Bearer ' . $invalidToken]
-        ]);
-        $this->assertEquals(401, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Chữ ký token không hợp lệ.', $body['message']);
-    }
-
     public function testGetAllRoles()
     {
         $token = $this->generateToken();

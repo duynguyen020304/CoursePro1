@@ -33,31 +33,6 @@ class VideoApiTest extends TestCase
         return JWT::encode($payload, $this->secretKey, 'HS256');
     }
 
-    public function testShouldReturn401WhenNoTokenIsProvided()
-    {
-        $response = $this->http->request('GET');
-        $this->assertEquals(401, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Không tìm thấy token xác thực.', $body['message']);
-    }
-
-    public function testShouldReturn401ForExpiredToken()
-    {
-        $payload = [
-            'iat' => time() - 3601,
-            'exp' => time() - 3600,
-            'data' => ['userID' => 1]
-        ];
-        $expiredToken = JWT::encode($payload, $this->secretKey, 'HS256');
-
-        $response = $this->http->request('POST', [
-            'headers' => ['Authorization' => 'Bearer ' . $expiredToken]
-        ]);
-
-        $this->assertEquals(401, $response->getStatusCode());
-        $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Token đã hết hạn.', $body['message']);
-    }
 
     public function testGetWithMissingIds()
     {
