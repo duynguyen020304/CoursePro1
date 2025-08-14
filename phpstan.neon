@@ -1,18 +1,12 @@
-#includes:
-#  - phpstan-baseline.neon
-
 parameters:
   scanDirectories:
     - model/dto
     - service
   phpVersion: 80300
-  # cache local
   tmpDir: .cache/phpstan
 
-  # mức strictness: 0..9 (bắt đầu 0/5 rồi tăng dần)
   level: 0
 
-  # nơi cần quét
   paths:
     - tests
     - controller
@@ -20,6 +14,5 @@ parameters:
     - model/dto
     - model/bll
     - model/database.php
-  # vài tuỳ chọn hữu ích
   inferPrivatePropertyTypeFromConstructor: true
   reportUnmatchedIgnoredErrors: false
