@@ -1,0 +1,47 @@
+name: PHP CI
+
+on:
+  push:
+    branches: ["feature/mysql"]
+  pull_request:
+    branches: ["feature/mysql"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout source code
+        uses: actions/checkout@v4
+
+      - name: 🧾 Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: 📦 Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: 📥 Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      # ====== PHPStan Check Standard ======
+      - name: 🔍 PHPStan - Check DTO & Service
+        run: vendor/bin/phpstan analyse model/dto service --memory-limit=1G
+
+      - name: 🔍 PHPStan - Check Controllers & API
+        run: vendor/bin/phpstan analyse controller api --memory-limit=1G
+
+      - name: 🔍 PHPStan - Check Tests & BLL
+        run: vendor/bin/phpstan analyse tests model/bll --memory-limit=1G
+
+      # ====== PHPUnit Test ======
+      - name: 🧪 Run PHPUnit tests
+        run: vendor/bin/phpunit --configuration phpunit.xml --colors=always
