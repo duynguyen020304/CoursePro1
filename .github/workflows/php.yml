@@ -33,14 +33,29 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       # ====== PHPStan Check Standard ======
-      - name: 🔍 PHPStan - Check DTO & Service
-        run: vendor/bin/phpstan analyse model/dto service --memory-limit=1G
+      - name: 🔍 PHPStan - Check DTO
+        run: vendor/bin/phpstan analyse model/dto --memory-limit=1G
+      
+      - name: 🔍 PHPStan - Check Service
+        run: vendor/bin/phpstan analyse model/dto --memory-limit=1G
 
-      - name: 🔍 PHPStan - Check Controllers & API
-        run: vendor/bin/phpstan analyse controller api --memory-limit=1G
+      - name: 🔍 PHPStan - Check Controllers
+        run: vendor/bin/phpstan analyse controller --memory-limit=1G
 
-      - name: 🔍 PHPStan - Check Tests & BLL
+      - name: 🔍 PHPStan - Check BLL
         run: vendor/bin/phpstan analyse tests model/bll --memory-limit=1G
+
+      - name: 🔍 PHPStan - Check API
+        run: vendor/bin/phpstan analyse api --memory-limit=1G
+
+      - name: 🔍 PHPStan - Check Tests
+        run: vendor/bin/phpstan analyse tests --memory-limit=1G
+      
+      - name: 🛠 Set execute permission for bash script
+        run: chmod +x ci_cd/init_essential.sh
+      
+      - name: 🚀 Run Init Database Sequence via bash script
+        run: ./ci_cd/init_essential.bash github yes
 
       # ====== PHPUnit Test ======
       - name: 🧪 Run PHPUnit tests

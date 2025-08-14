@@ -288,6 +288,11 @@ cleanup_gunicorn_service() {
 trap 'kill "${SUDO_KEEPALIVE_PID:-}" 2>/dev/null || true; cleanup_gunicorn_service' EXIT
 # --- End: systemd service section ---
 
+ACTION=${1:-normal}
+DB_ACTION=${2:-no}
+
+export ACTION DB_ACTION
+
 echo "Creating database, tables, trigger"
 php "$APACHE_PROJECT_DESTINATION/$PROJECT_NAME/model/init.php"
 
