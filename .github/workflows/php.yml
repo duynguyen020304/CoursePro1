@@ -35,7 +35,7 @@ jobs:
       # ====== PHPStan Check Standard ======
       - name: 🔍 PHPStan - Check DTO
         run: vendor/bin/phpstan analyse model/dto --memory-limit=1G
-      
+
       - name: 🔍 PHPStan - Check Service
         run: vendor/bin/phpstan analyse model/dto --memory-limit=1G
 
@@ -50,10 +50,10 @@ jobs:
 
       - name: 🔍 PHPStan - Check Tests
         run: vendor/bin/phpstan analyse tests --memory-limit=1G
-      
+
       - name: 🛠 Set execute permission for bash script
-        run: chmod +x ci_cd/init_essential.sh
-      
+        run: chmod +x ci_cd/init_essential.bash
+
       - name: 🚀 Run Init Database Sequence via bash script
         run: ./ci_cd/init_essential.bash github yes
 
