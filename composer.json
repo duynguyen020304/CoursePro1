@@ -1,4 +1,7 @@
 {
+    "name": "mycompany/myproject",
+    "description": "Ecourse",
+    "license": "proprietary",
     "require": {
         "phpmailer/phpmailer": "^6.10",
         "firebase/php-jwt": "^6.11",
