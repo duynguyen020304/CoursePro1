@@ -1,12 +1,9 @@
 <?php
 
-// tests/UserApiTest.php
-
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-// Mock các class phụ thuộc để môi trường test không bị lỗi
 if (!class_exists('UserService')) {
     class UserService
     {
@@ -41,7 +38,6 @@ class UserApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    // QUAN TRỌNG: Hãy thay đổi URL này thành URL thực tế của bạn
     private $baseUrl = 'http://localhost/path/to/your/api/user_api.php';
 
     protected function setUp(): void
@@ -70,11 +66,9 @@ class UserApiTest extends TestCase
         return JWT::encode($payload, $this->secretKey, 'HS256');
     }
 
-    // --- Test Xác thực & Phân quyền ---
     public function testGetIsPubliclyAccessible()
     {
         $response = $this->http->request('GET');
-        // GET không yêu cầu token, nên phải trả về 200 (hoặc 500 nếu service lỗi), không phải 401
         $this->assertNotEquals(401, $response->getStatusCode());
     }
 
@@ -88,14 +82,14 @@ class UserApiTest extends TestCase
     
     public function testPostFailsWithNonAdminToken()
     {
-        $userToken = $this->generateToken('user'); // Token của người dùng thường
+        $userToken = $this->generateToken('user');
         $response = $this->http->request('POST', [
             'headers' => ['Authorization' => 'Bearer ' . $userToken],
             'json' => []
         ]);
         $this->assertEquals(401, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
-        $this->assertEquals('Không đủ quyền đủ xóa', $body['message']); // API có vẻ dùng sai message
+        $this->assertEquals('Không đủ quyền đủ xóa', $body['message']);
     }
 
     public function testDeleteFailsWithNonAdminToken()
@@ -110,20 +104,9 @@ class UserApiTest extends TestCase
         $this->assertEquals('Không đủ quyền đủ xóa', $body['message']);
     }
 
-    // --- Test Logic các phương thức ---
-
     public function testGetShouldRemovePasswordFromResponse()
     {
-        // Test này sẽ thất bại nếu không có Dependency Injection để mock service
         $this->markTestSkipped('Requires dependency injection to test password removal.');
-        
-        // Ví dụ nếu có DI:
-        // $mockService->method('get_user_by_user_id')->willReturn(
-        //     new ServiceResponse(true, 'OK', (object)['userID' => 1, 'password' => 'hashed_pass'])
-        // );
-        // $response = $this->http->request('GET', '?id=1');
-        // $body = json_decode($response->getBody(), true);
-        // $this->assertArrayNotHasKey('password', $body['data']);
     }
 
     public function testPostWithMissingData()
@@ -134,7 +117,6 @@ class UserApiTest extends TestCase
             'json' => [
                 'email' => 'test@example.com',
                 'password' => 'password123'
-                // Thiếu các trường khác
             ]
         ]);
 
@@ -148,7 +130,7 @@ class UserApiTest extends TestCase
         $token = $this->generateToken();
         $response = $this->http->request('PUT', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => [] // Body rỗng
+            'json' => []
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -161,7 +143,7 @@ class UserApiTest extends TestCase
         $adminToken = $this->generateToken('admin');
         $response = $this->http->request('DELETE', [
             'headers' => ['Authorization' => 'Bearer ' . $adminToken],
-            'json' => [] // Body rỗng
+            'json' => []
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());

@@ -1,11 +1,8 @@
 <?php
 
-// tests/CourseObjectiveApiTest.php
-
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 
-// Mock các class phụ thuộc để môi trường test không bị lỗi
 if (!class_exists('CourseObjectiveService')) {
     class CourseObjectiveService
     {
@@ -17,7 +14,6 @@ if (!class_exists('CourseObjectiveService')) {
     }
 }
 
-// Mock lớp ServiceResponse vì nó được sử dụng trong API
 if (!class_exists('ServiceResponse')) {
     class ServiceResponse
     {
@@ -38,15 +34,13 @@ if (!class_exists('ServiceResponse')) {
 class CourseObjectiveApiTest extends TestCase
 {
     private $http;
-    // QUAN TRỌNG: Hãy thay đổi URL này thành URL thực tế của bạn
     private $baseUrl = 'http://localhost/path/to/your/api/course_objective_api.php';
 
     protected function setUp(): void
     {
-        // Khởi tạo Guzzle Client để thực hiện các request HTTP
         $this->http = new Client([
             'base_uri' => $this->baseUrl,
-            'http_errors' => false, // Tắt việc Guzzle tự động ném exception cho response 4xx/5xx
+            'http_errors' => false,
         ]);
     }
 
@@ -55,11 +49,8 @@ class CourseObjectiveApiTest extends TestCase
         $this->http = null;
     }
 
-    // --- Bắt đầu các Test Case ---
-
     public function testGetWithMissingIds()
     {
-        // Test trường hợp GET mà không cung cấp objectiveID hay courseID
         $response = $this->http->request('GET');
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -70,8 +61,6 @@ class CourseObjectiveApiTest extends TestCase
 
     public function testGetByCourseId()
     {
-        // Test trường hợp GET thành công với courseID.
-        // Test này chỉ xác nhận API trả về mã trạng thái thành công.
         $response = $this->http->request('GET', '', ['query' => ['courseID' => 'course123']]);
         
         $this->assertEquals(200, $response->getStatusCode());
@@ -81,7 +70,6 @@ class CourseObjectiveApiTest extends TestCase
 
     public function testPostWithMissingData()
     {
-        // Test trường hợp POST thiếu dữ liệu 'objective'
         $response = $this->http->request('POST', '', [
             'json' => ['courseID' => 'course123']
         ]);
@@ -94,12 +82,10 @@ class CourseObjectiveApiTest extends TestCase
 
     public function testPutWithMissingData()
     {
-        // Test trường hợp PUT thiếu dữ liệu
         $response = $this->http->request('PUT', '', [
             'json' => [
                 'objectiveID' => 'obj456',
                 'courseID' => 'course123'
-                // Thiếu 'objective'
             ]
         ]);
 
@@ -111,9 +97,8 @@ class CourseObjectiveApiTest extends TestCase
 
     public function testDeleteWithMissingId()
     {
-        // Test trường hợp DELETE thiếu objectiveID
         $response = $this->http->request('DELETE', '', [
-            'json' => [] // Body rỗng
+            'json' => []
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -124,7 +109,6 @@ class CourseObjectiveApiTest extends TestCase
 
     public function testInvalidRequestMethod()
     {
-        // Sử dụng phương thức PATCH không được hỗ trợ
         $response = $this->http->request('PATCH');
 
         $this->assertEquals(405, $response->getStatusCode());

@@ -1,12 +1,9 @@
 <?php
 
-// tests/InstructorApiTest.php
-
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-// Mock các class phụ thuộc để môi trường test không bị lỗi
 if (!class_exists('InstructorService')) {
     class InstructorService
     {
@@ -18,7 +15,6 @@ if (!class_exists('InstructorService')) {
     }
 }
 
-// Mock lớp ServiceResponse vì nó được sử dụng trong API
 if (!class_exists('ServiceResponse')) {
     class ServiceResponse
     {
@@ -40,15 +36,13 @@ class InstructorApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    // QUAN TRỌNG: Hãy thay đổi URL này thành URL thực tế của bạn
     private $baseUrl = 'http://localhost/path/to/your/api/instructor_api.php';
 
     protected function setUp(): void
     {
-        // Khởi tạo Guzzle Client để thực hiện các request HTTP
         $this->http = new Client([
             'base_uri' => $this->baseUrl,
-            'http_errors' => false, // Tắt việc Guzzle tự động ném exception cho response 4xx/5xx
+            'http_errors' => false,
         ]);
     }
 
@@ -67,12 +61,8 @@ class InstructorApiTest extends TestCase
         return JWT::encode($payload, $this->secretKey, 'HS256');
     }
 
-    // --- Bắt đầu các Test Case ---
-
-    // --- Test Xác thực ---
     public function testPostShouldFailWithoutToken()
     {
-        // Các phương thức POST, PUT, DELETE đều yêu cầu token
         $response = $this->http->request('POST', '', ['json' => []]);
         $this->assertEquals(401, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
@@ -81,22 +71,16 @@ class InstructorApiTest extends TestCase
 
     public function testGetShouldFailWithoutTokenAndFlag()
     {
-        // GET thông thường (không có flag) vẫn cần token
         $response = $this->http->request('GET');
         $this->assertEquals(401, $response->getStatusCode());
     }
 
     public function testGetShouldSucceedWithoutTokenWhenHomePageFlagIsSet()
     {
-        // Đây là trường hợp đặc biệt, GET được phép truy cập không cần token
-        // nếu có cờ isGetInstructorHomePage=true
         $response = $this->http->request('GET', '', ['query' => ['isGetInstructorHomePage' => 'true']]);
-        
-        // Mong đợi response thành công (200), không phải 401
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    // --- Test Logic các phương thức ---
     public function testGetByInstructorIdRequiresToken()
     {
         $token = $this->generateToken();
@@ -104,7 +88,6 @@ class InstructorApiTest extends TestCase
             'headers' => ['Authorization' => 'Bearer ' . $token],
             'query' => ['instructorID' => 'instr123']
         ]);
-        
         $this->assertEquals(200, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
         $this->assertArrayHasKey('data', $body);
@@ -115,7 +98,7 @@ class InstructorApiTest extends TestCase
         $token = $this->generateToken();
         $response = $this->http->request('POST', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => ['instructorID' => 'instr123'] // Thiếu userID
+            'json' => ['instructorID' => 'instr123']
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -128,7 +111,7 @@ class InstructorApiTest extends TestCase
         $token = $this->generateToken();
         $response = $this->http->request('PUT', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => ['userID' => 'user456'] // Thiếu instructorID
+            'json' => ['userID' => 'user456']
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -141,7 +124,7 @@ class InstructorApiTest extends TestCase
         $token = $this->generateToken();
         $response = $this->http->request('DELETE', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => [] // Body rỗng
+            'json' => []
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());

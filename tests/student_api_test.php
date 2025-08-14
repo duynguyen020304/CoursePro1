@@ -1,12 +1,9 @@
 <?php
 
-// tests/StudentApiTest.php
-
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-// Mock các class phụ thuộc để môi trường test không bị lỗi
 if (!class_exists('StudentService')) {
     class StudentService
     {
@@ -18,7 +15,6 @@ if (!class_exists('StudentService')) {
     }
 }
 
-// Mock lớp ServiceResponse vì nó được sử dụng trong API
 if (!class_exists('ServiceResponse')) {
     class ServiceResponse
     {
@@ -40,15 +36,13 @@ class StudentApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    // QUAN TRỌNG: Hãy thay đổi URL này thành URL thực tế của bạn
     private $baseUrl = 'http://localhost/path/to/your/api/student_api.php';
 
     protected function setUp(): void
     {
-        // Khởi tạo Guzzle Client để thực hiện các request HTTP
         $this->http = new Client([
             'base_uri' => $this->baseUrl,
-            'http_errors' => false, // Tắt việc Guzzle tự động ném exception cho response 4xx/5xx
+            'http_errors' => false,
         ]);
     }
 
@@ -67,9 +61,6 @@ class StudentApiTest extends TestCase
         return JWT::encode($payload, $this->secretKey, 'HS256');
     }
 
-    // --- Bắt đầu các Test Case ---
-
-    // --- Test Xác thực ---
     public function testShouldReturn401WhenNoTokenIsProvided()
     {
         $response = $this->http->request('GET');
@@ -96,7 +87,6 @@ class StudentApiTest extends TestCase
         $this->assertEquals('Token đã hết hạn.', $body['message']);
     }
 
-    // --- Test Logic các phương thức ---
     public function testGetAllStudents()
     {
         $token = $this->generateToken();
@@ -115,7 +105,6 @@ class StudentApiTest extends TestCase
             'json' => [
                 'studentID' => 'std123',
                 'userID' => 'user456'
-                // Thiếu enrollmentDate
             ]
         ]);
 
@@ -148,7 +137,6 @@ class StudentApiTest extends TestCase
             'headers' => ['Authorization' => 'Bearer ' . $token],
             'json' => [
                 'studentID' => 'std123'
-                // Thiếu userID và enrollmentDate
             ]
         ]);
 
@@ -162,7 +150,7 @@ class StudentApiTest extends TestCase
         $token = $this->generateToken();
         $response = $this->http->request('DELETE', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token],
-            'json' => [] // Body rỗng
+            'json' => []
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());

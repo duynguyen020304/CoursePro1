@@ -1,12 +1,9 @@
 <?php
 
-// tests/PaymentApiTest.php
-
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-// Mock các class phụ thuộc để môi trường test không bị lỗi
 if (!class_exists('PaymentService')) {
     class PaymentService
     {
@@ -15,7 +12,6 @@ if (!class_exists('PaymentService')) {
     }
 }
 
-// Mock lớp ServiceResponse vì nó được sử dụng trong API
 if (!class_exists('ServiceResponse')) {
     class ServiceResponse
     {
@@ -32,20 +28,17 @@ if (!class_exists('ServiceResponse')) {
     }
 }
 
-
 class PaymentApiTest extends TestCase
 {
     private $http;
     private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
-    // QUAN TRỌNG: Hãy thay đổi URL này thành URL thực tế của bạn
     private $baseUrl = 'http://localhost/path/to/your/api/payment_api.php';
 
     protected function setUp(): void
     {
-        // Khởi tạo Guzzle Client để thực hiện các request HTTP
         $this->http = new Client([
             'base_uri' => $this->baseUrl,
-            'http_errors' => false, // Tắt việc Guzzle tự động ném exception cho response 4xx/5xx
+            'http_errors' => false,
         ]);
     }
 
@@ -64,9 +57,6 @@ class PaymentApiTest extends TestCase
         return JWT::encode($payload, $this->secretKey, 'HS256');
     }
 
-    // --- Bắt đầu các Test Case ---
-
-    // --- Test Xác thực ---
     public function testShouldReturn401WhenNoTokenIsProvided()
     {
         $response = $this->http->request('GET');
@@ -93,13 +83,11 @@ class PaymentApiTest extends TestCase
         $this->assertEquals('Token đã hết hạn.', $body['message']);
     }
 
-    // --- Test Logic các phương thức ---
     public function testGetWithMissingOrderId()
     {
         $token = $this->generateToken();
         $response = $this->http->request('GET', '', [
             'headers' => ['Authorization' => 'Bearer ' . $token]
-            // Không có query param
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -114,7 +102,6 @@ class PaymentApiTest extends TestCase
             'headers' => ['Authorization' => 'Bearer ' . $token],
             'json' => [
                 'orderID' => 'order123'
-                // Thiếu amount
             ]
         ]);
 
