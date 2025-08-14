@@ -4,33 +4,6 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-if (!class_exists('RoleService')) {
-    class RoleService
-    {
-        public function get_role_by_role_id($roleID) {}
-        public function get_all_roles() {}
-        public function create_role($roleID, $roleName) {}
-        public function update_role($roleID, $roleName) {}
-        public function delete_role($roleID) {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
-
 
 class RoleApiTest extends TestCase
 {

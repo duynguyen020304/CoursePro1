@@ -4,22 +4,6 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-if (!class_exists('CartItemBLL')) {
-    class CartItemBLL
-    {
-        public function create_item($dto) {}
-        public function get_items_by_cart($cartID) {}
-        public function delete_item($cartItemID) {}
-        public function clear_cart($cartID) {}
-    }
-}
-if (!class_exists('CartItemDTO')) {
-    class CartItemDTO
-    {
-        public function __construct($cartItemID, $cartID, $courseID, $quantity) {}
-    }
-}
-
 class CartItemApiTest extends TestCase
 {
     private $http;

@@ -2,39 +2,14 @@
 
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
-
-if (!class_exists('ChapterService')) {
-    class ChapterService
-    {
-        public function get_chapters_by_course_id($courseID) {}
-        public function get_all_chapters() {}
-        public function create_chapter($courseID, $title, $description, $sortOrder) {}
-        public function update_chapter($chapterID, $courseID, $title, $description, $sortOrder) {}
-        public function delete_chapter($id) {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
+use Firebase\JWT\JWT;
 
 
 class ChapterApiTest extends TestCase
 {
     private $http;
     private $baseUrl = 'http://localhost/path/to/your/api/chapter_api.php';
+    private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
 
     protected function setUp(): void
     {

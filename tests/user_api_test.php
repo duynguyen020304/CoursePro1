@@ -4,36 +4,6 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-if (!class_exists('UserService')) {
-    class UserService
-    {
-        public function get_user_by_user_id($userID) {}
-        public function get_all_users() {}
-        public function create_user($email, $pass, $first, $last, $role, $bio, $img) {}
-        public function update_user_partial($data, $requestingUserID) {}
-        public function delete_user($userID, $requestingUserID) {}
-    }
-}
-if (!class_exists('UserDTO')) {
-    class UserDTO {}
-}
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
-
-
 class UserApiTest extends TestCase
 {
     private $http;

@@ -6,33 +6,6 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-if (!class_exists('ResourceService')) {
-    class ResourceService
-    {
-        public function get_resource_by_resource_id($resourceID) {}
-        public function get_resources_by_lesson_id($lessonID) {}
-        public function get_all_resources() {}
-        public function create_resource($lessonID, $resourcePath, $title, $sortOrder) {}
-        public function update_resource($resourceID, $lessonID, $resourcePath, $title, $sortOrder) {}
-        public function delete_resource($resourceID) {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
 
 
 class ResourceApiTest extends TestCase

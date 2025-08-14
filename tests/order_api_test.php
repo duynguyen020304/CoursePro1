@@ -5,34 +5,6 @@
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 
-if (!class_exists('OrderService')) {
-    class OrderService
-    {
-        public function get_order_by_order_id($orderID) {}
-        public function get_orders_by_user_id($userID) {}
-        public function create_order($orderID, $userID, $orderDate, $totalAmount) {}
-        public function update_order($orderID, $userID, $orderDate, $totalAmount) {}
-        public function delete_order($orderID) {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
-
-
 class OrderApiTest extends TestCase
 {
     private $http;

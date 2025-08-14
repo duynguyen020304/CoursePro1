@@ -3,28 +3,15 @@
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Firebase\JWT\JWT;
 
-if (!class_exists('CategoryService')) {
-    class CategoryService
-    {
-        public function get_nested_categories() {}
-        public function get_all_categories() {}
-        public function create($dto) {}
-        public function update($dto) {}
-        public function delete($id) {}
-    }
-}
-if (!class_exists('CategoryDTO')) {
-    class CategoryDTO
-    {
-        public function __construct($id, $name, $parent_id, $sort_order) {}
-    }
-}
+
 
 class CategoryApiTest extends TestCase
 {
     private $http;
     private $baseUrl = 'http://localhost/path/to/your/api/category_api.php';
+    private $secretKey = '0196ce3e-ba28-7b47-8472-beded9ae0b5d';
 
     protected function setUp(): void
     {

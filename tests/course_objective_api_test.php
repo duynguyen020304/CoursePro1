@@ -3,33 +3,6 @@
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 
-if (!class_exists('CourseObjectiveService')) {
-    class CourseObjectiveService
-    {
-        public function get_objective_by_objective_id($objectiveID) {}
-        public function get_objectives_by_course_id($courseID) {}
-        public function create($courseID, $objective) {}
-        public function update($objectiveID, $courseID, $objective) {}
-        public function delete($objectiveID) {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
-
 
 class CourseObjectiveApiTest extends TestCase
 {

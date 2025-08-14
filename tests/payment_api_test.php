@@ -4,29 +4,6 @@ use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 
-if (!class_exists('PaymentService')) {
-    class PaymentService
-    {
-        public function create_payment($orderID, $paymentDate, $method, $status, $amount) {}
-        public function get_payment_by_order_id($orderID) {}
-    }
-}
-
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
 
 class PaymentApiTest extends TestCase
 {

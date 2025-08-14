@@ -5,32 +5,7 @@
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 
-if (!class_exists('CourseRequirementService')) {
-    class CourseRequirementService
-    {
-        public function get_requirement_by_requirement_id($requirementID) {}
-        public function get_requirements_by_course_id($courseID) {}
-        public function create($courseID, $requirement) {}
-        public function update($requirementID, $courseID, $requirement) {}
-        public function delete($requirementID) {}
-    }
-}
 
-if (!class_exists('ServiceResponse')) {
-    class ServiceResponse
-    {
-        public $success;
-        public $message;
-        public $data;
-
-        public function __construct($success = false, $message = '', $data = null)
-        {
-            $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
-        }
-    }
-}
 
 
 class CourseRequirementApiTest extends TestCase
