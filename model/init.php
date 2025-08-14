@@ -557,7 +557,7 @@ class InitDatabase extends Database
     }
 
 
-    public function init_courses(string $filePath, bool $isCli = true): bool
+    public function init_courses(string $filePath, bool $isCli = true, string $action = 'normal'): bool
     {
         if (!file_exists($filePath)) {
             $this->log("INIT FAILED: Course Dataset JSON file not found at {$filePath}", 'error', $isCli);
@@ -583,7 +583,7 @@ class InitDatabase extends Database
         $this->log("Creating courses from dataset...", 'info', $isCli);
         $createdCourses = $this->initialize_course($courseData, $isCli);
 
-        if (!empty($createdCourses)) {
+        if (!empty($createdCourses) && $action == 'normal') {
             // Assuming assign_images_in_parallel is defined and works as intended
             $this->assign_images_in_parallel($createdCourses, $isCli);
             // $this->log("Skipping image assignment for now.", 'warning', $isCli);
@@ -787,6 +787,7 @@ $db_name = getenv('DB_NAME') ?: 'ecourse';
 $db_port = (int)(getenv('DB_PORT') ?: 3306);
 $db_charset = getenv('DB_CHARSET') ?: 'utf8mb4';
 $isCli = php_sapi_name() === 'cli';
+$isGithubAction = getenv('ACTION') ?: 'normal';
 
 $myinit = new InitDatabase($db_host, $db_user, $db_pass, $db_name, $db_port, $db_charset);
 
@@ -805,4 +806,4 @@ $course_data_path = "courses_5.json";
 $myinit->create_structure_and_procedures();
 $myinit->init_instructor(__DIR__ . "/" . $instructor_data_path, $isCli);
 $myinit->init_student(__DIR__ . "/" . $student_data_path, $isCli);
-$myinit->init_courses(__DIR__ . "/" . $course_data_path, $isCli);
+$myinit->init_courses(__DIR__ . "/" . $course_data_path, $isCli, $isGithubAction);
