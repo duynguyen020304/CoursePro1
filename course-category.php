@@ -167,6 +167,8 @@ if (!defined('APP_ROOT_PATH_RELATIVE_HEADER')) {
 
 
                 try {
+                    const appRootPath = "<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>";
+
                     const categoryApiUrl = `${appRootPath}/api/course_category_api.php?categoryID=${categoryId}`;
                     const categoryResponse = await fetch(categoryApiUrl, {
                         method: 'GET',
@@ -283,14 +285,20 @@ if (!defined('APP_ROOT_PATH_RELATIVE_HEADER')) {
                         if (course.images && Array.isArray(course.images) && course.images.length > 0) {
                             const imageFilename = course.images[0]['imagePath'];
                             if (typeof imageFilename === 'string' && imageFilename.trim() !== '') {
-                                imageUrl = `http://localhost/CoursePro1/controller/c_file_loader.php?act=serve_image&course_id=${course.courseID}&image=${encodeURIComponent(imageFilename)}`;
+                                const appRootPath = "<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>";
+                                const courseApiUrl = `${appRootPath}/api/course_api.php?courseID=${courseId}&isFilterByCategory=true`;
+
+                                imageUrl = `${appRootPath}/controller/c_file_loader.php?act=serve_image&course_id=${course.courseID}&image=${encodeURIComponent(imageFilename)}`;
                             }
                         }
                         if (!imageUrl && course.image_url) {
                             if (course.image_url.startsWith('http://') || course.image_url.startsWith('https://')) {
                                 imageUrl = course.image_url;
                             } else {
-                                imageUrl = `http://localhost/CoursePro1/controller/c_file_loader.php?act=serve_image&course_id=${course.courseID}&image=${encodeURIComponent(course.image_url)}`;
+                                const appRootPath = "<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>";
+                                const courseApiUrl = `${appRootPath}/api/course_api.php?courseID=${courseId}&isFilterByCategory=true`;
+
+                                imageUrl = `${appRootPath}/controller/c_file_loader.php?act=serve_image&course_id=${course.courseID}&image=${encodeURIComponent(course.image_url)}`;
                             }
                         }
                         if (!imageUrl) {
