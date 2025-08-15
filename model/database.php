@@ -47,7 +47,7 @@ class Database
         }
     }
 
-    private function createDatabase(): void
+    public function createDatabase(): void
     {
         try {
             $tmp_conn = new mysqli($this->host, $this->user, $this->pass, '', $this->databasePort);
