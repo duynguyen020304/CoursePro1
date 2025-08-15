@@ -95,6 +95,20 @@ else
   echo "Unknown or empty ACTION: ${ACTION:-<empty>}"
 fi
 
+sudo systemctl stop mysql
+sudo apt purge --auto-remove mysql-server mysql-client mysql-common -y
+sudo apt autoremove -y
+sudo apt autoclean
+
+# Xóa toàn bộ dữ liệu MySQL (database, user, config)
+sudo rm -rf /etc/mysql /var/lib/mysql
+sudo deluser mysql
+sudo delgroup mysql
+
+# Cài lại
+sudo apt update
+sudo apt install mysql-server -y
+
 echo "Install essential packages for deploying apache"
 
 sudo apt install -y \
