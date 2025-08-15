@@ -13,7 +13,7 @@ export ACTION DB_ACTION
 if [ -z "${FIRST_TIME_RUN-}" ]; then
   echo "First time run detected"
   FIRST_TIME_RUN="yes"
-  export FIRST_TIME_RUN 
+  export FIRST_TIME_RUN
 else
   echo "This not first time run, so don't recreate the database, except override it with db_action"
 fi
@@ -76,10 +76,12 @@ if [[ "${EUID:-}" -ne 0 ]]; then
     exit 1
   fi
 
-  ( while true; do
+  (
+    while true; do
       sudo -v
       sleep 60
-    done ) &
+    done
+  ) &
   SUDO_KEEPALIVE_PID=$!
 
   trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
@@ -106,7 +108,7 @@ sudo apt install -y \
   build-essential autoconf pkg-config make \
   libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
   libsqlite3-dev libffi-dev liblzma-dev tk-dev \
-  ca-certificates xz-utils \
+  ca-certificates xz-utils certbot \
   libncursesw5-dev libgdbm-dev libnss3-dev libncurses5-dev
 
 ##Python module
@@ -134,7 +136,7 @@ fi
 echo "Cloning the project from git repo"
 REPO_URL="https://github.com/thavananh/CoursePro1.git"
 PROJECT_NAME=${REPO_URL##*/}
-PROJECT_NAME="${PROJECT_NAME%.git}" 
+PROJECT_NAME="${PROJECT_NAME%.git}"
 
 sudo rm -rf "$PROJECT_NAME"
 BRANCH="feature/mysql"
@@ -150,7 +152,10 @@ sudo chown -R $USER:$USER "$APACHE_PROJECT_DESTINATION/$PROJECT_NAME"
 sudo chmod -R 755 "$APACHE_PROJECT_DESTINATION/$PROJECT_NAME"
 
 echo "Creating self singed ssl"
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt -subj "/C=VN/ST=HoChiMinh/L=District1/O=ExampleCompany/OU=IT/CN=nguyenvominhduy.vn"
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/ssl/private/apache-selfsigned.key \
+  -out /etc/ssl/certs/apache-selfsigned.crt \
+  -subj "/C=VN/ST=HoChiMinh/L=District1/O=ExampleCompany/OU=IT/CN=vyta.io.vn"
 
 OUTPUT_FILE="/etc/apache2/sites-available/$PROJECT_NAME.conf"
 
@@ -169,9 +174,9 @@ sudo tee "$OUTPUT_FILE" > /dev/null <<EOF
         Require all granted
     </Directory>
     ServerAdmin ubuntu@coursepro1
-    ServerName ubuntu
-    # Redirect / https://nguyenvominhduy.vn/
-    ServerAlias www.nguyenvominhduy.vn
+    ServerName vyta.io.vn
+    # Redirect / https://vyta.io.vn/
+    ServerAlias www.vyta.io.vn
     DocumentRoot /var/www/$PROJECT_NAME
     ErrorLog /var/log/apache2/error.log
     CustomLog /var/log/apache2/access.log combined
@@ -190,8 +195,8 @@ sudo tee "$OUTPUT_FILE" > /dev/null <<EOF
         Require all granted
     </Directory>
     ServerAdmin ubuntu@coursepro1
-    ServerName ubuntu
-    ServerAlias www.nguyenvominhduy.vn
+    ServerName vyta.io.vn
+    ServerAlias www.vyta.io.vn
     DocumentRoot /var/www/$PROJECT_NAME
 
     ErrorLog /var/log/apache2/error.log
@@ -211,6 +216,36 @@ sudo a2dissite 000-default.conf
 sudo apache2ctl configtest
 sudo systemctl restart apache2
 
+# --- Let's Encrypt (Certbot) section: obtain and apply certificate for vyta.io.vn ---
+echo "Setting up Let's Encrypt certificate for vyta.io.vn"
+if ! command -v certbot >/dev/null 2>&1; then
+  sudo apt install -y certbot
+fi
+
+# Try to obtain/renew certificate using webroot without altering current vhost logic
+if sudo certbot certonly \
+  --webroot -w "/var/www/$PROJECT_NAME" \
+  -d vyta.io.vn -d www.vyta.io.vn \
+  --non-interactive --agree-tos -m admin@vyta.io.vn \
+  --keep-until-expiring --rsa-key-size 4096
+then
+  echo "Let's Encrypt certificate obtained successfully. Updating Apache SSL paths."
+  LE_DIR="/etc/letsencrypt/live/vyta.io.vn"
+  if [[ -f "\$LE_DIR/fullchain.pem" && -f "\$LE_DIR/privkey.pem" ]]; then
+    sudo sed -i \
+      -e "s#SSLCertificateFile[[:space:]]\\+/etc/ssl/certs/apache-selfsigned.crt#SSLCertificateFile \$LE_DIR/fullchain.pem#g" \
+      -e "s#SSLCertificateKeyFile[[:space:]]\\+/etc/ssl/private/apache-selfsigned.key#SSLCertificateKeyFile \$LE_DIR/privkey.pem#g" \
+      "$OUTPUT_FILE"
+    sudo apache2ctl configtest
+    sudo systemctl reload apache2
+  else
+    echo "Expected cert files not found at \$LE_DIR. Keeping self-signed for now." >&2
+  fi
+else
+  echo "Certbot failed to obtain certificate. Continuing with self-signed cert." >&2
+fi
+# --- End Let's Encrypt section ---
+
 echo "Configure mysql database"
 sudo mysql -u root -p'30112004' << 'EOF'
 ALTER USER 'root'@'localhost'
@@ -224,8 +259,6 @@ export DB_PASS='30112004'
 export DB_NAME=ecourse
 export DB_PORT=3306
 export DB_CHARSET=utf8mb4
-
-
 
 # --- Begin: create temporary systemd service for image_crawling_api and start it now ---
 # Service will be stopped & unit removed on script exit.
@@ -309,7 +342,7 @@ echo "Creating database, tables, trigger"
 php "$APACHE_PROJECT_DESTINATION/$PROJECT_NAME/model/init.php"
 
 FIRST_TIME_RUN="no"
-export FIRST_TIME_RUN 
+export FIRST_TIME_RUN
 
 elapsed=$SECONDS
 echo "Elapsed: ${elapsed}s"

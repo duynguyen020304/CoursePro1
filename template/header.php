@@ -8,7 +8,7 @@ $h_host = $_SERVER['HTTP_HOST'];
 $h_script_path = $_SERVER['SCRIPT_NAME'];
 $h_app_root_path_relative = '';
 
-$h_known_app_subdir_markers = ['/admin/', '/api/', '/includes/', '/controller/', '/view/', '/template/'];
+$h_known_app_subdir_markers = ['/admin/', '/api/', '/includes/', '/controller/', '/view/', '/template/', '/model/'];
 $h_found_marker = false;
 foreach ($h_known_app_subdir_markers as $h_marker) {
     $h_pos = strpos($h_script_path, $h_marker);
