@@ -137,7 +137,7 @@ install_pip_packages() {
   }
 
   # If requirements.txt exists in cwd
-  if [ \"\$ACTION\" = \"github\" ] && [ -f requirements_for_github_action.txt ]; then
+  if [ "$ACTION" = "github" ] && [ -f requirements_for_github_action.txt ]; then
     echo "Github action detected"
     echo "Found requirements_for_github_action.txt in current directory. Installing..."
     "$PY_BIN" -m pip install -r "./requirements_for_github_action.txt" || {
@@ -147,16 +147,15 @@ install_pip_packages() {
     echo "Installed packages from requirements_for_github_action.txt"
     pyenv rehash || true
     return 0
-  fi
   elif [ -f requirements.txt ]; then
-    echo "Found requirements.txt in current directory. Installing..."
-    "$PY_BIN" -m pip install -r "./requirements.txt" || {
-      echo "pip install -r requirements.txt failed" >&2
-      return 5
-    }
-    echo "Installed packages from requirements.txt"
-    pyenv rehash || true
-    return 0
+      echo "Found requirements.txt in current directory. Installing..."
+      "$PY_BIN" -m pip install -r "./requirements.txt" || {
+        echo "pip install -r requirements.txt failed" >&2
+        return 5
+      }
+      echo "Installed packages from requirements.txt"
+      pyenv rehash || true
+      return 0
   fi
 
   # If packages.txt exists (one package per line), parse and install
