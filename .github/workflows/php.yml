@@ -75,9 +75,10 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          timeout: 1800
           script: |
             cd ~/
             git clone -b "feature/mysql" "https://github.com/thavananh/CoursePro1.git"
             sudo cp CoursePro1/ci_cd/* ~/
             sudo rm -rf CoursePro1
-            sudo ./init_essential.bash normal no 100
+            sudo ./init_essential.bash normal yes 50
