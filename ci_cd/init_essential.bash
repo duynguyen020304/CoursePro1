@@ -239,7 +239,7 @@ SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 APP_API_DIR="$APACHE_PROJECT_DESTINATION/$PROJECT_NAME/api"
 
 echo "Creating temporary systemd unit $SERVICE_NAME to run image_crawling_api as $RUN_USER"
-
+SERVICE_PATH="/etc/systemd/system/image-crawling-api.service"
 sudo tee "$SERVICE_PATH" > /dev/null <<EOF
 [Unit]
 Description=Image Crawling API (gunicorn)
