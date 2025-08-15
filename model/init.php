@@ -587,8 +587,7 @@ class InitDatabase extends Database
             // Assuming assign_images_in_parallel is defined and works as intended
             $this->assign_images_in_parallel($createdCourses, $isCli);
             // $this->log("Skipping image assignment for now.", 'warning', $isCli);
-        }
-        else if (!empty($createdCourses) && $action == 'github_action') {
+        } else if (!empty($createdCourses) && $action == 'github_action') {
             $this->log("Github action detected, skipping assinged image to course", 'info', $isCli);
         } else {
             $this->log("No courses were created from the dataset.", 'warning', $isCli);
@@ -792,7 +791,8 @@ $db_charset = getenv('DB_CHARSET') ?: 'utf8mb4';
 $isCli = php_sapi_name() === 'cli';
 $isGithubAction = getenv('ACTION') ?: 'normal';
 $isRecreateDB = getenv('DB_ACTION') ?: 'no';
-
+$isFirstTimeRun = getenv('FIRST_TIME_RUN') ?: 'no';
+$datasetSize = getenv('DATASET_SIZE') ?: '5';
 
 
 $myinit = new InitDatabase($db_host, $db_user, $db_pass, $db_name, $db_port, $db_charset);
@@ -807,9 +807,21 @@ if ($db_user === 'root' && $db_pass === '') {
 
 $student_data_path = "students-20250810_105322.json";
 $instructor_data_path = "instructors-20250810_101621.json";
-$course_data_path = "courses_5.json";
 
-if ($isRecreateDB == 'yes') {
+$course_data_path = "courses_5.json";
+if ($datasetSize == '5') {
+    $course_data_path = "courses_5.json";
+} else if ($datasetSize == '10') {
+    $course_data_path = "courses_10.json";
+} else if ($datasetSize == '25') {
+    $course_data_path = "courses_25.json";
+} else if ($datasetSize == '50') {
+    $course_data_path = "courses_50.json";
+} else if ($datasetSize == '100') {
+    $course_data_path = "courses_100.json";
+}
+
+if ($isRecreateDB === 'yes' || ($isFirstTimeRun === 'yes' && $isRecreateDB === 'no')) {
     $myinit->log("Starting create database", 'info', $isCli);
     $myinit->create_structure_and_procedures();
     $myinit->init_instructor(__DIR__ . "/" . $instructor_data_path, $isCli);

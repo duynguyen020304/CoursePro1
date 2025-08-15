@@ -6,8 +6,18 @@ SECONDS=0
 
 ACTION=${1:-normal}
 DB_ACTION=${2:-no}
+DATASET_SIZE=${3:-5}
 
 export ACTION DB_ACTION
+
+if [ -z "$FIRST_TIME_RUN" ]; then
+  echo "First time run detected"
+  FIRST_TIME_RUN="yes"
+  export FIRST_TIME_RUN 
+else
+  echo "This not first time run, so don't recreate the database, except override it with db_action"
+fi
+
 #Updating module
 
 detect_distro() {
@@ -271,7 +281,11 @@ if command -v pyenv >/dev/null 2>&1; then
 fi
 cd \"$APP_API_DIR\" || exit 1
 python -m pip install --upgrade pip setuptools wheel || true
-if [ -f requirements.txt ]; then python -m pip install -r requirements.txt || true; fi
+if [ \"\$ACTION\" = \"github\" ] && [ -f requirements_for_github_action.txt ]; then
+  python -m pip install -r requirements_for_github_action.txt || true
+elif [ -f requirements.txt ]; then
+  python -m pip install -r requirements.txt || true
+fi
 python -m pip install gunicorn || true
 "
 
@@ -298,13 +312,14 @@ cleanup_gunicorn_service() {
 trap 'kill "${SUDO_KEEPALIVE_PID:-}" 2>/dev/null || true; cleanup_gunicorn_service' EXIT
 # --- End: systemd service section ---
 
-
+echo "Installing all package dependcy for project"
+composer install --working-dir="$APACHE_PROJECT_DESTINATION/$PROJECT_NAME"
 
 echo "Creating database, tables, trigger"
 php "$APACHE_PROJECT_DESTINATION/$PROJECT_NAME/model/init.php"
 
-echo "Installing all package dependcy for project"
-composer install --working-dir="$APACHE_PROJECT_DESTINATION/$PROJECT_NAME"
+FIRST_TIME_RUN="no"
+export FIRST_TIME_RUN 
 
 elapsed=$SECONDS
 echo "Elapsed: ${elapsed}s"
