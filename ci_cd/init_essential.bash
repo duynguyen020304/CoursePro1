@@ -212,12 +212,32 @@ sudo apache2ctl configtest
 sudo systemctl restart apache2
 
 echo "Configure mysql database"
-sudo mysql << 'EOF'
-ALTER USER 'root'@'localhost'
-  IDENTIFIED VIA mysql_native_password
-  USING PASSWORD('30112004');
+NEW_PASS="30112004"
+
+# Kiểm tra root đang dùng auth_socket hay mysql_native_password
+PLUGIN=$(sudo mysql -Nse "SELECT plugin FROM mysql.user WHERE user='root' AND host='localhost';")
+
+if [ "$PLUGIN" != "mysql_native_password" ]; then
+    echo "[INFO] Đang đổi root sang dùng mysql_native_password..."
+    sudo mysql <<EOF
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${NEW_PASS}';
 FLUSH PRIVILEGES;
 EOF
+    echo "[OK] Đã đổi mật khẩu root."
+else
+    # Nếu đã dùng mysql_native_password thì kiểm tra mật khẩu
+    echo "[INFO] Root đã dùng mysql_native_password. Kiểm tra mật khẩu..."
+    if mysql -u root -p"${NEW_PASS}" -e "SELECT 1;" >/dev/null 2>&1; then
+        echo "[OK] Mật khẩu root đã đúng, không cần đổi."
+    else
+        echo "[WARN] Mật khẩu root không khớp. Đang đổi lại..."
+        sudo mysql <<EOF
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${NEW_PASS}';
+FLUSH PRIVILEGES;
+EOF
+        echo "[OK] Đã cập nhật mật khẩu root."
+    fi
+fi
 export DB_HOST=127.0.0.1
 export DB_USER=root
 export DB_PASS='30112004'
