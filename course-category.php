@@ -4,6 +4,42 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 $token = $_SESSION['user']['token'] ?? null;
 include('template/head.php');
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+$h_protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
+$h_host = $_SERVER['HTTP_HOST'];
+$h_script_path = $_SERVER['SCRIPT_NAME'];
+$h_app_root_path_relative = '';
+
+$h_known_app_subdir_markers = ['/admin/', '/api/', '/includes/', '/controller/', '/view/', '/template/', '/model/'];
+$h_found_marker = false;
+foreach ($h_known_app_subdir_markers as $h_marker) {
+    $h_pos = strpos($h_script_path, $h_marker);
+    if ($h_pos !== false) {
+        $h_app_root_path_relative = substr($h_script_path, 0, $h_pos);
+        $h_found_marker = true;
+        break;
+    }
+}
+
+if (!$h_found_marker) {
+    $h_app_root_path_relative = dirname($h_script_path);
+    if (($h_app_root_path_relative === '/' || $h_app_root_path_relative === '\\')) {
+        if (substr_count(ltrim($h_script_path, '/'), '/') == 0) {
+            $h_app_root_path_relative = '';
+        }
+    }
+}
+
+if ($h_app_root_path_relative !== '/' && $h_app_root_path_relative !== '') {
+    $h_app_root_path_relative = rtrim($h_app_root_path_relative, '/');
+}
+
+if (!defined('APP_ROOT_PATH_RELATIVE_HEADER')) {
+    define('APP_ROOT_PATH_RELATIVE_HEADER', $h_app_root_path_relative);
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -94,7 +130,8 @@ include('template/head.php');
                     return null;
                 }
                 try {
-                    const courseApiUrl = `http://localhost/CoursePro1/api/course_api.php?courseID=${courseId}&isFilterByCategory=true`;
+                    const appRootPath = "<?php echo APP_ROOT_PATH_RELATIVE_HEADER; ?>";
+                    const courseApiUrl = `${appRootPath}/api/course_api.php?courseID=${courseId}&isFilterByCategory=true`;
                     const response = await fetch(courseApiUrl, {
                         method: 'GET',
                         headers: {
@@ -130,7 +167,7 @@ include('template/head.php');
 
 
                 try {
-                    const categoryApiUrl = `http://localhost/CoursePro1/api/course_category_api.php?categoryID=${categoryId}`;
+                    const categoryApiUrl = `${appRootPath}/api/course_category_api.php?categoryID=${categoryId}`;
                     const categoryResponse = await fetch(categoryApiUrl, {
                         method: 'GET',
                         headers: {
