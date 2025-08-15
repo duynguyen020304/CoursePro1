@@ -57,7 +57,7 @@ jobs:
       - name: 🚀 Run Init Database Sequence via bash script
         run: ./ci_cd/init_essential.bash github yes
 
-      # ====== PHPUnit Test ======
+      #====== PHPUnit Test ======
       - name: 🧪 Run PHPUnit tests
         run: vendor/bin/phpunit --configuration phpunit.xml --colors=always
 
