@@ -1,4 +1,40 @@
 <?php
+$h_protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
+$h_host = $_SERVER['HTTP_HOST'];
+$h_script_path = $_SERVER['SCRIPT_NAME'];
+$h_app_root_path_relative = '';
+
+$h_known_app_subdir_markers = ['/admin/', '/api/', '/includes/', '/controller/', '/view/', '/template/'];
+$h_found_marker = false;
+foreach ($h_known_app_subdir_markers as $h_marker) {
+    $h_pos = strpos($h_script_path, $h_marker);
+    if ($h_pos !== false) {
+        $h_app_root_path_relative = substr($h_script_path, 0, $h_pos);
+        $h_found_marker = true;
+        break;
+    }
+}
+
+if (!$h_found_marker) {
+    $h_app_root_path_relative = dirname($h_script_path);
+    if (($h_app_root_path_relative === '/' || $h_app_root_path_relative === '\\')) {
+        if (substr_count(ltrim($h_script_path, '/'), '/') == 0) {
+            $h_app_root_path_relative = '';
+        }
+    }
+}
+
+if ($h_app_root_path_relative !== '/' && $h_app_root_path_relative !== '') {
+    $h_app_root_path_relative = rtrim($h_app_root_path_relative, '/');
+}
+
+if (!defined('APP_ROOT_PATH_RELATIVE_HEADER')) {
+    define('APP_ROOT_PATH_RELATIVE_HEADER', $h_app_root_path_relative);
+}
+if (!defined('API_BASE_HEADER')) {
+    define('API_BASE_HEADER', $h_protocol . '://' . $h_host . APP_ROOT_PATH_RELATIVE_HEADER . '/api');
+}
+
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 require_once("database.php");
@@ -674,7 +710,7 @@ class InitDatabase extends Database
                 $courseId = $course['id'];
                 $courseTitle = $course['title'];
                 $courseLanguage = $course['language'];
-                $apiUrl = "http://localhost:5000/get-course-image?title=" . urlencode($courseTitle) . "&language=" . urlencode($courseLanguage);
+                $apiUrl = "http://" . APP_ROOT_PATH_RELATIVE_HEADER . ":5000/get-course-image?title=" . urlencode($courseTitle) . "&language=" . urlencode($courseLanguage);
 
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $apiUrl);
