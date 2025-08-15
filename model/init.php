@@ -611,6 +611,7 @@ class InitDatabase extends Database
         }
         echo "Starting drop database";
         $this->execute('DROP DATABASE IF EXISTS ecourse');
+        $this->createDatabase("localhost", "root", "30112004", "ecourse", 3306);
         $this->log("Attempting to initialize database structure (schema.sql)...", 'title', $isCli);
         $schemaFilePath = __DIR__ . '/schema.sql';
 
