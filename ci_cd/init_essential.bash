@@ -10,7 +10,7 @@ DATASET_SIZE=${3:-5}
 
 export ACTION DB_ACTION
 
-if [ -z "$FIRST_TIME_RUN" ]; then
+if [ -z "${FIRST_TIME_RUN-}" ]; then
   echo "First time run detected"
   FIRST_TIME_RUN="yes"
   export FIRST_TIME_RUN 
