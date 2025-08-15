@@ -75,7 +75,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          timeout: 1800
+          timeout: 1800s
           script: |
             cd ~/
             git clone -b "feature/mysql" "https://github.com/thavananh/CoursePro1.git"
