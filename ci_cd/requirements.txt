@@ -4,9 +4,6 @@ Pillow
 icrawler
 numpy
 pandas
-oracledb
-underthesea
-sentence-transformers
 requests
 gunicorn
 imagehash
