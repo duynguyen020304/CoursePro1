@@ -710,7 +710,8 @@ class InitDatabase extends Database
                 $courseId = $course['id'];
                 $courseTitle = $course['title'];
                 $courseLanguage = $course['language'];
-                $apiUrl = "http://" . APP_ROOT_PATH_RELATIVE_HEADER . ":5000/get-course-image?title=" . urlencode($courseTitle) . "&language=" . urlencode($courseLanguage);
+                
+                $apiUrl = APP_ROOT_PATH_RELATIVE_HEADER . ":5000/get-course-image?title=" . urlencode($courseTitle) . "&language=" . urlencode($courseLanguage);
 
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $apiUrl);
