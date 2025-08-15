@@ -60,3 +60,24 @@ jobs:
       # ====== PHPUnit Test ======
       - name: 🧪 Run PHPUnit tests
         run: vendor/bin/phpunit --configuration phpunit.xml --colors=always
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 🚀 Deploy to EC2
+        if: success()
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/
+            git clone -b "feature/mysql" "https://github.com/thavananh/CoursePro1.git"
+            sudo cp CoursePro1/ci_cd/* ~/
+            sudo rm -rf CoursePro1
+            sudo ./init_essential.bash normal no 100
