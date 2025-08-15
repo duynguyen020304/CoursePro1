@@ -25,6 +25,7 @@ else
   sudo rm -rf /etc/mysql /var/lib/mysql
   sudo deluser mysql
   sudo delgroup mysql
+  sudo apt install mysql-server
 fi
 
 #Updating module
