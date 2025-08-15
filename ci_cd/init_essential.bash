@@ -16,6 +16,15 @@ if [ -z "${FIRST_TIME_RUN-}" ]; then
   export FIRST_TIME_RUN 
 else
   echo "This not first time run, so don't recreate the database, except override it with db_action"
+  sudo systemctl stop mysql
+  sudo apt purge --auto-remove mysql-server mysql-client mysql-common -y
+  sudo apt autoremove -y
+  sudo apt autoclean
+
+  # Xóa toàn bộ dữ liệu MySQL (database, user, config)
+  sudo rm -rf /etc/mysql /var/lib/mysql
+  sudo deluser mysql
+  sudo delgroup mysql
 fi
 
 #Updating module
@@ -95,15 +104,7 @@ else
   echo "Unknown or empty ACTION: ${ACTION:-<empty>}"
 fi
 
-sudo systemctl stop mysql
-sudo apt purge --auto-remove mysql-server mysql-client mysql-common -y
-sudo apt autoremove -y
-sudo apt autoclean
 
-# Xóa toàn bộ dữ liệu MySQL (database, user, config)
-sudo rm -rf /etc/mysql /var/lib/mysql
-sudo deluser mysql
-sudo delgroup mysql
 
 # Cài lại
 sudo apt update
