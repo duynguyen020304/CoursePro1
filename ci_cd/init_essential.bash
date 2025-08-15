@@ -225,17 +225,7 @@ export DB_NAME=ecourse
 export DB_PORT=3306
 export DB_CHARSET=utf8mb4
 
-if ! command -v pyenv >/dev/null 2>&1; then
-    echo "pyenv is not in PATH. Attempting to reload..."
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    if command -v pyenv >/dev/null 2>&1; then
-      eval "$(pyenv init - bash)"
-    else
-      echo "pyenv could not be found. Please reopen the terminal or re-run the script." >&2
-      exit 1
-    fi
-fi
+
 
 # --- Begin: create temporary systemd service for image_crawling_api and start it now ---
 # Service will be stopped & unit removed on script exit.
