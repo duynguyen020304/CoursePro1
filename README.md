@@ -90,7 +90,7 @@ A comprehensive, full-stack e-learning platform built with PHP, MySQL/Oracle, an
    - Update `config.php` with your server settings
    - Configure email settings for PHPMailer
 
-## �� Configuration
+## Configuration
 
 ### Database Configuration
 The platform supports both MySQL and Oracle databases. Update the configuration in `config.php`:
