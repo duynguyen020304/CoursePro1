@@ -62,7 +62,7 @@ A comprehensive, full-stack e-learning platform built with PHP, MySQL/Oracle, an
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/CoursePro1.git
+   git clone https://github.com/duynguyen020304/CoursePro1.git
    cd CoursePro1
    ```
 
