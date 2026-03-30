@@ -1,23 +1,57 @@
 # Composer dependencies
 /vendor/
 
-# If you used a composer.phar in your repo:
+# Composer files
 composer.phar
-
-# Composer runtime file (you usually commit composer.json + composer.lock)
 /composer.lock
 
 # Environment files
 .env
+.env.local
+.env.*.local
 
 # OS-specific files
 .DS_Store
 Thumbs.db
+ehthumbs.db
 
 # IDE/editor settings
 /.idea/
 /.vscode/
 /*.sublime-workspace
 *.swp
+*.swo
 
+# Uploads directory
 /uploads/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# SQLite databases (keep schema, ignore data)
+backend/api/python/images.db
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Cache files
+.cache/
+
+# OMC/Claude Code
+.claude/
+.omc/
+
+# Test coverage
+coverage/
+*.coverage

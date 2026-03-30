@@ -1,0 +1,27 @@
+# CoursePro1 Root .htaccess
+RewriteEngine On
+
+# Set the default document
+DirectoryIndex frontend/index.php
+
+# Rewrite for frontend pages
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^$ frontend/index.php [L]
+
+# Route frontend requests
+RewriteCond %{REQUEST_URI} !^/frontend/
+RewriteCond %{REQUEST_URI} !^/backend/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ frontend/$1 [L]
+
+# Protect backend Model and Config directories from direct access
+RewriteRule ^backend/Model/ - [F,L]
+RewriteRule ^backend/Service/ - [F,L]
+
+# Allow backend Controller/Api access
+RewriteCond %{REQUEST_URI} ^/backend/Controller/Api/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^backend/Controller/Api/(.*)$ backend/Controller/Api/$1.php [L,QSA]
