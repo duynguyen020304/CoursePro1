@@ -1,279 +1,253 @@
-DELIMITER $$
+CREATE OR REPLACE PACKAGE USER_PKG AS
 
-CREATE PROCEDURE `CREATE_USER_PROC`(
-    IN p_UserID       INT,
-    IN p_FirstName    VARCHAR(255),
-    IN p_LastName     VARCHAR(255),
-    IN p_Email        VARCHAR(255),
-    IN p_Password     VARCHAR(255),
-    IN p_RoleID       INT,
-    IN p_ProfileImage VARCHAR(255)
-)
-BEGIN
-    DECLARE v_error_message VARCHAR(255);
-    DECLARE v_exists INT DEFAULT 0;
-
-    -- Kiểm tra UserID đã tồn tại
-    SELECT COUNT(*) INTO v_exists
-    FROM `USERS`
-    WHERE `UserID` = p_UserID;
-
-    IF v_exists > 0 THEN
-        SET v_error_message = CONCAT(
-            'User with UserID ''',
-            p_UserID,
-            ''' already exists.'
-        );
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = v_error_message;
-    END IF;
-
-    -- Kiểm tra Email đã tồn tại
-    SELECT COUNT(*) INTO v_exists
-    FROM `USERS`
-    WHERE `Email` = p_Email;
-
-    IF v_exists > 0 THEN
-        SET v_error_message = CONCAT(
-            'User with Email ''',
-            p_Email,
-            ''' already exists.'
-        );
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = v_error_message;
-    END IF;
-
-    INSERT INTO `USERS` (
-        `UserID`,
-        `FirstName`,
-        `LastName`,
-        `Email`,
-        `Password`,
-        `RoleID`,
-        `ProfileImage`
-    )
-    VALUES (
-        p_UserID,
-        p_FirstName,
-        p_LastName,
-        p_Email,
-        p_Password,
-        p_RoleID,
-        p_ProfileImage
+    PROCEDURE CREATE_USER_PROC(
+        p_UserID       IN USERS.UserID%TYPE,
+        p_FirstName    IN USERS.FirstName%TYPE,
+        p_LastName     IN USERS.LastName%TYPE,
+        p_Email        IN USERS.Email%TYPE,
+        p_Password     IN USERS.Password%TYPE,
+        p_RoleID       IN USERS.RoleID%TYPE,
+        p_ProfileImage IN USERS.ProfileImage%TYPE DEFAULT NULL
     );
-END$$
 
-CREATE PROCEDURE `GET_USER_FOR_AUTH_PROC`(
-    IN p_Email VARCHAR(255)
-)
-BEGIN
-    SELECT
-        `UserID`,
-        `FirstName`,
-        `LastName`,
-        `Email`,
-        `Password`,
-        `RoleID`,
-        `ProfileImage`,
-        DATE_FORMAT(`created_at`, '%Y-%m-%d %H:%i:%s.%f') AS
-            `created_at_formatted`
-    FROM
-        `USERS`
-    WHERE
-        `Email` = p_Email;
-END$$
+    FUNCTION GET_USER_FOR_AUTH_FUNC(
+        p_Email IN USERS.Email%TYPE
+    ) RETURN SYS_REFCURSOR;
 
-CREATE PROCEDURE `DELETE_USER_PROC`(
-    IN p_UserID INT
-)
-BEGIN
-    DECLARE v_error_message VARCHAR(255);
-    DECLARE v_exists INT DEFAULT 0;
-    DECLARE v_in_use INT DEFAULT 0;
+    PROCEDURE DELETE_USER_PROC(
+        p_UserID IN USERS.UserID%TYPE
+    );
 
-    -- Kiểm tra tồn tại user
-    SELECT COUNT(*) INTO v_exists
-    FROM `USERS`
-    WHERE `UserID` = p_UserID;
+    PROCEDURE UPDATE_USER_PROC(
+        p_UserID        IN USERS.UserID%TYPE,
+        p_FirstName     IN USERS.FirstName%TYPE    DEFAULT NULL,
+        p_LastName      IN USERS.LastName%TYPE     DEFAULT NULL,
+        p_Password      IN USERS.Password%TYPE     DEFAULT NULL,
+        p_RoleID        IN USERS.RoleID%TYPE       DEFAULT NULL,
+        p_ProfileImage  IN USERS.ProfileImage%TYPE DEFAULT NULL
+    );
 
-    IF v_exists = 0 THEN
-        SET v_error_message = CONCAT(
-            'User with UserID ''',
-            p_UserID,
-            ''' not found for deletion.'
-        );
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = v_error_message;
-    END IF;
+    FUNCTION GET_USER_BY_ID_FUNC(
+        p_UserID IN USERS.UserID%TYPE
+    ) RETURN SYS_REFCURSOR;
 
-    -- Kiểm tra các bảng có thể tham chiếu tới USERS (ví dụ ORDERS)
-    SELECT COUNT(*) INTO v_in_use
-    FROM `ORDERS`
-    WHERE `UserID` = p_UserID;
+    FUNCTION GET_USER_BY_EMAIL_FUNC(
+        p_Email IN USERS.Email%TYPE
+    ) RETURN SYS_REFCURSOR;
 
-    IF v_in_use > 0 THEN
-        SET v_error_message = CONCAT(
-            'Cannot delete UserID ''',
-            p_UserID,
-            ''' as it is referenced by other records.'
-        );
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = v_error_message;
-    END IF;
+    FUNCTION GET_ALL_USERS_FUNC
+        RETURN SYS_REFCURSOR;
 
-    -- Kiểm tra bảng STUDENT (nếu có tham chiếu)
-    SELECT COUNT(*) INTO v_in_use
-    FROM `STUDENT`
-    WHERE `UserID` = p_UserID;
+    FUNCTION EMAIL_EXISTS_FUNC(
+        p_Email         IN USERS.Email%TYPE,
+        p_ExcludeUserID IN USERS.UserID%TYPE DEFAULT NULL
+    ) RETURN NUMBER;
 
-    IF v_in_use > 0 THEN
-        SET v_error_message = CONCAT(
-            'Cannot delete UserID ''',
-            p_UserID,
-            ''' as it is referenced by other records.'
-        );
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = v_error_message;
-    END IF;
+END USER_PKG;
+/
 
-    DELETE FROM `USERS`
-    WHERE `UserID` = p_UserID;
+CREATE OR REPLACE PACKAGE BODY USER_PKG AS
 
-    IF ROW_COUNT() = 0 THEN
-        SET v_error_message = CONCAT(
-            'User with UserID ''',
-            p_UserID,
-            ''' not found for deletion.'
-        );
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = v_error_message;
-    END IF;
-END$$
+    PROCEDURE CREATE_USER_PROC(
+        p_UserID       IN USERS.UserID%TYPE,
+        p_FirstName    IN USERS.FirstName%TYPE,
+        p_LastName     IN USERS.LastName%TYPE,
+        p_Email        IN USERS.Email%TYPE,
+        p_Password     IN USERS.Password%TYPE,
+        p_RoleID       IN USERS.RoleID%TYPE,
+        p_ProfileImage IN USERS.ProfileImage%TYPE DEFAULT NULL
+    ) IS
+    BEGIN
+        INSERT INTO USERS (UserID, FirstName, LastName, Email, Password, RoleID, ProfileImage)
+        VALUES (p_UserID, p_FirstName, p_LastName, p_Email, p_Password, p_RoleID, p_ProfileImage);
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            DECLARE
+                v_check_pk NUMBER;
+                v_check_email NUMBER;
+            BEGIN
+                SELECT COUNT(*) INTO v_check_pk FROM USERS WHERE UserID = p_UserID;
+                IF v_check_pk > 0 THEN
+                    RAISE_APPLICATION_ERROR(-20170, 'User with UserID ''' || p_UserID || ''' already exists.');
+                END IF;
+                SELECT COUNT(*) INTO v_check_email FROM USERS WHERE Email = p_Email;
+                IF v_check_email > 0 THEN
+                    RAISE_APPLICATION_ERROR(-20171, 'User with Email ''' || p_Email || ''' already exists.');
+                END IF;
+                RAISE;
+            END;
+        WHEN OTHERS THEN
+            RAISE;
+    END CREATE_USER_PROC;
 
-CREATE PROCEDURE `UPDATE_USER_PROC`(
-    IN p_UserID        INT,
-    IN p_FirstName     VARCHAR(255),
-    IN p_LastName      VARCHAR(255),
-    IN p_Password      VARCHAR(255),
-    IN p_RoleID        INT,
-    IN p_ProfileImage  VARCHAR(255)
-)
-BEGIN
-    DECLARE v_error_message VARCHAR(255);
-    DECLARE v_exists INT DEFAULT 0;
+    FUNCTION GET_USER_FOR_AUTH_FUNC(
+        p_Email IN USERS.Email%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                UserID,
+                FirstName,
+                LastName,
+                Email,
+                Password,
+                RoleID,
+                ProfileImage,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                USERS
+            WHERE
+                Email = p_Email;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_USER_FOR_AUTH_FUNC;
 
-    -- Kiểm tra tồn tại user trước khi cập nhật
-    SELECT COUNT(*) INTO v_exists
-    FROM `USERS`
-    WHERE `UserID` = p_UserID;
+    PROCEDURE DELETE_USER_PROC(
+        p_UserID IN USERS.UserID%TYPE
+    ) IS
+    BEGIN
+        DELETE FROM USERS
+        WHERE UserID = p_UserID;
 
-    IF v_exists = 0 THEN
-        SET v_error_message = CONCAT(
-            'User with UserID ''',
-            p_UserID,
-            ''' not found for update.'
-        );
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = v_error_message;
-    END IF;
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20172, 'User with UserID ''' || p_UserID || ''' not found for deletion.');
+        END IF;
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20172 THEN
+                RAISE;
+            ELSIF SQLCODE = -2292 THEN
+                RAISE_APPLICATION_ERROR(-20173, 'Cannot delete UserID ''' || p_UserID || ''' as it is referenced by other records (e.g., active orders, courses created). Please check related data or use ON DELETE SET NULL/CASCADE on foreign keys if appropriate.');
+            ELSE
+                RAISE;
+            END IF;
+    END DELETE_USER_PROC;
 
-    UPDATE `USERS`
-    SET
-        `FirstName`    = IFNULL(p_FirstName, `FirstName`),
-        `LastName`     = IFNULL(p_LastName, `LastName`),
-        `Password`     = IFNULL(p_Password, `Password`),
-        `RoleID`       = IFNULL(p_RoleID, `RoleID`),
-        `ProfileImage` = IFNULL(p_ProfileImage, `ProfileImage`)
-    WHERE
-        `UserID` = p_UserID;
+    PROCEDURE UPDATE_USER_PROC(
+        p_UserID        IN USERS.UserID%TYPE,
+        p_FirstName     IN USERS.FirstName%TYPE    DEFAULT NULL,
+        p_LastName      IN USERS.LastName%TYPE     DEFAULT NULL,
+        p_Password      IN USERS.Password%TYPE     DEFAULT NULL,
+        p_RoleID        IN USERS.RoleID%TYPE       DEFAULT NULL,
+        p_ProfileImage  IN USERS.ProfileImage%TYPE DEFAULT NULL
+    ) IS
+        v_user_exists NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO v_user_exists FROM USERS WHERE UserID = p_UserID;
+        IF v_user_exists = 0 THEN
+            RAISE_APPLICATION_ERROR(-20174, 'User with UserID ''' || p_UserID || ''' not found for update.');
+        END IF;
 
-    IF ROW_COUNT() = 0 THEN
-        -- Bảo hiểm chống race condition: nếu bị xóa giữa chừng
-        SET v_error_message = CONCAT(
-            'User with UserID ''',
-            p_UserID,
-            ''' not found for update.'
-        );
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = v_error_message;
-    END IF;
-END$$
+        UPDATE USERS
+        SET FirstName    = NVL(p_FirstName, FirstName),
+            LastName     = NVL(p_LastName, LastName),
+            Password     = NVL(p_Password, Password),
+            RoleID       = NVL(p_RoleID, RoleID),
+            ProfileImage = NVL(p_ProfileImage, ProfileImage) -- Simplified this line
+        WHERE UserID = p_UserID;
 
-CREATE PROCEDURE `GET_USER_BY_ID_PROC`(
-    IN p_UserID INT
-)
-BEGIN
-    SELECT
-        `UserID`,
-        `FirstName`,
-        `LastName`,
-        `Email`,
-        `Password`,
-        `RoleID`,
-        `ProfileImage`,
-        DATE_FORMAT(`created_at`, '%Y-%m-%d %H:%i:%s.%f') AS
-            `created_at_formatted`
-    FROM
-        `USERS`
-    WHERE
-        `UserID` = p_UserID;
-END$$
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20174 THEN
+                RAISE;
+            ELSE
+                RAISE;
+            END IF;
+    END UPDATE_USER_PROC;
 
-CREATE PROCEDURE `GET_USER_BY_EMAIL_PROC`(
-    IN p_Email VARCHAR(255)
-)
-BEGIN
-    SELECT
-        `UserID`,
-        `FirstName`,
-        `LastName`,
-        `Email`,
-        `Password`,
-        `RoleID`,
-        `ProfileImage`,
-        DATE_FORMAT(`created_at`, '%Y-%m-%d %H:%i:%s.%f') AS
-            `created_at_formatted`
-    FROM
-        `USERS`
-    WHERE
-        `Email` = p_Email;
-END$$
+    FUNCTION GET_USER_BY_ID_FUNC(
+        p_UserID IN USERS.UserID%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                UserID,
+                FirstName,
+                LastName,
+                Email,
+                Password,
+                RoleID,
+                ProfileImage,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                USERS
+            WHERE
+                UserID = p_UserID;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_USER_BY_ID_FUNC;
 
-CREATE PROCEDURE `GET_ALL_USERS_PROC`()
-BEGIN
-    SELECT
-        `UserID`,
-        `FirstName`,
-        `LastName`,
-        `Email`,
-        `RoleID`,
-        `ProfileImage`,
-        DATE_FORMAT(`created_at`, '%Y-%m-%d %H:%i:%s.%f') AS
-            `created_at_formatted`
-    FROM
-        `USERS`
-    ORDER BY `UserID` ASC;
-END$$
+    FUNCTION GET_USER_BY_EMAIL_FUNC(
+        p_Email IN USERS.Email%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                UserID,
+                FirstName,
+                LastName,
+                Email,
+                Password,
+                RoleID,
+                ProfileImage,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                USERS
+            WHERE
+                Email = p_Email;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_USER_BY_EMAIL_FUNC;
 
-CREATE FUNCTION `EMAIL_EXISTS_FUNC`(
-    p_Email         VARCHAR(255),
-    p_ExcludeUserID INT
-)
-RETURNS INT
-DETERMINISTIC
-BEGIN
-    DECLARE v_count INT;
+    FUNCTION GET_ALL_USERS_FUNC
+        RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                UserID,
+                FirstName,
+                LastName,
+                Email,
+                RoleID,
+                ProfileImage,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                USERS
+            ORDER BY UserID ASC;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_ALL_USERS_FUNC;
 
-    SELECT COUNT(*) INTO v_count
-    FROM `USERS`
-    WHERE `Email` = p_Email
-      AND (p_ExcludeUserID IS NULL OR `UserID` != p_ExcludeUserID);
+    FUNCTION EMAIL_EXISTS_FUNC(
+        p_Email         IN USERS.Email%TYPE,
+        p_ExcludeUserID IN USERS.UserID%TYPE DEFAULT NULL
+    ) RETURN NUMBER IS
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_count
+        FROM USERS
+        WHERE Email = p_Email
+          AND (p_ExcludeUserID IS NULL OR UserID != p_ExcludeUserID);
 
-    IF v_count > 0 THEN
-        RETURN 1;
-    ELSE
-        RETURN 0;
-    END IF;
-END$$
+        IF v_count > 0 THEN
+            RETURN 1;
+        ELSE
+            RETURN 0;
+        END IF;
+    END EMAIL_EXISTS_FUNC;
 
-DELIMITER ;
+END USER_PKG;
+/

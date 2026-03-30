@@ -13,7 +13,7 @@ class CartBLL extends Database
     public function create_cart(CartDTO $cart): bool
     {
         // Câu lệnh SQL INSERT chuẩn cho MySQL
-        $sql = "INSERT INTO Cart (cartID, userID) VALUES (?, ?)";
+        $sql = "INSERT INTO carts (cartID, userID) VALUES (?, ?)";
 
         $bindParams = [
             $cart->cartID,
@@ -34,7 +34,7 @@ class CartBLL extends Database
     public function get_cart_by_user(string $userID): ?CartDTO
     {
         // Câu lệnh SELECT chuẩn cho MySQL
-        $sql = "SELECT cartID, userID, created_at FROM Cart WHERE userID = ? LIMIT 1";
+        $sql = "SELECT cartID, userID, created_at FROM carts WHERE userID = ? LIMIT 1";
         $bindParams = [$userID];
 
         $result = $this->executePrepared($sql, $bindParams);
@@ -62,7 +62,7 @@ class CartBLL extends Database
     public function get_cart_by_id(string $cartID): ?CartDTO
     {
         // Câu lệnh SELECT chuẩn cho MySQL
-        $sql = "SELECT cartID, userID, created_at FROM Cart WHERE cartID = ? LIMIT 1";
+        $sql = "SELECT cartID, userID, created_at FROM carts WHERE cartID = ? LIMIT 1";
         $bindParams = [$cartID];
 
         $result = $this->executePrepared($sql, $bindParams);
@@ -90,7 +90,7 @@ class CartBLL extends Database
     public function delete_cart(string $cartID): bool
     {
         // Câu lệnh DELETE chuẩn cho MySQL
-        $sql = "DELETE FROM Cart WHERE cartID = ?";
+        $sql = "DELETE FROM carts WHERE cartID = ?";
         $bindParams = [$cartID];
 
         $result = $this->executePrepared($sql, $bindParams);

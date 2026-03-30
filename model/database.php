@@ -6,7 +6,7 @@ class Database
 {
     private string $host = 'localhost';
     private string $user = 'root';
-    private string $pass = '30112004';
+    private string $pass = '';
     private string $dbname = 'ecourse';
     private string $charset = 'utf8mb4';
     private int $databasePort = 3306;
@@ -47,7 +47,7 @@ class Database
         }
     }
 
-    public function createDatabase(): void
+    private function createDatabase(): void
     {
         try {
             $tmp_conn = new mysqli($this->host, $this->user, $this->pass, '', $this->databasePort);
@@ -147,6 +147,7 @@ class Database
             }
             $this->affectedRows = $stmt->affected_rows;
             return true;
+
         } catch (mysqli_sql_exception $e) {
             $this->handleException($e, 'Prepared statement failed', $sql);
             return false;
@@ -192,7 +193,6 @@ class Database
             return false;
         }
 
-        // Clean up comments and whitespace
         $sqlScript = preg_replace('/--[^\n]*\n?/s', '', $sqlScript);
         $sqlScript = preg_replace('/\/\*.*?\*\//s', '', $sqlScript);
         $sqlScript = trim($sqlScript);
@@ -201,40 +201,32 @@ class Database
             return true;
         }
 
-        $delimiter = ';';
-        $statements = preg_split('/^DELIMITER\s+/im', $sqlScript);
+        $statements = explode(';', $sqlScript);
+        $all_successful = true;
 
-        foreach ($statements as $i => $block) {
-            if (empty(trim($block))) {
+        $this->begin();
+
+        foreach ($statements as $statement_idx => $statement_text) {
+            $trimmed_statement = trim($statement_text);
+            if (empty($trimmed_statement)) {
                 continue;
             }
 
-            if ($i > 0) {
-                // New delimiter is at the start of the block
-                $parts = preg_split('/\n/m', $block, 2);
-                $delimiter = trim($parts[0]);
-                $block = $parts[1] ?? '';
-            }
-
-            // Split the block into individual statements using the current delimiter
-            $queries = explode($delimiter, $block);
-
-            foreach ($queries as $query) {
-                $query = trim($query);
-                if (empty($query)) {
-                    continue;
-                }
-
-                if ($this->execute($query) === false) {
-                    // Error is already set and logged by execute()
-                    $this->lastError = "Script statement failed: " . $this->getLastError();
-                    error_log("[DB-MySQL] " . $this->lastError . " Statement: " . substr($query, 0, 250));
-                    return false; // Halt on first error
-                }
+            if ($this->execute($trimmed_statement) === false) {
+                $this->lastError = "Script statement #{$statement_idx} thất bại: " . $this->getLastError();
+                error_log("[DB-MySQL] " . $this->lastError . " Statement: " . substr($trimmed_statement, 0, 150));
+                $all_successful = false;
+                break;
             }
         }
 
-        return true;
+        if ($all_successful) {
+            $this->commit();
+        } else {
+            $this->rollback();
+        }
+
+        return $all_successful;
     }
 
     public function begin(): bool

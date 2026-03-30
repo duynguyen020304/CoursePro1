@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/review_dto.php';
 
 class ReviewBLL extends Database
@@ -12,7 +12,7 @@ class ReviewBLL extends Database
      */
     public function create_review(ReviewDTO $r): bool
     {
-        $sql = "INSERT INTO Review (ReviewID, UserID, CourseID, Rating, REVIEW_TEXT) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO REVIEW (ReviewID, UserID, CourseID, Rating, REVIEW_TEXT) VALUES (?, ?, ?, ?, ?)";
         
         $params = [
             $r->reviewID,
@@ -34,7 +34,7 @@ class ReviewBLL extends Database
      */
     public function update_review(ReviewDTO $r): bool
     {
-        $sql = "UPDATE Review SET UserID = ?, CourseID = ?, Rating = ?, REVIEW_TEXT = ? WHERE ReviewID = ?";
+        $sql = "UPDATE REVIEW SET UserID = ?, CourseID = ?, Rating = ?, REVIEW_TEXT = ? WHERE ReviewID = ?";
         
         $params = [
             $r->userID,
@@ -56,7 +56,7 @@ class ReviewBLL extends Database
      */
     public function delete_review(string $reviewID): bool
     {
-        $sql = "DELETE FROM Review WHERE ReviewID = ?";
+        $sql = "DELETE FROM REVIEW WHERE ReviewID = ?";
         $params = [$reviewID];
         $result = $this->executePrepared($sql, $params);
         return ($result !== false) && ($this->getAffectedRows() === 1);
@@ -72,7 +72,7 @@ class ReviewBLL extends Database
     {
         $sql = "SELECT ReviewID, UserID, CourseID, Rating, REVIEW_TEXT,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM Review
+                FROM REVIEW
                 WHERE CourseID = ?
                 ORDER BY created_at DESC";
         $params = [$courseID];
@@ -105,7 +105,7 @@ class ReviewBLL extends Database
     {
         $sql = "SELECT ReviewID, UserID, CourseID, Rating, REVIEW_TEXT,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM Review
+                FROM REVIEW
                 WHERE ReviewID = ?";
         $params = [$reviewID];
         $result = $this->executePrepared($sql, $params);

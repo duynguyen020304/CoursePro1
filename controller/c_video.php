@@ -169,10 +169,10 @@ if (!empty($path_segments_for_api)) {
 $appRootPath = rtrim($appRootPath, '/');
 
 
-$apiChapterUrl = $protocol . "://" . $host  . '/api/chapter_api.php';
-$apiLessonUrl= $protocol . "://" . $host  . '/api/lesson_api.php';
-$apiVideoUrl = $protocol . "://" . $host  . '/api/video_api.php';
-$apiResourceUrl = $protocol . "://" . $host . '/api/resource_api.php';
+$apiChapterUrl = $protocol . "://" . $host . $appRootPath . '/api/chapter_api.php';
+$apiLessonUrl= $protocol . "://" . $host . $appRootPath . '/api/lesson_api.php';
+$apiVideoUrl = $protocol . "://" . $host . $appRootPath . '/api/video_api.php';
+$apiResourceUrl = $protocol . "://" . $host . $appRootPath . '/api/resource_api.php';
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 $contentType = trim(explode(';', strtolower($_SERVER['CONTENT_TYPE'] ?? ''))[0]);

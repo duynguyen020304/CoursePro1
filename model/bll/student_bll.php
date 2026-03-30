@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/student_dto.php';
 
 class StudentBLL extends Database
@@ -12,7 +12,7 @@ class StudentBLL extends Database
      */
     public function create_student(StudentDTO $stu): bool
     {
-        $sql = "INSERT INTO Student (StudentID, UserID) VALUES (?, ?)";
+        $sql = "INSERT INTO STUDENTS (StudentID, UserID) VALUES (?, ?)";
         $params = [
             $stu->studentID,
             $stu->userID,
@@ -29,7 +29,7 @@ class StudentBLL extends Database
      */
     public function delete_student(string $studentID): bool
     {
-        $sql = "DELETE FROM Student WHERE StudentID = ?";
+        $sql = "DELETE FROM STUDENTS WHERE StudentID = ?";
         $params = [$studentID];
         $result = $this->executePrepared($sql, $params);
         return ($result !== false) && ($this->getAffectedRows() === 1);
@@ -43,7 +43,7 @@ class StudentBLL extends Database
      */
     public function update_student(StudentDTO $stu): bool
     {
-        $sql = "UPDATE Student SET UserID = ? WHERE StudentID = ?";
+        $sql = "UPDATE STUDENTS SET UserID = ? WHERE StudentID = ?";
         $params = [
             $stu->userID,
             $stu->studentID,
@@ -62,7 +62,7 @@ class StudentBLL extends Database
     {
         $sql = "SELECT StudentID, UserID,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM Student
+                FROM STUDENTS
                 WHERE StudentID = ?";
         $params = [$studentID];
         $result = $this->executePrepared($sql, $params);
@@ -91,7 +91,7 @@ class StudentBLL extends Database
     {
         $sql = "SELECT StudentID, UserID,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM Student
+                FROM STUDENTS
                 WHERE UserID = ?";
         $params = [$userID];
         $result = $this->executePrepared($sql, $params);
@@ -119,7 +119,7 @@ class StudentBLL extends Database
     {
         $sql = "SELECT StudentID, UserID,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM Student
+                FROM STUDENTS
                 ORDER BY created_at DESC";
         $result = $this->execute($sql);
         $list = [];

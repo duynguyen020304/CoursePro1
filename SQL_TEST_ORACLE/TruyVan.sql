@@ -1,0 +1,46 @@
+SELECT * FROM STUDENT;
+
+SELECT * FROM USERS;
+
+SELECT * FROM INSTRUCTOR;
+
+SELECT * FROM COURSE;
+
+SELECT * from COURSEVIDEO;
+
+SELECT * FROm COURSELESSON;
+
+SELECT * FROM PASSWORD_RESETS;
+
+SELECT * FROM COURSELESSON;
+
+SELECT * FROM COURSECHAPTER;
+
+select * from COURSECHAPTER where COURSEID= 'course_683898ba080de6_39142577';
+
+select * from COURSELESSON where COURSELESSON.CHAPTERID='chapter_68345bf1d2fde7_66070408';
+
+
+SELECT trigger_name, table_owner, table_name, status, triggering_event, when_clause
+FROM USER_TRIGGERS
+ORDER BY table_name, trigger_name;
+
+SELECT object_name, object_type, status, created, last_ddl_time
+FROM USER_OBJECTS
+WHERE object_type IN ('PROCEDURE', 'FUNCTION', 'PACKAGE')
+ORDER BY object_type, object_name;
+
+select * from COURSE_HISTORY;
+
+SELECT * FROM COURSELESSON_HISTORY;
+
+SELECT  * FROM PAYMENT;
+
+SELECT * FROM USERS_HISTORY;
+
+SELECT * FROM CART;
+
+select * from CARTITEM WHERE CARTID = 'cart_6845559a70ed19.67451360';
+
+-- SELECT CURRENT_TIMESTAMP AT TIME ZONE 'UTC+7' FROM dual;
+

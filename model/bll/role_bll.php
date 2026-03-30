@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/role_dto.php';
 
 class RoleBLL extends Database
@@ -12,7 +12,7 @@ class RoleBLL extends Database
      */
     public function create_role(RoleDTO $role): bool
     {
-        $sql = "INSERT INTO Role (RoleID, RoleName) VALUES (?, ?)";
+        $sql = "INSERT INTO ROLES (RoleID, RoleName) VALUES (?, ?)";
         $params = [
             $role->roleID,
             $role->roleName,
@@ -29,7 +29,7 @@ class RoleBLL extends Database
      */
     public function delete_role(string $roleID): bool
     {
-        $sql = "DELETE FROM Role WHERE RoleID = ?";
+        $sql = "DELETE FROM ROLES WHERE RoleID = ?";
         $params = [$roleID];
         $result = $this->executePrepared($sql, $params);
         return ($result !== false) && ($this->getAffectedRows() === 1);
@@ -43,7 +43,7 @@ class RoleBLL extends Database
      */
     public function update_role(RoleDTO $role): bool
     {
-        $sql = "UPDATE Role SET RoleName = ? WHERE RoleID = ?";
+        $sql = "UPDATE ROLES SET RoleName = ? WHERE RoleID = ?";
         $params = [
             $role->roleName,
             $role->roleID,
@@ -62,7 +62,7 @@ class RoleBLL extends Database
     {
         $sql = "SELECT RoleID, RoleName, 
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM Role 
+                FROM ROLES 
                 WHERE RoleID = ?";
         $params = [$roleID];
         $result = $this->executePrepared($sql, $params);
@@ -90,7 +90,7 @@ class RoleBLL extends Database
     {
         $sql = "SELECT RoleID, RoleName, 
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM Role 
+                FROM ROLES 
                 ORDER BY RoleName ASC";
         $result = $this->execute($sql);
         $roles = [];

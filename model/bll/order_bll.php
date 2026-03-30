@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/order_dto.php';
 
 class OrderBLL extends Database
@@ -12,7 +12,7 @@ class OrderBLL extends Database
      */
     public function create_order(OrderDTO $order): bool
     {
-        $sql = "INSERT INTO Orders (OrderID, UserID, OrderDate, TotalAmount) VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO ORDERS (OrderID, UserID, OrderDate, TotalAmount) VALUES (?, ?, ?, ?)";
 
         $orderDateString = null;
         if ($order->orderDate instanceof DateTimeInterface) {
@@ -40,7 +40,7 @@ class OrderBLL extends Database
     {
         $sql = "SELECT OrderID, UserID, OrderDate, TotalAmount,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM Orders
+                FROM ORDERS
                 WHERE OrderID = ?";
         $params = [$orderID];
         $result = $this->executePrepared($sql, $params);
@@ -79,7 +79,7 @@ class OrderBLL extends Database
     {
         $sql = "SELECT OrderID, UserID, OrderDate, TotalAmount,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM Orders
+                FROM ORDERS
                 WHERE UserID = ?";
         $params = [$userID];
         $result = $this->executePrepared($sql, $params);
@@ -116,7 +116,7 @@ class OrderBLL extends Database
      */
     public function update_order(OrderDTO $order): bool
     {
-        $sql = "UPDATE Orders SET UserID = ?, OrderDate = ?, TotalAmount = ? WHERE OrderID = ?";
+        $sql = "UPDATE ORDERS SET UserID = ?, OrderDate = ?, TotalAmount = ? WHERE OrderID = ?";
 
         $orderDateString = null;
         if ($order->orderDate instanceof DateTimeInterface) {
@@ -142,7 +142,7 @@ class OrderBLL extends Database
      */
     public function delete_order(string $orderID): bool
     {
-        $sql = "DELETE FROM Orders WHERE OrderID = ?";
+        $sql = "DELETE FROM ORDERS WHERE OrderID = ?";
         $params = [$orderID];
         $result = $this->executePrepared($sql, $params);
         return ($result !== false) && ($this->getAffectedRows() === 1);

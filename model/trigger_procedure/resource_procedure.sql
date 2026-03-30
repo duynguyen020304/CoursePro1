@@ -1,143 +1,168 @@
-DROP PROCEDURE IF EXISTS CREATE_RESOURCE_PROC;
-DELIMITER $$
-CREATE PROCEDURE CREATE_RESOURCE_PROC(
-    IN p_ResourceID   VARCHAR(255),
-    IN p_LessonID     VARCHAR(255),
-    IN p_ResourcePath TEXT,
-    IN p_Title        VARCHAR(255),
-    IN p_SortOrder    INT
-)
-BEGIN
-    DECLARE v_error_message VARCHAR(255);
+CREATE OR REPLACE PACKAGE COURSE_RESOURCE_PKG AS
 
-    DECLARE EXIT HANDLER FOR 1062
-    BEGIN
-        SET v_error_message = CONCAT(
-            'Resource with ResourceID ''',
-            p_ResourceID,
-            ''' already exists.'
-        );
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = v_error_message;
-    END;
-
-    INSERT INTO COURSERESOURCE (
-        ResourceID, LessonID, ResourcePath, Title, SortOrder
-    )
-    VALUES (
-        p_ResourceID, p_LessonID, p_ResourcePath, p_Title, p_SortOrder
+    PROCEDURE CREATE_RESOURCE_PROC(
+        p_ResourceID   IN COURSERESOURCE.ResourceID%TYPE,
+        p_LessonID     IN COURSERESOURCE.LessonID%TYPE,
+        p_ResourcePath IN COURSERESOURCE.ResourcePath%TYPE,
+        p_Title        IN COURSERESOURCE.Title%TYPE,
+        p_SortOrder    IN COURSERESOURCE.SortOrder%TYPE
     );
-END$$
-DELIMITER ;
 
-DROP PROCEDURE IF EXISTS GET_RESOURCE_BY_ID_PROC;
-DELIMITER $$
-CREATE PROCEDURE GET_RESOURCE_BY_ID_PROC(
-    IN p_ResourceID VARCHAR(255)
-)
-BEGIN
-    SELECT
-        ResourceID,
-        LessonID,
-        ResourcePath,
-        Title,
-        SortOrder,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
-    FROM
-        COURSERESOURCE
-    WHERE
-        ResourceID = p_ResourceID;
-END$$
-DELIMITER ;
+    FUNCTION GET_RESOURCE_BY_ID_FUNC(
+        p_ResourceID IN COURSERESOURCE.ResourceID%TYPE
+    ) RETURN SYS_REFCURSOR;
 
-DROP PROCEDURE IF EXISTS GET_RESOURCES_BY_LESSON_PROC;
-DELIMITER $$
-CREATE PROCEDURE GET_RESOURCES_BY_LESSON_PROC(
-    IN p_LessonID VARCHAR(255)
-)
-BEGIN
-    SELECT
-        ResourceID,
-        LessonID,
-        ResourcePath,
-        Title,
-        SortOrder,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
-    FROM
-        COURSERESOURCE
-    WHERE
-        LessonID = p_LessonID
-    ORDER BY SortOrder ASC;
-END$$
-DELIMITER ;
+    FUNCTION GET_RESOURCES_BY_LESSON_FUNC(
+        p_LessonID IN COURSERESOURCE.LessonID%TYPE
+    ) RETURN SYS_REFCURSOR;
 
-DROP PROCEDURE IF EXISTS GET_ALL_RESOURCES_PROC;
-DELIMITER $$
-CREATE PROCEDURE GET_ALL_RESOURCES_PROC()
-BEGIN
-    SELECT
-        ResourceID,
-        LessonID,
-        ResourcePath,
-        Title,
-        SortOrder,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
-    FROM
-        COURSERESOURCE
-    ORDER BY SortOrder ASC;
-END$$
-DELIMITER ;
+    FUNCTION GET_ALL_RESOURCES_FUNC
+        RETURN SYS_REFCURSOR;
 
-DROP PROCEDURE IF EXISTS UPDATE_RESOURCE_PROC;
-DELIMITER $$
-CREATE PROCEDURE UPDATE_RESOURCE_PROC(
-    IN p_ResourceID   VARCHAR(255),
-    IN p_LessonID     VARCHAR(255),
-    IN p_ResourcePath TEXT,
-    IN p_Title        VARCHAR(255),
-    IN p_SortOrder    INT
-)
-BEGIN
-    DECLARE v_error_message VARCHAR(255);
+    PROCEDURE UPDATE_RESOURCE_PROC(
+        p_ResourceID   IN COURSERESOURCE.ResourceID%TYPE,
+        p_LessonID     IN COURSERESOURCE.LessonID%TYPE,
+        p_ResourcePath IN COURSERESOURCE.ResourcePath%TYPE,
+        p_Title        IN COURSERESOURCE.Title%TYPE,
+        p_SortOrder    IN COURSERESOURCE.SortOrder%TYPE
+    );
 
-    UPDATE COURSERESOURCE
-    SET LessonID     = p_LessonID,
-        ResourcePath = p_ResourcePath,
-        Title        = p_Title,
-        SortOrder    = p_SortOrder
-    WHERE ResourceID = p_ResourceID;
+    PROCEDURE DELETE_RESOURCE_PROC(
+        p_ResourceID IN COURSERESOURCE.ResourceID%TYPE
+    );
 
-    IF ROW_COUNT() = 0 THEN
-        SET v_error_message = CONCAT(
-            'Resource with ResourceID ''',
-            p_ResourceID,
-            ''' not found for update.'
-        );
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = v_error_message;
-    END IF;
-END$$
-DELIMITER ;
+END COURSE_RESOURCE_PKG;
+/
 
-DROP PROCEDURE IF EXISTS DELETE_RESOURCE_PROC;
-DELIMITER $$
-CREATE PROCEDURE DELETE_RESOURCE_PROC(
-    IN p_ResourceID VARCHAR(255)
-)
-BEGIN
-    DECLARE v_error_message VARCHAR(255);
+CREATE OR REPLACE PACKAGE BODY COURSE_RESOURCE_PKG AS
 
-    DELETE FROM COURSERESOURCE
-    WHERE ResourceID = p_ResourceID;
+    PROCEDURE CREATE_RESOURCE_PROC(
+        p_ResourceID   IN COURSERESOURCE.ResourceID%TYPE,
+        p_LessonID     IN COURSERESOURCE.LessonID%TYPE,
+        p_ResourcePath IN COURSERESOURCE.ResourcePath%TYPE,
+        p_Title        IN COURSERESOURCE.Title%TYPE,
+        p_SortOrder    IN COURSERESOURCE.SortOrder%TYPE
+    ) IS
+    BEGIN
+        INSERT INTO COURSERESOURCE (ResourceID, LessonID, ResourcePath, Title, SortOrder)
+        VALUES (p_ResourceID, p_LessonID, p_ResourcePath, p_Title, p_SortOrder);
+        -- PHP BLL checks for affectedRows === 1. SQL%ROWCOUNT will be 1 on success.
+        -- Oracle handles PK violation (ResourceID).
+        -- Oracle handles FK violation (LessonID).
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            RAISE_APPLICATION_ERROR(-20140, 'Resource with ResourceID ''' || p_ResourceID || ''' already exists.');
+        WHEN OTHERS THEN
+            RAISE;
+    END CREATE_RESOURCE_PROC;
 
-    IF ROW_COUNT() = 0 THEN
-        SET v_error_message = CONCAT(
-            'Resource with ResourceID ''',
-            p_ResourceID,
-            ''' not found for deletion.'
-        );
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = v_error_message;
-    END IF;
-END$$
-DELIMITER ;
+    FUNCTION GET_RESOURCE_BY_ID_FUNC(
+        p_ResourceID IN COURSERESOURCE.ResourceID%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                ResourceID,
+                LessonID,
+                ResourcePath,
+                Title,
+                SortOrder,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                COURSERESOURCE
+            WHERE
+                ResourceID = p_ResourceID;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_RESOURCE_BY_ID_FUNC;
+
+    FUNCTION GET_RESOURCES_BY_LESSON_FUNC(
+        p_LessonID IN COURSERESOURCE.LessonID%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                ResourceID,
+                LessonID,
+                ResourcePath,
+                Title,
+                SortOrder,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                COURSERESOURCE
+            WHERE
+                LessonID = p_LessonID
+            ORDER BY SortOrder ASC;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_RESOURCES_BY_LESSON_FUNC;
+
+    FUNCTION GET_ALL_RESOURCES_FUNC
+        RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                ResourceID,
+                LessonID,
+                ResourcePath,
+                Title,
+                SortOrder,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                COURSERESOURCE
+            ORDER BY SortOrder ASC;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_ALL_RESOURCES_FUNC;
+
+    PROCEDURE UPDATE_RESOURCE_PROC(
+        p_ResourceID   IN COURSERESOURCE.ResourceID%TYPE,
+        p_LessonID     IN COURSERESOURCE.LessonID%TYPE,
+        p_ResourcePath IN COURSERESOURCE.ResourcePath%TYPE,
+        p_Title        IN COURSERESOURCE.Title%TYPE,
+        p_SortOrder    IN COURSERESOURCE.SortOrder%TYPE
+    ) IS
+    BEGIN
+        UPDATE COURSERESOURCE
+        SET LessonID     = p_LessonID,
+            ResourcePath = p_ResourcePath,
+            Title        = p_Title,
+            SortOrder    = p_SortOrder
+        WHERE ResourceID = p_ResourceID;
+
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20141, 'Resource with ResourceID ''' || p_ResourceID || ''' not found for update.');
+        END IF;
+        -- PHP BLL checks ($stid !== false). SQL%ROWCOUNT check here ensures row was found.
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20141 THEN
+                RAISE;
+            ELSE
+                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in UPDATE_RESOURCE_PROC: ' || SQLERRM);
+            END IF;
+    END UPDATE_RESOURCE_PROC;
+
+    PROCEDURE DELETE_RESOURCE_PROC(
+        p_ResourceID IN COURSERESOURCE.ResourceID%TYPE
+    ) IS
+    BEGIN
+        DELETE FROM COURSERESOURCE
+        WHERE ResourceID = p_ResourceID;
+
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20142, 'Resource with ResourceID ''' || p_ResourceID || ''' not found for deletion.');
+        END IF;
+    END DELETE_RESOURCE_PROC;
+
+END COURSE_RESOURCE_PKG;
+/
