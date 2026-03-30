@@ -1,0 +1,46 @@
+<?php
+// service/service_course_instructor.php
+
+require_once __DIR__ . '/../Model/DTO/course_instructor_dto.php';
+require_once __DIR__ . '/../Model/BLL/course_instructor_bll.php';
+require_once __DIR__ . '/service_response.php';  // giả sử bạn có class Response { public $success, $message, $data; … }
+
+class CourseInstructorService
+{
+    private CourseInstructorBLL $bll;
+
+    public function __construct()
+    {
+        $this->bll = new CourseInstructorBLL();
+    }
+
+    public function get_instructors_by_course_id($courseID) : ServiceResponse
+    {
+        $data = $this->bll->get_instructors_by_course_id($courseID);
+        return new ServiceResponse(true, 'Lấy danh sách giảng viên thành công', $data);
+    }
+
+    public function add($courseID, $instructorID) :  ServiceResponse
+    {
+        if ($this->bll->add($courseID, $instructorID)) {
+            return new ServiceResponse(true, 'Thêm mapping thành công');
+        }
+        return new ServiceResponse(false, 'Thêm mapping thất bại');
+    }
+
+    public function update($oldCourseID, $oldInstructorID, $newCourseID, $newInstructorID) :  ServiceResponse
+    {
+        if ($this->bll->update($oldCourseID, $oldInstructorID, $newCourseID, $newInstructorID)) {
+            return new ServiceResponse(true, 'Cập nhật mapping thành công');
+        }
+        return new ServiceResponse(false, 'Cập nhật mapping thất bại');
+    }
+
+    public function unlink_course_instructor($courseID, $instructorID) :  ServiceResponse
+    {
+        if ($this->bll->unlink_course_instructor($courseID, $instructorID)) {
+            return new ServiceResponse(true, 'Xóa mapping thành công');
+        }
+        return new ServiceResponse(false, 'Xóa mapping thất bại');
+    }
+}
