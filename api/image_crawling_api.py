@@ -6,12 +6,10 @@ import sqlite3
 from PIL import Image
 import imagehash
 from icrawler.builtin import GoogleImageCrawler, BingImageCrawler
-import logging
 from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
 # from waitress import serve #enable this for windows compatibility
 from concurrent.futures import ThreadPoolExecutor
-import concurrent.futures
 
 DB_FILE = "images.db"
 
@@ -95,12 +93,12 @@ def crawl_and_convert_image(title, language='vi'):
         )
         print(f"Bắt đầu crawl ảnh cho từ khóa '{title}'...")
         try:
-            google_crawler.crawl(keyword=title, max_num=10, file_idx_offset='auto', language=language)
+            google_crawler.crawl(keyword=title, max_num=25, file_idx_offset='auto', language=language)
             print("Crawl từ Google hoàn tất.")
         except Exception as e:
             print(f"Lỗi khi crawl từ Google: {e}")
         try:
-            bing_crawler.crawl(keyword=title, max_num=10, offset=0, file_idx_offset='auto')
+            bing_crawler.crawl(keyword=title, max_num=25, offset=0, file_idx_offset='auto')
             print("Crawl từ Bing hoàn tất.")
         except Exception as e:
             print(f"Lỗi khi crawl từ Bing: {e}")
@@ -124,14 +122,11 @@ def crawl_and_convert_image(title, language='vi'):
                 return webp_data
         print("Tất cả ảnh tìm thấy đều trùng. Gửi ảnh đầu tiên làm phương án dự phòng.")
         return first_image_webp
-init_db()
+
 app = Flask(__name__)
 CORS(app)
 
 executor = ThreadPoolExecutor(max_workers=10)
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 @app.route('/get-course-image', methods=['GET'])
 def get_course_image():
@@ -139,28 +134,22 @@ def get_course_image():
     language = request.args.get('language', 'vi')
     if not title:
         return jsonify({"error": "Vui lòng cung cấp 'title'."}), 400
-
-    logger.info("Nhận yêu cầu cho title='%s'. Đưa vào hàng đợi xử lý...", title)
+    print(f"Nhận yêu cầu cho title='{title}'. Đưa vào hàng đợi xử lý...")
     try:
         future = executor.submit(crawl_and_convert_image, title, language)
-        image_data = future.result(timeout=600)
+        image_data = future.result()
         if image_data:
-            logger.info("Gửi ảnh thành công cho title: '%s'", title)
+            print(f"Gửi ảnh thành công cho title: '{title}'")
             return send_file(
                 io.BytesIO(image_data),
                 mimetype='image/webp',
                 as_attachment=False
             )
         else:
-            logger.info("Không thể tìm thấy hoặc xử lý ảnh phù hợp cho title='%s'.", title)
+            print("Không thể tìm thấy hoặc xử lý ảnh phù hợp.")
             return jsonify({"error": "Không thể tìm thấy hoặc xử lý ảnh phù hợp."}), 404
-
-    except concurrent.futures.TimeoutError as te:
-        logger.exception("Timeout khi xử lý title='%s': %s", title, te)
-        return jsonify({"error": "Yêu cầu xử lý quá thời gian cho phép."}), 504
-
-    except Exception as e:
-        logger.exception("Lỗi không mong muốn khi xử lý title='%s'", title)
+    except:
+        print("Đã xảy ra lỗi không mong muốn.")
         return jsonify({"error": "Lỗi máy chủ nội bộ"}), 500
 
 if __name__ == '__main__':

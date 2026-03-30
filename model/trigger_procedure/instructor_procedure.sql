@@ -1,135 +1,162 @@
--- MySQL-Compatible Stored Procedures for Instructor Management
---
--- This script converts the Oracle PL/SQL package `INSTRUCTOR_PKG`
--- into standalone MySQL stored procedures.
---
--- Key Differences from Oracle Version:
--- 1. No Packages: MySQL does not have packages, so each procedure is a separate object.
--- 2. CREATE/DROP Syntax: Uses `DROP PROCEDURE IF EXISTS` and `CREATE PROCEDURE`.
--- 3. No %TYPE: Parameter data types are explicitly defined (e.g., INT, TEXT).
--- 4. No SYS_REFCURSOR: Procedures that return data simply execute a SELECT statement.
---    The original functions have been converted to procedures.
--- 5. Error Handling: Uses `DECLARE HANDLER` and `SIGNAL SQLSTATE '45000'` to raise custom errors.
--- 6. Row Count: Uses `ROW_COUNT()` instead of `SQL%ROWCOUNT`.
--- 7. Date Formatting: Uses `DATE_FORMAT()` instead of `TO_CHAR()`.
+CREATE OR REPLACE PACKAGE INSTRUCTOR_PKG AS
 
--- Change the delimiter to allow for semicolons within the procedures.
-DELIMITER $$
+    PROCEDURE CREATE_INSTRUCTOR_PROC(
+        p_InstructorID IN INSTRUCTOR.InstructorID%TYPE,
+        p_UserID       IN INSTRUCTOR.UserID%TYPE,
+        p_Biography    IN INSTRUCTOR.Biography%TYPE
+    );
 
--- =================================================================
--- Procedure to create a new instructor.
--- =================================================================
-DROP PROCEDURE IF EXISTS `CREATE_INSTRUCTOR_PROC`$$
-CREATE PROCEDURE `CREATE_INSTRUCTOR_PROC`(
-    IN p_InstructorID INT,
-    IN p_UserID INT,
-    IN p_Biography TEXT
-)
-BEGIN
-    -- Declare an exit handler for duplicate key errors (e.g., PK or UQ violation).
-    DECLARE EXIT HANDLER FOR 1062
+    PROCEDURE DELETE_INSTRUCTOR_PROC(
+        p_InstructorID IN INSTRUCTOR.InstructorID%TYPE
+    );
+
+    PROCEDURE UPDATE_INSTRUCTOR_PROC(
+        p_InstructorID IN INSTRUCTOR.InstructorID%TYPE,
+        p_UserID       IN INSTRUCTOR.UserID%TYPE,
+        p_Biography    IN INSTRUCTOR.Biography%TYPE
+    );
+
+    FUNCTION GET_INSTRUCTOR_BY_ID_FUNC(
+        p_InstructorID IN INSTRUCTOR.InstructorID%TYPE
+    ) RETURN SYS_REFCURSOR;
+
+    FUNCTION GET_INSTRUCTOR_BY_USER_ID_FUNC(
+        p_UserID IN INSTRUCTOR.UserID%TYPE
+    ) RETURN SYS_REFCURSOR;
+
+    FUNCTION GET_ALL_INSTRUCTORS_FUNC
+        RETURN SYS_REFCURSOR;
+
+END INSTRUCTOR_PKG;
+/
+
+CREATE OR REPLACE PACKAGE BODY INSTRUCTOR_PKG AS
+
+    PROCEDURE CREATE_INSTRUCTOR_PROC(
+        p_InstructorID IN INSTRUCTOR.InstructorID%TYPE,
+        p_UserID       IN INSTRUCTOR.UserID%TYPE,
+        p_Biography    IN INSTRUCTOR.Biography%TYPE
+    ) IS
     BEGIN
-        SET @message = CONCAT('Instructor with InstructorID ''', p_InstructorID, ''' or UserID ''', p_UserID, ''' already exists.');
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
-    END;
+        INSERT INTO INSTRUCTOR (InstructorID, UserID, Biography)
+        VALUES (p_InstructorID, p_UserID, p_Biography);
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            RAISE_APPLICATION_ERROR(-20090, 'Instructor with InstructorID ''' || p_InstructorID || ''' or UserID ''' || p_UserID || ''' already exists.');
+        WHEN OTHERS THEN
+            RAISE;
+    END CREATE_INSTRUCTOR_PROC;
 
-    -- Insert the new instructor record.
-    INSERT INTO INSTRUCTOR (InstructorID, UserID, Biography)
-    VALUES (p_InstructorID, p_UserID, p_Biography);
-END$$
-
--- =================================================================
--- Procedure to delete an instructor by their ID.
--- =================================================================
-DROP PROCEDURE IF EXISTS `DELETE_INSTRUCTOR_PROC`$$
-CREATE PROCEDURE `DELETE_INSTRUCTOR_PROC`(
-    IN p_InstructorID INT
-)
-BEGIN
-    DELETE FROM INSTRUCTOR WHERE InstructorID = p_InstructorID;
-
-    IF ROW_COUNT() = 0 THEN
-        SET @message = CONCAT('Instructor with InstructorID ''', p_InstructorID, ''' not found for deletion.');
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
-    END IF;
-END$$
-
--- =================================================================
--- Procedure to update an existing instructor.
--- =================================================================
-DROP PROCEDURE IF EXISTS `UPDATE_INSTRUCTOR_PROC`$$
-CREATE PROCEDURE `UPDATE_INSTRUCTOR_PROC`(
-    IN p_InstructorID INT,
-    IN p_UserID INT,
-    IN p_Biography TEXT
-)
-BEGIN
-    -- Declare an exit handler for duplicate key errors on the UserID unique constraint.
-    DECLARE EXIT HANDLER FOR 1062
+    PROCEDURE DELETE_INSTRUCTOR_PROC(
+        p_InstructorID IN INSTRUCTOR.InstructorID%TYPE
+    ) IS
     BEGIN
-        SET @message = CONCAT('Update failed: UserID ''', p_UserID, ''' is already associated with another instructor.');
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
-    END;
+        DELETE FROM INSTRUCTOR
+        WHERE InstructorID = p_InstructorID;
 
-    UPDATE INSTRUCTOR
-    SET UserID = p_UserID,
-        Biography = p_Biography
-    WHERE InstructorID = p_InstructorID;
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20091, 'Instructor with InstructorID ''' || p_InstructorID || ''' not found for deletion.');
+        END IF;
+        -- ON DELETE CASCADE for fk_instructor_users handles related records.
+        -- But deleting INSTRUCTOR does not delete USER record.
+        -- Related records in CourseInstructor will be deleted via ON DELETE CASCADE.
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20091 THEN
+                RAISE;
+            ELSE
+                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in DELETE_INSTRUCTOR_PROC: ' || SQLERRM);
+            END IF;
+    END DELETE_INSTRUCTOR_PROC;
 
-    IF ROW_COUNT() = 0 THEN
-        SET @message = CONCAT('Instructor with InstructorID ''', p_InstructorID, ''' not found for update.');
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
-    END IF;
-END$$
+    PROCEDURE UPDATE_INSTRUCTOR_PROC(
+        p_InstructorID IN INSTRUCTOR.InstructorID%TYPE,
+        p_UserID       IN INSTRUCTOR.UserID%TYPE,
+        p_Biography    IN INSTRUCTOR.Biography%TYPE
+    ) IS
+    BEGIN
+        UPDATE INSTRUCTOR
+        SET UserID = p_UserID,
+            Biography = p_Biography
+        WHERE InstructorID = p_InstructorID;
 
--- =================================================================
--- Procedure to get a single instructor by their InstructorID.
--- =================================================================
-DROP PROCEDURE IF EXISTS `GET_INSTRUCTOR_BY_ID_PROC`$$
-CREATE PROCEDURE `GET_INSTRUCTOR_BY_ID_PROC`(
-    IN p_InstructorID INT
-)
-BEGIN
-    SELECT
-        InstructorID,
-        UserID,
-        Biography,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
-    FROM INSTRUCTOR
-    WHERE InstructorID = p_InstructorID;
-END$$
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20092, 'Instructor with InstructorID ''' || p_InstructorID || ''' not found for update.');
+        END IF;
+        -- PHP BLL checks ($stid !== false), success if no Oracle error.
+        -- Oracle will handle UQ violation (UserID).
+        -- Oracle will handle FK violation (UserID in USERS).
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            RAISE_APPLICATION_ERROR(-20090, 'Update failed: UserID ''' || p_UserID || ''' is already associated with another instructor.');
+        WHEN OTHERS THEN
+            IF SQLCODE = -20092 THEN
+                RAISE;
+            ELSE
+                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in UPDATE_INSTRUCTOR_PROC: ' || SQLERRM);
+            END IF;
+    END UPDATE_INSTRUCTOR_PROC;
 
--- =================================================================
--- Procedure to get a single instructor by their UserID.
--- =================================================================
-DROP PROCEDURE IF EXISTS `GET_INSTRUCTOR_BY_USER_ID_PROC`$$
-CREATE PROCEDURE `GET_INSTRUCTOR_BY_USER_ID_PROC`(
-    IN p_UserID INT
-)
-BEGIN
-    SELECT
-        InstructorID,
-        UserID,
-        Biography,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
-    FROM INSTRUCTOR
-    WHERE UserID = p_UserID;
-END$$
+    FUNCTION GET_INSTRUCTOR_BY_ID_FUNC(
+        p_InstructorID IN INSTRUCTOR.InstructorID%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                InstructorID,
+                UserID,
+                Biography,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                INSTRUCTOR
+            WHERE
+                InstructorID = p_InstructorID;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_INSTRUCTOR_BY_ID_FUNC;
 
--- =================================================================
--- Procedure to get all instructors.
--- =================================================================
-DROP PROCEDURE IF EXISTS `GET_ALL_INSTRUCTORS_PROC`$$
-CREATE PROCEDURE `GET_ALL_INSTRUCTORS_PROC`()
-BEGIN
-    SELECT
-        InstructorID,
-        UserID,
-        Biography,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
-    FROM INSTRUCTOR
-    ORDER BY InstructorID ASC;
-END$$
+    FUNCTION GET_INSTRUCTOR_BY_USER_ID_FUNC(
+        p_UserID IN INSTRUCTOR.UserID%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                InstructorID,
+                UserID,
+                Biography,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                INSTRUCTOR
+            WHERE
+                UserID = p_UserID;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_INSTRUCTOR_BY_USER_ID_FUNC;
 
--- Reset the delimiter back to the default.
-DELIMITER ;
+    FUNCTION GET_ALL_INSTRUCTORS_FUNC
+        RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                InstructorID,
+                UserID,
+                Biography,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                INSTRUCTOR
+            ORDER BY InstructorID ASC;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_ALL_INSTRUCTORS_FUNC;
+
+END INSTRUCTOR_PKG;
+/

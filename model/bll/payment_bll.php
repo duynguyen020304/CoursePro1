@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/payment_dto.php';
 
 class PaymentBLL extends Database
@@ -12,7 +12,7 @@ class PaymentBLL extends Database
      */
     public function create_payment(PaymentDTO $p): bool
     {
-        $sql = "INSERT INTO Payment (PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount) 
+        $sql = "INSERT INTO PAYMENTS (PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount) 
                 VALUES (?, ?, ?, ?, ?, ?)";
 
         $paymentDateString = null;
@@ -43,7 +43,7 @@ class PaymentBLL extends Database
     {
         $sql = "SELECT PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM Payment
+                FROM PAYMENTS
                 WHERE OrderID = ?";
         $params = [$orderID];
         $result = $this->executePrepared($sql, $params);
@@ -84,7 +84,7 @@ class PaymentBLL extends Database
     {
         $sql = "SELECT PaymentID, OrderID, PaymentDate, PaymentMethod, PaymentStatus, Amount,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM Payment
+                FROM PAYMENTS
                 WHERE PaymentID = ?";
         $params = [$paymentID];
         $result = $this->executePrepared($sql, $params);
@@ -123,7 +123,7 @@ class PaymentBLL extends Database
      */
     public function update_payment(PaymentDTO $p): bool
     {
-        $sql = "UPDATE Payment SET OrderID = ?, PaymentDate = ?, PaymentMethod = ?, PaymentStatus = ?, Amount = ? 
+        $sql = "UPDATE PAYMENTS SET OrderID = ?, PaymentDate = ?, PaymentMethod = ?, PaymentStatus = ?, Amount = ? 
                 WHERE PaymentID = ?";
 
         $paymentDateString = null;
@@ -152,7 +152,7 @@ class PaymentBLL extends Database
      */
     public function delete_payment(string $paymentID): bool
     {
-        $sql = "DELETE FROM Payment WHERE PaymentID = ?";
+        $sql = "DELETE FROM PAYMENTS WHERE PaymentID = ?";
         $params = [$paymentID];
         $result = $this->executePrepared($sql, $params);
         return ($result !== false) && ($this->getAffectedRows() === 1);

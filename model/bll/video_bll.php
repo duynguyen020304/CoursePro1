@@ -1,6 +1,6 @@
 <?php
 // Thay đổi đường dẫn để trỏ đến database_mysql.php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/video_dto.php';
 
 class VideoBLL extends Database

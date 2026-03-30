@@ -1,6 +1,6 @@
 <?php
 // Thay đổi đường dẫn để trỏ đến tệp kết nối MySQL
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php'; 
 require_once __DIR__ . '/../dto/course_dto.php';
 
 class CourseBLL extends Database
@@ -21,7 +21,7 @@ class CourseBLL extends Database
             $row['language'],
             $row['createdBy'],
             // Sử dụng tên cột đã được định dạng trong câu lệnh SELECT
-            $row['createdAt_formatted'] ?? null
+            $row['createdAt_formatted'] ?? null 
         );
     }
 
@@ -33,7 +33,7 @@ class CourseBLL extends Database
     public function create_course(CourseDTO $c): bool
     {
         // Câu lệnh INSERT chuẩn của MySQL
-        $sql = "INSERT INTO Course (courseID, title, description, price, difficulty, language, createdBy) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO courses (courseID, title, description, price, difficulty, language, createdBy) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         // Tham số cho prepared statement
         $bindParams = [
@@ -59,7 +59,7 @@ class CourseBLL extends Database
     public function delete_course(string $courseID): bool
     {
         // Câu lệnh DELETE chuẩn của MySQL
-        $sql = "DELETE FROM Course WHERE courseID = ?";
+        $sql = "DELETE FROM courses WHERE courseID = ?";
         $bindParams = [$courseID];
 
         $result = $this->executePrepared($sql, $bindParams);
@@ -74,7 +74,7 @@ class CourseBLL extends Database
     public function update_course(CourseDTO $c): bool
     {
         // Câu lệnh UPDATE chuẩn của MySQL
-        $sql = "UPDATE Course SET title = ?, description = ?, price = ?, difficulty = ?, language = ? WHERE courseID = ?";
+        $sql = "UPDATE courses SET title = ?, description = ?, price = ?, difficulty = ?, language = ? WHERE courseID = ?";
 
         $bindParams = [
             $c->title,
@@ -97,7 +97,7 @@ class CourseBLL extends Database
     public function get_course(string $courseID): ?CourseDTO
     {
         // Câu lệnh SELECT với định dạng ngày tháng
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course WHERE courseID = ?";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses WHERE courseID = ?";
         $bindParams = [$courseID];
 
         $result = $this->executePrepared($sql, $bindParams);
@@ -116,7 +116,7 @@ class CourseBLL extends Database
      */
     public function get_all_courses(): array
     {
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses";
         $list = [];
         $result = $this->execute($sql); // Không cần prepared statement vì không có tham số
 
@@ -137,7 +137,7 @@ class CourseBLL extends Database
      */
     public function search_courses_by_title(string $title, ?string $difficulty = null, ?string $language = null): array
     {
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course WHERE title LIKE ?";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses WHERE title LIKE ?";
         $bindParams = ["%{$title}%"];
         $list = [];
 
@@ -168,7 +168,7 @@ class CourseBLL extends Database
      */
     public function get_courses_by_difficulty_lang(string $difficulty, string $language): array
     {
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses WHERE difficulty = ? AND language = ?";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses WHERE difficulty = ? AND language = ?";
         $bindParams = [$difficulty, $language];
         $list = [];
 
@@ -188,7 +188,7 @@ class CourseBLL extends Database
      */
     public function get_courses_by_language(string $language): array
     {
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course WHERE language = ?";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses WHERE language = ?";
         $bindParams = [$language];
         $list = [];
 
@@ -208,7 +208,7 @@ class CourseBLL extends Database
      */
     public function get_courses_by_difficulty(string $difficulty): array
     {
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course WHERE difficulty = ?";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses WHERE difficulty = ?";
         $bindParams = [$difficulty];
         $list = [];
 
@@ -236,7 +236,7 @@ class CourseBLL extends Database
         $bindParams = [];
         $list = [];
 
-        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM Course";
+        $sql = "SELECT courseID, title, description, price, difficulty, language, createdBy, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM courses";
 
         if ($filterDifficulty !== null && $filterDifficulty !== '') {
             $whereClauses[] = "difficulty = ?";

@@ -1,6 +1,6 @@
 <?php
 // Thay đổi đường dẫn để trỏ đến tệp kết nối MySQL
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/course_category_dto.php';
 
 class CourseCategoryBLL extends Database
@@ -27,7 +27,7 @@ class CourseCategoryBLL extends Database
     public function link_course_category(CourseCategoryDTO $cc): bool
     {
         // Câu lệnh INSERT chuẩn của MySQL cho bảng trung gian
-        $sql = "INSERT INTO CourseCategory (courseID, categoryID) VALUES (?, ?)";
+        $sql = "INSERT INTO course_categories (courseID, categoryID) VALUES (?, ?)";
 
         $bindParams = [
             $cc->courseID,
@@ -47,7 +47,7 @@ class CourseCategoryBLL extends Database
     public function unlink_course_category(string $courseID, $categoryID): bool
     {
         // Câu lệnh DELETE chuẩn của MySQL
-        $sql = "DELETE FROM CourseCategory WHERE courseID = ? AND categoryID = ?";
+        $sql = "DELETE FROM course_categories WHERE courseID = ? AND categoryID = ?";
 
         $bindParams = [
             $courseID,
@@ -66,7 +66,7 @@ class CourseCategoryBLL extends Database
     public function get_categories_by_course_id(string $courseID): array
     {
         // Câu lệnh SELECT để lấy các liên kết danh mục cho một khóa học
-        $sql = "SELECT courseID, categoryID, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseCategory WHERE courseID = ?";
+        $sql = "SELECT courseID, categoryID, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM course_categories WHERE courseID = ?";
         $bindParams = [$courseID];
         $list = [];
 
@@ -87,7 +87,7 @@ class CourseCategoryBLL extends Database
     public function get_courses_by_category_id($categoryID): array
     {
         // Câu lệnh SELECT để lấy các liên kết khóa học cho một danh mục
-        $sql = "SELECT courseID, categoryID, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseCategory WHERE categoryID = ?";
+        $sql = "SELECT courseID, categoryID, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM course_categories WHERE categoryID = ?";
         $bindParams = [(int)$categoryID];
         $list = [];
 
@@ -109,7 +109,7 @@ class CourseCategoryBLL extends Database
     public function link_exists(string $courseID, $categoryID): bool
     {
         // Câu lệnh SELECT để kiểm tra sự tồn tại
-        $sql = "SELECT 1 FROM CourseCategory WHERE courseID = ? AND categoryID = ?";
+        $sql = "SELECT 1 FROM course_categories WHERE courseID = ? AND categoryID = ?";
         $bindParams = [
             $courseID,
             (int)$categoryID,

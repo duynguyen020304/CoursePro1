@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/../config.php'; // lên 1 cấp để tới project root
+// Đặt đúng tên folder của bạn trên webserver, ví dụ '/COURSEPRO1'
+define('BASE_URL', '/CoursePro1');
 
 ?>
 <!DOCTYPE html>
@@ -10,9 +11,10 @@ require_once __DIR__ . '/../config.php'; // lên 1 cấp để tới project roo
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Course Online</title>
     <!-- CSS từ public/css -->
-    <link rel="stylesheet" href="<?php echo BASE_URI; ?>public/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?php echo BASE_URI; ?>public/css/style.css">
-    <link rel="stylesheet" href="<?php echo BASE_URI; ?>public/css/font_awesome_all.min.css">
+    <link href="<?= BASE_URL ?>/public/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/public/css/style.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/public/css/font_awesome_all.min.css" rel="stylesheet">
+    <!-- CSS riêng cho từng page có thể include ngay sau đây -->
 </head>
 
 <body>

@@ -1,6 +1,6 @@
 <?php
 // Thay đổi đường dẫn để trỏ đến tệp kết nối MySQL
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/course_image_dto.php';
 
 class CourseImageBLL extends Database
@@ -30,7 +30,7 @@ class CourseImageBLL extends Database
     public function create_image(CourseImageDTO $img): bool
     {
         // Câu lệnh INSERT chuẩn của MySQL
-        $sql = "INSERT INTO CourseImage (imageID, courseID, imagePath, caption, sortOrder) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO course_images (imageID, courseID, imagePath, caption, sortOrder) VALUES (?, ?, ?, ?, ?)";
 
         $bindParams = [
             $img->imageID,
@@ -52,7 +52,7 @@ class CourseImageBLL extends Database
     public function update_image(CourseImageDTO $img): bool
     {
         // Câu lệnh UPDATE chuẩn của MySQL
-        $sql = "UPDATE CourseImage SET courseID = ?, imagePath = ?, caption = ?, sortOrder = ? WHERE imageID = ?";
+        $sql = "UPDATE course_images SET courseID = ?, imagePath = ?, caption = ?, sortOrder = ? WHERE imageID = ?";
 
         $bindParams = [
             $img->courseID,
@@ -75,7 +75,7 @@ class CourseImageBLL extends Database
     public function unlink_image_course(string $imageID, string $courseID): bool
     {
         // Câu lệnh DELETE chuẩn của MySQL
-        $sql = "DELETE FROM CourseImage WHERE imageID = ? AND courseID = ?";
+        $sql = "DELETE FROM course_images WHERE imageID = ? AND courseID = ?";
 
         $bindParams = [
             $imageID,
@@ -94,7 +94,7 @@ class CourseImageBLL extends Database
     public function get_image_by_image_id(string $imageID): ?CourseImageDTO
     {
         // Câu lệnh SELECT với định dạng ngày tháng
-        $sql = "SELECT imageID, courseID, imagePath, caption, sortOrder, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseImage WHERE imageID = ?";
+        $sql = "SELECT imageID, courseID, imagePath, caption, sortOrder, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM course_images WHERE imageID = ?";
         $bindParams = [$imageID];
 
         $result = $this->executePrepared($sql, $bindParams);
@@ -115,7 +115,7 @@ class CourseImageBLL extends Database
     public function get_images_by_course_id(string $courseID): array
     {
         // Câu lệnh SELECT, sắp xếp theo sortOrder để hiển thị đúng thứ tự
-        $sql = "SELECT imageID, courseID, imagePath, caption, sortOrder, DATE_FORMAT(created_at, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM CourseImage WHERE courseID = ? ORDER BY sortOrder ASC, created_at ASC";
+        $sql = "SELECT imageID, courseID, imagePath, caption, sortOrder, DATE_FORMAT(createdAt, '%d-%m-%Y %H:%i:%s') as createdAt_formatted FROM course_images WHERE courseID = ? ORDER BY sortOrder ASC, createdAt ASC";
         $bindParams = [$courseID];
         $images = [];
 

@@ -1,164 +1,177 @@
--- MySQL Stored Procedures for Course Lessons
--- This script converts the Oracle PL/SQL COURSE_LESSON_PKG
--- into individual, MySQL-compatible stored procedures.
+CREATE OR REPLACE PACKAGE COURSE_LESSON_PKG AS
 
--- Delimiter is changed to $$ to allow for semicolons within the procedure bodies.
-DELIMITER $$
+    PROCEDURE CREATE_LESSON_PROC(
+        p_LessonID  IN COURSELESSON.LessonID%TYPE,
+        p_CourseID  IN COURSELESSON.CourseID%TYPE,
+        p_ChapterID IN COURSELESSON.ChapterID%TYPE,
+        p_Title     IN COURSELESSON.Title%TYPE,
+        p_Content   IN COURSELESSON.Content%TYPE,
+        p_SortOrder IN COURSELESSON.SortOrder%TYPE
+    );
 
--- -----------------------------------------------------------------------------
--- Procedure to create a new lesson.
--- -----------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS CREATE_LESSON_PROC$$
+    PROCEDURE DELETE_LESSON_PROC(
+        p_LessonID IN COURSELESSON.LessonID%TYPE
+    );
 
-CREATE PROCEDURE CREATE_LESSON_PROC(
-    IN p_LessonID VARCHAR(255),
-    IN p_CourseID VARCHAR(255),
-    IN p_ChapterID VARCHAR(255),
-    IN p_Title VARCHAR(255),
-    IN p_Content TEXT,
-    IN p_SortOrder INT
-)
-BEGIN
-    -- Declare a handler for duplicate key errors (MySQL error 1062).
-    -- This replaces Oracle's DUP_VAL_ON_INDEX exception.
-    DECLARE EXIT HANDLER FOR 1062
+    PROCEDURE UPDATE_LESSON_PROC(
+        p_LessonID  IN COURSELESSON.LessonID%TYPE,
+        p_CourseID  IN COURSELESSON.CourseID%TYPE,
+        p_ChapterID IN COURSELESSON.ChapterID%TYPE,
+        p_Title     IN COURSELESSON.Title%TYPE,
+        p_Content   IN COURSELESSON.Content%TYPE,
+        p_SortOrder IN COURSELESSON.SortOrder%TYPE
+    );
+
+    FUNCTION GET_LESSON_BY_ID_FUNC(
+        p_LessonID IN COURSELESSON.LessonID%TYPE
+    ) RETURN SYS_REFCURSOR;
+
+    FUNCTION GET_LESSONS_BY_CHAPTER_FUNC(
+        p_ChapterID IN COURSELESSON.ChapterID%TYPE
+    ) RETURN SYS_REFCURSOR;
+
+    FUNCTION GET_LESSONS_BY_COURSE_FUNC(
+        p_CourseID IN COURSELESSON.CourseID%TYPE
+    ) RETURN SYS_REFCURSOR;
+
+END COURSE_LESSON_PKG;
+/
+
+CREATE OR REPLACE PACKAGE BODY COURSE_LESSON_PKG AS
+
+    PROCEDURE CREATE_LESSON_PROC(
+        p_LessonID  IN COURSELESSON.LessonID%TYPE,
+        p_CourseID  IN COURSELESSON.CourseID%TYPE,
+        p_ChapterID IN COURSELESSON.ChapterID%TYPE,
+        p_Title     IN COURSELESSON.Title%TYPE,
+        p_Content   IN COURSELESSON.Content%TYPE,
+        p_SortOrder IN COURSELESSON.SortOrder%TYPE
+    ) IS
     BEGIN
-        SET @message = CONCAT('Lesson with LessonID ''', p_LessonID, ''' already exists.');
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
-    END;
+        INSERT INTO COURSELESSON (LessonID, CourseID, ChapterID, Title, Content, SortOrder)
+        VALUES (p_LessonID, p_CourseID, p_ChapterID, p_Title, p_Content, p_SortOrder);
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            RAISE_APPLICATION_ERROR(-20100, 'Lesson with LessonID ''' || p_LessonID || ''' already exists.');
+        WHEN OTHERS THEN
+            RAISE;
+    END CREATE_LESSON_PROC;
 
-    -- Insert the new lesson record.
-    INSERT INTO COURSELESSON (LessonID, CourseID, ChapterID, Title, Content, SortOrder)
-    VALUES (p_LessonID, p_CourseID, p_ChapterID, p_Title, p_Content, p_SortOrder);
-END$$
+    PROCEDURE DELETE_LESSON_PROC(
+        p_LessonID IN COURSELESSON.LessonID%TYPE
+    ) IS
+    BEGIN
+        DELETE FROM COURSELESSON
+        WHERE LessonID = p_LessonID;
 
--- -----------------------------------------------------------------------------
--- Procedure to delete a lesson by its ID.
--- -----------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS DELETE_LESSON_PROC$$
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20102, 'Lesson with LessonID ''' || p_LessonID || ''' not found for deletion.');
+        END IF;
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20102 THEN
+                RAISE;
+            ELSE
+                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in DELETE_LESSON_PROC: ' || SQLERRM);
+            END IF;
+    END DELETE_LESSON_PROC;
 
-CREATE PROCEDURE DELETE_LESSON_PROC(
-    IN p_LessonID VARCHAR(255)
-)
-BEGIN
-    -- Delete the specified lesson.
-    DELETE FROM COURSELESSON
-    WHERE LessonID = p_LessonID;
+    PROCEDURE UPDATE_LESSON_PROC(
+        p_LessonID  IN COURSELESSON.LessonID%TYPE,
+        p_CourseID  IN COURSELESSON.CourseID%TYPE,
+        p_ChapterID IN COURSELESSON.ChapterID%TYPE,
+        p_Title     IN COURSELESSON.Title%TYPE,
+        p_Content   IN COURSELESSON.Content%TYPE,
+        p_SortOrder IN COURSELESSON.SortOrder%TYPE
+    ) IS
+    BEGIN
+        UPDATE COURSELESSON
+        SET CourseID  = p_CourseID,
+            ChapterID = p_ChapterID,
+            Title     = p_Title,
+            Content   = p_Content,
+            SortOrder = p_SortOrder
+        WHERE LessonID = p_LessonID;
 
-    -- Check if a row was actually deleted. ROW_COUNT() is the MySQL
-    -- equivalent of Oracle's SQL%ROWCOUNT.
-    IF ROW_COUNT() = 0 THEN
-        SET @message = CONCAT('Lesson with LessonID ''', p_LessonID, ''' not found for deletion.');
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
-    END IF;
-END$$
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20101, 'Lesson with LessonID ''' || p_LessonID || ''' not found for update.');
+        END IF;
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20101 THEN
+                RAISE;
+            ELSE
+                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in UPDATE_LESSON_PROC: ' || SQLERRM);
+            END IF;
+    END UPDATE_LESSON_PROC;
 
--- -----------------------------------------------------------------------------
--- Procedure to update an existing lesson.
--- -----------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS UPDATE_LESSON_PROC$$
+    FUNCTION GET_LESSON_BY_ID_FUNC(
+        p_LessonID IN COURSELESSON.LessonID%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                LessonID,
+                CourseID,
+                ChapterID,
+                Title,
+                Content,
+                SortOrder,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                COURSELESSON
+            WHERE
+                LessonID = p_LessonID;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_LESSON_BY_ID_FUNC;
 
-CREATE PROCEDURE UPDATE_LESSON_PROC(
-    IN p_LessonID VARCHAR(255),
-    IN p_CourseID VARCHAR(255),
-    IN p_ChapterID VARCHAR(255),
-    IN p_Title VARCHAR(255),
-    IN p_Content TEXT,
-    IN p_SortOrder INT
-)
-BEGIN
-    -- Update the specified lesson record.
-    UPDATE COURSELESSON
-    SET CourseID  = p_CourseID,
-        ChapterID = p_ChapterID,
-        Title     = p_Title,
-        Content   = p_Content,
-        SortOrder = p_SortOrder
-    WHERE LessonID = p_LessonID;
+    FUNCTION GET_LESSONS_BY_CHAPTER_FUNC(
+        p_ChapterID IN COURSELESSON.ChapterID%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                LessonID,
+                CourseID,
+                ChapterID,
+                Title,
+                Content,
+                SortOrder,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                COURSELESSON
+            WHERE
+                ChapterID = p_ChapterID
+            ORDER BY SortOrder ASC;
+        RETURN v_cursor;
+    END GET_LESSONS_BY_CHAPTER_FUNC;
 
-    -- Check if a row was actually updated.
-    IF ROW_COUNT() = 0 THEN
-        SET @message = CONCAT('Lesson with LessonID ''', p_LessonID, ''' not found for update.');
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
-    END IF;
-END$$
+    FUNCTION GET_LESSONS_BY_COURSE_FUNC(
+        p_CourseID IN COURSELESSON.CourseID%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                LessonID,
+                CourseID,
+                ChapterID,
+                Title,
+                Content,
+                SortOrder,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                COURSELESSON
+            WHERE
+                CourseID = p_CourseID
+            ORDER BY ChapterID ASC, SortOrder ASC;
+        RETURN v_cursor;
+    END GET_LESSONS_BY_COURSE_FUNC;
 
--- -----------------------------------------------------------------------------
--- Procedure to get a single lesson by its ID.
--- Note: In MySQL, procedures can return result sets directly,
--- so we convert the Oracle function with SYS_REFCURSOR to a simple SELECT.
--- -----------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS GET_LESSON_BY_ID_PROC$$
-
-CREATE PROCEDURE GET_LESSON_BY_ID_PROC(
-    IN p_LessonID VARCHAR(255)
-)
-BEGIN
-    -- Select the lesson and format the timestamp.
-    -- DATE_FORMAT is the MySQL equivalent of Oracle's TO_CHAR for dates.
-    SELECT
-        LessonID,
-        CourseID,
-        ChapterID,
-        Title,
-        Content,
-        SortOrder,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
-    FROM
-        COURSELESSON
-    WHERE
-        LessonID = p_LessonID;
-END$$
-
--- -----------------------------------------------------------------------------
--- Procedure to get all lessons for a specific chapter, sorted by SortOrder.
--- -----------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS GET_LESSONS_BY_CHAPTER_PROC$$
-
-CREATE PROCEDURE GET_LESSONS_BY_CHAPTER_PROC(
-    IN p_ChapterID VARCHAR(255)
-)
-BEGIN
-    -- Select the lessons and format the timestamp.
-    SELECT
-        LessonID,
-        CourseID,
-        ChapterID,
-        Title,
-        Content,
-        SortOrder,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
-    FROM
-        COURSELESSON
-    WHERE
-        ChapterID = p_ChapterID
-    ORDER BY SortOrder ASC;
-END$$
-
--- -----------------------------------------------------------------------------
--- Procedure to get all lessons for a specific course, sorted by chapter and then lesson order.
--- -----------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS GET_LESSONS_BY_COURSE_PROC$$
-
-CREATE PROCEDURE GET_LESSONS_BY_COURSE_PROC(
-    IN p_CourseID VARCHAR(255)
-)
-BEGIN
-    -- Select the lessons and format the timestamp.
-    SELECT
-        LessonID,
-        CourseID,
-        ChapterID,
-        Title,
-        Content,
-        SortOrder,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
-    FROM
-        COURSELESSON
-    WHERE
-        CourseID = p_CourseID
-    ORDER BY ChapterID ASC, SortOrder ASC;
-END$$
-
--- Reset the delimiter back to the default semicolon.
-DELIMITER ;
+END COURSE_LESSON_PKG;
+/

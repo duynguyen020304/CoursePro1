@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database_mysql.php';
 require_once __DIR__ . '/../dto/lesson_dto.php';
 
 class LessonBLL extends Database
@@ -12,7 +12,7 @@ class LessonBLL extends Database
      */
     public function create_lesson(LessonDTO $lesson_dto): bool
     {
-        $sql = "INSERT INTO CourseLesson (LessonID, CourseID, ChapterID, Title, Content, SortOrder)
+        $sql = "INSERT INTO COURSELESSON (LessonID, CourseID, ChapterID, Title, Content, SortOrder)
                 VALUES (?, ?, ?, ?, ?, ?)";
 
         $params = [
@@ -36,7 +36,7 @@ class LessonBLL extends Database
      */
     public function delete_lesson(string $lessonID): bool
     {
-        $sql = "DELETE FROM CourseLesson WHERE LessonID = ?";
+        $sql = "DELETE FROM COURSELESSON WHERE LessonID = ?";
         $params = [$lessonID];
         $result = $this->executePrepared($sql, $params);
         return ($result !== false) && ($this->getAffectedRows() === 1);
@@ -50,7 +50,7 @@ class LessonBLL extends Database
      */
     public function update_lesson(LessonDTO $lesson_dto): bool
     {
-        $sql = "UPDATE CourseLesson SET
+        $sql = "UPDATE COURSELESSON SET
                     CourseID = ?,
                     ChapterID = ?,
                     Title = ?,
@@ -81,7 +81,7 @@ class LessonBLL extends Database
     {
         $sql = "SELECT LessonID, CourseID, ChapterID, Title, Content, SortOrder,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM CourseLesson
+                FROM COURSELESSON
                 WHERE LessonID = ?";
         $params = [$lessonID];
         $result = $this->executePrepared($sql, $params);
@@ -114,7 +114,7 @@ class LessonBLL extends Database
     {
         $sql = "SELECT LessonID, CourseID, ChapterID, Title, Content, SortOrder,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM CourseLesson
+                FROM COURSELESSON
                 WHERE ChapterID = ?
                 ORDER BY SortOrder ASC";
         $params = [$chapterID];
@@ -148,7 +148,7 @@ class LessonBLL extends Database
     {
         $sql = "SELECT LessonID, CourseID, ChapterID, Title, Content, SortOrder,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted
-                FROM CourseLesson
+                FROM COURSELESSON
                 WHERE CourseID = ?
                 ORDER BY ChapterID ASC, SortOrder ASC";
         $params = [$courseID];

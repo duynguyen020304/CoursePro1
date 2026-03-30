@@ -1,129 +1,138 @@
--- MySQL-Compatible Stored Procedures for Course-Requirement Management
---
--- This script converts the Oracle PL/SQL package `COURSE_REQUIREMENT_PKG`
--- into standalone MySQL stored procedures.
---
--- Key Differences from Oracle Version:
--- 1. No Packages: MySQL does not have packages, so each procedure is a separate object.
--- 2. CREATE/DROP Syntax: Uses `DROP PROCEDURE IF EXISTS` and `CREATE PROCEDURE`.
--- 3. No %TYPE: Parameter data types are explicitly defined (e.g., INT, TEXT).
--- 4. No SYS_REFCURSOR: Procedures that return data simply execute a SELECT statement.
---    The original functions have been converted to procedures.
--- 5. Error Handling: Uses `DECLARE HANDLER` and `SIGNAL SQLSTATE '45000'` to raise custom errors.
--- 6. Row Count: Uses `ROW_COUNT()` instead of `SQL%ROWCOUNT`.
--- 7. Date Formatting: Uses `DATE_FORMAT()` instead of `TO_CHAR()`.
+CREATE OR REPLACE PACKAGE COURSE_REQUIREMENT_PKG AS
 
--- Change the delimiter to allow for semicolons within the procedures.
-DELIMITER $$
+    PROCEDURE CREATE_REQUIREMENT_PROC(
+        p_RequirementID IN COURSEREQUIREMENT.RequirementID%TYPE,
+        p_CourseID      IN COURSEREQUIREMENT.CourseID%TYPE,
+        p_Requirement   IN COURSEREQUIREMENT.Requirement%TYPE
+    );
 
--- =================================================================
--- Procedure to create a new course requirement.
--- =================================================================
-DROP PROCEDURE IF EXISTS `CREATE_REQUIREMENT_PROC`$$
-CREATE PROCEDURE `CREATE_REQUIREMENT_PROC`(
-    IN p_RequirementID INT,
-    IN p_CourseID INT,
-    IN p_Requirement TEXT
-)
-BEGIN
-    -- Declare an exit handler for duplicate key errors.
-    DECLARE EXIT HANDLER FOR 1062
+    PROCEDURE UPDATE_REQUIREMENT_PROC(
+        p_RequirementID IN COURSEREQUIREMENT.RequirementID%TYPE,
+        p_CourseID      IN COURSEREQUIREMENT.CourseID%TYPE,
+        p_Requirement   IN COURSEREQUIREMENT.Requirement%TYPE
+    );
+
+    PROCEDURE DELETE_REQUIREMENT_PROC(
+        p_RequirementID IN COURSEREQUIREMENT.RequirementID%TYPE
+    );
+
+    FUNCTION GET_REQ_BY_REQ_ID_FUNC(
+        p_RequirementID IN COURSEREQUIREMENT.RequirementID%TYPE
+    ) RETURN SYS_REFCURSOR;
+
+    FUNCTION GET_REQS_BY_COURSE_ID_FUNC(
+        p_CourseID IN COURSEREQUIREMENT.CourseID%TYPE
+    ) RETURN SYS_REFCURSOR;
+
+END COURSE_REQUIREMENT_PKG;
+/
+
+CREATE OR REPLACE PACKAGE BODY COURSE_REQUIREMENT_PKG AS
+
+    PROCEDURE CREATE_REQUIREMENT_PROC(
+        p_RequirementID IN COURSEREQUIREMENT.RequirementID%TYPE,
+        p_CourseID      IN COURSEREQUIREMENT.CourseID%TYPE,
+        p_Requirement   IN COURSEREQUIREMENT.Requirement%TYPE
+    ) IS
     BEGIN
-        SET @message = CONCAT('Requirement with RequirementID ''', p_RequirementID, ''' and CourseID ''', p_CourseID, ''' already exists.');
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
-    END;
+        INSERT INTO COURSEREQUIREMENT (RequirementID, CourseID, Requirement)
+        VALUES (p_RequirementID, p_CourseID, p_Requirement);
+        -- PHP BLL checks for affectedRows === 1. SQL%ROWCOUNT will be 1 on success.
+        -- Oracle will handle PK violation (DUP_VAL_ON_INDEX if (RequirementID, CourseID) pair already exists).
+        -- Oracle will handle FK violation (if CourseID does not exist in COURSE table).
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            RAISE_APPLICATION_ERROR(-20080, 'Requirement with RequirementID ''' || p_RequirementID || ''' and CourseID ''' || p_CourseID || ''' already exists.');
+        WHEN OTHERS THEN
+            RAISE;
+    END CREATE_REQUIREMENT_PROC;
 
-    -- Insert the new course requirement.
-    -- A foreign key constraint on CourseID should handle cases where the course does not exist.
-    INSERT INTO COURSEREQUIREMENT (RequirementID, CourseID, Requirement)
-    VALUES (p_RequirementID, p_CourseID, p_Requirement);
-END$$
+    PROCEDURE UPDATE_REQUIREMENT_PROC(
+        p_RequirementID IN COURSEREQUIREMENT.RequirementID%TYPE,
+        p_CourseID      IN COURSEREQUIREMENT.CourseID%TYPE,
+        p_Requirement   IN COURSEREQUIREMENT.Requirement%TYPE
+    ) IS
+    BEGIN
+        UPDATE COURSEREQUIREMENT
+        SET Requirement = p_Requirement
+        WHERE RequirementID = p_RequirementID AND CourseID = p_CourseID;
 
--- =================================================================
--- Procedure to update an existing course requirement.
--- =================================================================
-DROP PROCEDURE IF EXISTS `UPDATE_REQUIREMENT_PROC`$$
-CREATE PROCEDURE `UPDATE_REQUIREMENT_PROC`(
-    IN p_RequirementID INT,
-    IN p_CourseID INT,
-    IN p_Requirement TEXT
-)
-BEGIN
-    -- Perform the update.
-    UPDATE COURSEREQUIREMENT
-    SET Requirement = p_Requirement
-    WHERE RequirementID = p_RequirementID AND CourseID = p_CourseID;
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20081, 'CourseRequirement with RequirementID ''' || p_RequirementID || ''' and CourseID ''' || p_CourseID || ''' not found for update.');
+        END IF;
+        -- PHP BLL checks ($stid !== false), implying success if no Oracle error.
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20081 THEN
+                RAISE;
+            ELSE
+                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in UPDATE_REQUIREMENT_PROC: ' || SQLERRM);
+            END IF;
+    END UPDATE_REQUIREMENT_PROC;
 
-    -- Check if a row was actually updated.
-    IF ROW_COUNT() = 0 THEN
-        SET @message = CONCAT('CourseRequirement with RequirementID ''', p_RequirementID, ''' and CourseID ''', p_CourseID, ''' not found for update.');
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
-    END IF;
-END$$
+    PROCEDURE DELETE_REQUIREMENT_PROC(
+        p_RequirementID IN COURSEREQUIREMENT.RequirementID%TYPE
+    ) IS
+    BEGIN
+        DELETE FROM COURSEREQUIREMENT
+        WHERE RequirementID = p_RequirementID;
 
--- =================================================================
--- Procedure to delete a course requirement.
--- Note: This deletes all requirements with the given RequirementID,
--- consistent with the original Oracle procedure's logic.
--- =================================================================
-DROP PROCEDURE IF EXISTS `DELETE_REQUIREMENT_PROC`$$
-CREATE PROCEDURE `DELETE_REQUIREMENT_PROC`(
-    IN p_RequirementID INT
-)
-BEGIN
-    -- Perform the deletion.
-    DELETE FROM COURSEREQUIREMENT
-    WHERE RequirementID = p_RequirementID;
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20082, 'No CourseRequirement found with RequirementID ''' || p_RequirementID || ''' for deletion, or no rows deleted.');
+        END IF;
+        -- Note: This deletes ALL records matching p_RequirementID, regardless of CourseID,
+        -- mirroring the BLL's current behavior.
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20082 THEN
+                RAISE;
+            ELSE
+                RAISE_APPLICATION_ERROR(-20000, 'Unexpected error in DELETE_REQUIREMENT_PROC: ' || SQLERRM);
+            END IF;
+    END DELETE_REQUIREMENT_PROC;
 
-    -- Check if any rows were deleted.
-    IF ROW_COUNT() = 0 THEN
-        SET @message = CONCAT('No CourseRequirement found with RequirementID ''', p_RequirementID, ''' for deletion, or no rows deleted.');
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @message;
-    END IF;
-END$$
+    FUNCTION GET_REQ_BY_REQ_ID_FUNC(
+        p_RequirementID IN COURSEREQUIREMENT.RequirementID%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                RequirementID,
+                CourseID,
+                Requirement,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                COURSEREQUIREMENT
+            WHERE
+                RequirementID = p_RequirementID;
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_REQ_BY_REQ_ID_FUNC;
 
--- =================================================================
--- Procedure to get a specific requirement by its ID.
--- This was a FUNCTION in Oracle, converted to a PROCEDURE for MySQL.
--- =================================================================
-DROP PROCEDURE IF EXISTS `GET_REQ_BY_REQ_ID_PROC`$$
-CREATE PROCEDURE `GET_REQ_BY_REQ_ID_PROC`(
-    IN p_RequirementID INT
-)
-BEGIN
-    -- Select the data to return it as a result set.
-    SELECT
-        RequirementID,
-        CourseID,
-        Requirement,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
-    FROM
-        COURSEREQUIREMENT
-    WHERE
-        RequirementID = p_RequirementID;
-END$$
+    FUNCTION GET_REQS_BY_COURSE_ID_FUNC(
+        p_CourseID IN COURSEREQUIREMENT.CourseID%TYPE
+    ) RETURN SYS_REFCURSOR IS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT
+                RequirementID,
+                CourseID,
+                Requirement,
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS.FF6') AS created_at_formatted
+            FROM
+                COURSEREQUIREMENT
+            WHERE
+                CourseID = p_CourseID
+            ORDER BY RequirementID ASC; -- As per BLL
+        RETURN v_cursor;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE;
+    END GET_REQS_BY_COURSE_ID_FUNC;
 
--- =================================================================
--- Procedure to get all requirements for a given course.
--- This was a FUNCTION in Oracle, converted to a PROCEDURE for MySQL.
--- =================================================================
-DROP PROCEDURE IF EXISTS `GET_REQS_BY_COURSE_ID_PROC`$$
-CREATE PROCEDURE `GET_REQS_BY_COURSE_ID_PROC`(
-    IN p_CourseID INT
-)
-BEGIN
-    -- Select the data to return it as a result set.
-    SELECT
-        RequirementID,
-        CourseID,
-        Requirement,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s.%f') AS created_at_formatted
-    FROM
-        COURSEREQUIREMENT
-    WHERE
-        CourseID = p_CourseID
-    ORDER BY RequirementID ASC;
-END$$
-
--- Reset the delimiter back to the default.
-DELIMITER ;
+END COURSE_REQUIREMENT_PKG;
+/
