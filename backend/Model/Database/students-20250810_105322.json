@@ -1,0 +1,482 @@
+[
+  {
+    "email": "student1@example.com",
+    "password": "Student@123",
+    "firstName": "Hoang",
+    "lastName": "Minh",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student2@example.com",
+    "password": "Student@123",
+    "firstName": "Phan",
+    "lastName": "Anh",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student3@example.com",
+    "password": "Student@123",
+    "firstName": "Do",
+    "lastName": "Linh",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student4@example.com",
+    "password": "Student@123",
+    "firstName": "Vu",
+    "lastName": "Trang",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student5@example.com",
+    "password": "Student@123",
+    "firstName": "Bui",
+    "lastName": "Hai",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student6@example.com",
+    "password": "Student@123",
+    "firstName": "Ngo",
+    "lastName": "Thu",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student7@example.com",
+    "password": "Student@123",
+    "firstName": "Dao",
+    "lastName": "Long",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student8@example.com",
+    "password": "Student@123",
+    "firstName": "Duong",
+    "lastName": "Lan",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student9@example.com",
+    "password": "Student@123",
+    "firstName": "Dang",
+    "lastName": "Quang",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student10@example.com",
+    "password": "Student@123",
+    "firstName": "Dinh",
+    "lastName": "Ha",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student11@example.com",
+    "password": "Student@123",
+    "firstName": "Le",
+    "lastName": "Viet",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student12@example.com",
+    "password": "Student@123",
+    "firstName": "Nguyen",
+    "lastName": "Thi Mai",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student13@example.com",
+    "password": "Student@123",
+    "firstName": "Pham",
+    "lastName": "Van Khoa",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student14@example.com",
+    "password": "Student@123",
+    "firstName": "Tran",
+    "lastName": "Thi Thuy",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student15@example.com",
+    "password": "Student@123",
+    "firstName": "Ly",
+    "lastName": "Cong",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student16@example.com",
+    "password": "Student@123",
+    "firstName": "Vo",
+    "lastName": "Thi Kim",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student17@example.com",
+    "password": "Student@123",
+    "firstName": "Tran",
+    "lastName": "Phuong",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student18@example.com",
+    "password": "Student@123",
+    "firstName": "Huynh",
+    "lastName": "Van Duc",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student19@example.com",
+    "password": "Student@123",
+    "firstName": "Bui",
+    "lastName": "Thi Diem",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student20@example.com",
+    "password": "Student@123",
+    "firstName": "Nguyen",
+    "lastName": "Kim Ngan",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student21@example.com",
+    "password": "Student@123",
+    "firstName": "Cao",
+    "lastName": "Hoang",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student22@example.com",
+    "password": "Student@123",
+    "firstName": "Le",
+    "lastName": "Hong",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student23@example.com",
+    "password": "Student@123",
+    "firstName": "Dinh",
+    "lastName": "Thi Yen",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student24@example.com",
+    "password": "Student@123",
+    "firstName": "Truong",
+    "lastName": "Minh Tri",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student25@example.com",
+    "password": "Student@123",
+    "firstName": "Phan",
+    "lastName": "Thi Cam",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student26@example.com",
+    "password": "Student@123",
+    "firstName": "Nguyen",
+    "lastName": "Duc Thang",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student27@example.com",
+    "password": "Student@123",
+    "firstName": "Tran",
+    "lastName": "Anh Kiet",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student28@example.com",
+    "password": "Student@123",
+    "firstName": "Vu",
+    "lastName": "Cat Tuong",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student29@example.com",
+    "password": "Student@123",
+    "firstName": "Le",
+    "lastName": "Thi Nguyet",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student30@example.com",
+    "password": "Student@123",
+    "firstName": "Ho",
+    "lastName": "Van Tai",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student31@example.com",
+    "password": "Student@123",
+    "firstName": "Dang",
+    "lastName": "Thanh Binh",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student32@example.com",
+    "password": "Student@123",
+    "firstName": "Ngo",
+    "lastName": "Phuong Linh",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student33@example.com",
+    "password": "Student@123",
+    "firstName": "Nguyen",
+    "lastName": "Trung Hieu",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student34@example.com",
+    "password": "Student@123",
+    "firstName": "Tran",
+    "lastName": "Minh Duc",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student35@example.com",
+    "password": "Student@123",
+    "firstName": "Vo",
+    "lastName": "Minh Tam",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student36@example.com",
+    "password": "Student@123",
+    "firstName": "Phan",
+    "lastName": "Duy Anh",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student37@example.com",
+    "password": "Student@123",
+    "firstName": "Hoang",
+    "lastName": "Mai Phuong",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student38@example.com",
+    "password": "Student@123",
+    "firstName": "Nguyen",
+    "lastName": "Hong Anh",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student39@example.com",
+    "password": "Student@123",
+    "firstName": "Bui",
+    "lastName": "Ngoc Tuan",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student40@example.com",
+    "password": "Student@123",
+    "firstName": "Tran",
+    "lastName": "Thanh Son",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student41@example.com",
+    "password": "Student@123",
+    "firstName": "Le",
+    "lastName": "Hai Dang",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student42@example.com",
+    "password": "Student@123",
+    "firstName": "Pham",
+    "lastName": "Thi Ngoc Anh",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student43@example.com",
+    "password": "Student@123",
+    "firstName": "Dang",
+    "lastName": "Hoang Nam",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student44@example.com",
+    "password": "Student@123",
+    "firstName": "Do",
+    "lastName": "Trong Dat",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student45@example.com",
+    "password": "Student@123",
+    "firstName": "Vu",
+    "lastName": "Thi Thanh Xuan",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student46@example.com",
+    "password": "Student@123",
+    "firstName": "Ngo",
+    "lastName": "Duy Khanh",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student47@example.com",
+    "password": "Student@123",
+    "firstName": "Dao",
+    "lastName": "Cong Danh",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student48@example.com",
+    "password": "Student@123",
+    "firstName": "Duong",
+    "lastName": "Quynh Nhu",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student49@example.com",
+    "password": "Student@123",
+    "firstName": "Dang",
+    "lastName": "Cong Hau",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student50@example.com",
+    "password": "Student@123",
+    "firstName": "Dinh",
+    "lastName": "Thi Quynh",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student51@example.com",
+    "password": "Student@123",
+    "firstName": "Hoang",
+    "lastName": "Manh Dat",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student52@example.com",
+    "password": "Student@123",
+    "firstName": "Nguyen",
+    "lastName": "Thi Thao",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student53@example.com",
+    "password": "Student@123",
+    "firstName": "Pham",
+    "lastName": "Quoc Bao",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student54@example.com",
+    "password": "Student@123",
+    "firstName": "Tran",
+    "lastName": "Van Khoi",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student55@example.com",
+    "password": "Student@123",
+    "firstName": "Ly",
+    "lastName": "Thi Ngoc",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student56@example.com",
+    "password": "Student@123",
+    "firstName": "Vo",
+    "lastName": "Dinh Khoa",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student57@example.com",
+    "password": "Student@123",
+    "firstName": "Tran",
+    "lastName": "Thanh Hai",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student58@example.com",
+    "password": "Student@123",
+    "firstName": "Huynh",
+    "lastName": "Thi Kim Chi",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student59@example.com",
+    "password": "Student@123",
+    "firstName": "Bui",
+    "lastName": "Van Phuc",
+    "role": "student",
+    "profileImage": "default"
+  },
+  {
+    "email": "student60@example.com",
+    "password": "Student@123",
+    "firstName": "Nguyen",
+    "lastName": "Thi Phuong Thao",
+    "role": "student",
+    "profileImage": "default"
+  }
+]
