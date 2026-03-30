@@ -1,9 +1,0 @@
-Flask
-Flask-Cors
-Pillow
-icrawler
-numpy
-pandas
-requests
-gunicorn
-imagehash
