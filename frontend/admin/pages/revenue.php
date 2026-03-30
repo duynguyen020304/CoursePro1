@@ -1,0 +1,322 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
+$host = $_SERVER['HTTP_HOST'];
+$script_path = $_SERVER['SCRIPT_NAME'];
+$path_parts = explode('/', ltrim($script_path, '/'));
+$app_root_directory_name = $path_parts[0];
+$app_root_path_relative = '/' . $app_root_directory_name;
+$known_app_subdir_markers = ['/admin/', '/api/', '/includes/'];
+$found_marker = false;
+
+foreach ($known_app_subdir_markers as $marker) {
+    $pos = strpos($script_path, $marker);
+    if ($pos !== false) {
+        $app_root_path_relative = substr($script_path, 0, $pos);
+        $found_marker = true;
+        break;
+    }
+}
+
+if (!$found_marker) {
+    $app_root_path_relative = dirname($script_path);
+    if ($app_root_path_relative === '/' && $script_path !== '/') {
+        $app_root_path_relative = '';
+    } elseif ($app_root_path_relative === '/' && $script_path === '/') {
+        $app_root_path_relative = '';
+    }
+}
+
+if ($app_root_path_relative !== '/' && $app_root_path_relative !== '' && substr($app_root_path_relative, -1) === '/') {
+    $app_root_path_relative = rtrim($app_root_path_relative, '/');
+}
+
+define('API_BASE', $protocol . '://' . $host . $app_root_path_relative . '/api');
+
+function callApi(string $endpoint, string $method = 'GET', array $payload = []): array
+{
+    $url = API_BASE . '/' . ltrim($endpoint, '/');
+    $methodUpper = strtoupper($method);
+
+    if ($methodUpper === 'GET' && !empty($payload)) {
+        $url .= '?' . http_build_query($payload);
+    }
+
+    $headers = "Content-Type: application/json; charset=utf-8\r\n" .
+        "Accept: application/json\r\n";
+
+    $token = $_SESSION['user']['token'] ?? null;
+
+    if ($token) {
+        $headers .= "Authorization: Bearer " . $token . "\r\n";
+    }
+
+    $options = [
+        'http' => [
+            'method'        => $methodUpper,
+            'header'        => $headers,
+            'ignore_errors' => true,
+        ]
+    ];
+
+    if ($methodUpper !== 'GET') {
+        if (!empty($payload)) {
+            $options['http']['content'] = json_encode($payload);
+        } else if (in_array($methodUpper, ['POST', 'PUT'])) {
+            $options['http']['content'] = '{}';
+        }
+    }
+
+    $context  = stream_context_create($options);
+    $response = @file_get_contents($url, false, $context);
+    $result   = json_decode($response, true);
+
+    $status_code = 500;
+    if (isset($http_response_header[0])) {
+        preg_match('{HTTP\/\S*\s(\d{3})}', $http_response_header[0], $match);
+        if (isset($match[1])) {
+            $status_code = intval($match[1]);
+        }
+    }
+
+    if (!is_array($result)) {
+        return [
+            'success' => false,
+            'message' => 'Invalid API response or failed to decode JSON.',
+            'data' => null,
+            'raw_response' => $response,
+            'http_status_code' => $status_code
+        ];
+    }
+
+    $result['http_status_code'] = $status_code;
+    if (!isset($result['success'])) {
+        $result['success'] = ($status_code >= 200 && $status_code < 300);
+    }
+    return $result;
+}
+
+$start_date = isset($_GET['start_date']) ? $_GET['start_date'] : null;
+$end_date = isset($_GET['end_date']) ? $_GET['end_date'] : null;
+
+$totalRevenue = 125800000;
+$totalOrders = 75;
+$avgOrderValue = ($totalOrders > 0) ? ($totalRevenue / $totalOrders) : 0;
+$topCourse = "Khóa Học Lập Trình Web Toàn Diện";
+
+$recentOrders = [
+    ['OrderID' => 'DH00123', 'OrderDate' => '2025-05-10', 'UserName' => 'Nguyễn Văn An', 'TotalAmount' => 1200000, 'Status' => 'Hoàn thành'],
+    ['OrderID' => 'DH00122', 'OrderDate' => '2025-05-10', 'UserName' => 'Trần Thị Bình', 'TotalAmount' => 950000, 'Status' => 'Đang xử lý'],
+    ['OrderID' => 'DH00121', 'OrderDate' => '2025-05-09', 'UserName' => 'Lê Văn Cường', 'TotalAmount' => 1500000, 'Status' => 'Hoàn thành'],
+    ['OrderID' => 'DH00120', 'OrderDate' => '2025-05-08', 'UserName' => 'Phạm Thị Dung', 'TotalAmount' => 750000, 'Status' => 'Đã hủy'],
+];
+
+$chartLabels = ['04/05', '05/05', '06/05', '07/05', '08/05', '09/05', '10/05'];
+$chartData = [12000000, 19000000, 15000000, 22000000, 18000000, 25000000, 30000000];
+?>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Thống kê Doanh thu</title>
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="../assets/css/base_dashboard.css" rel="stylesheet" />
+    <link href="../assets/css/admin_style.css" rel="stylesheet" />
+    <style>
+        .summary-card .card-title {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+        .summary-card .card-text {
+            font-size: 1.75rem;
+            font-weight: bold;
+        }
+        .summary-card .card-text.small-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        .action-buttons .btn {
+            margin-right: 0.25rem;
+        }
+        .action-buttons .btn:last-child {
+            margin-right: 0;
+        }
+    </style>
+</head>
+<body>
+<?php include(__DIR__ . '/../templates/dashboard.php'); ?>
+
+<div class="main-content">
+    <div class="container-fluid py-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+            <h3 class="mb-0"><i class="bi bi-cash-stack me-2"></i>Thống kê Doanh thu</h3>
+            <form class="d-flex align-items-center" method="get" action="">
+                <label for="start_date_filter" class="me-2 form-label mb-0">Từ:</label>
+                <input type="date" id="start_date_filter" name="start_date" class="form-control me-3" value="<?= htmlspecialchars($start_date ?? '') ?>">
+                <label for="end_date_filter" class="me-2 form-label mb-0">Đến:</label>
+                <input type="date" id="end_date_filter" name="end_date" class="form-control me-3" value="<?= htmlspecialchars($end_date ?? '') ?>">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-funnel-fill me-1"></i> Lọc</button>
+            </form>
+        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card border-success h-100 shadow-sm summary-card">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase">Tổng Doanh thu</h6>
+                        <h3 class="card-text text-success">₫<span id="totalRevenue"><?= number_format($totalRevenue, 0, ',', '.') ?></span></h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card border-info h-100 shadow-sm summary-card">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase">Tổng Đơn hàng</h6>
+                        <h3 class="card-text text-info"><span id="totalOrders"><?= htmlspecialchars($totalOrders) ?></span></h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card border-warning h-100 shadow-sm summary-card">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase">Giá trị TB/Đơn</h6>
+                        <h3 class="card-text text-warning">₫<span id="avgOrderValue"><?= number_format($avgOrderValue, 0, ',', '.') ?></span></h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card border-secondary h-100 shadow-sm summary-card">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase">Khóa học bán chạy</h6>
+                        <h5 class="card-text small-text" id="topCourse"><?= htmlspecialchars($topCourse) ?></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-bar-chart-line-fill me-2"></i> Doanh thu theo thời gian</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" height="100"></canvas>
+            </div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-table me-2"></i> Đơn hàng mới nhất</h6>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Mã ĐH</th>
+                        <th>Ngày Đặt</th>
+                        <th>Khách hàng</th>
+                        <th class="text-end">Tổng tiền (₫)</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end">Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    if (!empty($recentOrders)) {
+                        foreach ($recentOrders as $o) {
+                            $statusBadge = '';
+                            switch (strtolower($o['Status'])) {
+                                case 'hoàn thành': $statusBadge = 'bg-success'; break;
+                                case 'đang xử lý': $statusBadge = 'bg-info'; break;
+                                case 'đã hủy': $statusBadge = 'bg-danger'; break;
+                                default: $statusBadge = 'bg-secondary'; break;
+                            }
+                            echo "<tr>";
+                            echo "<td>" . htmlspecialchars($o['OrderID']) . "</td>";
+                            echo "<td>" . date('d/m/Y', strtotime($o['OrderDate'])) . "</td>";
+                            echo "<td>" . htmlspecialchars($o['UserName']) . "</td>";
+                            echo "<td class='text-end'>" . number_format($o['TotalAmount'], 0, ',', '.') . "</td>";
+                            echo "<td class='text-center'><span class='badge rounded-pill " . $statusBadge . "'>" . htmlspecialchars($o['Status']) . "</span></td>";
+                            echo "<td class='text-end action-buttons'>
+                                            <a href='order_detail.php?id={$o['OrderID']}' class='btn btn-sm btn-outline-primary' title='Xem chi tiết'>
+                                                <i class='bi bi-eye-fill'></i>
+                                            </a>
+                                        </td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='6' class='text-center'>Chưa có đơn hàng nào.</td></tr>";
+                    }
+                    ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <footer class="text-center text-muted mt-4 py-3 border-top">
+        <small>&copy; <?= date('Y') ?> Tên Website. All Rights Reserved.</small>
+    </footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../assets/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: <?php echo json_encode($chartLabels); ?>,
+                datasets: [{
+                    label: 'Doanh thu',
+                    data: <?php echo json_encode($chartData); ?>,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Thời gian'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Doanh thu (₫)'
+                        },
+                        ticks: {
+                            callback: value => new Intl.NumberFormat('vi-VN').format(value)
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
