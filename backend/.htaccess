@@ -1,9 +1,0 @@
-# Backend API .htaccess
-RewriteEngine On
-
-# Allow direct access to PHP files in Controller/Api
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-
-# Route requests to appropriate API file
-RewriteRule ^Controller/Api/(.*)$ Controller/Api/$1.php [L,QSA]
