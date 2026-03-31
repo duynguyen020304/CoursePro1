@@ -4,7 +4,7 @@ Pillow
 icrawler
 numpy
 pandas
-oracledb
+mysql-connector-python
 underthesea
 sentence-transformers
 requests
