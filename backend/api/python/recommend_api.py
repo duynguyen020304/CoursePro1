@@ -1,24 +1,23 @@
 import os
-import numpy as np
 import pandas as pd
-import oracledb
-import datetime
-from underthesea import word_tokenize
+import mysql.connector
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from flask_cors import CORS
 import requests
 import traceback
 import random
-#from waitress import serve #enable for windows compatibility
 
+# Import MySQL connection module
+from db_mysql import get_connection, init_connection_pool, test_connection
 
+# MySQL connection configuration from environment
 DB_HOST = os.environ.get("DB_HOST", "localhost")
-DB_PORT = int(os.environ.get("DB_PORT", 1521))
-DB_SERVICE_NAME = os.environ.get("DB_SERVICE_NAME", "QUANLYKHOAHOC")
-DB_USER = os.environ.get("DB_USER", "duy_admin")
-DB_PASSWORD = os.environ.get("DB_PASSWORD", "duyadmin")
+DB_PORT = int(os.environ.get("DB_PORT", 3306))
+DB_NAME = os.environ.get("DB_NAME", "coursepro")
+DB_USER = os.environ.get("DB_USER", "root")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
 
 VIETNAMESE_STOP_WORDS = ["khóa học", "khóa_học", "bài học", "học", "và", "là", "của", "các", "cho", "đến", "từ", "này", "để", "trong", "một", "với", "về"]
 COURSE_API_BASE_URL = "http://localhost/CoursePro1/api/course_api.php"
@@ -34,65 +33,72 @@ is_data_loaded = False
 def _filter_course_data(full_course_data):
     if not full_course_data:
         return None
-    
+
     fields_to_keep = [
-        'courseID', 'title', 'price', 
+        'courseID', 'title', 'price',
         'images'
     ]
-    
+
     slim_data = {}
     for field in fields_to_keep:
         if field in full_course_data:
             slim_data[field] = full_course_data[field]
-            
+
     return slim_data
 
 def get_detailed_instruct(task_description: str, query: str) -> str:
     return f'Instruct: {task_description}\nQuery: {query}'
 
 
-def fetch_courses_from_oracle():
-    dsn = f"{DB_HOST}:{DB_PORT}/{DB_SERVICE_NAME}"
+def fetch_courses_from_mysql():
+    """
+    Fetch all courses from MySQL database.
+    Replaces fetch_courses_from_oracle.
+    """
     connection = None
     cursor = None
     courses_data = []
-    print(f"Đang kết nối đến Oracle Database với DSN: {dsn} và người dùng: {DB_USER}...")
-    try:
-        connection = oracledb.connect(user=DB_USER, password=DB_PASSWORD, dsn=dsn)
-        print("Kết nối Oracle thành công!")
-        cursor = connection.cursor()
-        query_courses = "SELECT COURSEID, TITLE, DESCRIPTION, LANGUAGE, DIFFICULTY FROM Course"
-        cursor.execute(query_courses)
-        main_course_columns = [desc[0] for desc in cursor.description]
+    print(f"Đang kết nối đến MySQL Database: {DB_HOST}:{DB_PORT}/{DB_NAME}...")
 
-        temp_course_list = []
-        for row in cursor:
-            processed_row = {}
-            for i, col_name in enumerate(main_course_columns):
-                item = row[i]
-                if isinstance(item, oracledb.LOB):
-                    processed_row[col_name] = item.read() if item else None
-                else:
-                    processed_row[col_name] = item
-            temp_course_list.append(processed_row)
+    try:
+        connection = get_connection()
+        print("Kết nối MySQL thành công!")
+        cursor = connection.cursor(dictionary=True)
+
+        # Main course query - MySQL syntax
+        query_courses = """
+            SELECT CourseID, Title, Description, Language, Difficulty
+            FROM Course
+        """
+        cursor.execute(query_courses)
+        temp_course_list = cursor.fetchall()
 
         for course_info in temp_course_list:
-            current_course_id = course_info['COURSEID']
+            current_course_id = course_info['CourseID']
+
+            # Fetch objectives
             objectives_texts = []
-            query_objectives = "SELECT Objective FROM CourseObjective WHERE CourseID = :course_id_bv"
-            cursor_objectives = connection.cursor()
-            cursor_objectives.execute(query_objectives, course_id_bv=current_course_id)
-            for obj_row in cursor_objectives:
-                if obj_row[0]: objectives_texts.append(str(obj_row[0]))
+            cursor_objectives = connection.cursor(dictionary=True)
+            cursor_objectives.execute(
+                "SELECT Objective FROM CourseObjective WHERE CourseID = %s",
+                (current_course_id,)
+            )
+            for obj_row in cursor_objectives.fetchall():
+                if obj_row['Objective']:
+                    objectives_texts.append(str(obj_row['Objective']))
             course_info['objectives_text'] = " ".join(objectives_texts)
             cursor_objectives.close()
 
+            # Fetch requirements
             requirements_texts = []
-            query_requirements = "SELECT Requirement FROM CourseRequirement WHERE CourseID = :course_id_bv"
-            cursor_requirements = connection.cursor()
-            cursor_requirements.execute(query_requirements, course_id_bv=current_course_id)
-            for req_row in cursor_requirements:
-                if req_row[0]: requirements_texts.append(str(req_row[0]))
+            cursor_requirements = connection.cursor(dictionary=True)
+            cursor_requirements.execute(
+                "SELECT Requirement FROM CourseRequirement WHERE CourseID = %s",
+                (current_course_id,)
+            )
+            for req_row in cursor_requirements.fetchall():
+                if req_row['Requirement']:
+                    requirements_texts.append(str(req_row['Requirement']))
             course_info['requirements_text'] = " ".join(requirements_texts)
             cursor_requirements.close()
 
@@ -104,22 +110,30 @@ def fetch_courses_from_oracle():
 
         df = pd.DataFrame(courses_data)
         df.rename(columns={
-            'COURSEID': 'course_id', 'TITLE': 'title', 'DESCRIPTION': 'description',
-            'objectives_text': 'objectives', 'requirements_text': 'requirements', 'LANGUAGE': 'language', 'DIFFICULTY': 'difficulty'
-            }, inplace=True)
-        print(f"Đã tải {len(df)} khóa học (bao gồm objectives, requirements) từ Oracle DB.")
+            'CourseID': 'course_id',
+            'Title': 'title',
+            'Description': 'description',
+            'objectives_text': 'objectives',
+            'requirements_text': 'requirements',
+            'Language': 'language',
+            'Difficulty': 'difficulty'
+        }, inplace=True)
+        print(f"Đã tải {len(df)} khóa học (bao gồm objectives, requirements) từ MySQL DB.")
         return df
-    except oracledb.Error as e:
-        error_obj, = e.args
-        print(f"Lỗi Oracle khi truy vấn dữ liệu: {error_obj.message} (Code: {error_obj.code})")
+
+    except mysql.connector.Error as e:
+        print(f"Lỗi MySQL khi truy vấn dữ liệu: {e}")
         return None
     except Exception as e:
-        print(f"Đã xảy ra lỗi không xác định khi lấy dữ liệu từ Oracle: {e}")
+        print(f"Đã xảy ra lỗi không xác định khi lấy dữ liệu từ MySQL: {e}")
         print(traceback.format_exc())
         return None
     finally:
-        if cursor: cursor.close()
-        if connection: connection.close()
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
 
 def preprocess_data_from_db(db_data_df):
     if db_data_df is None or db_data_df.empty:
@@ -157,46 +171,55 @@ def generate_course_embeddings_global(feature_df, model):
         return None
 
 def fetch_cart_items(user_id):
-    dsn = f"{DB_HOST}:{DB_PORT}/{DB_SERVICE_NAME}"
+    """
+    Fetch cart items from MySQL.
+    Replaces Oracle cart query.
+    """
     connection = None
     cursor = None
     cart_course_ids = []
     print(f"Đang lấy các khóa học trong giỏ hàng cho userID: {user_id}...")
+
     try:
-        connection = oracledb.connect(user=DB_USER, password=DB_PASSWORD, dsn=dsn)
-        cursor = connection.cursor()
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
 
-        
-        query_cart_id = "SELECT CartID FROM Cart WHERE UserID = :user_id_bv"
-        cursor.execute(query_cart_id, user_id_bv=user_id)
-        cart_id_row = cursor.fetchone()
+        # Get cart ID
+        cursor.execute(
+            "SELECT CartID FROM Cart WHERE UserID = %s",
+            (user_id,)
+        )
+        cart_row = cursor.fetchone()
 
-        if not cart_id_row:
+        if not cart_row:
             print(f"Không tìm thấy giỏ hàng cho userID: {user_id}")
             return []
 
-        cart_id = cart_id_row[0]
+        cart_id = cart_row['CartID']
 
-        
-        query_cart_items = "SELECT CourseID FROM CartItem WHERE CartID = :cart_id_bv"
-        cursor.execute(query_cart_items, cart_id_bv=cart_id)
+        # Get cart items
+        cursor.execute(
+            "SELECT CourseID FROM CartItem WHERE CartID = %s",
+            (cart_id,)
+        )
 
-        for row in cursor:
-            cart_course_ids.append(row[0])
+        for row in cursor.fetchall():
+            cart_course_ids.append(row['CourseID'])
 
         print(f"Tìm thấy {len(cart_course_ids)} khóa học trong giỏ hàng cho userID {user_id}: {cart_course_ids}")
         return cart_course_ids
 
-    except oracledb.Error as e:
-        error_obj, = e.args
-        print(f"Lỗi Oracle khi lấy giỏ hàng: {error_obj.message}")
+    except mysql.connector.Error as e:
+        print(f"Lỗi MySQL khi lấy giỏ hàng: {e}")
         return []
     except Exception as e:
         print(f"Lỗi không xác định khi lấy giỏ hàng: {e}")
         return []
     finally:
-        if cursor: cursor.close()
-        if connection: connection.close()
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
 
 def fetch_purchase_history(user_id):
@@ -308,7 +331,7 @@ def get_recommendations_from_history_ids(history_ids_list, model, feature_df_glo
             course_details = fetch_course_details_php(course_id_at_index)
             if course_details:
                 course_details["recommendation_score"] = float(score)
-                
+
                 slim_details = _filter_course_data(course_details)
                 if slim_details:
                     recommended_courses_details_list.append(slim_details)
@@ -328,6 +351,15 @@ def load_initial_data():
         return
     print("Đang tải dữ liệu ban đầu cho ứng dụng Flask...")
 
+    # Initialize MySQL connection pool
+    try:
+        init_connection_pool()
+        test_connection()
+    except Exception as e:
+        print(f"Failed to initialize MySQL connection: {e}")
+        is_data_loaded = False
+        return
+
     try:
         print(f"Đang tải mô hình Sentence Transformer: {SENTENCE_TRANSFORMER_MODEL_NAME}...")
         sentence_transformer_model_global = SentenceTransformer(SENTENCE_TRANSFORMER_MODEL_NAME)
@@ -338,7 +370,7 @@ def load_initial_data():
         is_data_loaded = False
         return
 
-    raw_df = fetch_courses_from_oracle()
+    raw_df = fetch_courses_from_mysql()
     if raw_df is not None and not raw_df.empty:
         all_courses_df_processed = preprocess_data_from_db(raw_df)
         if all_courses_df_processed is not None and not all_courses_df_processed.empty:
@@ -348,7 +380,7 @@ def load_initial_data():
                 print("Tải và tiền xử lý dữ liệu, tạo embeddings ban đầu thành công!")
             else: print("Lỗi: Không thể tạo course embeddings.")
         else: print("Lỗi: Tiền xử lý dữ liệu thất bại.")
-    else: print("Lỗi: Không thể tải dữ liệu từ Oracle DB.")
+    else: print("Lỗi: Không thể tải dữ liệu từ MySQL DB.")
 
 with app.app_context():
     load_initial_data()
@@ -367,19 +399,19 @@ def recommend_for_user(user_id):
         return jsonify({"success": False, "message": "UserID không được cung cấp.", "data": None}), 400
 
     try:
-        
+
         cart_course_ids = fetch_cart_items(user_id)
         purchase_history_ids = fetch_purchase_history(user_id)
-        
-        
+
+
         combined_ids = list(set(cart_course_ids) | set(purchase_history_ids))
 
         recommendations = []
-        
+
         if combined_ids:
             print(f"Tạo gợi ý dựa trên lịch sử tổng hợp (giỏ hàng + đã mua) cho userID: {user_id}")
             print(f"Danh sách ID tổng hợp: {combined_ids}")
-            
+
             recommendations = get_recommendations_from_history_ids(
                 combined_ids,
                 sentence_transformer_model_global,
@@ -392,14 +424,14 @@ def recommend_for_user(user_id):
                 message = "Lấy danh sách gợi ý thành công dựa trên giỏ hàng và lịch sử mua hàng của bạn."
                 return jsonify({"success": True, "message": message, "source": "combined_history", "data": recommendations}), 200
 
-        
+
         print(f"Không có hoạt động nào hoặc không tìm thấy gợi ý mới. Cung cấp gợi ý ngẫu nhiên cho userID: {user_id}.")
         all_php_courses = fetch_all_courses_for_generic_recommendation()
         generic_recommendations = []
         if all_php_courses:
-            
+
             unseen_courses = [course for course in all_php_courses if course.get('courseID') not in combined_ids]
-            
+
             num_to_recommend = min(10, len(unseen_courses))
             if num_to_recommend > 0:
                 randomly_selected_courses = random.sample(unseen_courses, num_to_recommend)
@@ -408,18 +440,18 @@ def recommend_for_user(user_id):
                     slim_detail = _filter_course_data(course_detail)
                     if slim_detail:
                         generic_recommendations.append(slim_detail)
-        
+
         if generic_recommendations:
             return jsonify({
-                "success": True, 
-                "message": "Gợi ý các khóa học ngẫu nhiên vì bạn chưa có hoạt động nào hoặc không tìm thấy gợi ý phù hợp.", 
+                "success": True,
+                "message": "Gợi ý các khóa học ngẫu nhiên vì bạn chưa có hoạt động nào hoặc không tìm thấy gợi ý phù hợp.",
                 "source": "random",
                 "data": generic_recommendations
             }), 200
         else:
             return jsonify({
-                "success": True, 
-                "message": "Không có hoạt động nào và không thể tạo gợi ý ngẫu nhiên.", 
+                "success": True,
+                "message": "Không có hoạt động nào và không thể tạo gợi ý ngẫu nhiên.",
                 "source": "none",
                 "data": []
             }), 200
@@ -440,15 +472,15 @@ def recommend_for_user_by_order(user_id):
         return jsonify({"success": False, "message": "UserID không được cung cấp.", "data": None}), 400
 
     try:
-        
+
         purchase_history_ids = fetch_purchase_history(user_id)
-        
+
         recommendations = []
-        
+
         if purchase_history_ids:
             print(f"Tạo gợi ý CHỈ dựa trên lịch sử mua hàng cho userID: {user_id}")
             print(f"Danh sách ID lịch sử mua hàng: {purchase_history_ids}")
-            
+
             recommendations = get_recommendations_from_history_ids(
                 purchase_history_ids,
                 sentence_transformer_model_global,
@@ -461,14 +493,14 @@ def recommend_for_user_by_order(user_id):
                 message = "Lấy danh sách gợi ý thành công dựa trên lịch sử mua hàng của bạn."
                 return jsonify({"success": True, "message": message, "source": "purchase_history", "data": recommendations}), 200
 
-        
+
         print(f"Không có lịch sử mua hàng hoặc không tìm thấy gợi ý mới. Cung cấp gợi ý ngẫu nhiên cho userID: {user_id}.")
         all_php_courses = fetch_all_courses_for_generic_recommendation()
         generic_recommendations = []
         if all_php_courses:
-            
+
             unseen_courses = [course for course in all_php_courses if course.get('courseID') not in purchase_history_ids]
-            
+
             num_to_recommend = min(10, len(unseen_courses))
             if num_to_recommend > 0:
                 randomly_selected_courses = random.sample(unseen_courses, num_to_recommend)
@@ -477,18 +509,18 @@ def recommend_for_user_by_order(user_id):
                     slim_detail = _filter_course_data(course_detail)
                     if slim_detail:
                         generic_recommendations.append(slim_detail)
-        
+
         if generic_recommendations:
             return jsonify({
-                "success": True, 
-                "message": "Gợi ý các khóa học ngẫu nhiên vì bạn chưa có lịch sử mua hàng.", 
+                "success": True,
+                "message": "Gợi ý các khóa học ngẫu nhiên vì bạn chưa có lịch sử mua hàng.",
                 "source": "random",
                 "data": generic_recommendations
             }), 200
         else:
             return jsonify({
-                "success": True, 
-                "message": "Không có lịch sử mua hàng và không thể tạo gợi ý ngẫu nhiên.", 
+                "success": True,
+                "message": "Không có lịch sử mua hàng và không thể tạo gợi ý ngẫu nhiên.",
                 "source": "none",
                 "data": []
             }), 200
@@ -540,8 +572,8 @@ def recommend_for_course(course_id_param):
     for item in sorted_scores_item:
         idx = item['index']
         score_val = item['score']
-        
-        
+
+
         if all_courses_df_processed.iloc[idx]['course_id'] == course_id_param:
             continue
 
@@ -550,7 +582,7 @@ def recommend_for_course(course_id_param):
             course_details = fetch_course_details_php(rec_course_id)
             if course_details:
                 course_details["recommendation_score"] = float(score_val)
-                
+
                 slim_details = _filter_course_data(course_details)
                 if slim_details:
                     recommended_courses_details_list.append(slim_details)
@@ -563,6 +595,16 @@ def recommend_for_course(course_id_param):
     else:
         return jsonify({"success": True, "message": f"Không tìm thấy gợi ý mới cho khóa học ID '{course_id_param}'.", "data": []}), 200
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint."""
+    return jsonify({
+        "success": True,
+        "message": "AI Recommendation Service is running",
+        "database": "MySQL",
+        "data_loaded": is_data_loaded
+    }), 200
+
 if __name__ == "__main__":
-    print("Khởi chạy Flask API server...")
-    # serve(app, host='0.0.0.0', port=5000, threads=16)
+    print("Khởi chạy Flask API server với MySQL...")
+    app.run(host='0.0.0.0', port=5000, debug=True)
