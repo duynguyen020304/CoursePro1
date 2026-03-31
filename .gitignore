@@ -55,3 +55,21 @@ temp/
 # Test coverage
 coverage/
 *.coverage
+
+# Screenshots (dev artifacts)
+*.png
+!backend/public/favicon.ico
+
+# Playwright MCP logs
+.playwright-mcp/
+
+# Old codebase backups
+backend_old/
+frontend_old/
+
+# Node.js
+node_modules/
+dist/
+
+# Vendor (PHP)
+vendor/
