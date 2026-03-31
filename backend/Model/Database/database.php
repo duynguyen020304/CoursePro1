@@ -4,10 +4,11 @@ date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 class Database
 {
-    private string $host = 'localhost';
-    private string $user = 'root';
-    private string $pass = '';
-    private string $dbname = 'ecourse';
+    // Support environment variables for Docker/containerized setups
+    private string $host;
+    private string $user;
+    private string $pass;
+    private string $dbname;
     private string $charset = 'utf8mb4';
     private int $databasePort = 3306;
 
@@ -25,11 +26,12 @@ class Database
         int $port = 0,
         string $charset = ''
     ) {
-        $this->host = !empty($host) ? $host : $this->host;
-        $this->user = !empty($user) ? $user : $this->user;
-        $this->pass = !empty($pass) ? $pass : $this->pass;
-        $this->dbname = !empty($dbname) ? $dbname : $this->dbname;
-        $this->databasePort = $port ?: $this->databasePort;
+        // Load from environment variables or use defaults
+        $this->host = !empty($host) ? $host : getenv('DB_HOST') ?: 'localhost';
+        $this->user = !empty($user) ? $user : getenv('DB_USER') ?: 'root';
+        $this->pass = !empty($pass) ? $pass : getenv('DB_PASSWORD') ?: getenv('DB_PASS') ?: '';
+        $this->dbname = !empty($dbname) ? $dbname : getenv('DB_NAME') ?: 'ecourse';
+        $this->databasePort = $port ?: (int)(getenv('DB_PORT') ?: 3306);
         $this->charset = !empty($charset) ? $charset : $this->charset;
 
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
