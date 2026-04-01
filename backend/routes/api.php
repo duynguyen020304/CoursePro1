@@ -25,6 +25,7 @@ use App\Http\Controllers\OrderDetailController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\InstructorCourseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,12 +75,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/instructor', [InstructorController::class, 'store']);
     Route::put('/instructor', [InstructorController::class, 'update']);
 
-    // Admin only routes
-    Route::prefix('admin')->group(function () {
+    // Admin only routes (protected by role middleware)
+    Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::apiResource('users', UserController::class);
         Route::apiResource('students', StudentController::class);
         Route::apiResource('instructors', InstructorController::class);
         Route::apiResource('roles', RoleController::class);
+
+        // Role permission management
+        Route::get('roles/{id}/permissions', [RoleController::class, 'getPermissions']);
+        Route::post('roles/{id}/permissions', [RoleController::class, 'assignPermissions']);
+        Route::put('roles/{id}/permissions', [RoleController::class, 'syncPermissions']);
+        Route::delete('roles/{id}/permissions/{permissionId}', [RoleController::class, 'removePermission']);
+        Route::get('permissions', [RoleController::class, 'getAllPermissions']);
+
+        // User role assignment
+        Route::put('users/{id}/role', [UserController::class, 'assignRole']);
 
         // Course management
         Route::apiResource('courses', CourseController::class);
@@ -102,63 +113,57 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Course relationships (assign instructor/category to course)
+    // Read operations - accessible to all authenticated users
     Route::prefix('courses/{course}')->group(function () {
-        // Instructors
         Route::get('/instructors', [CourseInstructorController::class, 'index']);
-        Route::post('/instructors', [CourseInstructorController::class, 'store']);
-        Route::delete('/instructors/{instructor}', [CourseInstructorController::class, 'destroy']);
-
-        // Categories
         Route::get('/categories', [CourseCategoryController::class, 'index']);
-        Route::post('/categories', [CourseCategoryController::class, 'store']);
-        Route::delete('/categories/{category}', [CourseCategoryController::class, 'destroy']);
-
-        // Images
         Route::get('/images', [CourseImageController::class, 'index']);
-        Route::post('/images', [CourseImageController::class, 'store']);
-        Route::put('/images/{image}', [CourseImageController::class, 'update']);
-        Route::delete('/images/{image}', [CourseImageController::class, 'destroy']);
-
-        // Objectives
         Route::get('/objectives', [CourseObjectiveController::class, 'index']);
-        Route::post('/objectives', [CourseObjectiveController::class, 'store']);
-        Route::put('/objectives/{objective}', [CourseObjectiveController::class, 'update']);
-        Route::delete('/objectives/{objective}', [CourseObjectiveController::class, 'destroy']);
-
-        // Requirements
         Route::get('/requirements', [CourseRequirementController::class, 'index']);
-        Route::post('/requirements', [CourseRequirementController::class, 'store']);
-        Route::put('/requirements/{requirement}', [CourseRequirementController::class, 'update']);
-        Route::delete('/requirements/{requirement}', [CourseRequirementController::class, 'destroy']);
-
-        // Chapters
         Route::get('/chapters', [ChapterController::class, 'index']);
-        Route::post('/chapters', [ChapterController::class, 'store']);
-        Route::put('/chapters/{chapter}', [ChapterController::class, 'update']);
-        Route::delete('/chapters/{chapter}', [ChapterController::class, 'destroy']);
-
-        // Lessons (nested under chapter)
         Route::get('/chapters/{chapter}/lessons', [LessonController::class, 'index']);
-        Route::post('/chapters/{chapter}/lessons', [LessonController::class, 'store']);
     });
 
-    // Lesson nested routes
+    // Course write operations - admin/instructor only
+    Route::middleware('role:admin,instructor')->group(function () {
+        Route::prefix('courses/{course}')->group(function () {
+            Route::post('/instructors', [CourseInstructorController::class, 'store']);
+            Route::delete('/instructors/{instructor}', [CourseInstructorController::class, 'destroy']);
+            Route::post('/categories', [CourseCategoryController::class, 'store']);
+            Route::delete('/categories/{category}', [CourseCategoryController::class, 'destroy']);
+            Route::post('/images', [CourseImageController::class, 'store']);
+            Route::put('/images/{image}', [CourseImageController::class, 'update']);
+            Route::delete('/images/{image}', [CourseImageController::class, 'destroy']);
+            Route::post('/objectives', [CourseObjectiveController::class, 'store']);
+            Route::put('/objectives/{objective}', [CourseObjectiveController::class, 'update']);
+            Route::delete('/objectives/{objective}', [CourseObjectiveController::class, 'destroy']);
+            Route::post('/requirements', [CourseRequirementController::class, 'store']);
+            Route::put('/requirements/{requirement}', [CourseRequirementController::class, 'update']);
+            Route::delete('/requirements/{requirement}', [CourseRequirementController::class, 'destroy']);
+            Route::post('/chapters', [ChapterController::class, 'store']);
+            Route::put('/chapters/{chapter}', [ChapterController::class, 'update']);
+            Route::delete('/chapters/{chapter}', [ChapterController::class, 'destroy']);
+            Route::post('/chapters/{chapter}/lessons', [LessonController::class, 'store']);
+        });
+
+        // Lesson write operations
+        Route::prefix('lessons/{lesson}')->group(function () {
+            Route::put('/', [LessonController::class, 'update']);
+            Route::delete('/', [LessonController::class, 'destroy']);
+            Route::post('/videos', [VideoController::class, 'store']);
+            Route::put('/videos/{video}', [VideoController::class, 'update']);
+            Route::delete('/videos/{video}', [VideoController::class, 'destroy']);
+            Route::post('/resources', [ResourceController::class, 'store']);
+            Route::put('/resources/{resource}', [ResourceController::class, 'update']);
+            Route::delete('/resources/{resource}', [ResourceController::class, 'destroy']);
+        });
+    });
+
+    // Lesson read operations - accessible to all authenticated users
     Route::prefix('lessons/{lesson}')->group(function () {
         Route::get('/', [LessonController::class, 'show']);
-        Route::put('/', [LessonController::class, 'update']);
-        Route::delete('/', [LessonController::class, 'destroy']);
-
-        // Videos
         Route::get('/videos', [VideoController::class, 'index']);
-        Route::post('/videos', [VideoController::class, 'store']);
-        Route::put('/videos/{video}', [VideoController::class, 'update']);
-        Route::delete('/videos/{video}', [VideoController::class, 'destroy']);
-
-        // Resources
         Route::get('/resources', [ResourceController::class, 'index']);
-        Route::post('/resources', [ResourceController::class, 'store']);
-        Route::put('/resources/{resource}', [ResourceController::class, 'update']);
-        Route::delete('/resources/{resource}', [ResourceController::class, 'destroy']);
     });
 
     // Cart
@@ -178,4 +183,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reviews', [ReviewController::class, 'store']);
     Route::put('/reviews/{review}', [ReviewController::class, 'update']);
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
+
+    // Instructor routes (instructor and admin only)
+    Route::middleware('role:instructor,admin')->prefix('instructor')->group(function () {
+        // Instructor dashboard stats
+        Route::get('/stats', [InstructorCourseController::class, 'stats']);
+
+        // Instructor courses
+        Route::get('/courses', [InstructorCourseController::class, 'index']);
+        Route::post('/courses', [InstructorCourseController::class, 'store']);
+        Route::get('/courses/{course}', [InstructorCourseController::class, 'show']);
+        Route::put('/courses/{course}', [InstructorCourseController::class, 'update']);
+        Route::delete('/courses/{course}', [InstructorCourseController::class, 'destroy']);
+
+        // Course images
+        Route::post('/courses/{course}/images', [InstructorCourseController::class, 'addImage']);
+        Route::delete('/courses/{course}/images/{image}', [InstructorCourseController::class, 'deleteImage']);
+    });
 });

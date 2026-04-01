@@ -37,7 +37,7 @@ class UserController extends Controller
      */
     public function profile(Request $request)
     {
-        $user = $request->user()->load(['role', 'student', 'instructor']);
+        $user = $request->user()->load(['role.permissions', 'student', 'instructor']);
 
         return response()->json([
             'success' => true,
@@ -142,6 +142,26 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'User deleted successfully',
+        ]);
+    }
+
+    /**
+     * Assign a role to a user (admin only)
+     */
+    public function assignRole(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'role_id' => 'required|exists:roles,role_id',
+        ]);
+
+        $user->update(['role_id' => $request->role_id]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Role assigned successfully',
+            'data' => $user->fresh(['role', 'student', 'instructor']),
         ]);
     }
 }
