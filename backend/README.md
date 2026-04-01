@@ -21,6 +21,78 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Database Setup
+
+### Prerequisites
+
+Ensure MySQL is running before proceeding:
+
+```bash
+# Start MySQL container (from project root)
+docker-compose -f docker-compose.mysql-only.yml up -d
+
+# Verify container is running
+docker ps | grep coursepro_mysql
+```
+
+### Configuration
+
+This project uses the following database configuration:
+
+| Setting | Value |
+|---------|-------|
+| **Database** | `ecourse` |
+| **Host** | `127.0.0.1` |
+| **Port** | `3306` |
+| **Username** | `root` |
+| **Password** | `rootpassword` |
+
+### Running Migrations
+
+```bash
+# From the backend directory
+php artisan migrate
+```
+
+This will run all pending migrations in `database/migrations/`.
+
+### Seeding the Database
+
+```bash
+# Seed database with sample data
+php artisan db:seed
+```
+
+### Migrate and Seed (Combined)
+
+```bash
+# Run migrations and seed in one command
+php artisan migrate --seed
+```
+
+### Fresh Start (Drop & Re-seed)
+
+```bash
+# Drop all tables, run migrations, and seed
+php artisan migrate:fresh --seed
+```
+
+### Sample Data
+
+The database seeders create the following test data:
+
+| Data Type | Count | Details |
+|-----------|-------|---------|
+| **Roles** | 3 | admin, student, instructor |
+| **Admin User** | 1 | `admin@example.com` / `password` |
+| **Test Student** | 1 | `student@example.com` / `password` |
+| **Students** | 10 | Password: `Student@123` |
+| **Instructors** | 5 | Vietnamese names with biographies |
+| **Categories** | 20 | 8 main + 12 subcategories |
+| **Courses** | 5 | Full courses with chapters, lessons |
+| **Orders** | Sample | Completed orders with payments & reviews |
+| **Cart Items** | Sample | For checkout testing |
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
