@@ -29,7 +29,7 @@ export default function WatchVideo() {
         }
 
         const response = await courseApi.get(courseId);
-        const courseData = response.data.data;
+        const courseData = response.data.data?.course || response.data.data;
         setCourse(courseData);
 
         const allLessons = courseData.chapters?.flatMap(ch => ch.lessons || []) || [];

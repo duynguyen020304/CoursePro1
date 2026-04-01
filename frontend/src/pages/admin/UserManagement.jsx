@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { userApi } from '../../services/api';
+import { adminUserApi } from '../../services/api';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -12,8 +12,11 @@ export default function UserManagement() {
 
   async function fetchUsers() {
     try {
-      const response = await userApi.list();
-      setUsers(response.data.data || []);
+      const response = await adminUserApi.list();
+      const userData = Array.isArray(response.data.data)
+        ? response.data.data
+        : (response.data.data?.data || []);
+      setUsers(userData);
     } catch (error) {
       console.error('Failed to fetch users:', error);
     } finally {

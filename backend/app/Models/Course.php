@@ -82,4 +82,13 @@ class Course extends Model
     {
         return $this->hasMany(Review::class, 'course_id', 'course_id');
     }
+
+    /**
+     * Get the students who purchased this course.
+     */
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'orders', 'course_id', 'user_id')
+            ->distinct();
+    }
 }

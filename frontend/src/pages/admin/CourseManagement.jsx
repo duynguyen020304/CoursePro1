@@ -13,7 +13,10 @@ export default function CourseManagement() {
   async function fetchCourses() {
     try {
       const response = await courseApi.list();
-      setCourses(response.data.data || []);
+      const coursesData = Array.isArray(response.data.data)
+        ? response.data.data
+        : (response.data.data?.data || []);
+      setCourses(coursesData);
     } catch (error) {
       console.error('Failed to fetch courses:', error);
     } finally {
@@ -80,7 +83,7 @@ export default function CourseManagement() {
                     {course.instructor?.user?.first_name} {course.instructor?.user?.last_name}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
-                    ${course.price?.toFixed(2) || 0}
+                    ${parseFloat(course.price || 0).toFixed(2)}
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">

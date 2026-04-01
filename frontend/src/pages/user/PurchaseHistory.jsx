@@ -10,7 +10,9 @@ export default function PurchaseHistory() {
     async function fetchOrders() {
       try {
         const response = await orderApi.list();
-        setOrders(response.data.data || []);
+        // Handle paginated response - data.data.data for Laravel pagination
+        const ordersData = response.data.data?.data || response.data.data || [];
+        setOrders(ordersData);
       } catch (error) {
         console.error('Failed to fetch orders:', error);
       } finally {
@@ -54,7 +56,7 @@ export default function PurchaseHistory() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold text-indigo-600">${order.total_amount?.toFixed(2)}</p>
+                  <p className="text-lg font-bold text-indigo-600">${Number(order.total_amount).toFixed(2)}</p>
                   <p className="text-sm text-gray-500 capitalize">{order.payment?.payment_status || 'Pending'}</p>
                 </div>
               </div>
@@ -70,7 +72,7 @@ export default function PurchaseHistory() {
                       >
                         {detail.course?.title}
                       </Link>
-                      <span className="text-gray-600">${detail.price?.toFixed(2)}</span>
+                      <span className="text-gray-600">${Number(detail.price).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>

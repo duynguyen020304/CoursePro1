@@ -25,7 +25,10 @@ export default function UploadVideo() {
   async function fetchCourses() {
     try {
       const response = await courseApi.list();
-      setCourses(response.data.data || []);
+      const coursesData = Array.isArray(response.data.data)
+        ? response.data.data
+        : (response.data.data?.data || []);
+      setCourses(coursesData);
     } catch (error) {
       console.error('Failed to fetch courses:', error);
     }
