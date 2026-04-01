@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
-    protected $fillable = ['name', 'parent_id', 'sort_order', 'created_at'];
+    protected $fillable = ['name', 'slug', 'parent_id', 'sort_order', 'created_at'];
 
     public $timestamps = false;
 

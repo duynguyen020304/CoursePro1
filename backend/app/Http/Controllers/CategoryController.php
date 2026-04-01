@@ -41,7 +41,7 @@ class CategoryController extends Controller
     /**
      * Display the specified category with its courses
      */
-    public function show($id)
+    public function show($slug)
     {
         $category = Category::with([
             'courses' => function ($query) {
@@ -49,7 +49,7 @@ class CategoryController extends Controller
                     ->orderBy('created_at', 'desc');
             },
             'children'
-        ])->findOrFail($id);
+        ])->where('slug', $slug)->firstOrFail();
 
         return response()->json([
             'success' => true,

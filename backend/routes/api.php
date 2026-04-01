@@ -49,7 +49,7 @@ Route::get('/courses/search', [SearchController::class, 'search']);
 Route::get('/courses', [CourseController::class, 'index']);
 Route::get('/courses/{course}', [CourseController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/categories/{category}', [CategoryController::class, 'show']);
+Route::get('/categories/{category:slug}', [CategoryController::class, 'show']);
 
 // Public instructor browsing
 Route::get('/instructors', [InstructorController::class, 'index']);
