@@ -116,13 +116,12 @@ class AuthController extends Controller
         );
 
         // TODO: Send email with code
-        // For now, return code in response (remove in production)
+        // In production, send actual email. For development, code is logged.
+        \Log::info("Password reset code for {$user->email}: {$code}");
+
         return response()->json([
             'success' => true,
             'message' => 'Password reset code sent to your email',
-            'data' => [
-                'code' => $code, // REMOVE IN PRODUCTION
-            ],
         ]);
     }
 
