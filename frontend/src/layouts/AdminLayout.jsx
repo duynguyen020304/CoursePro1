@@ -1,6 +1,27 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function AdminLayout() {
+  const { user, hasRole, loading, logout } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  // Redirect non-admin users
+  if (!hasRole('admin')) {
+    return <Navigate to="/" replace />;
+  }
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/signin';
+  };
+
   return (
     <div className="min-h-screen flex bg-gray-100">
       {/* Admin Sidebar */}
@@ -9,25 +30,42 @@ export default function AdminLayout() {
           <h1 className="text-xl font-bold">Admin Panel</h1>
         </div>
         <nav className="mt-4">
-          <a href="/admin/dashboard" className="block px-4 py-2 hover:bg-gray-800">
+          <Link to="/admin/dashboard" className="block px-4 py-2 hover:bg-gray-800">
             Dashboard
-          </a>
-          <a href="/admin/courses" className="block px-4 py-2 hover:bg-gray-800">
+          </Link>
+          <Link to="/admin/courses" className="block px-4 py-2 hover:bg-gray-800">
             Courses
-          </a>
-          <a href="/admin/users" className="block px-4 py-2 hover:bg-gray-800">
+          </Link>
+          <Link to="/admin/users" className="block px-4 py-2 hover:bg-gray-800">
             Users
-          </a>
-          <a href="/admin/instructors" className="block px-4 py-2 hover:bg-gray-800">
+          </Link>
+          <Link to="/admin/roles" className="block px-4 py-2 hover:bg-gray-800">
+            Roles & Permissions
+          </Link>
+          <Link to="/admin/instructors" className="block px-4 py-2 hover:bg-gray-800">
             Instructors
-          </a>
-          <a href="/admin/orders" className="block px-4 py-2 hover:bg-gray-800">
+          </Link>
+          <Link to="/admin/orders" className="block px-4 py-2 hover:bg-gray-800">
             Orders
-          </a>
-          <a href="/admin/reviews" className="block px-4 py-2 hover:bg-gray-800">
+          </Link>
+          <Link to="/admin/reviews" className="block px-4 py-2 hover:bg-gray-800">
             Reviews
-          </a>
+          </Link>
+          <Link to="/admin/revenue" className="block px-4 py-2 hover:bg-gray-800">
+            Revenue
+          </Link>
         </nav>
+        <div className="absolute bottom-0 w-full p-4 border-t border-gray-800">
+          <div className="text-sm text-gray-400 mb-2">
+            {user?.first_name} {user?.last_name}
+          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full text-left text-red-400 hover:text-red-300"
+          >
+            Logout
+          </button>
+        </div>
       </aside>
 
       {/* Main content */}
