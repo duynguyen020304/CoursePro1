@@ -13,6 +13,11 @@ class CourseLesson extends Model
     protected $keyType = 'string';
     public $timestamps = false;
 
+    public function getRouteKeyName()
+    {
+        return 'lesson_id';
+    }
+
     protected $fillable = ['lesson_id', 'course_id', 'chapter_id', 'title', 'content', 'sort_order'];
 
     protected static function boot()
