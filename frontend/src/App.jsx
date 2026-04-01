@@ -21,6 +21,7 @@ import VerifyCode from './pages/public/VerifyCode';
 import ResetPassword from './pages/public/ResetPassword';
 import Cart from './pages/public/Cart';
 import Checkout from './pages/public/Checkout';
+import AuthCallback from './pages/public/AuthCallback';
 
 // User Pages
 import MyCourses from './pages/user/MyCourses';
@@ -80,6 +81,7 @@ function AppRoutes() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/verify-code" element={<VerifyCode />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/categories" element={<Courses />} />

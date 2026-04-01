@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../contexts/AuthContext';
 import { authApi } from '../../services/api';
+import GoogleLoginButton from '../../components/GoogleLoginButton';
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -143,6 +144,22 @@ export default function SignIn() {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-gray-50 text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          {/* Google Login Button */}
+          <GoogleLoginButton
+            disabled={loading}
+            onError={(errorMsg) => setError(errorMsg)}
+          />
         </form>
       </div>
     </div>

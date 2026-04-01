@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\UserAccount;
 use App\Models\Student;
 use App\Models\PasswordResetToken;
+use App\Models\RefreshToken;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -259,15 +261,177 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout user
+     * Logout user - revoke all tokens
      */
     public function logout(Request $request)
     {
+        // Revoke access token
         $request->user()->currentAccessToken()->delete();
+
+        // Revoke all refresh tokens for this user
+        $authService = new AuthService();
+        $authService->revokeAllRefreshTokens($request->user()->user_id);
 
         return response()->json([
             'success' => true,
             'message' => 'Logged out successfully',
         ]);
+    }
+
+    /**
+     * Handle Google OAuth login
+     */
+    public function googleLogin(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+            'redirectUri' => 'required|string|url',
+        ]);
+
+        $authService = new AuthService();
+
+        try {
+            $result = $authService->handleGoogleOAuth(
+                $request->code,
+                $request->redirectUri,
+                $request->ip(),
+                $request->userAgent()
+            );
+
+            // Set cookies for tokens
+            $cookieConfig = [
+                'secure' => config('app.env') === 'production',
+                'same_site' => 'lax',
+            ];
+
+            $accessTokenCookie = cookie(
+                'access_token',
+                $result['access_token'],
+                60, // 60 minutes
+                '/',
+                null,
+                $cookieConfig['secure'],
+                true, // HttpOnly
+                $cookieConfig['same_site']
+            );
+
+            $refreshTokenCookie = cookie(
+                'refresh_token',
+                $result['refresh_token'],
+                30 * 24 * 60, // 30 days in minutes
+                '/api/auth',
+                null,
+                $cookieConfig['secure'],
+                true, // HttpOnly
+                $cookieConfig['same_site']
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => $result['is_new_user'] ? 'Account created successfully' : 'Login successful',
+                'data' => [
+                    'user' => $result['user'],
+                    'is_new_user' => $result['is_new_user'],
+                ],
+            ])->withCookie($accessTokenCookie)->withCookie($refreshTokenCookie);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Authentication failed',
+                'errors' => $e->errors(),
+            ], 401);
+        } catch (\Exception $e) {
+            \Log::error('Google OAuth error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred during authentication',
+            ], 500);
+        }
+    }
+
+    /**
+     * Refresh access token using refresh token
+     */
+    public function refresh(Request $request)
+    {
+        $refreshToken = $request->cookie('refresh_token');
+
+        if (!$refreshToken) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Refresh token not provided',
+            ], 401);
+        }
+
+        $authService = new AuthService();
+
+        try {
+            $userAccount = $authService->validateRefreshToken($refreshToken);
+
+            // Create new access token
+            $accessToken = $authService->createAccessToken($userAccount);
+
+            // Create new refresh token (rotation)
+            [$newRefreshToken, $refreshTokenModel] = $authService->createRefreshToken(
+                $userAccount->user_id,
+                $request->ip(),
+                $request->userAgent()
+            );
+
+            $cookieConfig = [
+                'secure' => config('app.env') === 'production',
+                'same_site' => 'lax',
+            ];
+
+            $accessTokenCookie = cookie(
+                'access_token',
+                $accessToken,
+                60,
+                '/',
+                null,
+                $cookieConfig['secure'],
+                true,
+                $cookieConfig['same_site']
+            );
+
+            $refreshTokenCookie = cookie(
+                'refresh_token',
+                $newRefreshToken,
+                30 * 24 * 60,
+                '/api/auth',
+                null,
+                $cookieConfig['secure'],
+                true,
+                $cookieConfig['same_site']
+            );
+
+            $user = $userAccount->user;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Token refreshed successfully',
+                'data' => [
+                    'user' => [
+                        'user_id' => $user->user_id,
+                        'first_name' => $user->first_name,
+                        'last_name' => $user->last_name,
+                        'email' => $userAccount->email,
+                        'role_id' => $user->role_id,
+                        'profile_image' => $user->profile_image,
+                    ],
+                ],
+            ])->withCookie($accessTokenCookie)->withCookie($refreshTokenCookie);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired refresh token',
+            ], 401);
+        }
     }
 }

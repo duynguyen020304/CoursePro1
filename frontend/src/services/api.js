@@ -62,6 +62,9 @@ export const authApi = {
   changePassword: (current_password, new_password, new_password_confirmation) =>
     api.put('/user/change-password', { current_password, new_password, new_password_confirmation }),
   logout: () => api.post('/logout'),
+  googleLogin: (code, redirectUri) =>
+    api.post('/auth/google', { code, redirectUri }),
+  refresh: () => api.post('/auth/refresh'),
 };
 
 // User APIs

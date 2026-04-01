@@ -43,6 +43,10 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
+// Google OAuth routes
+Route::post('/auth/google', [AuthController::class, 'googleLogin']);
+Route::post('/auth/refresh', [AuthController::class, 'refresh']);
+
 // Search
 Route::get('/courses/search', [SearchController::class, 'search']);
 
