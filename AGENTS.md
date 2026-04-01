@@ -1,79 +1,129 @@
-<!-- Generated: 2026-03-30 | Updated: 2026-03-30 -->
+<!-- Generated: 2026-04-01 | Updated: 2026-04-01 -->
 
 # CoursePro1
 
 ## Purpose
-A comprehensive, full-stack e-learning platform built with PHP, MySQL/Oracle, and modern web technologies. Provides complete solution for online education with features for students, instructors, and administrators including course management, video streaming, shopping cart, and AI-powered recommendations.
+A comprehensive, full-stack e-learning platform built with **Laravel 13** (Backend), **React 19** (Frontend), and **MySQL 8.0**. Provides complete solution for online education with features for students, instructors, and administrators including course management, video streaming, shopping cart, and payments.
 
 ## Key Files
 | File | Description |
 |------|-------------|
-| `config.php` | Application configuration - BASE_URI, BASE_URL computation |
-| `.env` | Environment variables (API_BASE_URL, JWT_SECRET_KEY) |
-| `index.php` | Application entry point |
-| `home.php` | Homepage with course listings |
-| `courses.php` | Course catalog page |
-| `course-detail.php` | Individual course detail page |
-| `cart.php` | Shopping cart page |
-| `checkout.php` | Checkout and payment page |
-| `signin.php` / `signup.php` | Authentication pages |
-| `composer.json` | PHP dependencies (firebase/php-jwt, phpmailer) |
+| `README.md` | Project documentation and setup guide |
+| `docker-compose.mysql-only.yml` | MySQL 8.0 Docker configuration |
+| `.env` | Root environment variables |
+| `backend/.env` | Laravel environment configuration |
+| `frontend/.env` | React/Vite environment configuration |
 
 ## Subdirectories
 | Directory | Purpose |
 |-----------|---------|
-| `api/` | REST API endpoints (see `api/AGENTS.md`) |
-| `controller/` | PHP controllers for page logic (see `controller/AGENTS.md`) |
-| `model/` | Data models, DTOs, business logic (see `model/AGENTS.md`) |
-| `service/` | Service layer for database operations (see `service/AGENTS.md`) |
-| `admin/` | Admin panel pages and assets (see `admin/AGENTS.md`) |
-| `template/` | Shared page templates (header, footer, sidebar) |
-| `public/` | Static assets (CSS, JS, images, fonts) |
-| `tests/` | PHPUnit test suites |
-| `ci_cd/` | CI/CD scripts and configurations |
+| `backend/` | Laravel API backend (see `backend/AGENTS.md`) |
+| `frontend/` | React frontend application (see `frontend/AGENTS.md`) |
+| `backend/app/` | Core application code (see `backend/app/AGENTS.md`) |
+| `backend/database/` | Migrations and seeders (see `backend/database/AGENTS.md`) |
+| `backend/routes/` | API route definitions (see `backend/routes/AGENTS.md`) |
+| `frontend/src/` | React source code (see `frontend/src/AGENTS.md`) |
 
 ## For AI Agents
 
 ### Working In This Directory
-- **Environment**: Configure `.env` file with `API_BASE_URL` (e.g., `http://localhost:8001/api/`) and `JWT_SECRET_KEY`
-- **Database**: Supports MySQL and Oracle - configuration in `config.php`
-- **PHP Version**: Requires PHP 8.0+
-- **Dependencies**: Run `composer install` after changes to `composer.json`
+- **Backend Framework**: Laravel 13.x with PHP 8.3+
+- **Frontend Framework**: React 19 with Vite
+- **Database**: MySQL 8.0 via Docker
+  - Database: `ecourse`
+  - Host: `localhost:3306` (or `mysql:3306` from Docker)
+  - Credentials: `root` / `rootpassword`
+- **Environment**: Copy `.env.example` files and configure
+- **Dependencies**:
+  - Backend: `cd backend && composer install`
+  - Frontend: `cd frontend && npm install`
 
 ### Architecture Pattern
 ```
-Page (PHP) → Controller → Service → Model (DTO/BLL) → Database
-                ↓
-              API (REST)
+┌─────────────────────────────────────────────────────────────┐
+│                    React Frontend                           │
+│            (Vite, Tailwind CSS, React Router)               │
+│                     port 5173                               │
+└──────────────────────┬──────────────────────────────────────┘
+                       │ HTTP/JSON (Axios)
+                       ↓
+┌─────────────────────────────────────────────────────────────┐
+│                  Laravel Backend                            │
+│         (Sanctum Auth, Eloquent ORM, REST API)              │
+│                     port 8000                               │
+└──────────────────────┬──────────────────────────────────────┘
+                       │ Eloquent ORM
+                       ↓
+┌─────────────────────────────────────────────────────────────┐
+│                    MySQL 8.0                                │
+│              Docker: coursepro_mysql                        │
+│              Database: ecourse                              │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Testing Requirements
-- Run tests with `./vendor/bin/phpunit`
-- Tests located in `tests/` directory
-- Each API has corresponding test file
+- Backend tests: `cd backend && ./vendor/bin/phpunit`
+- Frontend lint: `cd frontend && npm run lint`
+- Frontend build: `cd frontend && npm run build`
 
 ### Common Patterns
-- JWT authentication via `model/auth_helper.php`
-- Configuration via `model/config.php` (loads `.env`)
-- API responses use `service/service_response.php`
-- All APIs use centralized auth via `AuthHelper::requireAuth()`
+- **Backend**: Laravel Sanctum for API auth, UUID primary keys, Eloquent relationships
+- **Frontend**: React Context for state (Auth, Cart), react-hook-form for forms
+- **API**: Consistent response format `{ success, data, message }`
+- **Database**: 30+ migrations, seeders for test data
 
 ## Dependencies
 
-### Internal
-- `model/config.php` - Centralized configuration
-- `model/auth_helper.php` - JWT authentication
-- `model/api.php` - API client class
-
-### External
-- `firebase/php-jwt` - JWT token handling
+### Backend
+- `laravel/framework` v13.x - Web framework
+- `laravel/sanctum` - API authentication
+- `firebase/php-jwt` - JWT handling
 - `phpmailer/phpmailer` - Email functionality
-- `vlucas/phpdotenv` - Environment variables (if used)
 
-## Security Notes
-- JWT tokens expire after 24 hours
-- Passwords hashed with bcrypt
-- SQL injection prevention via prepared statements
-- XSS protection via input sanitization
+### Frontend
+- `react` v19 - UI framework
+- `react-router-dom` v7 - Client-side routing
+- `@tanstack/react-query` - Data fetching
+- `axios` - HTTP client
+- `react-hook-form` - Form handling
+- `tailwindcss` v4 - Styling
+- `chart.js` - Analytics charts
+- `jspdf` - PDF generation
+
+## Database Schema
+
+### Core Tables
+- `users`, `roles`, `instructors`, `students` - User management
+- `courses`, `categories` - Course catalog
+- `course_chapters`, `course_lessons`, `course_videos` - Course content
+- `carts`, `cart_items` - Shopping cart
+- `orders`, `order_details`, `payments` - Order management
+- `reviews` - Course reviews
+
+## Quick Start
+
+```bash
+# Start MySQL Docker
+docker-compose -f docker-compose.mysql-only.yml up -d
+
+# Backend setup
+cd backend
+composer install
+php artisan migrate
+php artisan db:seed
+php artisan serve
+
+# Frontend setup
+cd frontend
+npm install
+npm run dev
+```
+
+## Documentation
+
+- `README.md` - Setup guide and project overview
+- `backend/AGENTS.md` - Backend architecture and API docs
+- `frontend/AGENTS.md` - Frontend architecture and components
+- `backend/database/AGENTS.md` - Database schema and seeders
 
 <!-- MANUAL: Project-specific notes can be added below -->
