@@ -71,4 +71,34 @@ class User extends Authenticatable
     {
         return $this->hasMany(Review::class, 'user_id', 'user_id');
     }
+
+    public function hasRole(string $roleName): bool
+    {
+        return $this->role && $this->role->role_id === $roleName;
+    }
+
+    public function hasPermission(string $permissionName): bool
+    {
+        if (!$this->role) {
+            return false;
+        }
+        return $this->role->hasPermission($permissionName);
+    }
+
+    public function hasAnyPermission(array $permissions): bool
+    {
+        if (!$this->role) {
+            return false;
+        }
+        return $this->role->permissions()->whereIn('name', $permissions)->exists();
+    }
+
+    public function hasAllPermissions(array $permissions): bool
+    {
+        if (!$this->role) {
+            return false;
+        }
+        $rolePermissions = $this->role->permissions()->pluck('name')->toArray();
+        return count(array_diff($permissions, $rolePermissions)) === 0;
+    }
 }
