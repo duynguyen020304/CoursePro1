@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { courseApi, categoryApi } from '../../services/api';
 
 export default function CategoryPage() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [category, setCategory] = useState(null);
   const [courses, setCourses] = useState([]);
@@ -18,11 +18,11 @@ export default function CategoryPage() {
       try {
         setLoading(true);
         // Fetch category details
-        const categoryRes = await categoryApi.get(id);
+        const categoryRes = await categoryApi.get(slug);
         setCategory(categoryRes.data.data);
 
         // Fetch courses in category
-        const coursesRes = await courseApi.list({ category_id: id });
+        const coursesRes = await courseApi.list({ category_id: slug });
         const coursesData = coursesRes.data.data?.data || coursesRes.data.data || [];
         setCourses(Array.isArray(coursesData) ? coursesData : []);
       } catch (error) {
@@ -32,7 +32,7 @@ export default function CategoryPage() {
       }
     }
     fetchData();
-  }, [id]);
+  }, [slug]);
 
   // Apply sorting
   const sortedCourses = [...courses].sort((a, b) => {

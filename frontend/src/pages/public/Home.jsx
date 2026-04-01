@@ -187,7 +187,7 @@ export default function Home() {
             {categories.slice(0, 8).map((category) => (
               <Link
                 key={category.id}
-                to={`/categories/${category.id}`}
+                to={`/categories/${category.slug}`}
                 className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl shadow-md hover:shadow-lg transition text-center"
               >
                 <div className="text-3xl mb-3">
