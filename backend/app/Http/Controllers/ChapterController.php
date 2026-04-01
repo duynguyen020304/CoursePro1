@@ -12,11 +12,9 @@ class ChapterController extends Controller
     /**
      * Get chapters for a course
      */
-    public function index($courseId)
+    public function index(Course $course)
     {
-        $course = Course::findOrFail($courseId);
-
-        $chapters = CourseChapter::where('course_id', $courseId)
+        $chapters = CourseChapter::where('course_id', $course->course_id)
             ->with(['lessons.videos', 'lessons.resources'])
             ->orderBy('sort_order')
             ->get();
@@ -30,18 +28,17 @@ class ChapterController extends Controller
     /**
      * Store a new chapter
      */
-    public function store(Request $request)
+    public function store(Request $request, Course $course)
     {
         $request->validate([
-            'course_id' => 'required|string|exists:courses,course_id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'sort_order' => 'nullable|integer',
         ]);
 
         $chapter = CourseChapter::create([
-            'chapter_id' => 'chapter_' . Str::uuid(),
-            'course_id' => $request->course_id,
+            'chapter_id' => Str::uuid(),
+            'course_id' => $course->course_id,
             'title' => $request->title,
             'description' => $request->description,
             'sort_order' => $request->sort_order ?? 0,
@@ -57,10 +54,8 @@ class ChapterController extends Controller
     /**
      * Update a chapter
      */
-    public function update(Request $request, $chapterId)
+    public function update(Request $request, Course $course, CourseChapter $chapter)
     {
-        $chapter = CourseChapter::findOrFail($chapterId);
-
         $request->validate([
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
@@ -79,9 +74,8 @@ class ChapterController extends Controller
     /**
      * Delete a chapter
      */
-    public function destroy($chapterId)
+    public function destroy(Course $course, CourseChapter $chapter)
     {
-        $chapter = CourseChapter::findOrFail($chapterId);
         $chapter->delete();
 
         return response()->json([
