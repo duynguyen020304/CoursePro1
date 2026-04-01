@@ -74,7 +74,7 @@ function AppRoutes() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/categories" element={<Courses />} />
-          <Route path="/categories/:id" element={<CategoryPage />} />
+          <Route path="/categories/:slug" element={<CategoryPage />} />
           <Route path="/instructors" element={<Courses />} />
           <Route path="/about" element={<Home />} />
           <Route path="/faq" element={<Home />} />
