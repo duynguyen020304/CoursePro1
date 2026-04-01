@@ -66,6 +66,7 @@ export const authApi = {
 
 // User APIs
 export const userApi = {
+  profile: () => api.get('/user/profile'),
   getProfile: () => api.get('/user/profile'),
   updateProfile: (data) => api.put('/user/profile', data),
 };
@@ -81,6 +82,15 @@ export const instructorApi = {
   getProfile: () => api.get('/instructor/profile'),
   create: (biography) => api.post('/instructor', { biography }),
   update: (biography) => api.put('/instructor', { biography }),
+  updateProfile: (biography) => api.put('/instructor', { biography }),
+  getStats: () => api.get('/instructor/stats'),
+  getCourses: () => api.get('/instructor/courses'),
+  getCourse: (courseId) => api.get(`/instructor/courses/${courseId}`),
+  createCourse: (data) => api.post('/instructor/courses', data),
+  updateCourse: (courseId, data) => api.put(`/instructor/courses/${courseId}`, data),
+  deleteCourse: (courseId) => api.delete(`/instructor/courses/${courseId}`),
+  addImage: (courseId, data) => api.post(`/instructor/courses/${courseId}/images`, data),
+  deleteImage: (courseId, imageId) => api.delete(`/instructor/courses/${courseId}/images/${imageId}`),
 };
 
 // Course APIs
@@ -186,6 +196,34 @@ export const reviewApi = {
   create: (course_id, rating, review_text) => api.post('/reviews', { course_id, rating, review_text }),
   update: (reviewId, data) => api.put(`/reviews/${reviewId}`, data),
   delete: (reviewId) => api.delete(`/reviews/${reviewId}`),
+};
+
+// Admin Role APIs
+export const roleApi = {
+  list: () => api.get('/admin/roles'),
+  get: (id) => api.get(`/admin/roles/${id}`),
+  create: (data) => api.post('/admin/roles', data),
+  update: (id, data) => api.put(`/admin/roles/${id}`, data),
+  delete: (id) => api.delete(`/admin/roles/${id}`),
+  getPermissions: (id) => api.get(`/admin/roles/${id}/permissions`),
+  assignPermissions: (id, permissions) => api.post(`/admin/roles/${id}/permissions`, { permissions }),
+  syncPermissions: (id, permissions) => api.put(`/admin/roles/${id}/permissions`, { permissions }),
+  removePermission: (id, permissionId) => api.delete(`/admin/roles/${id}/permissions/${permissionId}`),
+};
+
+// Admin Permission APIs
+export const permissionApi = {
+  list: () => api.get('/admin/permissions'),
+};
+
+// Admin User APIs
+export const adminUserApi = {
+  list: (params) => api.get('/admin/users', { params }),
+  get: (id) => api.get(`/admin/users/${id}`),
+  create: (data) => api.post('/admin/users', data),
+  update: (id, data) => api.put(`/admin/users/${id}`, data),
+  delete: (id) => api.delete(`/admin/users/${id}`),
+  assignRole: (id, role_id) => api.put(`/admin/users/${id}/role`, { role_id }),
 };
 
 export default api;

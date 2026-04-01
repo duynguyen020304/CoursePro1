@@ -7,6 +7,7 @@ import { CartProvider } from './contexts/CartContext';
 import PublicLayout from './layouts/PublicLayout';
 import UserLayout from './layouts/UserLayout';
 import AdminLayout from './layouts/AdminLayout';
+import InstructorLayout from './layouts/InstructorLayout';
 
 // Public Pages
 import Home from './pages/public/Home';
@@ -33,8 +34,16 @@ import WatchVideo from './pages/user/WatchVideo';
 import AdminDashboard from './pages/admin/Dashboard';
 import CourseManagement from './pages/admin/CourseManagement';
 import UserManagement from './pages/admin/UserManagement';
+import RoleManagement from './pages/admin/RoleManagement';
 import Revenue from './pages/admin/Revenue';
 import UploadVideo from './pages/admin/UploadVideo';
+
+// Instructor Pages
+import InstructorDashboard from './pages/instructor/Dashboard';
+import InstructorCourses from './pages/instructor/MyCourses';
+import CreateCourse from './pages/instructor/CreateCourse';
+import EditCourse from './pages/instructor/EditCourse';
+import InstructorProfile from './pages/instructor/Profile';
 
 // Styles
 import './index.css';
@@ -110,11 +119,27 @@ function AppRoutes() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/courses" element={<CourseManagement />} />
           <Route path="/admin/users" element={<UserManagement />} />
+          <Route path="/admin/roles" element={<RoleManagement />} />
           <Route path="/admin/instructors" element={<div>Instructors Management</div>} />
           <Route path="/admin/orders" element={<div>Orders Management</div>} />
           <Route path="/admin/reviews" element={<div>Reviews Management</div>} />
           <Route path="/admin/revenue" element={<Revenue />} />
           <Route path="/admin/upload-video" element={<UploadVideo />} />
+        </Route>
+
+        {/* Instructor Routes */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <InstructorLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/instructor/dashboard" element={<InstructorDashboard />} />
+          <Route path="/instructor/courses" element={<InstructorCourses />} />
+          <Route path="/instructor/courses/create" element={<CreateCourse />} />
+          <Route path="/instructor/courses/:courseId/edit" element={<EditCourse />} />
+          <Route path="/instructor/profile" element={<InstructorProfile />} />
         </Route>
 
         {/* 404 */}
