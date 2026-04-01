@@ -4,8 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Student;
 use App\Models\User;
+use App\Models\UserAccount;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class StudentSeeder extends Seeder
 {
@@ -34,18 +36,25 @@ class StudentSeeder extends Seeder
         ];
 
         foreach ($students as $studentData) {
-            $user = User::create([
-                'user_id' => Str::uuid(),
+            $userId = Str::uuid();
+
+            User::create([
+                'user_id' => $userId,
                 'first_name' => $studentData['first_name'],
                 'last_name' => $studentData['last_name'],
-                'email' => $studentData['email'],
-                'password' => bcrypt('Student@123'),
                 'role_id' => 'student',
+            ]);
+
+            UserAccount::create([
+                'user_id' => $userId,
+                'email' => $studentData['email'],
+                'password' => Hash::make('Student@123'),
+                'provider' => 'email',
             ]);
 
             Student::create([
                 'student_id' => Str::uuid(),
-                'user_id' => $user->user_id,
+                'user_id' => $userId,
             ]);
         }
     }

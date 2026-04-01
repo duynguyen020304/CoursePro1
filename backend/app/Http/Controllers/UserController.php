@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -14,17 +14,25 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::with(['role', 'student', 'instructor']);
+        $query = User::with(['role', 'student', 'instructor', 'userAccount']);
 
         if ($request->filled('role_id')) {
             $query->where('role_id', $request->role_id);
         }
 
         if ($request->filled('email')) {
-            $query->where('email', 'like', '%' . $request->email . '%');
+            $query->whereHas('userAccount', function ($q) use ($request) {
+                $q->where('email', 'like', '%' . $request->email . '%');
+            });
         }
 
         $users = $query->paginate($request->get('per_page', 15));
+
+        // Add email to response from userAccount
+        $users->getCollection()->transform(function ($user) {
+            $user->email = $user->userAccount?->email;
+            return $user;
+        });
 
         return response()->json([
             'success' => true,
@@ -37,11 +45,23 @@ class UserController extends Controller
      */
     public function profile(Request $request)
     {
-        $user = $request->user()->load(['role.permissions', 'student', 'instructor']);
+        // The authenticated user is UserAccount
+        $userAccount = $request->user();
+        $user = $userAccount->user->load(['role.permissions', 'student', 'instructor']);
 
         return response()->json([
             'success' => true,
-            'data' => $user,
+            'data' => [
+                'user_id' => $user->user_id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $userAccount->email,
+                'role_id' => $user->role_id,
+                'profile_image' => $user->profile_image,
+                'role' => $user->role,
+                'student' => $user->student,
+                'instructor' => $user->instructor,
+            ],
         ]);
     }
 
@@ -50,7 +70,8 @@ class UserController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        $user = $request->user();
+        $userAccount = $request->user();
+        $user = $userAccount->user;
 
         $request->validate([
             'first_name' => 'sometimes|string|max:255',
@@ -63,7 +84,14 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Profile updated successfully',
-            'data' => $user->fresh(['role', 'student', 'instructor']),
+            'data' => [
+                'user_id' => $user->user_id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $userAccount->email,
+                'role_id' => $user->role_id,
+                'profile_image' => $user->profile_image,
+            ],
         ]);
     }
 
@@ -72,21 +100,21 @@ class UserController extends Controller
      */
     public function updatePassword(Request $request)
     {
-        $user = $request->user();
+        $userAccount = $request->user();
 
         $request->validate([
             'current_password' => 'required|string',
             'new_password' => 'required|string|min:8|confirmed',
         ]);
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (!Hash::check($request->current_password, $userAccount->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Current password is incorrect',
             ], 400);
         }
 
-        $user->update(['password' => $request->new_password]);
+        $userAccount->update(['password' => $request->new_password]);
 
         return response()->json([
             'success' => true,
@@ -99,7 +127,10 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::with(['role', 'student', 'instructor', 'orders', 'reviews'])->findOrFail($id);
+        $user = User::with(['role', 'student', 'instructor', 'orders', 'reviews', 'userAccount'])
+            ->findOrFail($id);
+
+        $user->email = $user->userAccount?->email;
 
         return response()->json([
             'success' => true,
@@ -112,22 +143,31 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        $user = User::with('userAccount')->findOrFail($id);
 
         $request->validate([
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|max:255|unique:users,email,' . $user->user_id . ',user_id',
+            'email' => 'sometimes|email|max:255|unique:user_accounts,email,' . $user->user_id . ',user_id',
             'role_id' => 'sometimes|exists:roles,role_id',
             'profile_image' => 'nullable|string|max:255',
         ]);
 
-        $user->update($request->only(['first_name', 'last_name', 'email', 'role_id', 'profile_image']));
+        // Update profile fields in User
+        $user->update($request->only(['first_name', 'last_name', 'role_id', 'profile_image']));
+
+        // Update email in UserAccount if provided
+        if ($request->has('email') && $user->userAccount) {
+            $user->userAccount->update(['email' => $request->email]);
+        }
+
+        $user->load(['role', 'student', 'instructor', 'userAccount']);
+        $user->email = $user->userAccount?->email;
 
         return response()->json([
             'success' => true,
             'message' => 'User updated successfully',
-            'data' => $user->fresh(['role', 'student', 'instructor']),
+            'data' => $user,
         ]);
     }
 
@@ -137,6 +177,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+        // Cascade delete will handle userAccount via foreign key
         $user->delete();
 
         return response()->json([
@@ -161,7 +202,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Role assigned successfully',
-            'data' => $user->fresh(['role', 'student', 'instructor']),
+            'data' => $user->fresh(['role', 'student', 'instructor', 'userAccount']),
         ]);
     }
 }

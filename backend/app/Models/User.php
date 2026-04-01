@@ -6,13 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     protected $primaryKey = 'user_id';
     public $incrementing = false;
@@ -22,24 +21,25 @@ class User extends Authenticatable
         'user_id',
         'first_name',
         'last_name',
-        'email',
-        'password',
         'role_id',
         'profile_image',
     ];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = [];
 
     protected function casts(): array
     {
-        return [
-            'password' => 'hashed',
-        ];
+        return [];
     }
 
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id', 'role_id');
+    }
+
+    public function userAccount(): HasOne
+    {
+        return $this->hasOne(UserAccount::class, 'user_id', 'user_id');
     }
 
     public function instructor(): HasOne
@@ -100,5 +100,21 @@ class User extends Authenticatable
         }
         $rolePermissions = $this->role->permissions()->pluck('name')->toArray();
         return count(array_diff($permissions, $rolePermissions)) === 0;
+    }
+
+    /**
+     * Accessor for email (delegates to userAccount)
+     */
+    public function getEmailAttribute(): ?string
+    {
+        return $this->userAccount?->email;
+    }
+
+    /**
+     * Accessor to check if user is verified
+     */
+    public function getIsVerifiedAttribute(): bool
+    {
+        return $this->userAccount?->is_verified ?? false;
     }
 }

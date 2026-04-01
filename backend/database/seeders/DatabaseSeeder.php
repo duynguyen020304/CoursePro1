@@ -2,7 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
+use App\Models\UserAccount;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,26 +21,40 @@ class DatabaseSeeder extends Seeder
         \App\Models\Role::firstOrCreate(['role_id' => 'instructor'], ['role_name' => 'Instructor']);
 
         // 2. Create admin user - skip if exists
-        \App\Models\User::firstOrCreate(
-            ['email' => 'admin@example.com'],
+        $adminUserId = Str::uuid();
+        User::firstOrCreate(
+            ['user_id' => $adminUserId],
             [
-                'user_id' => \Str::uuid(),
                 'first_name' => 'Admin',
                 'last_name' => 'User',
-                'password' => bcrypt('password'),
                 'role_id' => 'admin',
+            ]
+        );
+        UserAccount::firstOrCreate(
+            ['user_id' => $adminUserId],
+            [
+                'email' => 'admin@example.com',
+                'password' => Hash::make('password'),
+                'provider' => 'email',
             ]
         );
 
         // 3. Create a test student user for testing
-        $testStudent = \App\Models\User::firstOrCreate(
-            ['email' => 'student@example.com'],
+        $testStudentUserId = Str::uuid();
+        User::firstOrCreate(
+            ['user_id' => $testStudentUserId],
             [
-                'user_id' => \Str::uuid(),
                 'first_name' => 'Test',
                 'last_name' => 'Student',
-                'password' => bcrypt('password'),
                 'role_id' => 'student',
+            ]
+        );
+        UserAccount::firstOrCreate(
+            ['user_id' => $testStudentUserId],
+            [
+                'email' => 'student@example.com',
+                'password' => Hash::make('password'),
+                'provider' => 'email',
             ]
         );
 

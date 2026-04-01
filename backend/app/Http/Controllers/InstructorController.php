@@ -14,9 +14,7 @@ class InstructorController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Instructor::with(['user' => function ($q) {
-            $q->select('user_id', 'first_name', 'last_name', 'email', 'profile_image');
-        }]);
+        $query = Instructor::with(['user.userAccount']);
 
         if ($request->filled('search')) {
             $query->whereHas('user', function ($q) use ($request) {

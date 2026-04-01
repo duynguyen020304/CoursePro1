@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserAccount;
 use App\Models\Student;
-use App\Models\PasswordReset;
+use App\Models\PasswordResetToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 
@@ -24,15 +24,24 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $userAccount = UserAccount::findByEmail($request->email);
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$userAccount || !Hash::check($request->password, $userAccount->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        if ($userAccount->is_deleted) {
+            throw ValidationException::withMessages([
+                'email' => ['This account has been deactivated.'],
+            ]);
+        }
+
+        // Load the user profile
+        $user = $userAccount->user;
+
+        $token = $userAccount->createToken('auth-token')->plainTextToken;
 
         return response()->json([
             'success' => true,
@@ -42,7 +51,7 @@ class AuthController extends Controller
                     'user_id' => $user->user_id,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
-                    'email' => $user->email,
+                    'email' => $userAccount->email,
                     'role_id' => $user->role_id,
                     'profile_image' => $user->profile_image,
                 ],
@@ -59,26 +68,36 @@ class AuthController extends Controller
         $request->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:user_accounts,email',
             'password' => 'required|min:6|confirmed',
         ]);
 
+        $userId = Str::uuid();
+
+        // Create user profile
         $user = User::create([
-            'user_id' => Str::uuid(),
+            'user_id' => $userId,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
+            'role_id' => 'student',
+        ]);
+
+        // Create user account (authentication)
+        $userAccount = UserAccount::create([
+            'user_id' => $userId,
+            'provider' => 'email',
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => 'student',
+            'is_verified' => false,
         ]);
 
         // Create student record
         Student::create([
             'student_id' => Str::uuid(),
-            'user_id' => $user->user_id,
+            'user_id' => $userId,
         ]);
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $token = $userAccount->createToken('auth-token')->plainTextToken;
 
         return response()->json([
             'success' => true,
@@ -88,7 +107,7 @@ class AuthController extends Controller
                     'user_id' => $user->user_id,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
-                    'email' => $user->email,
+                    'email' => $userAccount->email,
                     'role_id' => $user->role_id,
                 ],
                 'token' => $token,
@@ -102,22 +121,28 @@ class AuthController extends Controller
     public function forgotPassword(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email|exists:user_accounts,email',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $userAccount = UserAccount::findByEmail($request->email);
+
+        if (!$userAccount) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account not found',
+            ], 404);
+        }
 
         // Generate 6-digit code
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        PasswordReset::updateOrCreate(
-            ['email' => $user->email],
+        PasswordResetToken::updateOrCreate(
+            ['user_id' => $userAccount->user_id],
             ['token' => $code]
         );
 
         // TODO: Send email with code
-        // In production, send actual email. For development, code is logged.
-        \Log::info("Password reset code for {$user->email}: {$code}");
+        \Log::info("Password reset code for {$userAccount->email}: {$code}");
 
         return response()->json([
             'success' => true,
@@ -135,7 +160,16 @@ class AuthController extends Controller
             'code' => 'required|string|size:6',
         ]);
 
-        $reset = PasswordReset::where('email', $request->email)
+        $userAccount = UserAccount::where('email', $request->email)->first();
+
+        if (!$userAccount) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account not found',
+            ], 404);
+        }
+
+        $reset = PasswordResetToken::where('user_id', $userAccount->user_id)
             ->where('token', $request->code)
             ->first();
 
@@ -163,7 +197,16 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $reset = PasswordReset::where('email', $request->email)
+        $userAccount = UserAccount::where('email', $request->email)->first();
+
+        if (!$userAccount) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account not found',
+            ], 404);
+        }
+
+        $reset = PasswordResetToken::where('user_id', $userAccount->user_id)
             ->where('token', $request->code)
             ->first();
 
@@ -174,9 +217,8 @@ class AuthController extends Controller
             ], 400);
         }
 
-        $user = User::where('email', $request->email)->first();
-        $user->password = Hash::make($request->password);
-        $user->save();
+        $userAccount->password = Hash::make($request->password);
+        $userAccount->save();
 
         // Delete used reset token
         $reset->delete();
@@ -197,17 +239,18 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $user = $request->user();
+        // The authenticated user is UserAccount via Sanctum
+        $userAccount = $request->user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (!Hash::check($request->current_password, $userAccount->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Current password is incorrect',
             ], 400);
         }
 
-        $user->password = Hash::make($request->password);
-        $user->save();
+        $userAccount->password = Hash::make($request->password);
+        $userAccount->save();
 
         return response()->json([
             'success' => true,
