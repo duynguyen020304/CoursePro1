@@ -14,6 +14,11 @@ class Course extends Model
     protected $keyType = 'string';
     public $timestamps = false;
 
+    public function getRouteKeyName()
+    {
+        return 'course_id';
+    }
+
     protected $fillable = [
         'course_id',
         'title',
@@ -40,14 +45,12 @@ class Course extends Model
 
     public function instructors(): BelongsToMany
     {
-        return $this->belongsToMany(Instructor::class, 'course_instructor', 'course_id', 'instructor_id')
-            ->withTimestamps();
+        return $this->belongsToMany(Instructor::class, 'course_instructor', 'course_id', 'instructor_id');
     }
 
     public function categories(): BelongsToMany
     {
-        return $this->belongsToMany(Category::class, 'course_category', 'course_id', 'category_id')
-            ->withTimestamps();
+        return $this->belongsToMany(Category::class, 'course_category', 'course_id', 'category_id');
     }
 
     public function chapters(): HasMany

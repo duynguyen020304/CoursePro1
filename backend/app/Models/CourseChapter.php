@@ -13,6 +13,11 @@ class CourseChapter extends Model
     protected $keyType = 'string';
     public $timestamps = false;
 
+    public function getRouteKeyName()
+    {
+        return 'chapter_id';
+    }
+
     protected $fillable = ['chapter_id', 'course_id', 'title', 'description', 'sort_order'];
 
     protected static function boot()
