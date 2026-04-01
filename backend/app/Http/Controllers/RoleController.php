@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Role;
+use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -13,7 +14,7 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $roles = Role::orderBy('role_name')->get();
+        $roles = Role::with('permissions')->orderBy('role_name')->get();
 
         return response()->json([
             'success' => true,
@@ -26,7 +27,7 @@ class RoleController extends Controller
      */
     public function show($id)
     {
-        $role = Role::with('users')->findOrFail($id);
+        $role = Role::with(['users', 'permissions'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
@@ -44,7 +45,7 @@ class RoleController extends Controller
         ]);
 
         $role = Role::create([
-            'role_id' => 'role_' . Str::uuid(),
+            'role_id' => 'role_' . Str::random(10),
             'role_name' => $request->role_name,
         ]);
 
@@ -63,7 +64,7 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
 
         $request->validate([
-            'role_name' => 'sometimes|string|max:255|unique:roles,role_name,' . $role->id,
+            'role_name' => 'sometimes|string|max:255|unique:roles,role_name,' . $id . ',role_id',
         ]);
 
         $role->update($request->only(['role_name']));
@@ -81,11 +82,104 @@ class RoleController extends Controller
     public function destroy($id)
     {
         $role = Role::findOrFail($id);
+
+        // Prevent deleting core roles
+        if (in_array($id, ['admin', 'student', 'instructor'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot delete core system roles',
+            ], 403);
+        }
+
+        $role->permissions()->detach();
         $role->delete();
 
         return response()->json([
             'success' => true,
             'message' => 'Role deleted successfully',
+        ]);
+    }
+
+    /**
+     * Get permissions for a specific role
+     */
+    public function getPermissions($id)
+    {
+        $role = Role::findOrFail($id);
+        $permissions = $role->permissions;
+
+        return response()->json([
+            'success' => true,
+            'data' => $permissions,
+        ]);
+    }
+
+    /**
+     * Assign permissions to a role
+     */
+    public function assignPermissions(Request $request, $id)
+    {
+        $role = Role::findOrFail($id);
+
+        $request->validate([
+            'permissions' => 'required|array',
+            'permissions.*' => 'exists:permissions,permission_id',
+        ]);
+
+        $role->permissions()->syncWithoutDetaching($request->permissions);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Permissions assigned successfully',
+            'data' => $role->permissions,
+        ]);
+    }
+
+    /**
+     * Remove a permission from a role
+     */
+    public function removePermission($id, $permissionId)
+    {
+        $role = Role::findOrFail($id);
+        $role->permissions()->detach($permissionId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Permission removed successfully',
+        ]);
+    }
+
+    /**
+     * Sync permissions for a role (replace all)
+     */
+    public function syncPermissions(Request $request, $id)
+    {
+        $role = Role::findOrFail($id);
+
+        $request->validate([
+            'permissions' => 'required|array',
+            'permissions.*' => 'exists:permissions,permission_id',
+        ]);
+
+        $role->permissions()->sync($request->permissions);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Permissions synced successfully',
+            'data' => $role->permissions,
+        ]);
+    }
+
+    /**
+     * Get all available permissions
+     */
+    public function getAllPermissions()
+    {
+        $permissions = Permission::orderBy('name')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $permissions,
         ]);
     }
 }

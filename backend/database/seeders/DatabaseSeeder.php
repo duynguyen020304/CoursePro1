@@ -40,19 +40,22 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 4. Seed categories (no dependencies)
+        // 4. Seed permissions and assign to roles
+        $this->call(PermissionSeeder::class);
+
+        // 5. Seed categories (no dependencies)
         $this->call(CategorySeeder::class);
 
-        // 5. Seed instructors (depends on users/roles)
+        // 6. Seed instructors (depends on users/roles)
         $this->call(InstructorSeeder::class);
 
-        // 6. Seed students (depends on users/roles)
+        // 7. Seed students (depends on users/roles)
         $this->call(StudentSeeder::class);
 
-        // 7. Seed courses (depends on instructors, categories)
+        // 8. Seed courses (depends on instructors, categories)
         $this->call(CourseSeeder::class);
 
-        // 8. Seed orders, cart items, and reviews (depends on students, courses)
+        // 9. Seed orders, cart items, and reviews (depends on students, courses)
         $this->call(OrderSeeder::class);
     }
 }
