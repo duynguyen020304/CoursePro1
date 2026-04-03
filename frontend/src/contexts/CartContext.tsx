@@ -70,7 +70,7 @@ export function CartProvider({ children }: CartProviderProps) {
       setLoading(true);
       const response = await cartApi.get();
       // cartApi returns null on validation failure, preserve that behavior
-      setCart(response as CartResponse | null);
+      setCart((response as unknown as { data: CartResponse | null }).data);
     } catch (error) {
       const errorResponse = error as { response?: { status?: number } };
       if (errorResponse.response?.status !== 401) {

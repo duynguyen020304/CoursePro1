@@ -147,12 +147,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await authApi.login({ email, password });
       const data = (response as unknown as { data: LoginResponse }).data;
 
-      if (data.success) {
-        const userData = data.user;
+      if (data.success && data.data?.user) {
+        const userData = data.data.user;
         setUser(userData);
         setIsAuthenticated(true);
 
-        if (userData.role_id) {
+        if ('role_id' in userData) {
           await fetchUserPermissions();
         }
 
@@ -178,12 +178,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await authApi.signup(formData);
       const data = (response as unknown as { data: SignupResponse }).data;
 
-      if (data.success) {
-        const userData = data.user;
+      if (data.success && data.data?.user) {
+        const userData = data.data.user;
         setUser(userData);
         setIsAuthenticated(true);
 
-        if (userData.role_id) {
+        if ('role_id' in userData) {
           await fetchUserPermissions();
         }
 
@@ -218,15 +218,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async (userData: Record<string, unknown>): Promise<{ success: boolean; user?: User | UserProfile; message?: string }> => {
       try {
         const response = await userApi.updateProfile(userData);
-        const responseData = response.data as { data?: User | UserProfile; success?: boolean; message?: string };
-        const data = responseData;
+        const responseData = response.data as { success?: boolean; message?: string; data?: { user_id: string; first_name: string; last_name: string; email: string; role_id: string; profile_image?: string | null } };
 
-        if (data.success) {
-          setUser(data.data);
-          return { success: true, user: data.data };
+        if (responseData.success && responseData.data) {
+          setUser(responseData.data);
+          return { success: true, user: responseData.data };
         }
 
-        return { success: false, message: data.message || 'Update failed' };
+        return { success: false, message: responseData.message || 'Update failed' };
       } catch (error) {
         const errorResponse = error as { response?: { data?: { message?: string } } };
         return { success: false, message: errorResponse.response?.data?.message || 'Update failed' };
