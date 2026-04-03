@@ -2,10 +2,25 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { instructorApi } from '../../services/api';
 
+interface Stats {
+  total_courses?: number;
+  total_students?: number;
+  total_revenue?: number;
+  total_reviews?: number;
+  average_rating?: number | string;
+  total_lessons?: number;
+  recent_courses?: Array<{
+    course_id: string | number;
+    title?: string;
+    price?: number;
+    difficulty?: string;
+  }>;
+}
+
 export default function InstructorDashboard() {
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchStats();
@@ -82,7 +97,7 @@ export default function InstructorDashboard() {
           </Link>
         </div>
 
-        {stats?.recent_courses?.length > 0 ? (
+        {stats?.recent_courses && stats.recent_courses.length > 0 ? (
           <div className="space-y-4">
             {stats.recent_courses.map((course) => (
               <div

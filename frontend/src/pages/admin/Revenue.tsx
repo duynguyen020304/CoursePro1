@@ -1,6 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { Chart, registerables } from 'chart.js';
 import api from '../../services/api';
+import {
+  revenueDateRangeSchema,
+  type RevenueDateRangeFormData,
+} from '../../schemas/admin/revenue.schema';
 
 Chart.register(...registerables);
 
@@ -12,24 +20,37 @@ export default function Revenue() {
     ordersCount: 0,
     averageOrderValue: 0,
   });
-  const [dateRange, setDateRange] = useState({
-    start_date: new Date(new Date().setMonth(new Date().getMonth() - 3)).toISOString().split('T')[0],
-    end_date: new Date().toISOString().split('T')[0],
-  });
   const [monthlyData, setMonthlyData] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [topCourses, setTopCourses] = useState([]);
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
 
-  function getTopCoursesByRevenue(orders) {
-    const courseMap = new Map();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RevenueDateRangeFormData>({
+    resolver: zodResolver(revenueDateRangeSchema),
+    mode: 'onChange',
+    defaultValues: {
+      start_date: new Date(new Date().setMonth(new Date().getMonth() - 3)).toISOString().split('T')[0],
+      end_date: new Date().toISOString().split('T')[0],
+    },
+  });
+
+  const watchedDateRange = watch();
+
+  function getTopCoursesByRevenue(orders: Array<{ course?: { title?: string }; total_amount?: number }>) {
+    const courseMap = new Map<string, { name: string; revenue: number; orders: number }>();
     orders.forEach(order => {
       const courseName = order.course?.title || 'Unknown Course';
+      const existing = courseMap.get(courseName);
       courseMap.set(courseName, {
         name: courseName,
-        revenue: (courseMap.get(courseName)?.revenue || 0) + (order.total_amount || 0),
-        orders: (courseMap.get(courseName)?.orders || 0) + 1,
+        revenue: (existing?.revenue || 0) + (order.total_amount || 0),
+        orders: (existing?.orders || 0) + 1,
       });
     });
     return Array.from(courseMap.values())
@@ -51,7 +72,10 @@ export default function Revenue() {
           // Filter by date range
           const filteredOrders = orders.filter(order => {
             const orderDate = new Date(order.created_at);
-            return orderDate >= new Date(dateRange.start_date) && orderDate <= new Date(dateRange.end_date);
+            const startDate = new Date(watchedDateRange.start_date);
+            const endDate = new Date(watchedDateRange.end_date);
+            endDate.setHours(23, 59, 59, 999); // Include the entire end date
+            return orderDate >= startDate && orderDate <= endDate;
           });
 
           const totalRevenue = filteredOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
@@ -76,7 +100,7 @@ export default function Revenue() {
           setRecentOrders(filteredOrders.slice(0, 10));
 
           // Calculate monthly data for chart
-          const monthlyMap = new Map();
+          const monthlyMap = new Map<string, number>();
           filteredOrders.forEach(order => {
             const date = new Date(order.created_at);
             const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -103,7 +127,7 @@ export default function Revenue() {
     }
 
     fetchRevenueData();
-  }, [dateRange]);
+  }, [watchedDateRange.start_date, watchedDateRange.end_date]);
 
   // Create chart when monthlyData changes
   useEffect(() => {
@@ -114,6 +138,8 @@ export default function Revenue() {
     }
 
     const ctx = chartRef.current.getContext('2d');
+    if (!ctx) return;
+
     chartInstanceRef.current = new Chart(ctx, {
       type: 'line',
       data: {
@@ -141,7 +167,7 @@ export default function Revenue() {
           y: {
             beginAtZero: true,
             ticks: {
-              callback: (value) => `$${value.toLocaleString()}`,
+              callback: (value) => `$${Number(value).toLocaleString()}`,
             },
           },
         },
@@ -155,36 +181,57 @@ export default function Revenue() {
     };
   }, [monthlyData]);
 
-  const handleDateRangeChange = (e) => {
-    const { name, value } = e.target;
-    setDateRange(prev => ({ ...prev, [name]: value }));
+  // Shadow mode: Also run Zod validation separately to show toast on error
+  const onSubmit: SubmitHandler<RevenueDateRangeFormData> = async (data) => {
+    // Additional Zod validation in shadow mode
+    const zodResult = revenueDateRangeSchema.safeParse(data);
+    if (!zodResult.success) {
+      const zodErrors = zodResult.error.issues;
+      if (zodErrors.length > 0) {
+        const firstError = zodErrors[0];
+        toast.error(firstError.message);
+      }
+      return;
+    }
+
+    // Date range is valid, data will be fetched via useEffect watching the form values
+    console.log('Date range updated:', data);
   };
 
   return (
     <div>
+      <Toaster position="top-right" />
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Revenue Analytics</h1>
         <div className="flex gap-2 flex-wrap">
-          <div>
-            <label className="text-xs text-gray-500 block mb-1">Start Date</label>
-            <input
-              type="date"
-              name="start_date"
-              value={dateRange.start_date}
-              onChange={handleDateRangeChange}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 block mb-1">End Date</label>
-            <input
-              type="date"
-              name="end_date"
-              value={dateRange.end_date}
-              onChange={handleDateRangeChange}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+          <form onChange={handleSubmit(onSubmit)} className="flex gap-2 flex-wrap">
+            <div>
+              <label className="text-xs text-gray-500 block mb-1">Start Date</label>
+              <input
+                type="date"
+                {...register('start_date')}
+                className={`border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                  errors.start_date ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+              {errors.start_date && (
+                <p className="mt-1 text-xs text-red-500">{errors.start_date.message}</p>
+              )}
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 block mb-1">End Date</label>
+              <input
+                type="date"
+                {...register('end_date')}
+                className={`border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                  errors.end_date ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+              {errors.end_date && (
+                <p className="mt-1 text-xs text-red-500">{errors.end_date.message}</p>
+              )}
+            </div>
+          </form>
         </div>
       </div>
 

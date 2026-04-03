@@ -2,15 +2,40 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
+interface Stats {
+  totalUsers: number;
+  totalCourses: number;
+  totalOrders: number;
+  totalRevenue: number;
+}
+
+interface Notification {
+  id: number;
+  type: string;
+  message: string;
+  time: string;
+}
+
+interface Order {
+  order_id: string;
+  total_amount?: number;
+  status?: string;
+  created_at?: string;
+  user?: {
+    first_name?: string;
+    last_name?: string;
+  };
+}
+
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     totalCourses: 0,
     totalOrders: 0,
     totalRevenue: 0,
   });
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [notifications, setNotifications] = useState([]);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,7 +47,7 @@ export default function AdminDashboard() {
           api.get('/orders', { params: { page: 1, per_page: 5 } }).catch(() => null),
         ]);
 
-        const newStats = {
+        const newStats: Stats = {
           totalUsers: usersRes?.data?.data?.total || usersRes?.data?.data?.length || 0,
           totalCourses: coursesRes?.data?.data?.total || coursesRes?.data?.data?.length || 0,
           totalOrders: ordersRes?.data?.data?.total || ordersRes?.data?.data?.length || 0,
@@ -30,7 +55,7 @@ export default function AdminDashboard() {
             const ordersData = Array.isArray(ordersRes?.data?.data)
               ? ordersRes.data.data
               : (ordersRes?.data?.data?.data || []);
-            return ordersData.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+            return ordersData.reduce((sum: number, order: Order) => sum + (order.total_amount || 0), 0);
           })(),
         };
 
@@ -44,7 +69,7 @@ export default function AdminDashboard() {
         }
 
         // Generate notifications
-        const newNotifications = [];
+        const newNotifications: Notification[] = [];
         if (newStats.totalOrders > 0) {
           newNotifications.push({
             id: 1,
@@ -71,7 +96,7 @@ export default function AdminDashboard() {
     fetchStats();
   }, []);
 
-  const dismissNotification = (id) => {
+  const dismissNotification = (id: number) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
@@ -272,7 +297,7 @@ export default function AdminDashboard() {
                       </span>
                     </td>
                     <td className="py-3 px-2 text-sm text-gray-500">
-                      {new Date(order.created_at).toLocaleDateString()}
+                      {order.created_at ? new Date(order.created_at).toLocaleDateString() : ''}
                     </td>
                   </tr>
                 ))}

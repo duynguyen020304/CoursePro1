@@ -1,22 +1,32 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { instructorApi, categoryApi } from '../../services/api';
+import { createCourseSchema, type CreateCourseFormData } from '../../schemas/course/createCourse.schema';
+
+interface Category {
+  id: number;
+  name: string;
+}
 
 export default function CreateCourse() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     price: '',
     difficulty: 'All Level',
     language: 'Vietnamese',
-    category_ids: [],
+    category_ids: [] as number[],
     objectives: [''],
     requirements: [''],
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchCategories();
@@ -33,61 +43,66 @@ export default function CreateCourse() {
     }
   };
 
-  const handleChange = (e) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors: zodErrors },
+    setValue,
+    watch,
+  } = useForm<CreateCourseFormData>({
+    resolver: zodResolver(createCourseSchema),
+    mode: 'onBlur',
+    defaultValues: {
+      title: '',
+      description: '',
+      price: '',
+      category_id: '' as unknown as undefined,
+      thumbnail: undefined,
+    },
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    
+    // Sync with local formData for API payload
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Clear error when user types
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }));
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
-  const handleCategoryChange = (e) => {
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const options = e.target.options;
-    const selected = [];
+    const selected: number[] = [];
     for (let i = 0; i < options.length; i++) {
       if (options[i].selected) {
-        selected.push(parseInt(options[i].value));
+        selected.push(parseInt(options[i].value, 10));
       }
     }
     setFormData((prev) => ({ ...prev, category_ids: selected }));
   };
 
-  const handleArrayChange = (field, index, value) => {
+  const handleArrayChange = (field: 'objectives' | 'requirements', index: number, value: string) => {
     const newArray = [...formData[field]];
     newArray[index] = value;
     setFormData((prev) => ({ ...prev, [field]: newArray }));
   };
 
-  const addArrayItem = (field) => {
+  const addArrayItem = (field: 'objectives' | 'requirements') => {
     setFormData((prev) => ({ ...prev, [field]: [...prev[field], ''] }));
   };
 
-  const removeArrayItem = (field, index) => {
+  const removeArrayItem = (field: 'objectives' | 'requirements', index: number) => {
     if (formData[field].length > 1) {
       const newArray = formData[field].filter((_, i) => i !== index);
       setFormData((prev) => ({ ...prev, [field]: newArray }));
     }
   };
 
-  const validate = () => {
-    const newErrors = {};
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
-    }
-    if (!formData.price || parseFloat(formData.price) < 0) {
-      newErrors.price = 'Valid price is required';
-    }
-    return newErrors;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+  const onSubmit = async (data: CreateCourseFormData) => {
+    setErrors({});
 
     try {
       setLoading(true);
@@ -106,19 +121,38 @@ export default function CreateCourse() {
       if (response.data.success) {
         navigate('/instructor/courses');
       }
-    } catch (err) {
-      console.error('Failed to create course:', err);
-      setErrors({ submit: err.response?.data?.message || 'Failed to create course' });
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      const errorMessage = errorObj.response?.data?.message || 'Failed to create course';
+      setErrors({ submit: errorMessage });
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  const onInvalid = (submitError: unknown) => {
+    // zodResolver will populate formState.errors via react-hook-form
+    // Additional safety net for any Zod errors not caught by resolver
+    if (submitError && typeof submitError === 'object' && !Array.isArray(submitError)) {
+      const errorValues = Object.values(submitError as Record<string, unknown>);
+      if (errorValues.length > 0) {
+        const firstError = errorValues[0];
+        if (typeof firstError === 'object' && firstError !== null && 'message' in firstError) {
+          toast.error((firstError as { message: string }).message);
+        } else {
+          toast.error('Please fix the validation errors before submitting.');
+        }
+      }
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
+      <Toaster position="top-right" />
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Create New Course</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         {errors.submit && (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg">{errors.submit}</div>
         )}
@@ -129,65 +163,83 @@ export default function CreateCourse() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
                 Course Title *
               </label>
               <input
+                id="title"
                 type="text"
+                {...register('title')}
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                  errors.title ? 'border-red-500' : 'border-gray-300'
+                  zodErrors.title || errors.title ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="e.g., Complete Web Development Bootcamp"
               />
-              {errors.title && (
+              {zodErrors.title && (
+                <p className="mt-1 text-sm text-red-500">{zodErrors.title.message}</p>
+              )}
+              {errors.title && !zodErrors.title && (
                 <p className="mt-1 text-sm text-red-500">{errors.title}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
                 Description
               </label>
               <textarea
+                id="description"
+                {...register('description')}
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+                  zodErrors.description ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Describe what students will learn in this course..."
               />
+              {zodErrors.description && (
+                <p className="mt-1 text-sm text-red-500">{zodErrors.description.message}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
                   Price ($) *
                 </label>
                 <input
+                  id="price"
                   type="number"
+                  {...register('price')}
                   name="price"
                   value={formData.price}
                   onChange={handleChange}
                   min="0"
                   step="0.01"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                    errors.price ? 'border-red-500' : 'border-gray-300'
+                    zodErrors.price || errors.price ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="99.99"
                 />
-                {errors.price && (
+                {zodErrors.price && (
+                  <p className="mt-1 text-sm text-red-500">{zodErrors.price.message}</p>
+                )}
+                {errors.price && !zodErrors.price && (
                   <p className="mt-1 text-sm text-red-500">{errors.price}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 mb-1">
                   Difficulty
                 </label>
                 <select
+                  id="difficulty"
                   name="difficulty"
                   value={formData.difficulty}
                   onChange={handleChange}
@@ -201,10 +253,11 @@ export default function CreateCourse() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">
                   Language
                 </label>
                 <select
+                  id="language"
                   name="language"
                   value={formData.language}
                   onChange={handleChange}

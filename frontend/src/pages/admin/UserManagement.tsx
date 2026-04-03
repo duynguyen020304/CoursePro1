@@ -1,8 +1,20 @@
 import { useState, useEffect } from 'react';
 import { adminUserApi } from '../../services/api';
 
+interface User {
+  user_id: string | number;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  profile_image?: string;
+  role?: {
+    role_name?: string;
+  };
+  created_at?: string;
+}
+
 export default function UserManagement() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 

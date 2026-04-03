@@ -1,19 +1,54 @@
 import { useState, useEffect } from 'react';
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { roleApi, permissionApi } from '../../services/api';
+import { roleManagementSchema, type RoleManagementFormData } from '../../schemas/admin/roleManagement.schema';
+
+// Types for the data structures
+interface Permission {
+  permission_id: string;
+  name: string;
+  display_name: string;
+}
+
+interface Role {
+  role_id: string;
+  role_name: string;
+  permissions?: Permission[];
+}
 
 export default function RoleManagement() {
-  const [roles, setRoles] = useState([]);
-  const [permissions, setPermissions] = useState([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editingRole, setEditingRole] = useState(null);
-  const [formData, setFormData] = useState({ role_name: '' });
-  const [selectedPermissions, setSelectedPermissions] = useState([]);
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<RoleManagementFormData>({
+    resolver: zodResolver(roleManagementSchema),
+    mode: 'onBlur',
+    defaultValues: {
+      role_name: '',
+      permissions: [],
+    },
+  });
+
+  const watchPermissions = watch('permissions', []);
+
   useEffect(() => {
-    fetchData();
+    void fetchData();
   }, []);
 
   const fetchData = async () => {
@@ -35,20 +70,22 @@ export default function RoleManagement() {
 
   const openCreateModal = () => {
     setEditingRole(null);
-    setFormData({ role_name: '' });
     setSelectedPermissions([]);
+    reset({ role_name: '', permissions: [] });
     setShowModal(true);
   };
 
-  const openEditModal = async (role) => {
+  const openEditModal = async (role: Role) => {
     setEditingRole(role);
-    setFormData({ role_name: role.role_name });
+    reset({ role_name: role.role_name, permissions: [] });
     try {
       const res = await roleApi.getPermissions(role.role_id);
-      const permIds = (res.data.data || []).map(p => p.permission_id);
+      const permIds = (res.data.data || []).map((p: Permission) => p.permission_id);
       setSelectedPermissions(permIds);
+      setValue('permissions', permIds);
     } catch (err) {
       setSelectedPermissions(role.permissions?.map(p => p.permission_id) || []);
+      setValue('permissions', role.permissions?.map(p => p.permission_id) || []);
     }
     setShowModal(true);
   };
@@ -56,36 +93,47 @@ export default function RoleManagement() {
   const closeModal = () => {
     setShowModal(false);
     setEditingRole(null);
-    setFormData({ role_name: '' });
     setSelectedPermissions([]);
     setError('');
+    reset({ role_name: '', permissions: [] });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<RoleManagementFormData> = async (data) => {
     setSaving(true);
     setError('');
 
+    // Shadow mode: Also run Zod validation separately to show toast on error
+    const zodResult = roleManagementSchema.safeParse(data);
+    if (!zodResult.success) {
+      const zodErrors = zodResult.error.issues;
+      if (zodErrors.length > 0) {
+        toast.error(zodErrors[0].message);
+      }
+      setSaving(false);
+      return;
+    }
+
     try {
       if (editingRole) {
-        await roleApi.update(editingRole.role_id, formData);
+        await roleApi.update(editingRole.role_id, { role_name: data.role_name });
         await roleApi.syncPermissions(editingRole.role_id, selectedPermissions);
       } else {
-        const res = await roleApi.create(formData);
+        const res = await roleApi.create({ role_name: data.role_name });
         if (selectedPermissions.length > 0) {
           await roleApi.assignPermissions(res.data.data.role_id, selectedPermissions);
         }
       }
       await fetchData();
       closeModal();
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save role');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      setError(errorObj.response?.data?.message || 'Failed to save role');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (role) => {
+  const handleDelete = async (role: Role) => {
     if (!confirm(`Are you sure you want to delete the role "${role.role_name}"?`)) {
       return;
     }
@@ -93,20 +141,21 @@ export default function RoleManagement() {
     try {
       await roleApi.delete(role.role_id);
       await fetchData();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete role');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      alert(errorObj.response?.data?.message || 'Failed to delete role');
     }
   };
 
-  const togglePermission = (permissionId) => {
-    setSelectedPermissions(prev =>
-      prev.includes(permissionId)
-        ? prev.filter(id => id !== permissionId)
-        : [...prev, permissionId]
-    );
+  const togglePermission = (permissionId: string) => {
+    const newPermissions = selectedPermissions.includes(permissionId)
+      ? selectedPermissions.filter(id => id !== permissionId)
+      : [...selectedPermissions, permissionId];
+    setSelectedPermissions(newPermissions);
+    setValue('permissions', newPermissions);
   };
 
-  const groupedPermissions = permissions.reduce((acc, perm) => {
+  const groupedPermissions = permissions.reduce<Record<string, Permission[]>>((acc, perm) => {
     const group = perm.name.split('.')[0];
     if (!acc[group]) acc[group] = [];
     acc[group].push(perm);
@@ -123,6 +172,7 @@ export default function RoleManagement() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
+      <Toaster position="top-right" />
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-semibold text-gray-900">Role Management</h1>
@@ -132,6 +182,7 @@ export default function RoleManagement() {
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <button
+            type="button"
             onClick={openCreateModal}
             className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
           >
@@ -182,13 +233,15 @@ export default function RoleManagement() {
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <button
+                          type="button"
                           onClick={() => openEditModal(role)}
                           className="text-indigo-600 hover:text-indigo-900 mr-4"
                         >
                           Edit
                         </button>
-                        {!['admin', 'student', 'instructor'].includes(role.role_id) && (
+                        {!['admin', 'student', 'instructor'].includes(role.role_name) && (
                           <button
+                            type="button"
                             onClick={() => handleDelete(role)}
                             className="text-red-600 hover:text-red-900"
                           >
@@ -214,20 +267,22 @@ export default function RoleManagement() {
             </div>
             <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
             <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={void handleSubmit(onSubmit)}>
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">
                     {editingRole ? 'Edit Role' : 'Create Role'}
                   </h3>
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700">Role Name</label>
+                    <label htmlFor="role_name" className="block text-sm font-medium text-gray-700">Role Name</label>
                     <input
+                      id="role_name"
                       type="text"
-                      value={formData.role_name}
-                      onChange={(e) => setFormData({ ...formData, role_name: e.target.value })}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
-                      required
+                      {...register('role_name')}
                     />
+                    {errors.role_name && (
+                      <p className="mt-1 text-sm text-red-500">{errors.role_name.message}</p>
+                    )}
                   </div>
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
@@ -251,6 +306,9 @@ export default function RoleManagement() {
                         </div>
                       ))}
                     </div>
+                    {errors.permissions && (
+                      <p className="mt-1 text-sm text-red-500">{errors.permissions.message}</p>
+                    )}
                   </div>
                 </div>
                 {error && (

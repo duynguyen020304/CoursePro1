@@ -2,15 +2,54 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { instructorApi, categoryApi, courseApi } from '../../services/api';
 
+interface Category {
+  id: string | number;
+  name?: string;
+}
+
+interface Course {
+  title?: string;
+  description?: string;
+  price?: number;
+  difficulty?: string;
+  language?: string;
+  categories?: Array<{ id: string | number }>;
+  objectives?: Array<{ objective?: string }>;
+  requirements?: Array<{ requirement?: string }>;
+  chapters?: Chapter[];
+}
+
+interface Chapter {
+  chapter_id: string | number;
+  title?: string;
+  lessons?: Lesson[];
+}
+
+interface Lesson {
+  lesson_id: string | number;
+  title?: string;
+}
+
+interface FormData {
+  title: string;
+  description: string;
+  price: string;
+  difficulty: string;
+  language: string;
+  category_ids: (string | number)[];
+  objectives: string[];
+  requirements: string[];
+}
+
 export default function EditCourse() {
-  const { courseId } = useParams();
+  const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [course, setCourse] = useState(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [course, setCourse] = useState<Course | null>(null);
   const [activeTab, setActiveTab] = useState('details');
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
     price: '',
@@ -20,8 +59,8 @@ export default function EditCourse() {
     objectives: [''],
     requirements: [''],
   });
-  const [chapters, setChapters] = useState([]);
-  const [errors, setErrors] = useState({});
+  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [errors, setErrors] = useState<{ load?: string }>({});
 
   useEffect(() => {
     fetchCourse();
@@ -41,9 +80,9 @@ export default function EditCourse() {
           price: courseData.price?.toString() || '',
           difficulty: courseData.difficulty || 'All Level',
           language: courseData.language || 'Vietnamese',
-          category_ids: courseData.categories?.map((c) => c.id) || [],
-          objectives: courseData.objectives?.map((o) => o.objective) || [''],
-          requirements: courseData.requirements?.map((r) => r.requirement) || [''],
+          category_ids: courseData.categories?.map((c: { id: string | number }) => c.id) || [],
+          objectives: courseData.objectives?.map((o: { objective?: string }) => o.objective || '') || [''],
+          requirements: courseData.requirements?.map((r: { requirement?: string }) => r.requirement || '') || [''],
         });
         setChapters(courseData.chapters || []);
       }
@@ -66,14 +105,14 @@ export default function EditCourse() {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCategoryChange = (e) => {
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const options = e.target.options;
-    const selected = [];
+    const selected: (string | number)[] = [];
     for (let i = 0; i < options.length; i++) {
       if (options[i].selected) {
         selected.push(parseInt(options[i].value));
@@ -82,17 +121,17 @@ export default function EditCourse() {
     setFormData((prev) => ({ ...prev, category_ids: selected }));
   };
 
-  const handleArrayChange = (field, index, value) => {
-    const newArray = [...formData[field]];
+  const handleArrayChange = (field: keyof FormData, index: number, value: string) => {
+    const newArray = [...(formData[field] as string[])];
     newArray[index] = value;
     setFormData((prev) => ({ ...prev, [field]: newArray }));
   };
 
-  const addArrayItem = (field) => {
+  const addArrayItem = (field: 'objectives' | 'requirements') => {
     setFormData((prev) => ({ ...prev, [field]: [...prev[field], ''] }));
   };
 
-  const removeArrayItem = (field, index) => {
+  const removeArrayItem = (field: 'objectives' | 'requirements', index: number) => {
     if (formData[field].length > 1) {
       const newArray = formData[field].filter((_, i) => i !== index);
       setFormData((prev) => ({ ...prev, [field]: newArray }));
@@ -150,7 +189,7 @@ export default function EditCourse() {
     }
   };
 
-  const handleDeleteChapter = async (chapterId) => {
+  const handleDeleteChapter = async (chapterId: string | number) => {
     if (!window.confirm('Delete this chapter and all its lessons?')) return;
 
     try {
@@ -461,7 +500,7 @@ export default function EditCourse() {
 
                     {/* Lessons */}
                     <div className="p-4 border-t">
-                      {chapter.lessons?.length > 0 ? (
+                      {chapter.lessons && chapter.lessons.length > 0 ? (
                         <ul className="space-y-2">
                           {chapter.lessons.map((lesson, lessonIndex) => (
                             <li

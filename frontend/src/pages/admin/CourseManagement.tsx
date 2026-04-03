@@ -1,8 +1,21 @@
 import { useState, useEffect } from 'react';
 import { courseApi } from '../../services/api';
 
+interface Course {
+  course_id: string | number;
+  title: string;
+  price?: number | string;
+  images?: Array<{ image_url: string }>;
+  instructor?: {
+    user?: {
+      first_name?: string;
+      last_name?: string;
+    };
+  };
+}
+
 export default function CourseManagement() {
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -83,7 +96,7 @@ export default function CourseManagement() {
                     {course.instructor?.user?.first_name} {course.instructor?.user?.last_name}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
-                    ${parseFloat(course.price || 0).toFixed(2)}
+                    ${parseFloat(String(course.price) || '0').toFixed(2)}
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">

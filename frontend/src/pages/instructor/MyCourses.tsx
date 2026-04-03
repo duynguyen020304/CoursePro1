@@ -2,11 +2,28 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { instructorApi } from '../../services/api';
 
+interface CourseItem {
+  course: {
+    course_id: string | number;
+    title?: string;
+    price?: number;
+    difficulty?: string;
+    language?: string;
+    images?: Array<{ image_path?: string }>;
+  };
+  stats: {
+    total_students?: number;
+    average_rating?: number;
+    total_reviews?: number;
+    total_revenue?: number;
+  };
+}
+
 export default function MyCourses() {
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState<CourseItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [deletingId, setDeletingId] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | number | null>(null);
 
   useEffect(() => {
     fetchCourses();
@@ -27,7 +44,7 @@ export default function MyCourses() {
     }
   };
 
-  const handleDelete = async (courseId) => {
+  const handleDelete = async (courseId: string | number) => {
     if (!window.confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
       return;
     }
@@ -35,7 +52,7 @@ export default function MyCourses() {
     try {
       setDeletingId(courseId);
       await instructorApi.deleteCourse(courseId);
-      setCourses(courses.filter((c) => c.course.course_id !== courseId));
+      setCourses(courses.filter((item) => item.course.course_id !== courseId));
     } catch (err) {
       alert('Failed to delete course');
       console.error(err);
@@ -143,7 +160,7 @@ export default function MyCourses() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-900">
-                        ${stats.total_revenue.toLocaleString()}
+                        ${(stats.total_revenue || 0).toLocaleString()}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
