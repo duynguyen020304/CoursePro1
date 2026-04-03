@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+import api from '../../services/api';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -18,14 +16,10 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
-
-        // Fetch all stats in parallel
         const [usersRes, coursesRes, ordersRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/admin/users`, { headers }).catch(() => null),
-          axios.get(`${API_BASE_URL}/admin/courses`, { headers }).catch(() => null),
-          axios.get(`${API_BASE_URL}/orders`, { headers, params: { page: 1, per_page: 5 } }).catch(() => null),
+          api.get('/admin/users').catch(() => null),
+          api.get('/admin/courses').catch(() => null),
+          api.get('/orders', { params: { page: 1, per_page: 5 } }).catch(() => null),
         ]);
 
         const newStats = {
@@ -121,7 +115,7 @@ export default function AdminDashboard() {
                 onClick={() => dismissNotification(notification.id)}
                 className="text-gray-400 hover:text-gray-600"
               >
-                ✕
+                x
               </button>
             </div>
           ))}

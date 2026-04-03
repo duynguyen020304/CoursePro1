@@ -17,9 +17,9 @@ export default function AdminLayout() {
     return <Navigate to="/" replace />;
   }
 
-  const handleLogout = () => {
-    logout();
-    window.location.href = '/signin';
+  const handleLogout = async () => {
+    await logout();
+    window.location.assign('/signin');
   };
 
   return (

@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
@@ -63,12 +62,11 @@ Route::get('/instructors/{instructor}', [InstructorController::class, 'show']);
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // User management
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::get('/user', [AuthController::class, 'user']);
     Route::get('/user/profile', [UserController::class, 'profile']);
     Route::put('/user/profile', [UserController::class, 'updateProfile']);
     Route::put('/user/change-password', [AuthController::class, 'changePassword']);
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     // Student routes
     Route::get('/student/profile', [StudentController::class, 'profile']);

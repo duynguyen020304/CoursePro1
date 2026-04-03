@@ -188,7 +188,7 @@ class AuthService
             'id' => Str::uuid(),
             'user_id' => $userId,
             'token' => $hashedToken,
-            'expires_at' => now()->addDays(30),
+            'expires_at' => now()->addDays(7),
             'ip_address' => $ipAddress,
             'user_agent' => $userAgent,
         ]);
@@ -203,7 +203,7 @@ class AuthService
      * Validate and use refresh token
      * Returns user if valid, throws otherwise
      */
-    public function validateRefreshToken(string $rawToken): UserAccount
+    public function validateRefreshToken(string $rawToken): array
     {
         $hashedToken = hash_hmac('sha256', $rawToken, config('app.key'));
 
@@ -225,15 +225,7 @@ class AuthService
             ]);
         }
 
-        // Check if token needs rotation (< 7 days remaining)
-        if ($refreshToken->needsRotation()) {
-            // Revoke old token
-            $refreshToken->revoke();
-            // Return user but signal rotation needed
-            return $userAccount;
-        }
-
-        return $userAccount;
+        return [$userAccount, $refreshToken];
     }
 
     /**
@@ -242,6 +234,26 @@ class AuthService
     public function revokeAllRefreshTokens(string $userId): int
     {
         return RefreshToken::revokeAllForUser($userId);
+    }
+
+    /**
+     * Revoke a single refresh token by its raw token value.
+     */
+    public function revokeRefreshToken(string $rawToken): bool
+    {
+        $hashedToken = hash_hmac('sha256', $rawToken, config('app.key'));
+
+        $refreshToken = RefreshToken::where('token', $hashedToken)
+            ->where('is_deleted', false)
+            ->first();
+
+        if (!$refreshToken) {
+            return false;
+        }
+
+        $refreshToken->revoke();
+
+        return true;
     }
 
     /**

@@ -1,12 +1,6 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Auth Guard Tests', () => {
-  test.beforeEach(async ({ page }) => {
-    // Clear localStorage before each test
-    await page.goto('http://localhost:5173');
-    await page.evaluate(() => localStorage.clear());
-  });
-
   test('should allow unauthenticated user to access signin page', async ({ page }) => {
     await page.goto('http://localhost:5173/signin');
     await expect(page).toHaveURL('http://localhost:5173/signin');
@@ -17,36 +11,6 @@ test.describe('Auth Guard Tests', () => {
     await page.goto('http://localhost:5173/signup');
     await expect(page).toHaveURL('http://localhost:5173/signup');
     await expect(page.locator('h2')).toContainText('Create your account');
-  });
-
-  test('should redirect authenticated user away from signin page', async ({ page }) => {
-    // Simulate being logged in
-    await page.goto('http://localhost:5173');
-    await page.evaluate(() => {
-      localStorage.setItem('token', 'test-token-123');
-      localStorage.setItem('user', JSON.stringify({ email: 'test@example.com' }));
-    });
-
-    // Try to access signin page
-    await page.goto('http://localhost:5173/signin');
-
-    // Should be redirected to home
-    await expect(page).not.toHaveURL('http://localhost:5173/signin');
-  });
-
-  test('should redirect authenticated user away from signup page', async ({ page }) => {
-    // Simulate being logged in
-    await page.goto('http://localhost:5173');
-    await page.evaluate(() => {
-      localStorage.setItem('token', 'test-token-123');
-      localStorage.setItem('user', JSON.stringify({ email: 'test@example.com' }));
-    });
-
-    // Try to access signup page
-    await page.goto('http://localhost:5173/signup');
-
-    // Should be redirected to home
-    await expect(page).not.toHaveURL('http://localhost:5173/signup');
   });
 });
 

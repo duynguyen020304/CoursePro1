@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { studentApi, orderApi } from '../../services/api';
+import { useState, useEffect } from 'react';
+import { orderApi } from '../../services/api';
 import jsPDF from 'jspdf';
 
 export default function Certificates() {
@@ -7,15 +7,11 @@ export default function Certificates() {
   const [loading, setLoading] = useState(true);
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [generatingPdf, setGeneratingPdf] = useState(false);
-  const canvasRef = useRef(null);
 
   useEffect(() => {
     async function fetchCertificates() {
       try {
-        const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
-
-        const response = await orderApi.list({ headers });
+        const response = await orderApi.list();
         // Handle paginated response - data.data.data is the orders array
         const orders = response.data.data?.data || response.data.data || [];
 
@@ -215,7 +211,7 @@ export default function Certificates() {
                 onClick={closePreview}
                 className="text-gray-500 hover:text-gray-700 text-2xl"
               >
-                ✕
+                x
               </button>
             </div>
 

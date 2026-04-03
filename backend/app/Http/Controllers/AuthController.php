@@ -6,10 +6,9 @@ use App\Models\User;
 use App\Models\UserAccount;
 use App\Models\Student;
 use App\Models\PasswordResetToken;
-use App\Models\RefreshToken;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -44,23 +43,23 @@ class AuthController extends Controller
         // Load the user profile
         $user = $userAccount->user;
 
-        $token = $userAccount->createToken('auth-token')->plainTextToken;
+        $authService = new AuthService();
+        $accessToken = $authService->createAccessToken($userAccount);
+        $refreshToken = $authService->createRefreshToken(
+            $userAccount->user_id,
+            $request->ip(),
+            $request->userAgent()
+        )['raw_token'];
 
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
             'data' => [
-                'user' => [
-                    'user_id' => $user->user_id,
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name,
-                    'email' => $userAccount->email,
-                    'role_id' => $user->role_id,
-                    'profile_image' => $user->profile_image,
-                ],
-                'token' => $token,
+                'user' => $this->formatUserPayload($userAccount),
             ],
-        ]);
+        ])
+            ->withCookie($this->makeAccessTokenCookie($accessToken))
+            ->withCookie($this->makeRefreshTokenCookie($refreshToken));
     }
 
     /**
@@ -100,22 +99,23 @@ class AuthController extends Controller
             'user_id' => $userId,
         ]);
 
-        $token = $userAccount->createToken('auth-token')->plainTextToken;
+        $authService = new AuthService();
+        $accessToken = $authService->createAccessToken($userAccount);
+        $refreshToken = $authService->createRefreshToken(
+            $userAccount->user_id,
+            $request->ip(),
+            $request->userAgent()
+        )['raw_token'];
 
         return response()->json([
             'success' => true,
             'message' => 'Account created successfully',
             'data' => [
-                'user' => [
-                    'user_id' => $user->user_id,
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name,
-                    'email' => $userAccount->email,
-                    'role_id' => $user->role_id,
-                ],
-                'token' => $token,
+                'user' => $this->formatUserPayload($userAccount),
             ],
-        ], 201);
+        ], 201)
+            ->withCookie($this->makeAccessTokenCookie($accessToken))
+            ->withCookie($this->makeRefreshTokenCookie($refreshToken));
     }
 
     /**
@@ -262,21 +262,41 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout user - revoke all tokens
+     * Return the authenticated user payload.
+     */
+    public function user(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'user' => $this->formatUserPayload($request->user()),
+            ],
+        ]);
+    }
+
+    /**
+     * Logout user - revoke the current access and refresh token pair.
      */
     public function logout(Request $request)
     {
-        // Revoke access token
-        $request->user()->currentAccessToken()->delete();
+        $currentAccessToken = $request->user()->currentAccessToken();
+        if ($currentAccessToken) {
+            $currentAccessToken->delete();
+        }
 
-        // Revoke all refresh tokens for this user
         $authService = new AuthService();
-        $authService->revokeAllRefreshTokens($request->user()->user_id);
+        $refreshToken = $request->cookie('refresh_token');
+
+        if (is_string($refreshToken) && $refreshToken !== '') {
+            $authService->revokeRefreshToken($refreshToken);
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Logged out successfully',
-        ]);
+        ])
+            ->withCookie($this->expireCookie(name: 'access_token', path: '/'))
+            ->withCookie($this->expireCookie(name: 'refresh_token', path: '/api/auth'));
     }
 
     /**
@@ -299,43 +319,16 @@ class AuthController extends Controller
                 $request->userAgent()
             );
 
-            // Set cookies for tokens
-            $cookieConfig = [
-                'secure' => config('app.env') === 'production',
-                'same_site' => 'lax',
-            ];
-
-            $accessTokenCookie = cookie(
-                'access_token',
-                $result['access_token'],
-                60, // 60 minutes
-                '/',
-                null,
-                $cookieConfig['secure'],
-                true, // HttpOnly
-                $cookieConfig['same_site']
-            );
-
-            $refreshTokenCookie = cookie(
-                'refresh_token',
-                $result['refresh_token'],
-                30 * 24 * 60, // 30 days in minutes
-                '/api/auth',
-                null,
-                $cookieConfig['secure'],
-                true, // HttpOnly
-                $cookieConfig['same_site']
-            );
-
             return response()->json([
                 'success' => true,
                 'message' => $result['is_new_user'] ? 'Account created successfully' : 'Login successful',
                 'data' => [
                     'user' => $result['user'],
-                    'token' => $result['access_token'],
                     'is_new_user' => $result['is_new_user'],
                 ],
-            ])->withCookie($accessTokenCookie)->withCookie($refreshTokenCookie);
+            ])
+                ->withCookie($this->makeAccessTokenCookie($result['access_token']))
+                ->withCookie($this->makeRefreshTokenCookie($result['refresh_token']));
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -373,67 +366,94 @@ class AuthController extends Controller
         $authService = new AuthService();
 
         try {
-            $userAccount = $authService->validateRefreshToken($refreshToken);
+            [$userAccount, $currentRefreshToken] = $authService->validateRefreshToken($refreshToken);
 
-            // Create new access token
             $accessToken = $authService->createAccessToken($userAccount);
 
-            // Create new refresh token (rotation)
-            [$newRefreshToken, $refreshTokenModel] = $authService->createRefreshToken(
+            $newRefreshToken = $authService->createRefreshToken(
                 $userAccount->user_id,
                 $request->ip(),
                 $request->userAgent()
-            );
+            )['raw_token'];
 
-            $cookieConfig = [
-                'secure' => config('app.env') === 'production',
-                'same_site' => 'lax',
-            ];
-
-            $accessTokenCookie = cookie(
-                'access_token',
-                $accessToken,
-                60,
-                '/',
-                null,
-                $cookieConfig['secure'],
-                true,
-                $cookieConfig['same_site']
-            );
-
-            $refreshTokenCookie = cookie(
-                'refresh_token',
-                $newRefreshToken,
-                30 * 24 * 60,
-                '/api/auth',
-                null,
-                $cookieConfig['secure'],
-                true,
-                $cookieConfig['same_site']
-            );
-
-            $user = $userAccount->user;
+            $currentRefreshToken->revoke();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Token refreshed successfully',
                 'data' => [
-                    'user' => [
-                        'user_id' => $user->user_id,
-                        'first_name' => $user->first_name,
-                        'last_name' => $user->last_name,
-                        'email' => $userAccount->email,
-                        'role_id' => $user->role_id,
-                        'profile_image' => $user->profile_image,
-                    ],
+                    'user' => $this->formatUserPayload($userAccount),
                 ],
-            ])->withCookie($accessTokenCookie)->withCookie($refreshTokenCookie);
+            ])
+                ->withCookie($this->makeAccessTokenCookie($accessToken))
+                ->withCookie($this->makeRefreshTokenCookie($newRefreshToken));
 
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid or expired refresh token',
-            ], 401);
+            ], 401)
+                ->withCookie($this->expireCookie(name: 'access_token', path: '/'))
+                ->withCookie($this->expireCookie(name: 'refresh_token', path: '/api/auth'));
         }
+    }
+
+    private function formatUserPayload(\App\Models\UserAccount $userAccount): array
+    {
+        $user = $userAccount->user;
+
+        return [
+            'user_id' => $user->user_id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $userAccount->email,
+            'role_id' => $user->role_id,
+            'profile_image' => $user->profile_image,
+        ];
+    }
+
+    private function makeAccessTokenCookie(string $token): \Symfony\Component\HttpFoundation\Cookie
+    {
+        return Cookie::make(
+            name: 'access_token',
+            value: $token,
+            minutes: 120,
+            path: '/',
+            domain: config('session.domain'),
+            secure: (bool) config('session.secure'),
+            httpOnly: true,
+            raw: false,
+            sameSite: config('session.same_site', 'lax'),
+        );
+    }
+
+    private function makeRefreshTokenCookie(string $token): \Symfony\Component\HttpFoundation\Cookie
+    {
+        return Cookie::make(
+            name: 'refresh_token',
+            value: $token,
+            minutes: 10080,
+            path: '/api/auth',
+            domain: config('session.domain'),
+            secure: (bool) config('session.secure'),
+            httpOnly: true,
+            raw: false,
+            sameSite: config('session.same_site', 'lax'),
+        );
+    }
+
+    private function expireCookie(string $name, string $path): \Symfony\Component\HttpFoundation\Cookie
+    {
+        return Cookie::make(
+            name: $name,
+            value: '',
+            minutes: -1,
+            path: $path,
+            domain: config('session.domain'),
+            secure: (bool) config('session.secure'),
+            httpOnly: true,
+            raw: false,
+            sameSite: config('session.same_site', 'lax'),
+        );
     }
 }

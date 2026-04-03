@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState } from 'react';
 import { cartApi } from '../services/api';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext(null);
 
@@ -7,11 +9,11 @@ export function CartProvider({ children }) {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const { isAuthenticated, loading: authLoading } = useAuth();
 
   const fetchCart = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      // User is not authenticated, skip cart fetch
+    if (!isAuthenticated) {
+      setCart(null);
       setInitialized(true);
       return;
     }
@@ -70,12 +72,18 @@ export function CartProvider({ children }) {
   };
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     fetchCart();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, isAuthenticated]);
 
   const value = {
     cart,
     loading,
+    initialized,
     items: cart?.items || [],
     itemCount: cart?.items?.length || 0,
     fetchCart,

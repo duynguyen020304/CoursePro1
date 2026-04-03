@@ -18,9 +18,9 @@ export default function InstructorLayout() {
     return <Navigate to="/" replace />;
   }
 
-  const handleLogout = () => {
-    logout();
-    window.location.href = '/signin';
+  const handleLogout = async () => {
+    await logout();
+    window.location.assign('/signin');
   };
 
   const isActive = (path) => location.pathname === path;

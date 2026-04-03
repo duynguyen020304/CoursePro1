@@ -1,10 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
-import axios from 'axios';
+import api from '../../services/api';
 
 Chart.register(...registerables);
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export default function Revenue() {
   const [loading, setLoading] = useState(true);
@@ -24,14 +22,25 @@ export default function Revenue() {
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
 
+  function getTopCoursesByRevenue(orders) {
+    const courseMap = new Map();
+    orders.forEach(order => {
+      const courseName = order.course?.title || 'Unknown Course';
+      courseMap.set(courseName, {
+        name: courseName,
+        revenue: (courseMap.get(courseName)?.revenue || 0) + (order.total_amount || 0),
+        orders: (courseMap.get(courseName)?.orders || 0) + 1,
+      });
+    });
+    return Array.from(courseMap.values())
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+  }
+
   useEffect(() => {
     async function fetchRevenueData() {
       try {
-        const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
-
-        // Fetch orders and calculate revenue
-        const ordersRes = await axios.get(`${API_BASE_URL}/orders`, { headers, params: { page: 1, per_page: 100 } }).catch(() => null);
+        const ordersRes = await api.get('/orders', { params: { page: 1, per_page: 100 } }).catch(() => null);
 
         if (ordersRes?.data?.data) {
           // Handle paginated response - orders could be in data.data or data.data.data
@@ -145,21 +154,6 @@ export default function Revenue() {
       }
     };
   }, [monthlyData]);
-
-  function getTopCoursesByRevenue(orders) {
-    const courseMap = new Map();
-    orders.forEach(order => {
-      const courseName = order.course?.title || 'Unknown Course';
-      courseMap.set(courseName, {
-        name: courseName,
-        revenue: (courseMap.get(courseName)?.revenue || 0) + (order.total_amount || 0),
-        orders: (courseMap.get(courseName)?.orders || 0) + 1,
-      });
-    });
-    return Array.from(courseMap.values())
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 5);
-  }
 
   const handleDateRangeChange = (e) => {
     const { name, value } = e.target;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -6,15 +6,23 @@ import { useAuth } from '../../contexts/AuthContext';
 export default function AuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { loginWithGoogle } = useAuth();
+  const { refreshAuth } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const hasStartedRef = useRef(false);
 
   useEffect(() => {
+    if (hasStartedRef.current) {
+      return;
+    }
+
+    hasStartedRef.current = true;
+
     const handleCallback = async () => {
       const code = searchParams.get('code');
       const state = searchParams.get('state');
       const errorParam = searchParams.get('error');
+      const handledCodeKey = code ? `oauth_code_handled:${code}` : null;
 
       // Handle OAuth error from Google
       if (errorParam) {
@@ -29,6 +37,12 @@ export default function AuthCallback() {
         setError('Invalid authentication response. Redirecting to login...');
         setLoading(false);
         setTimeout(() => navigate('/signin'), 2000);
+        return;
+      }
+
+      if (handledCodeKey && sessionStorage.getItem(handledCodeKey) === '1') {
+        setLoading(false);
+        navigate('/', { replace: true });
         return;
       }
 
@@ -49,21 +63,27 @@ export default function AuthCallback() {
         const response = await authApi.googleLogin(code, redirectUri);
 
         if (response.data.success) {
-          // Store user data and token in localStorage for auth context
-          const { user, token, is_new_user } = response.data.data;
-          localStorage.setItem('token', token);
-          localStorage.setItem('user', JSON.stringify(user));
+          if (handledCodeKey) {
+            sessionStorage.setItem(handledCodeKey, '1');
+          }
 
-          // Navigate to home or dashboard
+          const { is_new_user } = response.data.data;
+          await refreshAuth();
+
           navigate(is_new_user ? '/profile' : '/', { replace: true });
-
-          // Reload to update auth context
-          window.location.reload();
         } else {
           setError(response.data.message || 'Authentication failed');
           setTimeout(() => navigate('/signin'), 2000);
         }
       } catch (err) {
+        const alreadyHandled = handledCodeKey && sessionStorage.getItem(handledCodeKey) === '1';
+
+        if (alreadyHandled) {
+          setLoading(false);
+          navigate('/', { replace: true });
+          return;
+        }
+
         console.error('Google OAuth error:', err);
         setError(err.response?.data?.message || 'Authentication failed. Please try again.');
         setTimeout(() => navigate('/signin'), 2000);
@@ -73,7 +93,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, [searchParams, navigate, loginWithGoogle]);
+  }, [searchParams, navigate, refreshAuth]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

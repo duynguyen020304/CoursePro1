@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState } from 'react';
 import { authApi, userApi } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -9,54 +10,78 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userPermissions, setUserPermissions] = useState([]);
 
-  useEffect(() => {
-    // Check if user is logged in on mount
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-
-    if (token && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        setIsAuthenticated(true);
-        // Fetch permissions if user has role
-        if (parsedUser.role_id) {
-          fetchUserPermissions();
-        }
-      } catch (e) {
-        console.error('Failed to parse stored user:', e);
-        localStorage.removeItem('user');
-      }
-    }
-    setLoading(false);
-  }, []);
+  const clearAuthState = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    setUserPermissions([]);
+  };
 
   const fetchUserPermissions = async () => {
     try {
       const response = await userApi.profile();
       const userData = response.data.data;
-      if (userData.role && userData.role.permissions) {
-        setUserPermissions(userData.role.permissions.map(p => p.name));
+
+      if (userData.role?.permissions) {
+        setUserPermissions(userData.role.permissions.map((permission) => permission.name));
+      } else {
+        setUserPermissions([]);
       }
     } catch (error) {
       console.error('Failed to fetch user permissions:', error);
+      setUserPermissions([]);
     }
   };
+
+  const refreshAuth = async () => {
+    try {
+      const response = await userApi.current();
+      const userData = response.data?.data?.user;
+
+      if (!userData) {
+        clearAuthState();
+        return { success: false };
+      }
+
+      setUser(userData);
+      setIsAuthenticated(true);
+
+      if (userData.role_id) {
+        await fetchUserPermissions();
+      } else {
+        setUserPermissions([]);
+      }
+
+      return { success: true, user: userData };
+    } catch (error) {
+      if (error.response?.status === 401) {
+        clearAuthState();
+        return { success: false };
+      }
+
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    refreshAuth().finally(() => {
+      setLoading(false);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const login = async (email, password) => {
     const response = await authApi.login({ email, password });
     const { data } = response;
 
     if (data.success) {
-      const { token, user: userData } = data.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      const userData = data.data.user;
       setUser(userData);
       setIsAuthenticated(true);
-      // Fetch permissions after login
+
       if (userData.role_id) {
-        fetchUserPermissions();
+        await fetchUserPermissions();
       }
+
       return { success: true, user: userData };
     }
 
@@ -68,23 +93,30 @@ export function AuthProvider({ children }) {
     const { data } = response;
 
     if (data.success) {
-      const { token, user: userData } = data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      const userData = data.data.user;
       setUser(userData);
       setIsAuthenticated(true);
+
+      if (userData.role_id) {
+        await fetchUserPermissions();
+      }
+
       return { success: true, user: userData };
     }
 
     return { success: false, message: data.message || 'Signup failed' };
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    setIsAuthenticated(false);
-    setUserPermissions([]);
+  const logout = async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      if (error.response?.status !== 401) {
+        console.error('Failed to logout:', error);
+      }
+    } finally {
+      clearAuthState();
+    }
   };
 
   const updateUser = async (userData) => {
@@ -93,7 +125,6 @@ export function AuthProvider({ children }) {
       const { data } = response;
 
       if (data.success) {
-        localStorage.setItem('user', JSON.stringify(data.data));
         setUser(data.data);
         return { success: true, user: data.data };
       }
@@ -113,11 +144,11 @@ export function AuthProvider({ children }) {
   };
 
   const hasAnyPermission = (permissions) => {
-    return permissions.some(permission => userPermissions.includes(permission));
+    return permissions.some((permission) => userPermissions.includes(permission));
   };
 
   const hasAllPermissions = (permissions) => {
-    return permissions.every(permission => userPermissions.includes(permission));
+    return permissions.every((permission) => userPermissions.includes(permission));
   };
 
   const value = {
@@ -133,6 +164,7 @@ export function AuthProvider({ children }) {
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
+    refreshAuth,
     fetchUserPermissions,
   };
 

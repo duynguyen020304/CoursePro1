@@ -63,11 +63,11 @@ class RefreshToken extends Model
     }
 
     /**
-     * Check if token needs rotation (less than 7 days remaining)
+     * Check if token needs rotation (less than 24 hours remaining)
      */
     public function needsRotation(): bool
     {
-        return $this->expires_at->diffInDays(now()) < 7;
+        return $this->expires_at->diffInHours(now()) < 24;
     }
 
     /**
