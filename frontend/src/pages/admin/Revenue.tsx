@@ -20,11 +20,11 @@ export default function Revenue() {
     ordersCount: 0,
     averageOrderValue: 0,
   });
-  const [monthlyData, setMonthlyData] = useState([]);
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [topCourses, setTopCourses] = useState([]);
-  const chartRef = useRef(null);
-  const chartInstanceRef = useRef(null);
+  const [monthlyData, setMonthlyData] = useState<{ month: string; revenue: number }[]>([]);
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [topCourses, setTopCourses] = useState<{ name: string; revenue: number; orders: number }[]>([]);
+  const chartRef = useRef<HTMLCanvasElement>(null);
+  const chartInstanceRef = useRef<Chart | null>(null);
 
   const {
     register,
@@ -70,7 +70,7 @@ export default function Revenue() {
             : (ordersRes.data.data?.data || []);
 
           // Filter by date range
-          const filteredOrders = orders.filter(order => {
+          const filteredOrders = orders.filter((order: any) => {
             const orderDate = new Date(order.created_at);
             const startDate = new Date(watchedDateRange.start_date);
             const endDate = new Date(watchedDateRange.end_date);
@@ -78,14 +78,14 @@ export default function Revenue() {
             return orderDate >= startDate && orderDate <= endDate;
           });
 
-          const totalRevenue = filteredOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+          const totalRevenue = filteredOrders.reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0);
           const monthlyRevenue = filteredOrders
-            .filter(order => {
+            .filter((order: any) => {
               const orderDate = new Date(order.created_at);
               const now = new Date();
               return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
             })
-            .reduce((sum, order) => sum + (order.total_amount || 0), 0);
+            .reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0);
           const averageOrderValue = filteredOrders.length > 0
             ? totalRevenue / filteredOrders.length
             : 0;
@@ -101,7 +101,7 @@ export default function Revenue() {
 
           // Calculate monthly data for chart
           const monthlyMap = new Map<string, number>();
-          filteredOrders.forEach(order => {
+          filteredOrders.forEach((order: any) => {
             const date = new Date(order.created_at);
             const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
             monthlyMap.set(key, (monthlyMap.get(key) || 0) + (order.total_amount || 0));
@@ -159,7 +159,7 @@ export default function Revenue() {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (context) => `$${context.raw.toLocaleString()}`,
+              label: (context) => `$${(context.raw as number).toLocaleString()}`,
             },
           },
         },

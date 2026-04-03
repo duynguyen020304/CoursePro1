@@ -6,7 +6,7 @@ interface User {
   first_name?: string;
   last_name?: string;
   email?: string;
-  profile_image?: string;
+  avatar_url?: string;
   role?: {
     role_name?: string;
   };
@@ -86,9 +86,9 @@ export default function UserManagement() {
                 <tr key={user.user_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center">
-                      {user.profile_image ? (
-                        <img
-                          src={user.profile_image}
+                {user.avatar_url ? (
+                  <img
+                    src={user.avatar_url}
                           alt={user.first_name}
                           className="h-10 w-10 rounded-full object-cover"
                         />

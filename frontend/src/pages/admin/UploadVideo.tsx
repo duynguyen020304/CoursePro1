@@ -120,10 +120,10 @@ export default function UploadVideo() {
 
     try {
       console.log('Uploading video:', {
+        ...data,
         course_id: selectedCourse,
         chapter_id: selectedChapter,
         lesson_id: selectedLesson,
-        ...data,
       });
 
       // Simulate upload delay
