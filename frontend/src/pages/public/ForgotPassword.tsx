@@ -3,116 +3,56 @@ import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { authApi } from '../../services/api';
-import {
-  forgotPasswordSchema,
-  step1Schema,
-  step2Schema,
-  step3Schema,
-  type ForgotPasswordData,
-} from '../../schemas/auth/forgotPassword.schema';
+import { forgotPasswordSchema, type ForgotPasswordData } from '../../schemas/auth/forgotPassword.schema';
 
 export default function ForgotPassword() {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Get the appropriate resolver based on step
-  const getResolver = () => {
-    switch (step) {
-      case 1:
-        return zodResolver(step1Schema);
-      case 2:
-        return zodResolver(step2Schema);
-      case 3:
-        return zodResolver(step3Schema);
-      default:
-        return zodResolver(step1Schema);
-    }
-  };
-
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
     reset,
   } = useForm<ForgotPasswordData>({
-    resolver: getResolver(),
-    defaultValues: {
-      step,
-    },
+    resolver: zodResolver(forgotPasswordSchema),
+    mode: 'onChange',
+    defaultValues: { step: 1, email: '' },
   });
 
-  const handleSendCode = async (data: ForgotPasswordData) => {
+  const step = watch('step');
+  // Cast errors to allow dynamic field access based on step
+  const errorsTyped = errors as Record<string, { message?: string }>;
+
+  const onSubmit = async (data: ForgotPasswordData) => {
     setError('');
     setLoading(true);
 
     try {
-      await authApi.forgotPassword(data.email);
-      setEmail(data.email);
-      setStep(2);
-      setSuccess('Verification code sent to your email!');
-      reset();
+      if (data.step === 1) {
+        await authApi.forgotPassword(data.email);
+        setEmail(data.email);
+        setSuccess('Verification code sent to your email!');
+        reset({ step: 2, code: '' });
+      } else if (data.step === 2) {
+        await authApi.verifyCode(email, data.code);
+        setSuccess('');
+        reset({ step: 3, code: data.code, newPassword: '', confirmPassword: '' });
+      } else if (data.step === 3) {
+        await authApi.resetPassword(email, data.code, data.newPassword, data.confirmPassword);
+        setSuccess('Password reset successfully!');
+        setTimeout(() => {
+          window.location.href = '/signin';
+        }, 2000);
+      }
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
-      setError(axiosErr.response?.data?.message || 'Failed to send code');
+      setError(axiosErr.response?.data?.message || 'An error occurred');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleVerifyCode = async (data: ForgotPasswordData) => {
-    setError('');
-    setLoading(true);
-
-    try {
-      await authApi.verifyCode(email, data.code);
-      setStep(3);
-      setSuccess('');
-      reset();
-    } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { message?: string } } };
-      setError(axiosErr.response?.data?.message || 'Invalid code');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResetPassword = async (data: ForgotPasswordData) => {
-    setError('');
-    setLoading(true);
-
-    try {
-      await authApi.resetPassword(
-        email,
-        data.code,
-        data.newPassword,
-        data.confirmPassword
-      );
-      setSuccess('Password reset successfully!');
-      setTimeout(() => {
-        window.location.href = '/signin';
-      }, 2000);
-    } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { message?: string } } };
-      setError(axiosErr.response?.data?.message || 'Failed to reset password');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onSubmit = (data: ForgotPasswordData) => {
-    switch (step) {
-      case 1:
-        handleSendCode(data);
-        break;
-      case 2:
-        handleVerifyCode(data);
-        break;
-      case 3:
-        handleResetPassword(data);
-        break;
     }
   };
 
@@ -157,8 +97,8 @@ export default function ForgotPassword() {
                 placeholder="you@example.com"
                 {...register('email')}
               />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-500">{errors.email.message as string}</p>
+              {errorsTyped.email && (
+                <p className="mt-1 text-sm text-red-500">{errorsTyped.email.message}</p>
               )}
             </div>
 
@@ -192,8 +132,8 @@ export default function ForgotPassword() {
                 maxLength={6}
                 {...register('code')}
               />
-              {errors.code && (
-                <p className="mt-1 text-sm text-red-500">{errors.code.message as string}</p>
+              {errorsTyped.code && (
+                <p className="mt-1 text-sm text-red-500">{errorsTyped.code.message}</p>
               )}
             </div>
 
@@ -227,8 +167,8 @@ export default function ForgotPassword() {
                 maxLength={6}
                 {...register('code')}
               />
-              {errors.code && (
-                <p className="mt-1 text-sm text-red-500">{errors.code.message as string}</p>
+              {errorsTyped.code && (
+                <p className="mt-1 text-sm text-red-500">{errorsTyped.code.message}</p>
               )}
             </div>
 
@@ -243,8 +183,8 @@ export default function ForgotPassword() {
                 placeholder="••••••••"
                 {...register('newPassword')}
               />
-              {errors.newPassword && (
-                <p className="mt-1 text-sm text-red-500">{errors.newPassword.message as string}</p>
+              {errorsTyped.newPassword && (
+                <p className="mt-1 text-sm text-red-500">{errorsTyped.newPassword.message}</p>
               )}
             </div>
 
@@ -259,8 +199,8 @@ export default function ForgotPassword() {
                 placeholder="••••••••"
                 {...register('confirmPassword')}
               />
-              {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-500">{errors.confirmPassword.message as string}</p>
+              {errorsTyped.confirmPassword && (
+                <p className="mt-1 text-sm text-red-500">{errorsTyped.confirmPassword.message}</p>
               )}
             </div>
 
