@@ -7,13 +7,15 @@ import { uuidSchema, emailSchema } from '../common';
 /**
  * User schema for API responses
  * Represents the user object returned from auth endpoints
+ * Backend returns: { user_id, first_name, last_name, email, role_id, profile_image }
  */
 export const userSchema = z.object({
-  id: uuidSchema,
-  email: emailSchema,
-  first_name: z.string().min(1, 'First name is required'),
-  last_name: z.string().min(1, 'Last name is required'),
-  role: z.enum(['admin', 'student', 'instructor']),
+  user_id: z.string(),
+  email: z.string().email(),
+  first_name: z.string(),
+  last_name: z.string(),
+  role_id: z.string(),
+  profile_image: z.string().nullable().optional(),
 });
 
 /**
@@ -22,13 +24,25 @@ export const userSchema = z.object({
 export type User = z.infer<typeof userSchema>;
 
 /**
- * Login response schema
- * Expected shape: { user: User, access_token: string }
+ * Auth response wrapper schema
+ * The backend returns all auth responses wrapped in { success, message, data }
  */
-export const loginResponseSchema = z.object({
-  user: userSchema,
-  access_token: z.string().min(1, 'Access token is required'),
-});
+const authResponseWrapperSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    success: z.literal(true),
+    message: z.string().optional(),
+    data: dataSchema,
+  });
+
+/**
+ * Login response schema
+ * Backend returns: { success: true, message: '...', data: { user: {...} } }
+ */
+export const loginResponseSchema = authResponseWrapperSchema(
+  z.object({
+    user: userSchema,
+  })
+);
 
 /**
  * Type inference from schema
@@ -37,12 +51,13 @@ export type LoginResponse = z.infer<typeof loginResponseSchema>;
 
 /**
  * Signup response schema
- * Expected shape: { user: User, message: string }
+ * Backend returns: { success: true, message: '...', data: { user: {...} } }
  */
-export const signupResponseSchema = z.object({
-  user: userSchema,
-  message: z.string(),
-});
+export const signupResponseSchema = authResponseWrapperSchema(
+  z.object({
+    user: userSchema,
+  })
+);
 
 /**
  * Type inference from schema
@@ -51,11 +66,11 @@ export type SignupResponse = z.infer<typeof signupResponseSchema>;
 
 /**
  * Forgot password response schema
- * Expected shape: { message: string }
+ * Backend returns: { success: true, message: '...' }
  */
-export const forgotPasswordResponseSchema = z.object({
-  message: z.string(),
-});
+export const forgotPasswordResponseSchema = authResponseWrapperSchema(
+  z.object({})
+);
 
 /**
  * Type inference from schema
@@ -64,11 +79,11 @@ export type ForgotPasswordResponse = z.infer<typeof forgotPasswordResponseSchema
 
 /**
  * Verify code response schema
- * Expected shape: { message: string }
+ * Backend returns: { success: true, message: '...' }
  */
-export const verifyCodeResponseSchema = z.object({
-  message: z.string(),
-});
+export const verifyCodeResponseSchema = authResponseWrapperSchema(
+  z.object({})
+);
 
 /**
  * Type inference from schema
@@ -77,11 +92,11 @@ export type VerifyCodeResponse = z.infer<typeof verifyCodeResponseSchema>;
 
 /**
  * Reset password response schema
- * Expected shape: { message: string }
+ * Backend returns: { success: true, message: '...' }
  */
-export const resetPasswordResponseSchema = z.object({
-  message: z.string(),
-});
+export const resetPasswordResponseSchema = authResponseWrapperSchema(
+  z.object({})
+);
 
 /**
  * Type inference from schema
@@ -90,11 +105,11 @@ export type ResetPasswordResponse = z.infer<typeof resetPasswordResponseSchema>;
 
 /**
  * Change password response schema
- * Expected shape: { message: string }
+ * Backend returns: { success: true, message: '...' }
  */
-export const changePasswordResponseSchema = z.object({
-  message: z.string(),
-});
+export const changePasswordResponseSchema = authResponseWrapperSchema(
+  z.object({})
+);
 
 /**
  * Type inference from schema
@@ -103,11 +118,11 @@ export type ChangePasswordResponse = z.infer<typeof changePasswordResponseSchema
 
 /**
  * Logout response schema
- * Expected shape: { message: string }
+ * Backend returns: { success: true, message: '...' }
  */
-export const logoutResponseSchema = z.object({
-  message: z.string(),
-});
+export const logoutResponseSchema = authResponseWrapperSchema(
+  z.object({})
+);
 
 /**
  * Type inference from schema
