@@ -1,6 +1,12 @@
 import { useState } from 'react';
 
-export default function GoogleLoginButton({ onSuccess, onError, disabled = false }) {
+interface GoogleLoginButtonProps {
+  onSuccess?: (response: unknown) => void;
+  onError?: (error: string) => void;
+  disabled?: boolean;
+}
+
+export default function GoogleLoginButton({ onSuccess, onError, disabled = false }: GoogleLoginButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = () => {

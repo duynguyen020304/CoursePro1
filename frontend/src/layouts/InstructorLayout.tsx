@@ -1,5 +1,6 @@
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import type { ReactNode } from 'react';
 
 export default function InstructorLayout() {
   const { user, hasRole, loading, logout } = useAuth();
@@ -23,7 +24,7 @@ export default function InstructorLayout() {
     window.location.assign('/signin');
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
     { path: '/instructor/dashboard', label: 'Dashboard', icon: '📊' },

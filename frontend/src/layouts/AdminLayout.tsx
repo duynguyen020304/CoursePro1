@@ -1,7 +1,12 @@
+import { type ReactNode } from 'react';
 import { Outlet, Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function AdminLayout() {
+interface AdminLayoutProps {
+  children?: ReactNode;
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
   const { user, hasRole, loading, logout } = useAuth();
 
   if (loading) {
@@ -76,7 +81,7 @@ export default function AdminLayout() {
           </div>
         </header>
         <main className="flex-1 p-6 overflow-y-auto">
-          <Outlet />
+          {children ?? <Outlet />}
         </main>
       </div>
     </div>
