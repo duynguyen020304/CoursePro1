@@ -50,7 +50,7 @@ export default function Profile() {
       if (result.success) {
         setSuccess('Profile updated successfully!');
       } else {
-        setError(result.message);
+        setError(result.message || 'Unknown error');
       }
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { message?: string } } };

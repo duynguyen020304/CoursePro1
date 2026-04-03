@@ -61,18 +61,18 @@ export default function WatchVideo() {
       try {
         if (isAuthenticated) {
           try {
-            const purchaseCheck = await studentApi.hasPurchased(courseId);
+            const purchaseCheck = await studentApi.hasPurchased(courseId!);
             setHasPurchased(purchaseCheck.data.data?.has_purchased || false);
           } catch (err) {
             console.error('Failed to check purchase:', err);
           }
         }
 
-        const response = await courseApi.get(courseId);
+        const response = await courseApi.get(courseId!);
         const courseData = response.data.data?.course || response.data.data;
         setCourse(courseData);
 
-        const allLessons = courseData.chapters?.flatMap(ch => ch.lessons || []) || [];
+        const allLessons = courseData.chapters?.flatMap((ch: Chapter) => ch.lessons || []) || [];
         const lesson = allLessons.find((l: Lesson) => l.lesson_id === lessonId) || allLessons[0];
         setSelectedLesson(lesson);
 

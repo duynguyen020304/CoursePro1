@@ -22,8 +22,8 @@ export default function EditProfile() {
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',
       email: user?.email || '',
-      phone: user?.phone || '',
-      bio: user?.bio || '',
+      phone: (user as any)?.phone || (user as any)?.student?.phone || '',
+      bio: (user as any)?.bio || (user as any)?.instructor?.bio || '',
       profile_image: user?.profile_image || '',
     },
     mode: 'onBlur',
@@ -52,8 +52,8 @@ export default function EditProfile() {
         setSuccess('Profile updated successfully!');
         toast.success('Profile updated successfully!');
       } else {
-        setError(result.message);
-        toast.error(result.message);
+        setError(result.message || 'Unknown error');
+        toast.error(result.message || 'Unknown error');
       }
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { message?: string } } };

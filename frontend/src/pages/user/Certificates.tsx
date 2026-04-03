@@ -71,7 +71,7 @@ export default function Certificates() {
       const height = doc.internal.pageSize.getHeight();
 
       // Background gradient
-      const gradient = doc.createLinearGradient(0, 0, width, height);
+      const gradient = (doc as any).createLinearGradient(0, 0, width, height);
       gradient.addColorStop(0, '#4f46e5');
       gradient.addColorStop(1, '#7c3aed');
       doc.setFillColor(gradient);
