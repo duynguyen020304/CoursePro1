@@ -1,18 +1,58 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { courseApi, studentApi, lessonApi } from '../../services/api';
+import { courseApi, studentApi } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
+interface Video {
+  url?: string;
+  duration?: string;
+}
+
+interface Resource {
+  resource_id: string | number;
+  name?: string;
+  type?: string;
+  file_url?: string;
+  url?: string;
+}
+
+interface Lesson {
+  lesson_id: string | number;
+  title?: string;
+  content?: string;
+  is_free?: boolean;
+  videos?: Video[];
+  resources?: Resource[];
+}
+
+interface Chapter {
+  chapter_id: string | number;
+  title?: string;
+  lessons?: Lesson[];
+}
+
+interface Announcement {
+  title?: string;
+  content?: string;
+  created_at?: string;
+}
+
+interface CourseData {
+  title?: string;
+  chapters?: Chapter[];
+  announcements?: Announcement[];
+}
+
 export default function WatchVideo() {
-  const { courseId, lessonId } = useParams();
+  const { courseId, lessonId } = useParams<{ courseId: string; lessonId?: string }>();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  const [course, setCourse] = useState(null);
+  const [course, setCourse] = useState<CourseData | null>(null);
   const [hasPurchased, setHasPurchased] = useState(false);
-  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  const [completedLessons, setCompletedLessons] = useState([]);
+  const [completedLessons, setCompletedLessons] = useState<(string | number)[]>([]);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copySuccess, setCopySuccess] = useState('');
 
@@ -33,7 +73,7 @@ export default function WatchVideo() {
         setCourse(courseData);
 
         const allLessons = courseData.chapters?.flatMap(ch => ch.lessons || []) || [];
-        const lesson = allLessons.find(l => l.lesson_id === lessonId) || allLessons[0];
+        const lesson = allLessons.find((l: Lesson) => l.lesson_id === lessonId) || allLessons[0];
         setSelectedLesson(lesson);
 
         // Load completed lessons from localStorage
@@ -50,7 +90,8 @@ export default function WatchVideo() {
     fetchData();
   }, [courseId, lessonId, isAuthenticated]);
 
-  const toggleLessonComplete = (lessonId) => {
+  const toggleLessonComplete = (lessonId: string | number | undefined) => {
+    if (!lessonId) return;
     const newCompleted = completedLessons.includes(lessonId)
       ? completedLessons.filter(id => id !== lessonId)
       : [...completedLessons, lessonId];
@@ -67,9 +108,9 @@ export default function WatchVideo() {
     });
   };
 
-  const downloadResource = (resource) => {
+  const downloadResource = (resource: Resource) => {
     const link = document.createElement('a');
-    link.href = resource.file_url || resource.url;
+    link.href = resource.file_url || resource.url || '';
     link.download = resource.name || 'resource';
     link.target = '_blank';
     document.body.appendChild(link);
@@ -156,12 +197,12 @@ export default function WatchVideo() {
               <button
                 onClick={() => toggleLessonComplete(selectedLesson?.lesson_id)}
                 className={`px-4 py-2 rounded-lg font-medium transition ${
-                  completedLessons.includes(selectedLesson?.lesson_id)
+                  completedLessons.includes(selectedLesson?.lesson_id as string | number)
                     ? 'bg-green-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
-                {completedLessons.includes(selectedLesson?.lesson_id) ? '✓ Completed' : 'Mark Complete'}
+                {completedLessons.includes(selectedLesson?.lesson_id as string | number) ? '✓ Completed' : 'Mark Complete'}
               </button>
               <button
                 onClick={shareCourse}
@@ -222,7 +263,7 @@ export default function WatchVideo() {
                 <div>
                   <h3 className="font-semibold mb-2">About this lesson</h3>
                   <p className="text-gray-600 mb-4">{selectedLesson?.content || 'No description available.'}</p>
-                  {selectedLesson?.videos?.length > 0 && (
+                  {selectedLesson?.videos && selectedLesson.videos.length > 0 && (
                     <div className="text-sm text-gray-500">
                       <span className="font-medium">Duration: </span>
                       {selectedLesson.videos[0].duration || 'N/A'}
@@ -234,7 +275,7 @@ export default function WatchVideo() {
               {activeTab === 'resources' && (
                 <div>
                   <h3 className="font-semibold mb-4">Downloadable Resources</h3>
-                  {selectedLesson?.resources?.length > 0 ? (
+                  {selectedLesson?.resources && selectedLesson.resources.length > 0 ? (
                     <div className="space-y-2">
                       {selectedLesson.resources.map((resource) => (
                         <div
@@ -267,7 +308,7 @@ export default function WatchVideo() {
                     className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     rows={6}
                     placeholder="Take notes for this lesson..."
-                    value={localStorage.getItem(`note_${selectedLesson?.lesson_id}`) || ''}
+                    defaultValue={localStorage.getItem(`note_${selectedLesson?.lesson_id}`) || ''}
                     onChange={(e) => {
                       localStorage.setItem(`note_${selectedLesson?.lesson_id}`, e.target.value);
                     }}
@@ -281,14 +322,14 @@ export default function WatchVideo() {
               {activeTab === 'announcements' && (
                 <div>
                   <h3 className="font-semibold mb-4">Course Announcements</h3>
-                  {course.announcements?.length > 0 ? (
+                  {course.announcements && course.announcements.length > 0 ? (
                     <div className="space-y-4">
                       {course.announcements.map((announcement, idx) => (
                         <div key={idx} className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
                           <p className="font-medium text-gray-900 mb-1">{announcement.title}</p>
                           <p className="text-gray-600 text-sm">{announcement.content}</p>
                           <p className="text-xs text-gray-400 mt-2">
-                            {new Date(announcement.created_at).toLocaleDateString()}
+                            {announcement.created_at ? new Date(announcement.created_at).toLocaleDateString() : ''}
                           </p>
                         </div>
                       ))}
@@ -373,14 +414,14 @@ export default function WatchVideo() {
                         }`}
                       >
                         <span className={`text-xs ${
-                          completedLessons.includes(lesson.lesson_id)
+                          completedLessons.includes(lesson.lesson_id as string | number)
                             ? 'text-green-600'
                             : 'text-gray-400'
                         }`}>
-                          {completedLessons.includes(lesson.lesson_id) ? '✓' : `${lIndex + 1}.`}
+                          {completedLessons.includes(lesson.lesson_id as string | number) ? '✓' : `${lIndex + 1}.`}
                         </span>
                         <span className="flex-1">{lesson.title}</span>
-                        {lesson.videos?.length > 0 && (
+                        {lesson.videos && lesson.videos.length > 0 && (
                           <span className="text-xs">🎬</span>
                         )}
                         {lesson.is_free && (

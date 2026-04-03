@@ -2,10 +2,26 @@ import { useState, useEffect } from 'react';
 import { orderApi } from '../../services/api';
 import jsPDF from 'jspdf';
 
+interface Certificate {
+  certificate_id: string;
+  course_id: string | number;
+  course_name: string;
+  student_name: string;
+  completion_date: string;
+  certificate_url: string;
+}
+
+interface CertificateProps {
+  certificate_id: string;
+  course_name: string;
+  student_name: string;
+  completion_date: string;
+}
+
 export default function Certificates() {
-  const [certificates, setCertificates] = useState([]);
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCertificate, setSelectedCertificate] = useState(null);
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
   const [generatingPdf, setGeneratingPdf] = useState(false);
 
   useEffect(() => {
@@ -16,9 +32,15 @@ export default function Certificates() {
         const orders = response.data.data?.data || response.data.data || [];
 
         const completedOrders = orders
-          .filter(order => order.status === 'completed')
-          .map(order => ({
-            certificate_id: `CERT-${order.order_id?.substring(0, 8).toUpperCase()}`,
+          .filter((order: { status?: string }) => order.status === 'completed')
+          .map((order: {
+            order_id?: string;
+            course?: { course_id?: string | number; title?: string };
+            details?: Array<{ course_id?: string | number; course?: { title?: string } }>;
+            user?: { first_name?: string; last_name?: string };
+            created_at?: string;
+          }) => ({
+            certificate_id: `CERT-${order.order_id?.substring(0, 8).toUpperCase() || 'UNKNOWN'}`,
             course_id: order.details?.[0]?.course_id || order.course?.course_id,
             course_name: order.details?.[0]?.course?.title || order.course?.title || 'Unknown Course',
             student_name: `${order.user?.first_name || ''} ${order.user?.last_name || ''}`.trim() || 'Student',
@@ -36,7 +58,7 @@ export default function Certificates() {
     fetchCertificates();
   }, []);
 
-  const generatePDF = async (cert) => {
+  const generatePDF = async (cert: CertificateProps) => {
     setGeneratingPdf(true);
     try {
       const doc = new jsPDF({
@@ -129,7 +151,7 @@ export default function Certificates() {
     }
   };
 
-  const openPreview = (cert) => {
+  const openPreview = (cert: Certificate) => {
     setSelectedCertificate(cert);
   };
 

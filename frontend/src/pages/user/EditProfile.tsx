@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
-import { userApi } from '../../services/api';
+import { editProfileSchema, type EditProfileFormData } from '../../schemas/user/editProfile.schema';
 
 export default function EditProfile() {
   const { user, updateUser } = useAuth();
@@ -13,29 +16,50 @@ export default function EditProfile() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<EditProfileFormData>({
+    resolver: zodResolver(editProfileSchema),
     defaultValues: {
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',
       email: user?.email || '',
+      phone: user?.phone || '',
+      bio: user?.bio || '',
       profile_image: user?.profile_image || '',
     },
+    mode: 'onBlur',
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit: SubmitHandler<EditProfileFormData> = async (data) => {
     setError('');
     setSuccess('');
     setLoading(true);
+
+    // Zod validation already done by react-hook-form via zodResolver
+    // Additional shadow validation for toast on error
+    const zodResult = editProfileSchema.safeParse(data);
+    if (!zodResult.success) {
+      const zodErrors = zodResult.error.issues;
+      if (zodErrors.length > 0) {
+        toast.error(zodErrors[0].message);
+      }
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await updateUser(data);
       if (result.success) {
         setSuccess('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
       } else {
         setError(result.message);
+        toast.error(result.message);
       }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update profile');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      const errorMsg = errorObj.response?.data?.message || 'Failed to update profile';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -43,6 +67,7 @@ export default function EditProfile() {
 
   return (
     <div>
+      <Toaster position="top-right" />
       <h1 className="text-2xl font-bold text-gray-900 mb-8">Edit Profile</h1>
 
       <div className="max-w-2xl">
@@ -51,7 +76,7 @@ export default function EditProfile() {
             {success}
           </div>
         )}
-        {error && (
+        {error && !success && (
           <div className="bg-red-50 text-red-500 p-4 rounded-lg mb-4">
             {error}
           </div>
@@ -81,6 +106,9 @@ export default function EditProfile() {
                 {...register('profile_image')}
                 placeholder="https://example.com/avatar.jpg"
               />
+              {errors.profile_image && (
+                <p className="mt-1 text-sm text-red-500">{errors.profile_image.message}</p>
+              )}
             </div>
           </div>
 
@@ -93,7 +121,7 @@ export default function EditProfile() {
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                {...register('first_name', { required: 'First name is required' })}
+                {...register('first_name')}
               />
               {errors.first_name && (
                 <p className="mt-1 text-sm text-red-500">{errors.first_name.message}</p>
@@ -106,7 +134,7 @@ export default function EditProfile() {
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                {...register('last_name', { required: 'Last name is required' })}
+                {...register('last_name')}
               />
               {errors.last_name && (
                 <p className="mt-1 text-sm text-red-500">{errors.last_name.message}</p>
@@ -122,16 +150,42 @@ export default function EditProfile() {
             <input
               type="email"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              {...register('email', {
-                required: 'Email is required',
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
-                },
-              })}
+              {...register('email')}
             />
             {errors.email && (
               <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+            )}
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone (optional)
+            </label>
+            <input
+              type="tel"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              {...register('phone')}
+              placeholder="+1 234 567 8900"
+            />
+            {errors.phone && (
+              <p className="mt-1 text-sm text-red-500">{errors.phone.message}</p>
+            )}
+          </div>
+
+          {/* Bio */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Bio (optional)
+            </label>
+            <textarea
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              {...register('bio')}
+              placeholder="Tell us about yourself..."
+            />
+            {errors.bio && (
+              <p className="mt-1 text-sm text-red-500">{errors.bio.message}</p>
             )}
           </div>
 

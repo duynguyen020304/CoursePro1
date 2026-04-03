@@ -2,8 +2,29 @@ import { useState, useEffect } from 'react';
 import { orderApi } from '../../services/api';
 import { Link } from 'react-router-dom';
 
+interface OrderDetail {
+  course_id: string | number;
+  price?: number;
+  course?: {
+    title?: string;
+  };
+}
+
+interface OrderPayment {
+  payment_status?: string;
+}
+
+interface Order {
+  order_id: string;
+  order_date?: string;
+  total_amount?: number | string;
+  status?: string;
+  payment?: OrderPayment;
+  details?: OrderDetail[];
+}
+
 export default function PurchaseHistory() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,7 +73,7 @@ export default function PurchaseHistory() {
                 <div>
                   <h3 className="font-semibold text-gray-900">Order #{order.order_id.slice(-8)}</h3>
                   <p className="text-sm text-gray-500">
-                    {new Date(order.order_date).toLocaleDateString()}
+                    {order.order_date ? new Date(order.order_date).toLocaleDateString() : 'N/A'}
                   </p>
                 </div>
                 <div className="text-right">
@@ -64,8 +85,8 @@ export default function PurchaseHistory() {
               <div className="border-t pt-4">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">Courses:</h4>
                 <div className="space-y-2">
-                  {order.details?.map((detail) => (
-                    <div key={detail.course_id} className="flex justify-between items-center">
+                  {order.details?.map((detail, index) => (
+                    <div key={`${detail.course_id}-${index}`} className="flex justify-between items-center">
                       <Link
                         to={`/courses/${detail.course_id}`}
                         className="text-indigo-600 hover:text-indigo-700"

@@ -1,12 +1,24 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useAuth } from '../../contexts/AuthContext';
 import { studentApi } from '../../services/api';
 import { Link } from 'react-router-dom';
 
+interface Course {
+  course_id: string | number;
+  title: string;
+  images?: Array<{ image_url: string }>;
+  instructor?: {
+    user?: {
+      first_name?: string;
+      last_name?: string;
+    };
+  };
+  chapters?: Array<{ chapter_id: string | number }>;
+}
+
 export default function MyCourses() {
   const { user } = useAuth();
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

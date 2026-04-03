@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
-import { userApi } from '../../services/api';
+import { profileSchema, type ProfileFormData } from '../../schemas/user/profile.schema';
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
@@ -13,7 +16,9 @@ export default function Profile() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    mode: 'onBlur',
     defaultValues: {
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',
@@ -22,9 +27,22 @@ export default function Profile() {
     },
   });
 
-  const onSubmit = async (data) => {
+  // Shadow mode: Also run Zod validation separately to show toast on error
+  const onSubmit: SubmitHandler<ProfileFormData> = async (data) => {
     setError('');
     setSuccess('');
+
+    // Additional Zod validation in shadow mode - run alongside existing validation
+    const zodResult = profileSchema.safeParse(data);
+    if (!zodResult.success) {
+      const zodErrors = zodResult.error.issues;
+      if (zodErrors.length > 0) {
+        const firstError = zodErrors[0];
+        toast.error(firstError.message);
+      }
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -34,8 +52,9 @@ export default function Profile() {
       } else {
         setError(result.message);
       }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update profile');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      setError(errorObj.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -43,6 +62,7 @@ export default function Profile() {
 
   return (
     <div>
+      <Toaster position="top-right" />
       <h1 className="text-2xl font-bold text-gray-900 mb-8">My Profile</h1>
 
       <div className="max-w-2xl">
@@ -90,7 +110,7 @@ export default function Profile() {
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                {...register('first_name', { required: 'First name is required' })}
+                {...register('first_name')}
               />
               {errors.first_name && (
                 <p className="mt-1 text-sm text-red-500">{errors.first_name.message}</p>
@@ -103,7 +123,7 @@ export default function Profile() {
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                {...register('last_name', { required: 'Last name is required' })}
+                {...register('last_name')}
               />
               {errors.last_name && (
                 <p className="mt-1 text-sm text-red-500">{errors.last_name.message}</p>
@@ -119,13 +139,7 @@ export default function Profile() {
             <input
               type="email"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              {...register('email', {
-                required: 'Email is required',
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
-                },
-              })}
+              {...register('email')}
             />
             {errors.email && (
               <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
@@ -143,6 +157,9 @@ export default function Profile() {
               {...register('profile_image')}
               placeholder="https://example.com/avatar.jpg"
             />
+            {errors.profile_image && (
+              <p className="mt-1 text-sm text-red-500">{errors.profile_image.message}</p>
+            )}
           </div>
 
           <button
