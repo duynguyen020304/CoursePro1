@@ -11,6 +11,7 @@ use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 
@@ -144,7 +145,7 @@ class AuthController extends Controller
         );
 
         // TODO: Send email with code
-        \Log::info("Password reset code for {$userAccount->email}: {$code}");
+        Log::info("Password reset code for {$userAccount->email}: {$code}");
 
         return response()->json([
             'success' => true,
@@ -331,6 +332,7 @@ class AuthController extends Controller
                 'message' => $result['is_new_user'] ? 'Account created successfully' : 'Login successful',
                 'data' => [
                     'user' => $result['user'],
+                    'token' => $result['access_token'],
                     'is_new_user' => $result['is_new_user'],
                 ],
             ])->withCookie($accessTokenCookie)->withCookie($refreshTokenCookie);
@@ -342,7 +344,7 @@ class AuthController extends Controller
                 'errors' => $e->errors(),
             ], 401);
         } catch (\Exception $e) {
-            \Log::error('Google OAuth error', [
+            Log::error('Google OAuth error', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

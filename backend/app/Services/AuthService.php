@@ -271,11 +271,12 @@ class AuthService
         $accessToken = $this->createAccessToken($userAccount);
 
         // 5. Create refresh token
-        [$rawRefreshToken, $refreshTokenModel] = $this->createRefreshToken(
+        $tokenResult = $this->createRefreshToken(
             $userAccount->user_id,
             $ipAddress,
             $userAgent
         );
+        $rawRefreshToken = $tokenResult['raw_token'];
 
         return [
             'user' => [

@@ -49,8 +49,9 @@ export default function AuthCallback() {
         const response = await authApi.googleLogin(code, redirectUri);
 
         if (response.data.success) {
-          // Store user data in localStorage for auth context
-          const { user, is_new_user } = response.data.data;
+          // Store user data and token in localStorage for auth context
+          const { user, token, is_new_user } = response.data.data;
+          localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
 
           // Navigate to home or dashboard
