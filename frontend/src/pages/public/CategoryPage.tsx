@@ -1,13 +1,40 @@
 import { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { courseApi, categoryApi } from '../../services/api';
 
+interface Category {
+  id: string | number;
+  name: string;
+  slug?: string;
+  description?: string;
+  total_courses?: number;
+  total_students?: number;
+  average_rating?: number;
+}
+
+interface Course {
+  course_id: string | number;
+  title: string;
+  price?: number;
+  average_rating?: number;
+  total_ratings?: number;
+  created_at?: string;
+  createdAt?: string;
+  total_lessons?: number;
+  images?: Array<{ image_url: string }>;
+  instructor?: {
+    user?: {
+      first_name?: string;
+      last_name?: string;
+    };
+  };
+}
+
 export default function CategoryPage() {
-  const { slug } = useParams();
+  const { slug } = useParams<{ slug: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [category, setCategory] = useState(null);
-  const [courses, setCourses] = useState([]);
+  const [category, setCategory] = useState<Category | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'highest_rated');
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,18 +58,20 @@ export default function CategoryPage() {
         setLoading(false);
       }
     }
-    fetchData();
+    if (slug) {
+      fetchData();
+    }
   }, [slug]);
 
   // Apply sorting
   const sortedCourses = [...courses].sort((a, b) => {
     switch (sortBy) {
       case 'highest_rated':
-        return (parseFloat(b.average_rating) || 0) - (parseFloat(a.average_rating) || 0);
+        return (parseFloat(String(b.average_rating)) || 0) - (parseFloat(String(a.average_rating)) || 0);
       case 'newest':
-        return new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt);
+        return new Date(b.created_at || b.createdAt || 0).getTime() - new Date(a.created_at || a.createdAt || 0).getTime();
       case 'most_popular':
-        return (parseInt(b.total_ratings) || 0) - (parseInt(a.total_ratings) || 0);
+        return (parseInt(String(b.total_ratings)) || 0) - (parseInt(String(a.total_ratings)) || 0);
       default:
         return 0;
     }
@@ -55,7 +84,7 @@ export default function CategoryPage() {
     currentPage * itemsPerPage
   );
 
-  const handleSortChange = (newSort) => {
+  const handleSortChange = (newSort: string) => {
     setSortBy(newSort);
     setSearchParams({ sort: newSort });
     setCurrentPage(1);
@@ -97,7 +126,7 @@ export default function CategoryPage() {
           )}
           {category.average_rating && (
             <span className="flex items-center gap-1">
-              {parseFloat(category.average_rating).toFixed(1)}
+              {parseFloat(String(category.average_rating)).toFixed(1)}
               <span className="text-yellow-500">★</span>
             </span>
           )}

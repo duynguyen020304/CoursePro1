@@ -2,23 +2,52 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { courseApi, categoryApi } from '../../services/api';
 
-export default function Courses() {
-  const [courses, setCourses] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchParams, setSearchParams] = useSearchParams();
+interface Course {
+  course_id: string | number;
+  title: string;
+  price?: number;
+  average_rating?: number;
+  total_ratings?: number;
+  images?: Array<{ image_url: string }>;
+  instructor?: {
+    user?: {
+      first_name?: string;
+      last_name?: string;
+    };
+  };
+}
 
-  const [filters, setFilters] = useState({
-    search: searchParams.get('search') || '',
-    category_id: searchParams.get('category_id') || '',
-    difficulty: searchParams.get('difficulty') || '',
-    language: searchParams.get('language') || '',
-    min_price: searchParams.get('min_price') || '',
-    max_price: searchParams.get('max_price') || '',
+interface Category {
+  id: string | number;
+  name: string;
+}
+
+interface Filters {
+  search: string;
+  category_id: string;
+  difficulty: string;
+  language: string;
+  min_price: string;
+  max_price: string;
+}
+
+export default function Courses() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [, setSearchParams] = useSearchParams();
+
+  const [filters, setFilters] = useState<Filters>({
+    search: '',
+    category_id: '',
+    difficulty: '',
+    language: '',
+    min_price: '',
+    max_price: '',
   });
 
   useEffect(() => {
-    const params = {};
+    const params: Record<string, string> = {};
     if (filters.search) params.search = filters.search;
     if (filters.category_id) params.category_id = filters.category_id;
     if (filters.difficulty) params.difficulty = filters.difficulty;
@@ -27,7 +56,7 @@ export default function Courses() {
     if (filters.max_price) params.max_price = filters.max_price;
 
     setSearchParams(params);
-  }, [filters]);
+  }, [filters, setSearchParams]);
 
   useEffect(() => {
     async function fetchData() {
@@ -50,7 +79,7 @@ export default function Courses() {
     fetchData();
   }, [filters]);
 
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = (key: keyof Filters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 

@@ -1,6 +1,22 @@
 import { useCart } from '../../contexts/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
 
+interface CartItem {
+  cart_item_id: string | number;
+  quantity?: number;
+  course?: {
+    title?: string;
+    price?: number;
+    images?: Array<{ image_url: string }>;
+    instructor?: {
+      user?: {
+        first_name?: string;
+        last_name?: string;
+      };
+    };
+  };
+}
+
 export default function Cart() {
   const { cart, items, loading, removeItem, clearCart } = useCart();
   const navigate = useNavigate();
@@ -41,7 +57,7 @@ export default function Cart() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
-          {items.map((item) => (
+          {items.map((item: CartItem) => (
             <div key={item.cart_item_id} className="bg-white rounded-lg shadow p-4 flex gap-4">
               {item.course?.images?.[0]?.image_url ? (
                 <img

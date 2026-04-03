@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../../contexts/AuthContext';
+import { signupSchema, type SignUpFormData } from '../../schemas/auth/signup.schema';
 
 export default function SignUp() {
   const navigate = useNavigate();
   const { signup, isAuthenticated } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [zodError, setZodError] = useState('');
 
   // Redirect authenticated users away from sign-up page
   useEffect(() => {
@@ -21,12 +24,18 @@ export default function SignUp() {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm();
+  } = useForm<SignUpFormData>({
+    resolver: zodResolver(signupSchema),
+    mode: 'onBlur',
+  });
 
   const password = watch('password');
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: SignUpFormData) => {
     setError('');
+    setZodError('');
+
+    // Zod validation already passed at this point due to zodResolver
     setLoading(true);
 
     try {
@@ -43,10 +52,23 @@ export default function SignUp() {
       } else {
         setError(result.message || 'Signup failed');
       }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Signup failed. Please try again.');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      setError(errorObj.response?.data?.message || 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle Zod validation errors on form submission
+  const onInvalid = (submitError: unknown) => {
+    // zodResolver will populate formState.errors via react-hook-form
+    // Additional safety net for any Zod errors not caught by resolver
+    if (submitError && typeof submitError === 'object' && !Array.isArray(submitError)) {
+      const errorValues = Object.values(submitError as Record<string, unknown>);
+      if (errorValues.length > 0) {
+        setZodError('Please fix the validation errors before submitting.');
+      }
     }
   };
 
@@ -65,10 +87,16 @@ export default function SignUp() {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit, onInvalid)}>
           {error && (
             <div className="bg-red-50 text-red-500 p-4 rounded-lg text-sm">
               {error}
+            </div>
+          )}
+
+          {zodError && (
+            <div className="bg-red-50 text-red-500 p-4 rounded-lg text-sm">
+              {zodError}
             </div>
           )}
 
@@ -83,7 +111,7 @@ export default function SignUp() {
                   type="text"
                   className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="John"
-                  {...register('first_name', { required: 'First name is required' })}
+                  {...register('first_name')}
                 />
                 {errors.first_name && (
                   <p className="mt-1 text-sm text-red-500">{errors.first_name.message}</p>
@@ -99,7 +127,7 @@ export default function SignUp() {
                   type="text"
                   className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="Doe"
-                  {...register('last_name', { required: 'Last name is required' })}
+                  {...register('last_name')}
                 />
                 {errors.last_name && (
                   <p className="mt-1 text-sm text-red-500">{errors.last_name.message}</p>
@@ -117,13 +145,7 @@ export default function SignUp() {
                 autoComplete="email"
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="you@example.com"
-                {...register('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address',
-                  },
-                })}
+                {...register('email')}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
@@ -139,13 +161,7 @@ export default function SignUp() {
                 type="password"
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="••••••••"
-                {...register('password', {
-                  required: 'Password is required',
-                  minLength: {
-                    value: 6,
-                    message: 'Password must be at least 6 characters',
-                  },
-                })}
+                {...register('password')}
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
@@ -161,10 +177,7 @@ export default function SignUp() {
                 type="password"
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="••••••••"
-                {...register('password_confirmation', {
-                  required: 'Please confirm your password',
-                  validate: (value) => value === password || 'Passwords do not match',
-                })}
+                {...register('password_confirmation')}
               />
               {errors.password_confirmation && (
                 <p className="mt-1 text-sm text-red-500">{errors.password_confirmation.message}</p>

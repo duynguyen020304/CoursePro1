@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { authApi } from '../../services/api';
+import { resetPasswordSchema, type ResetPasswordFormData } from '../../schemas/auth/resetPassword.schema';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -10,30 +12,36 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const email = searchParams.get('email');
-  const code = searchParams.get('code');
+  const email = searchParams.get('email') || '';
+  const token = searchParams.get('token') || '';
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
-  } = useForm();
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      token,
+      email,
+      password: '',
+      password_confirmation: '',
+    },
+  });
 
-  const password = watch('password');
-
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: ResetPasswordFormData) => {
     setError('');
     setLoading(true);
 
     try {
-      await authApi.resetPassword(email, code, data.password, data.password_confirmation);
+      await authApi.resetPassword(email, token, data.password, data.password_confirmation);
       setSuccess('Password reset successfully! Redirecting to sign in...');
       setTimeout(() => {
         navigate('/signin');
       }, 2000);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to reset password');
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to reset password';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -73,13 +81,7 @@ export default function ResetPassword() {
               type="password"
               className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="••••••••"
-              {...register('password', {
-                required: 'Password is required',
-                minLength: {
-                  value: 6,
-                  message: 'Password must be at least 6 characters',
-                },
-              })}
+              {...register('password')}
             />
             {errors.password && (
               <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
@@ -95,10 +97,7 @@ export default function ResetPassword() {
               type="password"
               className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="••••••••"
-              {...register('password_confirmation', {
-                required: 'Please confirm your password',
-                validate: (value) => value === password || 'Passwords do not match',
-              })}
+              {...register('password_confirmation')}
             />
             {errors.password_confirmation && (
               <p className="mt-1 text-sm text-red-500">{errors.password_confirmation.message}</p>

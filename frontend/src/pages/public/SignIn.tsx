@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
-import { authApi } from '../../services/api';
 import GoogleLoginButton from '../../components/GoogleLoginButton';
+import { signinSchema, type SignInFormData } from '../../schemas/auth/signin.schema';
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -22,11 +25,29 @@ export default function SignIn() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<SignInFormData>({
+    resolver: zodResolver(signinSchema),
+    mode: 'onBlur', // Validate on blur for Zod errors
+  });
 
-  const onSubmit = async (data) => {
+  // Shadow mode: Also run Zod validation separately to show toast on error
+  // This ensures both existing validation (via register) and Zod validation run
+  const onSubmit: SubmitHandler<SignInFormData> = async (data) => {
     setError('');
     setLoading(true);
+
+    // Additional Zod validation in shadow mode - run alongside existing validation
+    const zodResult = signinSchema.safeParse(data);
+    if (!zodResult.success) {
+      // Show Zod errors via toast
+      const zodErrors = zodResult.error.issues;
+      if (zodErrors.length > 0) {
+        const firstError = zodErrors[0];
+        toast.error(firstError.message);
+      }
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await login(data.email, data.password);
@@ -36,8 +57,9 @@ export default function SignIn() {
       } else {
         setError(result.message || 'Login failed');
       }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      setError(errorObj.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -45,6 +67,7 @@ export default function SignIn() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Toaster position="top-right" />
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -76,13 +99,7 @@ export default function SignIn() {
                 autoComplete="email"
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="you@example.com"
-                {...register('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address',
-                  },
-                })}
+                {...register('email')}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
@@ -99,13 +116,7 @@ export default function SignIn() {
                 autoComplete="current-password"
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="••••••••"
-                {...register('password', {
-                  required: 'Password is required',
-                  minLength: {
-                    value: 6,
-                    message: 'Password must be at least 6 characters',
-                  },
-                })}
+                {...register('password')}
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>

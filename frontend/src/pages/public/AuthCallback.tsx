@@ -85,7 +85,7 @@ export default function AuthCallback() {
         }
 
         console.error('Google OAuth error:', err);
-        setError(err.response?.data?.message || 'Authentication failed. Please try again.');
+        setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Authentication failed. Please try again.');
         setTimeout(() => navigate('/signin'), 2000);
       } finally {
         setLoading(false);

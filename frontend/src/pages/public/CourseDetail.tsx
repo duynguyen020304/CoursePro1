@@ -1,15 +1,73 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { courseApi, cartApi } from '../../services/api';
+import { courseApi } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 
+interface CourseObjective {
+  objective_id: string | number;
+  objective: string;
+}
+
+interface CourseRequirement {
+  requirement_id: string | number;
+  requirement: string;
+}
+
+interface CourseChapter {
+  chapter_id: string | number;
+  title: string;
+  description?: string;
+  lessons?: CourseLesson[];
+}
+
+interface CourseLesson {
+  lesson_id: string | number;
+  title: string;
+}
+
+interface CourseReview {
+  review_id: string | number;
+  rating: number;
+  review_text?: string;
+  user?: {
+    first_name?: string;
+    last_name?: string;
+  };
+}
+
+interface CourseImage {
+  image_url: string;
+}
+
+interface CourseInstructor {
+  user?: {
+    first_name?: string;
+    last_name?: string;
+  };
+}
+
+interface Course {
+  course_id: string | number;
+  title: string;
+  description?: string;
+  price?: number;
+  created_at?: string;
+  average_rating?: number;
+  images?: CourseImage[];
+  instructor?: CourseInstructor;
+  objectives?: CourseObjective[];
+  requirements?: CourseRequirement[];
+  chapters?: CourseChapter[];
+  reviews?: CourseReview[];
+}
+
 export default function CourseDetail() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { addItem } = useCart();
-  const [course, setCourse] = useState(null);
+  const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
 
@@ -24,7 +82,9 @@ export default function CourseDetail() {
         setLoading(false);
       }
     }
-    fetchCourse();
+    if (id) {
+      fetchCourse();
+    }
   }, [id]);
 
   const handleAddToCart = async () => {
@@ -32,6 +92,8 @@ export default function CourseDetail() {
       navigate('/signin');
       return;
     }
+
+    if (!course) return;
 
     setAddingToCart(true);
     try {
@@ -83,7 +145,7 @@ export default function CourseDetail() {
           </div>
 
           {/* What you'll learn */}
-          {course.objectives?.length > 0 && (
+          {course.objectives && course.objectives.length > 0 && (
             <div className="bg-gray-50 rounded-lg p-6 mb-8">
               <h2 className="text-xl font-semibold mb-4">What you'll learn</h2>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -98,7 +160,7 @@ export default function CourseDetail() {
           )}
 
           {/* Requirements */}
-          {course.requirements?.length > 0 && (
+          {course.requirements && course.requirements.length > 0 && (
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Requirements</h2>
               <ul className="list-disc list-inside text-gray-700 space-y-1">
@@ -110,7 +172,7 @@ export default function CourseDetail() {
           )}
 
           {/* Course Content */}
-          {course.chapters?.length > 0 && (
+          {course.chapters && course.chapters.length > 0 && (
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Course Content</h2>
               <div className="space-y-4">
@@ -122,7 +184,7 @@ export default function CourseDetail() {
                         <p className="text-sm text-gray-600 mt-1">{chapter.description}</p>
                       )}
                     </div>
-                    {chapter.lessons?.length > 0 && (
+                    {chapter.lessons && chapter.lessons.length > 0 && (
                       <div className="divide-y">
                         {chapter.lessons.map((lesson) => (
                           <div key={lesson.lesson_id} className="px-4 py-3 flex items-center gap-2">
@@ -139,7 +201,7 @@ export default function CourseDetail() {
           )}
 
           {/* Reviews */}
-          {course.reviews?.length > 0 && (
+          {course.reviews && course.reviews.length > 0 && (
             <div>
               <h2 className="text-xl font-semibold mb-4">
                 Reviews ({course.reviews.length})

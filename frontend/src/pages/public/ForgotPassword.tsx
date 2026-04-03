@@ -1,22 +1,50 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { authApi } from '../../services/api';
+import {
+  forgotPasswordSchema,
+  step1Schema,
+  step2Schema,
+  step3Schema,
+  type ForgotPasswordData,
+} from '../../schemas/auth/forgotPassword.schema';
 
 export default function ForgotPassword() {
-  const [step, setStep] = useState(1); // 1: Email, 2: Code, 3: Reset
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Get the appropriate resolver based on step
+  const getResolver = () => {
+    switch (step) {
+      case 1:
+        return zodResolver(step1Schema);
+      case 2:
+        return zodResolver(step2Schema);
+      case 3:
+        return zodResolver(step3Schema);
+      default:
+        return zodResolver(step1Schema);
+    }
+  };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+    reset,
+  } = useForm<ForgotPasswordData>({
+    resolver: getResolver(),
+    defaultValues: {
+      step,
+    },
+  });
 
-  const handleSendCode = async (data) => {
+  const handleSendCode = async (data: ForgotPasswordData) => {
     setError('');
     setLoading(true);
 
@@ -25,41 +53,66 @@ export default function ForgotPassword() {
       setEmail(data.email);
       setStep(2);
       setSuccess('Verification code sent to your email!');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send code');
+      reset();
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      setError(axiosErr.response?.data?.message || 'Failed to send code');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyCode = async (data) => {
+  const handleVerifyCode = async (data: ForgotPasswordData) => {
     setError('');
     setLoading(true);
 
     try {
       await authApi.verifyCode(email, data.code);
       setStep(3);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Invalid code');
+      setSuccess('');
+      reset();
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      setError(axiosErr.response?.data?.message || 'Invalid code');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResetPassword = async (data) => {
+  const handleResetPassword = async (data: ForgotPasswordData) => {
     setError('');
     setLoading(true);
 
     try {
-      await authApi.resetPassword(email, data.code, data.password, data.password_confirmation);
+      await authApi.resetPassword(
+        email,
+        data.code,
+        data.newPassword,
+        data.confirmPassword
+      );
       setSuccess('Password reset successfully!');
       setTimeout(() => {
         window.location.href = '/signin';
       }, 2000);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to reset password');
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      setError(axiosErr.response?.data?.message || 'Failed to reset password');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onSubmit = (data: ForgotPasswordData) => {
+    switch (step) {
+      case 1:
+        handleSendCode(data);
+        break;
+      case 2:
+        handleVerifyCode(data);
+        break;
+      case 3:
+        handleResetPassword(data);
+        break;
     }
   };
 
@@ -86,7 +139,7 @@ export default function ForgotPassword() {
         )}
 
         {step === 1 && (
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit(handleSendCode)}>
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {error && (
               <div className="bg-red-50 text-red-500 p-4 rounded-lg text-sm">
                 {error}
@@ -102,16 +155,10 @@ export default function ForgotPassword() {
                 type="email"
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="you@example.com"
-                {...register('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address',
-                  },
-                })}
+                {...register('email')}
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+                <p className="mt-1 text-sm text-red-500">{errors.email.message as string}</p>
               )}
             </div>
 
@@ -126,7 +173,7 @@ export default function ForgotPassword() {
         )}
 
         {step === 2 && (
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit(handleVerifyCode)}>
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {error && (
               <div className="bg-red-50 text-red-500 p-4 rounded-lg text-sm">
                 {error}
@@ -143,16 +190,10 @@ export default function ForgotPassword() {
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-center tracking-widest text-2xl"
                 placeholder="000000"
                 maxLength={6}
-                {...register('code', {
-                  required: 'Code is required',
-                  pattern: {
-                    value: /^[0-9]{6}$/,
-                    message: 'Code must be 6 digits',
-                  },
-                })}
+                {...register('code')}
               />
               {errors.code && (
-                <p className="mt-1 text-sm text-red-500">{errors.code.message}</p>
+                <p className="mt-1 text-sm text-red-500">{errors.code.message as string}</p>
               )}
             </div>
 
@@ -167,53 +208,59 @@ export default function ForgotPassword() {
         )}
 
         {step === 3 && (
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit(handleResetPassword)}>
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {error && (
               <div className="bg-red-50 text-red-500 p-4 rounded-lg text-sm">
                 {error}
               </div>
             )}
 
-            <input type="hidden" {...register('code')} value={step} />
-
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                New password
+              <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
+                Verification code
               </label>
               <input
-                id="password"
-                type="password"
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="••••••••"
-                {...register('password', {
-                  required: 'Password is required',
-                  minLength: {
-                    value: 6,
-                    message: 'Password must be at least 6 characters',
-                  },
-                })}
+                id="code"
+                type="text"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-center tracking-widest text-2xl"
+                placeholder="000000"
+                maxLength={6}
+                {...register('code')}
               />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
+              {errors.code && (
+                <p className="mt-1 text-sm text-red-500">{errors.code.message as string}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm new password
+              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                New password
               </label>
               <input
-                id="password_confirmation"
+                id="newPassword"
                 type="password"
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="••••••••"
-                {...register('password_confirmation', {
-                  required: 'Please confirm your password',
-                  validate: (value) => value === watch('password') || 'Passwords do not match',
-                })}
+                {...register('newPassword')}
               />
-              {errors.password_confirmation && (
-                <p className="mt-1 text-sm text-red-500">{errors.password_confirmation.message}</p>
+              {errors.newPassword && (
+                <p className="mt-1 text-sm text-red-500">{errors.newPassword.message as string}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                Confirm new password
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                placeholder="••••••••"
+                {...register('confirmPassword')}
+              />
+              {errors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-500">{errors.confirmPassword.message as string}</p>
               )}
             </div>
 

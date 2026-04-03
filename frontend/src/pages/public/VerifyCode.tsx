@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { authApi } from '../../services/api';
+import { verifyCodeSchema, type VerifyCodeFormData } from '../../schemas/auth/verifyCode.schema';
 
 export default function VerifyCode() {
   const [error, setError] = useState('');
@@ -12,9 +14,11 @@ export default function VerifyCode() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<VerifyCodeFormData>({
+    resolver: zodResolver(verifyCodeSchema),
+  });
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: VerifyCodeFormData) => {
     setError('');
     setLoading(true);
 
@@ -25,8 +29,8 @@ export default function VerifyCode() {
       setTimeout(() => {
         window.location.href = `/reset-password?email=${encodeURIComponent(data.email)}&code=${data.code}`;
       }, 1500);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Invalid code');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Invalid code');
     } finally {
       setLoading(false);
     }
@@ -72,13 +76,7 @@ export default function VerifyCode() {
                 type="email"
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="you@example.com"
-                {...register('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address',
-                  },
-                })}
+                {...register('email')}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
@@ -95,13 +93,7 @@ export default function VerifyCode() {
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-center tracking-widest text-2xl"
                 placeholder="000000"
                 maxLength={6}
-                {...register('code', {
-                  required: 'Code is required',
-                  pattern: {
-                    value: /^[0-9]{6}$/,
-                    message: 'Code must be 6 digits',
-                  },
-                })}
+                {...register('code')}
               />
               {errors.code && (
                 <p className="mt-1 text-sm text-red-500">{errors.code.message}</p>

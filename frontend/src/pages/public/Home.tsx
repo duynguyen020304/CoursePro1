@@ -7,10 +7,42 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+interface Course {
+  course_id: string | number;
+  title: string;
+  price?: number;
+  average_rating?: number;
+  total_ratings?: number;
+  images?: Array<{ image_url: string }>;
+  instructor?: {
+    user?: {
+      first_name?: string;
+      last_name?: string;
+    };
+  };
+}
+
+interface Category {
+  id: string | number;
+  name: string;
+  slug?: string;
+  children?: Category[];
+}
+
+interface Instructor {
+  instructor_id: string | number;
+  biography?: string;
+  user?: {
+    first_name?: string;
+    last_name?: string;
+    profile_image?: string;
+  };
+}
+
 export default function Home() {
-  const [featuredCourses, setFeaturedCourses] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [instructors, setInstructors] = useState([]);
+  const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -121,7 +153,7 @@ export default function Home() {
                         alt={course.title}
                         className="w-full h-48 object-cover"
                         onError={(e) => {
-                          e.target.src = 'https://placehold.co/400x200/E2E8F0/94A3B8?text=No+Image';
+                          e.currentTarget.src = 'https://placehold.co/400x200/E2E8F0/94A3B8?text=No+Image';
                         }}
                       />
                     ) : (
@@ -276,7 +308,7 @@ export default function Home() {
                       alt={`${instructor.user?.first_name} ${instructor.user?.last_name}`}
                       className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
                       onError={(e) => {
-                        e.target.src = 'https://placehold.co/200x200/E2E8F0/94A3B8?text=Instructor';
+                        e.currentTarget.src = 'https://placehold.co/200x200/E2E8F0/94A3B8?text=Instructor';
                       }}
                     />
                     <h3 className="font-semibold text-lg text-gray-900">
