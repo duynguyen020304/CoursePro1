@@ -70,7 +70,7 @@ export default function EditCourse() {
   const fetchCourse = async () => {
     try {
       setLoading(true);
-      const response = await instructorApi.getCourse(courseId);
+      const response = await instructorApi.getCourse(courseId!);
       if (response.data.success) {
         const courseData = response.data.data;
         setCourse(courseData);
@@ -152,7 +152,7 @@ export default function EditCourse() {
         requirements: formData.requirements.filter((r) => r.trim()),
       };
 
-      await instructorApi.updateCourse(courseId, payload);
+      await instructorApi.updateCourse(courseId!, payload);
       alert('Course updated successfully!');
     } catch (err) {
       console.error('Failed to update course:', err);
@@ -171,7 +171,7 @@ export default function EditCourse() {
 
     try {
       setAddingChapter(true);
-      const response = await courseApi.addChapter(courseId, {
+      const response = await courseApi.addChapter(courseId!, {
         title: newChapter.title,
         description: newChapter.description,
         sort_order: chapters.length,
@@ -193,7 +193,7 @@ export default function EditCourse() {
     if (!window.confirm('Delete this chapter and all its lessons?')) return;
 
     try {
-      await courseApi.deleteChapter(courseId, chapterId);
+      await courseApi.deleteChapter(courseId!, chapterId);
       setChapters(chapters.filter((c) => c.chapter_id !== chapterId));
     } catch (err) {
       console.error('Failed to delete chapter:', err);
@@ -211,7 +211,7 @@ export default function EditCourse() {
     try {
       setAddingLesson(true);
       const chapter = chapters.find((c) => c.chapter_id === newLesson.chapterId);
-      const response = await courseApi.addLesson(courseId, newLesson.chapterId, {
+      const response = await courseApi.addLesson(courseId!, newLesson.chapterId, {
         title: newLesson.title,
         content: newLesson.content,
         sort_order: chapter?.lessons?.length || 0,
@@ -362,7 +362,7 @@ export default function EditCourse() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Categories</label>
                 <select
                   multiple
-                  value={formData.category_ids}
+                  value={formData.category_ids.map(String)}
                   onChange={handleCategoryChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg h-32"
                 >
@@ -529,7 +529,7 @@ export default function EditCourse() {
                             value={newLesson.chapterId === chapter.chapter_id ? newLesson.title : ''}
                             onChange={(e) =>
                               setNewLesson({
-                                chapterId: chapter.chapter_id,
+                                chapterId: String(chapter.chapter_id),
                                 title: e.target.value,
                                 content: '',
                               })
