@@ -35,7 +35,7 @@ export default function Checkout() {
     },
   });
 
-  const total = items.reduce((sum, item) => sum + parseFloat(item.course?.price || 0), 0);
+  const total = items.reduce((sum, item) => sum + Number(item.course?.price || 0), 0);
   const formData = watch();
 
   const formatCardNumber = (value: string): string => {
@@ -325,10 +325,9 @@ export default function Checkout() {
                       }`}
                       placeholder="1234 5678 9012 3456"
                       maxLength={19}
-                      onFocus={() => setCardFocused('number')}
-                      onBlur={() => setCardFocused('')}
                       {...register('card_number', {
                         onChange: handleCardNumberChange,
+                        onBlur: () => setCardFocused(''),
                       })}
                     />
                     {errors.card_number && (
@@ -366,10 +365,9 @@ export default function Checkout() {
                       }`}
                       placeholder="MM/YY"
                       maxLength={5}
-                      onFocus={() => setCardFocused('expiry')}
-                      onBlur={() => setCardFocused('')}
                       {...register('expiry', {
                         onChange: handleExpiryChange,
+                        onBlur: () => setCardFocused(''),
                       })}
                     />
                     {errors.expiry && (
@@ -388,9 +386,9 @@ export default function Checkout() {
                       }`}
                       placeholder="123"
                       maxLength={4}
-                      onFocus={() => setCardFocused('cvv')}
-                      onBlur={() => setCardFocused('')}
-                      {...register('cvv')}
+                      {...register('cvv', {
+                        onBlur: () => setCardFocused(''),
+                      })}
                     />
                     {errors.cvv && (
                       <p className="mt-1 text-sm text-red-500">{errors.cvv.message}</p>
@@ -603,10 +601,10 @@ export default function Checkout() {
 
             <div className="space-y-3 mb-4">
               {items.map((item) => (
-                <div key={item.cart_item_id} className="flex gap-3 items-start">
-                  {item.course?.images?.[0]?.image_url ? (
+                <div key={item.id} className="flex gap-3 items-start">
+                  {item.course?.thumbnail_url ? (
                     <img
-                      src={item.course.images[0].image_url}
+                      src={item.course.thumbnail_url}
                       alt={item.course.title}
                       className="w-16 h-12 object-cover rounded"
                     />

@@ -1,21 +1,6 @@
 import { useCart } from '../../contexts/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
-
-interface CartItem {
-  cart_item_id: string | number;
-  quantity?: number;
-  course?: {
-    title?: string;
-    price?: number;
-    images?: Array<{ image_url: string }>;
-    instructor?: {
-      user?: {
-        first_name?: string;
-        last_name?: string;
-      };
-    };
-  };
-}
+import type { CartItem } from '../../schemas/order/cart.schema';
 
 export default function Cart() {
   const { cart, items, loading, removeItem, clearCart } = useCart();
@@ -57,11 +42,11 @@ export default function Cart() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
-          {items.map((item: CartItem) => (
-            <div key={item.cart_item_id} className="bg-white rounded-lg shadow p-4 flex gap-4">
-              {item.course?.images?.[0]?.image_url ? (
+          {items.map((item) => (
+            <div key={item.id} className="bg-white rounded-lg shadow p-4 flex gap-4">
+              {item.course?.thumbnail_url ? (
                 <img
-                  src={item.course.images[0].image_url}
+                  src={item.course.thumbnail_url}
                   alt={item.course.title}
                   className="w-32 h-24 object-cover rounded"
                 />
@@ -72,13 +57,10 @@ export default function Cart() {
               )}
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900">{item.course?.title}</h3>
-                <p className="text-sm text-gray-600">
-                  {item.course?.instructor?.user?.first_name} {item.course?.instructor?.user?.last_name}
-                </p>
-                <p className="text-indigo-600 font-bold mt-2">${item.course?.price || 0}</p>
+                <p className="text-indigo-600 font-bold mt-2">${String(item.course?.price || 0)}</p>
               </div>
               <button
-                onClick={() => removeItem(item.cart_item_id)}
+                onClick={() => removeItem(String(item.id))}
                 className="text-red-500 hover:text-red-700 self-start"
               >
                 Remove
