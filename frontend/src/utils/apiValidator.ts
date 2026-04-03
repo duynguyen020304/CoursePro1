@@ -118,11 +118,11 @@ export function createValidatedApi<
   const validatedApi = {} as ValidatedApi<S>;
   
   for (const methodName of Object.keys(schemaMap) as (keyof S)[]) {
-    const originalMethod = (api as Record<string, unknown>)[methodName];
+    const originalMethod = (api as any)[methodName];
     const schema = schemaMap[methodName];
     
     if (typeof originalMethod === 'function') {
-      (validatedApi as Record<string, unknown>)[methodName] = async () => {
+      (validatedApi as any)[methodName] = async () => {
         try {
           const response = await (originalMethod as () => Promise<unknown>)();
           const result = safeValidateResponse(schema, response);

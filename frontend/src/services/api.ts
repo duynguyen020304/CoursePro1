@@ -80,7 +80,7 @@ function normalizeUrl(url = ''): string {
 /**
  * Check if auth recovery should be skipped for this request
  */
-function shouldSkipAuthRecovery(config: InternalConfig = {}): boolean {
+function shouldSkipAuthRecovery(config: InternalConfig = {} as InternalConfig): boolean {
   if (config.__skipAuthRecovery) {
     return true;
   }

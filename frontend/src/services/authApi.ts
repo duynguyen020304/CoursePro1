@@ -2,7 +2,7 @@
 // Wraps authApi responses with Zod schema validation
 
 import { z } from 'zod';
-import { api } from './api';
+import api from './api';
 import {
   loginResponseSchema,
   signupResponseSchema,
@@ -80,7 +80,7 @@ function refreshAuthCookies(): Promise<unknown> {
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
     }).finally(() => {
       refreshPromise = null;
-    });
+    }) as Promise<unknown>;
   }
   return refreshPromise;
 }
