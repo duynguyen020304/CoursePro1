@@ -45,7 +45,7 @@ export default function CategoryPage() {
       try {
         setLoading(true);
         // Fetch category details
-        const categoryRes = await categoryApi.get(slug);
+        const categoryRes = await categoryApi.get(slug!);
         setCategory(categoryRes.data.data);
 
         // Fetch courses in category

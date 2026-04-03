@@ -74,7 +74,7 @@ export default function CourseDetail() {
   useEffect(() => {
     async function fetchCourse() {
       try {
-        const response = await courseApi.get(id);
+        const response = await courseApi.get(id || '');
         setCourse(response.data.data);
       } catch (error) {
         console.error('Failed to fetch course:', error);
@@ -97,7 +97,7 @@ export default function CourseDetail() {
 
     setAddingToCart(true);
     try {
-      const result = await addItem(course.course_id);
+      const result = await addItem(String(course.course_id));
       if (result.success) {
         alert('Added to cart successfully!');
       } else {

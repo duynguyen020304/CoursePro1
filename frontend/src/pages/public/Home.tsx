@@ -35,7 +35,7 @@ interface Instructor {
   user?: {
     first_name?: string;
     last_name?: string;
-    profile_image?: string;
+    avatar_url?: string;
   };
 }
 
@@ -231,9 +231,9 @@ export default function Home() {
                    category.name === 'Music' ? '🎵' : '📚'}
                 </div>
                 <h3 className="font-semibold text-gray-900">{category.name}</h3>
-                {category.children?.length > 0 && (
+                {(category.children?.length ?? 0) > 0 && (
                   <p className="text-sm text-gray-500 mt-1">
-                    {category.children.length} subcategories
+                    {category.children?.length} subcategories
                   </p>
                 )}
               </Link>
@@ -304,7 +304,7 @@ export default function Home() {
                 <SwiperSlide key={instructor.instructor_id}>
                   <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition text-center p-6">
                     <img
-                      src={instructor.user?.profile_image || 'https://placehold.co/200x200/E2E8F0/94A3B8?text=Instructor'}
+                      src={instructor.user?.avatar_url || 'https://placehold.co/200x200/E2E8F0/94A3B8?text=Instructor'}
                       alt={`${instructor.user?.first_name} ${instructor.user?.last_name}`}
                       className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
                       onError={(e) => {

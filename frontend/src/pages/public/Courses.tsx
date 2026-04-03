@@ -62,7 +62,7 @@ export default function Courses() {
     async function fetchData() {
       try {
         const [coursesRes, categoriesRes] = await Promise.all([
-          courseApi.list(filters),
+          courseApi.list(filters as unknown as Record<string, unknown>),
           categoryApi.list(),
         ]);
         // API returns paginated response: {data: {data: []}}
