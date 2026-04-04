@@ -6,6 +6,8 @@ const cartItemSchema = z.object({
   course_id: z.string(),
   quantity: z.number().int().positive(),
   price: z.number().nonnegative(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
   created_at: z.string().nullable().optional(),
   updated_at: z.string().nullable().optional(),
   course: z.object({
@@ -20,6 +22,8 @@ const cartItemSchema = z.object({
 export const cartSchema = z.object({
   cart_id: z.string(),
   user_id: z.string(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
   created_at: z.string().nullable().optional(),
   updated_at: z.string().nullable().optional(),
   items: z.array(cartItemSchema).optional(),

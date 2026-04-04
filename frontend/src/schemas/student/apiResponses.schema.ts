@@ -3,6 +3,8 @@ import { z } from 'zod';
 const studentSchema = z.object({
   student_id: z.string(),
   user_id: z.string(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
   created_at: z.string().nullable().optional(),
   updated_at: z.string().nullable().optional(),
   user: z.object({

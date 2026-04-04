@@ -7,7 +7,10 @@ const userSchema = z.object({
   name: z.string(),
   email: z.string().email(),
   avatar_url: z.string().url().nullable(),
-  created_at: z.string().datetime(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
 });
 
 // Instructor schema
@@ -15,6 +18,10 @@ const instructorSchema = z.object({
   id: z.string().uuid(),
   user_id: z.string().uuid(),
   biography: z.string().nullable(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
   user: userSchema,
 });
 
@@ -23,6 +30,10 @@ const categorySchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   parent_id: z.string().uuid().nullable(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
 });
 
 // Lesson schema
@@ -32,6 +43,10 @@ const lessonSchema = z.object({
   duration: z.number().int().nonnegative(),
   sort_order: z.number().int().nonnegative(),
   video_url: z.string().url().nullable(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
 });
 
 // Chapter schema
@@ -39,6 +54,10 @@ const chapterSchema = z.object({
   id: z.string().uuid(),
   title: z.string(),
   sort_order: z.number().int().nonnegative(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
   lessons: z.array(lessonSchema),
 });
 
@@ -53,7 +72,10 @@ export const courseSchema = z.object({
   language: z.string(),
   category_ids: z.array(z.string().uuid()),
   is_published: z.boolean(),
-  created_at: z.string().datetime(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
 });
 
 // API Response Schemas

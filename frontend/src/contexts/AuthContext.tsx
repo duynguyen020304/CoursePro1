@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { authApi, userApi } from '../services/api';
-import type { UserProfile } from '../schemas/user/apiResponses.schema';
+import type { UserProfile, UpdateProfileResponse } from '../schemas/user/apiResponses.schema';
 import type { LoginResponse, SignupResponse, User } from '../schemas/auth/apiResponses.schema';
 
 /**
@@ -217,15 +217,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const updateUser = useCallback(
     async (userData: Record<string, unknown>): Promise<{ success: boolean; user?: User | UserProfile; message?: string }> => {
       try {
-        const response = await userApi.updateProfile(userData);
-        const responseData = response.data as { success?: boolean; message?: string; data?: { user_id: string; first_name: string; last_name: string; email: string; role_id: string; profile_image?: string | null } };
+        const response: UpdateProfileResponse = await userApi.updateProfile(userData);
 
-        if (responseData.success && responseData.data) {
-          setUser(responseData.data);
-          return { success: true, user: responseData.data };
+        if (response.success && response.data) {
+          setUser(response.data);
+          return { success: true, user: response.data };
         }
 
-        return { success: false, message: responseData.message || 'Update failed' };
+        return { success: false, message: response.message || 'Update failed' };
       } catch (error) {
         const errorResponse = error as { response?: { data?: { message?: string } } };
         return { success: false, message: errorResponse.response?.data?.message || 'Update failed' };

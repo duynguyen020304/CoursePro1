@@ -8,3 +8,4 @@ export * from './uuid.schema';
 export * from './pagination.schema';
 export * from './apiResponse.schema';
 export * from './env.schema';
+export * from './baseEntity.schema';

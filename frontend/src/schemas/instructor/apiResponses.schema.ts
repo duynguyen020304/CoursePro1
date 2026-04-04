@@ -4,6 +4,8 @@ const instructorSchema = z.object({
   instructor_id: z.string(),
   user_id: z.string(),
   biography: z.string().nullable().optional(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
   created_at: z.string().nullable().optional(),
   updated_at: z.string().nullable().optional(),
   user: z.object({
@@ -24,7 +26,10 @@ const instructorCourseSchema = z.object({
   thumbnail_url: z.string().nullable().optional(),
   difficulty: z.string().nullable().optional(),
   language: z.string().nullable().optional(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
   created_at: z.string().nullable().optional(),
+  updated_at: z.string().nullable().optional(),
   students_count: z.number().int().nonnegative().optional(),
   reviews_count: z.number().int().nonnegative().optional(),
 });

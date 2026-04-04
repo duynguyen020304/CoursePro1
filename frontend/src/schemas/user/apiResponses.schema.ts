@@ -13,6 +13,10 @@ export const userProfileSchema = z.object({
   last_name: z.string(),
   role_id: z.string(),
   profile_image: z.string().nullable().optional(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
   role: z.object({
     role_id: z.string(),
     name: z.string(),
@@ -50,6 +54,10 @@ export const updateProfileResponseSchema = userApiResponseWrapperSchema(
     email: z.string(),
     role_id: z.string(),
     profile_image: z.string().nullable().optional(),
+    is_active: z.boolean().optional().default(true),
+    deleted_at: z.string().datetime().nullable().optional(),
+    created_at: z.string().datetime().nullable().optional(),
+    updated_at: z.string().datetime().nullable().optional(),
   })
 );
 

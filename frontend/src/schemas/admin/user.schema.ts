@@ -15,9 +15,10 @@ export const adminUserSchema = z.object({
   phone: z.string().nullable().optional(),
   bio: z.string().nullable().optional(),
   is_active: z.boolean().optional(),
+  deleted_at: z.string().datetime().nullable().optional(),
   email_verified_at: z.string().datetime().nullable().optional(),
-  created_at: z.string().datetime().optional(),
-  updated_at: z.string().datetime().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
 });
 
 /**

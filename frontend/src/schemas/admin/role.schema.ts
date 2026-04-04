@@ -10,7 +10,10 @@ export const permissionSchema = z.object({
   slug: z.string(),
   description: z.string().nullable().optional(),
   group: z.string().optional(),
-  created_at: z.string().datetime().optional(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
 });
 
 /**
@@ -22,8 +25,10 @@ export const roleSchema = z.object({
   slug: z.string(),
   description: z.string().nullable().optional(),
   permissions: z.array(permissionSchema).optional(),
-  created_at: z.string().datetime().optional(),
-  updated_at: z.string().datetime().optional(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
 });
 
 /**

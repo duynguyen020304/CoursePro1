@@ -5,7 +5,10 @@ import { courseSchema } from '../course';
 export const cartSchema = z.object({
   id: z.string().uuid(),
   user_id: z.string().uuid(),
-  created_at: z.string().datetime(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
 });
 
 // CartItem schema
@@ -14,6 +17,10 @@ export const cartItemSchema = z.object({
   cart_id: z.string().uuid(),
   course_id: z.string().uuid(),
   quantity: z.number().int().positive(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
   course: courseSchema,
 });
 

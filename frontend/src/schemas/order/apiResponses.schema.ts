@@ -10,7 +10,10 @@ export const orderSchema = z.object({
   user_id: z.string().uuid(),
   status: z.enum(['pending', 'processing', 'completed', 'cancelled', 'refunded']),
   total_amount: z.number().nonnegative(),
-  created_at: z.string().datetime(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
 });
 
 /**
@@ -20,6 +23,10 @@ export const orderDetailSchema = z.object({
   id: z.string().uuid(),
   course_id: z.string().uuid(),
   price: z.number().nonnegative(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
   course: courseSchema,
 });
 
@@ -32,7 +39,10 @@ export const paymentSchema = z.object({
   amount: z.number().nonnegative(),
   payment_method: z.enum(['credit_card', 'paypal', 'applepay', 'googlepay', 'bank_transfer']),
   status: z.enum(['pending', 'completed', 'failed', 'refunded']),
-  created_at: z.string().datetime(),
+  is_active: z.boolean().optional().default(true),
+  deleted_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
 });
 
 /**
