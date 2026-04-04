@@ -1,0 +1,444 @@
+name: Deploy to Dev (SSH / Cloudflare Tunnel)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+
+jobs:
+  # ==========================================
+  # Build Job - Create Artifacts
+  # ==========================================
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ------------------------------------------
+      # Setup Node.js LTS via nvm
+      # ------------------------------------------
+      - name: Setup Node.js LTS via nvm
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install 22
+          NODE_BIN=$(dirname $(nvm which current))
+          echo "Node.js bin directory: $NODE_BIN"
+          echo "$NODE_BIN" >> $GITHUB_PATH
+          node -v
+          npm -v
+
+      # ------------------------------------------
+      # Build React Frontend
+      # ------------------------------------------
+      - name: Install & Build Frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      - name: Upload Frontend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-full
+          path: |
+            frontend/dist
+            frontend/package.json
+            frontend/package-lock.json
+            frontend/node_modules
+          retention-days: 1
+
+      # ------------------------------------------
+      # Build Laravel Backend
+      # ------------------------------------------
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, xml, ctype, curl, zip, json, pdo, mysql
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            backend/vendor
+          key: composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: |
+            composer-
+
+      - name: Install Composer dependencies
+        run: |
+          cd backend
+          composer install --no-dev --optimize-autoloader
+
+      - name: Build Laravel Backend
+        run: |
+          cd backend
+          php artisan build --optimize
+
+      - name: Upload Backend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-full
+          path: |
+            backend/bootstrap
+            backend/public
+            backend/storage
+            backend/vendor
+            backend/composer.json
+            backend/composer.lock
+            backend/.env
+            backend/artisan
+          retention-days: 1
+
+  # ==========================================
+  # Deploy Job - Download Artifacts & Deploy
+  # ==========================================
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    env:
+      ENABLE_CLOUDFLARE_TUNNEL: ${{ secrets.ENABLE_CLOUDFLARE_TUNNEL || '' }}
+      RAW_CLOUDFLARE_TUNNEL_HOST: ${{ secrets.CLOUDFLARE_TUNNEL_HOST || vars.CLOUDFLARE_TUNNEL_HOST || 'https://ssh-hk1.vyta.io.vn/' }}
+      DEPLOY_HOST: ${{ secrets.PRODUCTION_SERVER_HOST }}
+      DEPLOY_PORT: ${{ secrets.PRODUCTION_SERVER_PORT }}
+      DEPLOY_USER: ${{ secrets.PRODUCTION_SERVER_USER }}
+      CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+      CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+
+    steps:
+      # ------------------------------------------
+      # Download Artifacts
+      # ------------------------------------------
+      - name: Download Frontend Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-full
+          path: frontend
+
+      - name: Download Backend Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-full
+          path: backend
+
+      # ------------------------------------------
+      # Resolve SSH transport & prepare client tools
+      # ------------------------------------------
+      - name: Resolve SSH transport
+        id: ssh_target
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          enable_tunnel="$(printf '%s' "${ENABLE_CLOUDFLARE_TUNNEL}" | tr '[:upper:]' '[:lower:]')"
+          native_port="${DEPLOY_PORT:-22}"
+
+          use_tunnel="false"
+          if [ "$enable_tunnel" = "true" ] || [ "$enable_tunnel" = "1" ] || [ "$enable_tunnel" = "yes" ]; then
+            use_tunnel="true"
+          fi
+
+          normalize_cloudflare_hostname() {
+            local raw_value="$1"
+            local normalized
+
+            normalized="$(printf '%s' "$raw_value" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')"
+            normalized="${normalized#*://}"
+            normalized="${normalized%%/*}"
+            normalized="${normalized##*@}"
+
+            if [[ "$normalized" == *:* ]]; then
+              normalized="${normalized%%:*}"
+            fi
+
+            printf '%s' "$normalized"
+          }
+
+          tunnel_host="$(normalize_cloudflare_hostname "${RAW_CLOUDFLARE_TUNNEL_HOST:-}")"
+
+          if [ "$use_tunnel" = "true" ]; then
+            if [ -z "$tunnel_host" ]; then
+              echo "::error::Cloudflare tunnel mode is enabled but CLOUDFLARE_TUNNEL_HOST is empty. Set it to the published tunnel hostname (for example ssh.example.com), or disable tunnel mode."
+              exit 1
+            fi
+
+            if [[ "$tunnel_host" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::CLOUDFLARE_TUNNEL_HOST must be a published hostname such as ssh.example.com, not a raw server IP (${tunnel_host})."
+              exit 1
+            fi
+
+            echo "connection_mode=cloudflare" >> "$GITHUB_OUTPUT"
+            echo "target_host=$tunnel_host" >> "$GITHUB_OUTPUT"
+            echo "target_port=22" >> "$GITHUB_OUTPUT"
+            echo "Cloudflare Tunnel enabled. Using SSH hostname: $tunnel_host"
+          else
+            echo "connection_mode=native" >> "$GITHUB_OUTPUT"
+            echo "target_host=${DEPLOY_HOST}" >> "$GITHUB_OUTPUT"
+            echo "target_port=${native_port}" >> "$GITHUB_OUTPUT"
+            echo "Native SSH enabled. Using ${DEPLOY_HOST}:${native_port}"
+          fi
+
+      - name: Prepare SSH client
+        shell: bash
+        run: |
+          set -euo pipefail
+          SSH_CONFIG_FILE="$HOME/.ssh/config"
+
+          sudo apt-get update
+          sudo apt-get install -y rsync openssh-client
+
+          if [ "${{ steps.ssh_target.outputs.connection_mode }}" = "cloudflare" ]; then
+            curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+            chmod +x cloudflared
+            sudo mv cloudflared /usr/local/bin/cloudflared
+
+            resolved_tunnel_host='${{ steps.ssh_target.outputs.target_host }}'
+            if ! getent ahosts "$resolved_tunnel_host" >/dev/null 2>&1; then
+              echo "::error::Cloudflare tunnel hostname '$resolved_tunnel_host' does not resolve from the GitHub runner. Make sure CLOUDFLARE_TUNNEL_HOST is the published Cloudflare hostname (for example ssh.example.com), not a URL, username@host, host:port, or server IP."
+              exit 1
+            fi
+
+            if [ -z "${CF_ACCESS_CLIENT_ID:-}" ] || [ -z "${CF_ACCESS_CLIENT_SECRET:-}" ]; then
+              echo "::warning::Cloudflare tunnel mode is enabled without CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET. If Cloudflare Access requires authentication, deployment may fail in GitHub Actions."
+            fi
+          fi
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          cat > ~/.ssh/id_github_actions << 'EOF'
+          ${{ secrets.PRODUCTION_SERVER_SSH_KEY }}
+          EOF
+          chmod 600 ~/.ssh/id_github_actions
+
+          cat > "$SSH_CONFIG_FILE" << EOF
+          Host coursepro-deploy
+            HostName ${{ steps.ssh_target.outputs.target_host }}
+            User ${DEPLOY_USER}
+            Port ${{ steps.ssh_target.outputs.target_port }}
+            IdentityFile ~/.ssh/id_github_actions
+            IdentitiesOnly yes
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+            ServerAliveInterval 30
+            ServerAliveCountMax 120
+          EOF
+          chmod 600 "$SSH_CONFIG_FILE"
+
+          if [ "${{ steps.ssh_target.outputs.connection_mode }}" = "cloudflare" ]; then
+            if [ -n "${CF_ACCESS_CLIENT_ID:-}" ] && [ -n "${CF_ACCESS_CLIENT_SECRET:-}" ]; then
+              printf '  ProxyCommand /usr/local/bin/cloudflared access ssh --hostname %%h --service-token-id %q --service-token-secret %q\n' "${CF_ACCESS_CLIENT_ID}" "${CF_ACCESS_CLIENT_SECRET}" >> "$SSH_CONFIG_FILE"
+              echo "Using Cloudflare Access service token for SSH authentication."
+            else
+              cat >> "$SSH_CONFIG_FILE" << 'EOF'
+            ProxyCommand /usr/local/bin/cloudflared access ssh --hostname %h
+          EOF
+              echo "::warning::Cloudflare tunnel mode is enabled without a service token in the SSH proxy command. cloudflared will attempt interactive browser authentication, which usually fails in CI."
+            fi
+            cloudflared --version
+          fi
+
+      - name: Verify SSH connectivity
+        shell: bash
+        run: |
+          set -euo pipefail
+          SSH_CONFIG_FILE="$HOME/.ssh/config"
+          timeout 60s ssh -F "$SSH_CONFIG_FILE" -o BatchMode=yes -o ConnectTimeout=30 coursepro-deploy 'echo "Connected to $(hostname)"'
+
+      # ------------------------------------------
+      # Deploy Frontend to Server
+      # ------------------------------------------
+      - name: Deploy Frontend to Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          SSH_CONFIG_FILE="$HOME/.ssh/config"
+          rsync -avzr --delete -e "ssh -F $SSH_CONFIG_FILE" frontend/ coursepro-deploy:/tmp/coursepro-frontend-deploy
+
+      # ------------------------------------------
+      # Deploy Backend to Server
+      # ------------------------------------------
+      - name: Deploy Backend to Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          SSH_CONFIG_FILE="$HOME/.ssh/config"
+          rsync -avzr --delete -e "ssh -F $SSH_CONFIG_FILE" backend/ coursepro-deploy:/tmp/coursepro-backend-deploy
+
+      # ------------------------------------------
+      # Finalize Deployment & Restart Services
+      # ------------------------------------------
+      - name: Finalize Deployment via SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          SSH_CONFIG_FILE="$HOME/.ssh/config"
+          ssh -F "$SSH_CONFIG_FILE" coursepro-deploy 'bash -se' << 'REMOTE_SCRIPT'
+          set -e
+
+          echo "=== Starting Deployment ==="
+
+          # ==========================================
+          # 1. Setup PHP Runtime
+          # ==========================================
+          if ! command -v php &> /dev/null; then
+            echo "Installing PHP 8.3..."
+            apt-get update -qq
+            apt-get install -y php8.3 php8.3-cli php8.3-common php8.3-mbstring php8.3-xml php8.3-curl php8.3-zip php8.3-mysql php8.3-fpm
+            update-alternatives --install /usr/bin/php php /usr/bin/php8.3 1
+          fi
+
+          PHP_PATH=$(which php || echo "/usr/bin/php")
+          echo "PHP path: $PHP_PATH"
+          $PHP_PATH --version
+
+          # ==========================================
+          # 2. Ensure Deployment Directories Exist
+          # ==========================================
+          echo "Ensuring deployment directories exist..."
+          mkdir -p /root/CoursePro/frontend
+          mkdir -p /root/CoursePro/backend/storage/logs
+          mkdir -p /root/CoursePro/backend/storage/framework/cache
+          mkdir -p /root/CoursePro/backend/storage/framework/sessions
+          mkdir -p /root/CoursePro/backend/storage/framework/views
+
+          # ==========================================
+          # 3. Create Backend Runtime Environment
+          # ==========================================
+          echo "Writing backend runtime-env.sh..."
+          cat > /root/CoursePro/backend/runtime-env.sh << 'EOF'
+          export APP_ENV='production'
+          export APP_DEBUG='false'
+          export APP_KEY='${{ secrets.APP_KEY }}'
+          export DB_CONNECTION='mysql'
+          export DB_HOST='${{ secrets.DB_HOST }}'
+          export DB_PORT='3306'
+          export DB_DATABASE='${{ secrets.DB_DATABASE }}'
+          export DB_USERNAME='${{ secrets.DB_USERNAME }}'
+          export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
+          export CACHE_DRIVER='file'
+          export SESSION_DRIVER='file'
+          export QUEUE_CONNECTION='sync'
+          export MAIL_MAILER='smtp'
+          export MAIL_HOST='${{ secrets.MAIL_HOST }}'
+          export MAIL_PORT='${{ secrets.MAIL_PORT }}'
+          export MAIL_USERNAME='${{ secrets.MAIL_USERNAME }}'
+          export MAIL_PASSWORD='${{ secrets.MAIL_PASSWORD }}'
+          export MAIL_FROM_ADDRESS='${{ secrets.MAIL_FROM_ADDRESS }}'
+          export MAIL_FROM_NAME='${{ secrets.MAIL_FROM_NAME }}'
+          export GOOGLE_CLIENT_ID='${{ secrets.GOOGLE_CLIENT_ID }}'
+          export GOOGLE_CLIENT_SECRET='${{ secrets.GOOGLE_CLIENT_SECRET }}'
+          EOF
+          chmod 600 /root/CoursePro/backend/runtime-env.sh
+
+          # ==========================================
+          # 4. Stop PM2 Processes
+          # ==========================================
+          echo "Stopping PM2 processes..."
+          /root/.bun/bin/pm2 stop coursepro-frontend 2>/dev/null || true
+          /root/.bun/bin/pm2 stop coursepro-api 2>/dev/null || true
+
+          # ==========================================
+          # 5. Deploy Frontend
+          # ==========================================
+          echo "Deploying Frontend..."
+          cd /root/CoursePro/frontend
+          # Backup current dist
+          if [ -d "dist" ]; then
+            mv dist dist.backup.$(date +%Y%m%d_%H%M%S) || true
+          fi
+          # Move new files
+          mv /tmp/coursepro-frontend-deploy/dist .
+          mv /tmp/coursepro-frontend-deploy/package.json .
+          mv /tmp/coursepro-frontend-deploy/package-lock.json .
+          rm -rf /tmp/coursepro-frontend-deploy
+
+          # Install dependencies
+          echo "Installing frontend dependencies..."
+          npm install --production
+
+          # ==========================================
+          # 6. Deploy Backend
+          # ==========================================
+          echo "Deploying Backend..."
+          cd /root/CoursePro/backend
+          # Backup current deployment
+          if [ -d "vendor" ]; then
+            mkdir -p vendor.backup
+            cp -r vendor vendor.backup/ 2>/dev/null || true
+          fi
+          # Move new files
+          rm -rf bootstrap cache config database lang public resources routes vendor 2>/dev/null || true
+          cp -r /tmp/coursepro-backend-deploy/* .
+          rm -rf /tmp/coursepro-backend-deploy
+
+          # Ensure storage directories exist
+          mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views storage/app/public
+
+          # Set permissions
+          chmod -R 775 storage bootstrap/cache
+
+          # Install composer dependencies if needed
+          if [ ! -d "vendor" ]; then
+            echo "Installing composer dependencies..."
+            composer install --no-dev --optimize-autoloader
+          fi
+
+          # Clear and rebuild cache
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          php artisan event:cache
+
+          # Run migrations
+          php artisan migrate --force
+
+          # Create storage link
+          php artisan storage:link
+
+          # ==========================================
+          # 7. Restart PM2 Processes
+          # ==========================================
+          echo "Restarting PM2 processes..."
+          /root/.bun/bin/pm2 delete coursepro-frontend 2>/dev/null || true
+          /root/.bun/bin/pm2 delete coursepro-api 2>/dev/null || true
+
+          # Start Frontend (Vite preview or Node server)
+          /root/.bun/bin/pm2 start npm --name "coursepro-frontend" -- run preview -- --host 0.0.0.0 --port 5173
+
+          # Start Backend
+          cat > /root/CoursePro/backend/start.sh << 'EOFSH'
+          #!/bin/bash
+          set -a
+          . /root/CoursePro/backend/runtime-env.sh
+          set +a
+          cd /root/CoursePro/backend
+          php artisan serve --host=0.0.0.0 --port=8000
+          EOFSH
+          chmod +x /root/CoursePro/backend/start.sh
+          /root/.bun/bin/pm2 start /root/CoursePro/backend/start.sh --name "coursepro-api"
+
+          # Save PM2 state
+          /root/.bun/bin/pm2 save
+
+          # ==========================================
+          # 8. Cleanup
+          # ==========================================
+          echo "Cleaning up old backups..."
+          cd /root/CoursePro/frontend
+          ls -dt dist.backup.* 2>/dev/null | tail -n +4 | xargs rm -rf 2>/dev/null || true
+
+          cd /root/CoursePro/backend
+          rm -rf vendor.backup 2>/dev/null || true
+
+          echo "=== Deployment Completed Successfully ==="
+
+          # Show PM2 status
+          /root/.bun/bin/pm2 status
+          REMOTE_SCRIPT
