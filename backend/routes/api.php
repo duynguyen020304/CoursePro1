@@ -38,7 +38,10 @@ use App\Http\Controllers\InstructorCourseController;
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/signup', [AuthController::class, 'signup']);
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])
+    ->middleware('throttle:5,15');
+Route::post('/forgot-password-jwt', [AuthController::class, 'forgotPasswordJwt'])
+    ->middleware('throttle:5,15');
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 

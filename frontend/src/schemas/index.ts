@@ -13,6 +13,18 @@ export * from './course';
 // Order schemas (checkout, order history, cart, etc.)
 export * from './order';
 
+// Cart schemas
+export * from './cart';
+
+// Student schemas
+export * from './student';
+
+// Instructor schemas
+export * from './instructor';
+
+// Review schemas
+export * from './review';
+
 // Common schemas (email, password, pagination, API response wrappers)
 export * from './common';
 

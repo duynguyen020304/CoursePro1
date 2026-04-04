@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserAccount;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -92,33 +91,6 @@ class UserController extends Controller
                 'role_id' => $user->role_id,
                 'profile_image' => $user->profile_image,
             ],
-        ]);
-    }
-
-    /**
-     * Update the user's password
-     */
-    public function updatePassword(Request $request)
-    {
-        $userAccount = $request->user();
-
-        $request->validate([
-            'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8|confirmed',
-        ]);
-
-        if (!Hash::check($request->current_password, $userAccount->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Current password is incorrect',
-            ], 400);
-        }
-
-        $userAccount->update(['password' => $request->new_password]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Password updated successfully',
         ]);
     }
 

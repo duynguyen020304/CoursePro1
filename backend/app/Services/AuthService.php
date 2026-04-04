@@ -93,7 +93,7 @@ class AuthService
         $firstName = $nameParts[0] ?? '';
         $lastName = $nameParts[1] ?? '';
 
-        // Step A: Look up existing Google-linked account (anti-takeover: always check this first)
+        // Step A: Look up existing Google-linked account (anti-takeover)
         $existingAccount = UserAccount::where('provider', 'google')
             ->where('provider_account_id', $googleSub)
             ->where('is_deleted', false)
@@ -109,7 +109,7 @@ class AuthService
             return [$user, $existingAccount, false]; // false = not new user
         }
 
-        // Step B: If email is verified by Google, try to link to existing email account
+        // Step B: Link Google to existing email account
         if ($emailVerified && $email) {
             $emailAccount = UserAccount::where('email', $email)
                 ->where('provider', 'email')
@@ -137,7 +137,7 @@ class AuthService
             }
         }
 
-        // Step C: Create new user (no existing account found)
+        // Step C: Create new user
         $userId = Str::uuid();
 
         $user = User::create([

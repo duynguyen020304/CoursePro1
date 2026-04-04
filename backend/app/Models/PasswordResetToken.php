@@ -15,6 +15,7 @@ class PasswordResetToken extends Model
         'user_id',
         'token',
         'created_at',
+        'expires_at',
     ];
 
     public $timestamps = false;
@@ -23,6 +24,7 @@ class PasswordResetToken extends Model
     {
         return [
             'created_at' => 'datetime',
+            'expires_at' => 'datetime',
         ];
     }
 

@@ -7,10 +7,13 @@ use App\Models\UserAccount;
 use App\Models\Student;
 use App\Models\PasswordResetToken;
 use App\Services\AuthService;
+use App\Services\PasswordResetService;
+use App\Mail\PasswordResetMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 
@@ -40,7 +43,6 @@ class AuthController extends Controller
             ]);
         }
 
-        // Load the user profile
         $user = $userAccount->user;
 
         $authService = new AuthService();
@@ -76,7 +78,7 @@ class AuthController extends Controller
 
         $userId = Str::uuid();
 
-        // Create user profile
+        // Create user
         $user = User::create([
             'user_id' => $userId,
             'first_name' => $request->first_name,
@@ -84,7 +86,7 @@ class AuthController extends Controller
             'role_id' => 'student',
         ]);
 
-        // Create user account (authentication)
+        // Create auth account
         $userAccount = UserAccount::create([
             'user_id' => $userId,
             'provider' => 'email',
@@ -138,18 +140,66 @@ class AuthController extends Controller
 
         // Generate 6-digit code
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $expiresAt = now()->addMinutes(60);
 
         PasswordResetToken::updateOrCreate(
             ['user_id' => $userAccount->user_id],
-            ['token' => $code]
+            ['token' => $code, 'expires_at' => $expiresAt]
         );
 
-        // TODO: Send email with code
-        Log::info("Password reset code for {$userAccount->email}: {$code}");
+        try {
+            Mail::to($userAccount->email)->send(new PasswordResetMail($code, $expiresAt));
+        } catch (\Exception $e) {
+            Log::error('Failed to send password reset email', [
+                'email' => $userAccount->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        Log::info("[password_reset] forgot_password email={$userAccount->email} ip={$request->ip()} user_agent={$request->userAgent()} result=code_sent");
 
         return response()->json([
             'success' => true,
             'message' => 'Password reset code sent to your email',
+        ]);
+    }
+
+    /**
+     * Handle JWT-based password reset request
+     */
+    public function forgotPasswordJwt(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:user_accounts,email',
+        ]);
+
+        $userAccount = UserAccount::findByEmail($request->email);
+
+        if (!$userAccount) {
+            return response()->json([
+                'success' => true,
+                'message' => 'If that email exists, a reset link has been sent',
+            ]);
+        }
+
+        $passwordResetService = new \App\Services\PasswordResetService();
+        $jwt = $passwordResetService->generateJwtResetLink($userAccount, 60);
+        $expiresAt = now()->addMinutes(60);
+
+        try {
+            Mail::to($userAccount->email)->send(new PasswordResetMail($jwt, $expiresAt));
+        } catch (\Exception $e) {
+            Log::error('Failed to send password reset JWT email', [
+                'email' => $userAccount->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        Log::info("[password_reset] jwt_link_request email={$userAccount->email} ip={$request->ip()} result=email_sent");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'If that email exists, a reset link has been sent',
         ]);
     }
 
@@ -177,11 +227,14 @@ class AuthController extends Controller
             ->first();
 
         if (!$reset) {
+            Log::info("[password_reset] verify_code email={$request->email} ip={$request->ip()} user_agent={$request->userAgent()} result=failure_invalid_code");
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid code',
             ], 400);
         }
+
+        Log::info("[password_reset] verify_code email={$request->email} ip={$request->ip()} user_agent={$request->userAgent()} result=success");
 
         return response()->json([
             'success' => true,
@@ -196,7 +249,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'code' => 'required|string|size:6',
+            'token' => 'required|string',
             'password' => 'required|min:6|confirmed',
         ]);
 
@@ -209,22 +262,61 @@ class AuthController extends Controller
             ], 404);
         }
 
-        $reset = PasswordResetToken::where('user_id', $userAccount->user_id)
-            ->where('token', $request->code)
-            ->first();
+        $token = $request->token;
+        $isJwt = strlen($token) > 50 && str_contains($token, '.');
 
-        if (!$reset) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid code',
-            ], 400);
+        if ($isJwt) {
+            // JWT-based reset
+            $passwordResetService = new \App\Services\PasswordResetService();
+            $validUserId = $passwordResetService->validateJwtResetToken($token);
+
+            if (!$validUserId || $validUserId !== $userAccount->user_id) {
+                Log::info("[password_reset] reset_password_attempt email={$request->email} ip={$request->ip()} method=jwt result=failure_invalid_token");
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid or expired token',
+                ], 401);
+            }
+
+            // Invalidate all refresh tokens (security: prevent session hijacking)
+            \App\Models\RefreshToken::revokeAllForUser($userAccount->user_id);
+
+            // Delete any existing password reset tokens
+            PasswordResetToken::where('user_id', $userAccount->user_id)->delete();
+
+        } else {
+            // 6-digit code reset
+            $reset = PasswordResetToken::where('user_id', $userAccount->user_id)
+                ->where('token', $token)
+                ->first();
+
+            if (!$reset) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid or expired code',
+                ], 400);
+            }
+
+            // Check expiry
+            if ($reset->expires_at && $reset->expires_at->isPast()) {
+                Log::info("[password_reset] reset_password_attempt email={$request->email} ip={$request->ip()} method=code result=failure_code_expired");
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Code has expired',
+                ], 400);
+            }
+
+            // Delete used reset token
+            $reset->delete();
+
+            // Invalidate all refresh tokens
+            \App\Models\RefreshToken::revokeAllForUser($userAccount->user_id);
         }
 
         $userAccount->password = Hash::make($request->password);
         $userAccount->save();
 
-        // Delete used reset token
-        $reset->delete();
+        Log::info("[password_reset] password_changed email={$userAccount->email} method=" . ($isJwt ? 'jwt' : 'code'));
 
         return response()->json([
             'success' => true,

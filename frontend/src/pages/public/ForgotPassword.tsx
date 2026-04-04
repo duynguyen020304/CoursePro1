@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { authApi } from '../../services/api';
+import { authApi } from '../../services/authApi';
 import { forgotPasswordSchema, type ForgotPasswordData } from '../../schemas/auth/forgotPassword.schema';
 
 export default function ForgotPassword() {
@@ -10,6 +10,7 @@ export default function ForgotPassword() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetMethod, setResetMethod] = useState<'code' | 'link'>('code');
 
   const {
     register,
@@ -33,10 +34,15 @@ export default function ForgotPassword() {
 
     try {
       if (data.step === 1) {
-        await authApi.forgotPassword(data.email);
-        setEmail(data.email);
-        setSuccess('Verification code sent to your email!');
-        reset({ step: 2, code: '' });
+        if (resetMethod === 'code') {
+          await authApi.forgotPassword(data.email);
+          setEmail(data.email);
+          setSuccess('Verification code sent to your email!');
+          reset({ step: 2, code: '' });
+        } else {
+          await authApi.forgotPasswordJwt(data.email);
+          setSuccess('Password reset link sent to your email! Check your inbox for the reset link.');
+        }
       } else if (data.step === 2) {
         await authApi.verifyCode(email, data.code);
         setSuccess('');
@@ -86,6 +92,34 @@ export default function ForgotPassword() {
               </div>
             )}
 
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">Choose a reset method:</p>
+              <div className="flex gap-4">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="resetMethod"
+                    value="code"
+                    checked={resetMethod === 'code'}
+                    onChange={() => setResetMethod('code')}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">Email me a code</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="resetMethod"
+                    value="link"
+                    checked={resetMethod === 'link'}
+                    onChange={() => setResetMethod('link')}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">Send reset link</span>
+                </label>
+              </div>
+            </div>
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email address
@@ -107,7 +141,7 @@ export default function ForgotPassword() {
               disabled={loading}
               className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
             >
-              {loading ? 'Sending...' : 'Send verification code'}
+              {loading ? 'Sending...' : resetMethod === 'code' ? 'Send verification code' : 'Send reset link'}
             </button>
           </form>
         )}

@@ -56,6 +56,37 @@ export const permissionListResponseSchema = z.object({
   data: z.array(permissionSchema),
 });
 
+// API response wrappers (Laravel { success, message, data } format)
+export const roleListApiResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: z.array(roleSchema.extend({ permissions: z.array(permissionSchema).optional() })),
+});
+
+export const roleApiResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: roleSchema.extend({ permissions: z.array(permissionSchema).optional() }),
+});
+
+export const roleCreateApiResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: roleSchema,
+});
+
+export const permissionListApiResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: z.array(permissionSchema),
+});
+
+export const rolePermissionActionApiResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: z.array(permissionSchema).optional(),
+});
+
 // Type inference helpers
 export type Permission = z.infer<typeof permissionSchema>;
 export type Role = z.infer<typeof roleSchema>;
