@@ -15,17 +15,18 @@ React application source code containing all components, pages, layouts, context
 | `App.css` | Component-specific styles |
 
 ## Subdirectories
-| Directory | Purpose |
-|-----------|---------|
-| `components/` | Shared UI components (Header, Footer) |
-| `contexts/` | React Context providers (Auth, Cart) |
-| `layouts/` | Page layout wrappers (Public, User, Admin) |
-| `pages/` | Route pages organized by audience (see `pages/AGENTS.md`) |
-| `services/` | API client and methods (see `services/AGENTS.md`) |
-| `hooks/` | Custom React hooks |
-| `utils/` | Utility functions |
-| `types/` | TypeScript/JSDoc type definitions |
-| `assets/` | Static assets (images, icons) |
+| Directory | Files | Purpose |
+|-----------|-------|---------|
+| `components/` | 3 | Shared UI components (Header, Footer, GoogleLoginButton) |
+| `contexts/` | 2 | React Context providers (Auth, Cart) |
+| `layouts/` | 4 | Page layout wrappers (Public, User, Admin, Instructor) |
+| `pages/` | 32 | Route pages organized by audience |
+| `services/` | 15 | API client and methods |
+| `schemas/` | 60+ | Zod validation schemas by domain |
+| `hooks/` | 0 | Custom hooks (exported from contexts) |
+| `utils/` | 3 | Utility functions (env, apiValidator) |
+| `types/` | 0 | Types defined in schemas |
+| `assets/` | 3 | Static images |
 
 ## For AI Agents
 

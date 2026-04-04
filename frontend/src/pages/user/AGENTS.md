@@ -8,14 +8,14 @@ Authenticated user pages requiring login. Includes personal course management, p
 
 ## Key Files
 
-| File | Route | Purpose |
-|------|-------|---------|
-| `MyCourses.jsx` | `/my-courses` | User's purchased courses grid |
-| `Profile.jsx` | `/profile` | View/edit profile form |
-| `EditProfile.jsx` | `/edit-profile` | Edit profile page |
-| `PurchaseHistory.jsx` | `/purchase-history` | Order history with course details |
-| `Certificates.jsx` | `/certificates` | Earned certificates with PDF generation |
-| `WatchVideo.jsx` | `/watch/:courseId/:lessonId?` | Video player with lesson navigation |
+| File | Route | Lines | Purpose |
+|------|-------|-------|---------|
+| `MyCourses.jsx` | `/my-courses` | — | User's purchased courses grid |
+| `Profile.jsx` | `/profile` | — | View profile |
+| `EditProfile.jsx` | `/edit-profile` | 203 | Edit profile form |
+| `PurchaseHistory.jsx` | `/purchase-history` | — | Order history |
+| `Certificates.jsx` | `/certificates` | 309 | Earned certificates with PDF generation |
+| `WatchVideo.jsx` | `/watch/:courseId/:lessonId?` | 491 | Video player with progress tracking |
 
 ## For AI Agents
 

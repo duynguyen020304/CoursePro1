@@ -4,28 +4,59 @@
 # Controllers
 
 ## Purpose
-Laravel controllers handling HTTP requests and returning JSON API responses. Contains 24 controllers organized by feature: authentication, users, courses, content management, cart, orders, and payments.
+Laravel controllers handling HTTP requests and returning JSON API responses. Contains **26 controllers** organized by feature: authentication, users, courses, content management, cart, orders, and payments.
 
 ## Key Files
-| File | Purpose |
-|------|---------|
-| `Controller.php` | Base controller class |
-| `AuthController.php` | Login, signup, password recovery |
-| `UserController.php` | User CRUD, profile management |
-| `CourseController.php` | Course listing, details, CRUD |
-| `CartController.php`, `CartItemController.php` | Shopping cart operations |
-| `OrderController.php`, `PaymentController.php` | Order and payment handling |
+| File | Lines | Purpose |
+|------|-------|---------|
+| `Controller.php` | — | Base controller class |
+| `AuthController.php` | 459 | Login, signup, password recovery, Google OAuth, JWT refresh |
+| `InstructorCourseController.php` | 390 | Instructor course CRUD with statistics |
+| `UserController.php` | 208 | User CRUD, profile management |
+| `CourseController.php` | 168 | Course listing, details, CRUD |
+| `CartController.php`, `CartItemController.php` | — | Shopping cart operations |
+| `OrderController.php`, `PaymentController.php` | — | Order and payment handling |
 
 ## Controllers List
 
 ### Authentication & Users
 | Controller | Methods |
 |------------|---------|
-| `AuthController` | login, signup, forgotPassword, verifyCode, resetPassword, changePassword, logout |
-| `UserController` | index, show, store, update, destroy, getProfile, updateProfile |
-| `StudentController` | index, show, store, update, destroy, getProfile, hasPurchased |
+| `AuthController` | login, signup, forgotPassword, verifyCode, resetPassword, changePassword, logout, googleLogin, refresh |
+| `UserController` | index, show, store, update, destroy, getProfile, updateProfile, updatePassword, assignRole |
+| `StudentController` | index, show, store, update, destroy, getProfile, hasPurchasedCourse |
 | `InstructorController` | index, show, store, update, destroy, getProfile |
-| `RoleController` | index, show, store, update, destroy |
+| `RoleController` | index, show, store, update, destroy, getPermissions, assignPermissions, removePermission, syncPermissions |
+
+### Courses & Content
+| Controller | Methods |
+|------------|---------|
+| `CourseController` | list, show, store, update, destroy, getCoursesByInstructor |
+| `CategoryController` | index, show, store, update, destroy |
+| `CourseInstructorController` | attach, detach, sync |
+| `CourseCategoryController` | attach, detach, sync |
+| `CourseImageController` | index, show, store, update, destroy |
+| `CourseObjectiveController` | index, show, store, update, destroy |
+| `CourseRequirementController` | index, show, store, update, destroy |
+| `ChapterController` | index, show, store, update, destroy, getChaptersByCourse |
+| `LessonController` | index, show, store, update, destroy, getLessonsByChapter |
+| `VideoController` | index, show, store, update, destroy, getVideosByLesson |
+| `ResourceController` | index, show, store, update, destroy, getResourcesByLesson |
+
+### E-commerce
+| Controller | Methods |
+|------------|---------|
+| `CartController` | getCart, clearCart, getOrCreateCart |
+| `CartItemController` | addItem, removeItem |
+| `OrderController` | index, show, store, updatePayment |
+| `OrderDetailController` | index, show, store, update |
+| `PaymentController` | show, updateStatus, complete |
+| `ReviewController` | index, show, store, update, destroy |
+
+### Other
+| Controller | Methods |
+|------------|---------|
+| `SearchController` | search (course search with filters) |
 
 ### Courses & Content
 | Controller | Methods |

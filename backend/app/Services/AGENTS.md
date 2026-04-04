@@ -8,11 +8,16 @@ Custom service classes encapsulating business logic. Currently contains authenti
 
 ## Key Files
 
-| File | Description |
-|------|-------------|
-| `AuthService.php` | Google OAuth login, JWT/refresh token management, anti-takeover logic |
+| File | Lines | Description |
+|------|-------|-------------|
+| `AuthService.php` | 307 | Google OAuth login, JWT/refresh token management, anti-takeover logic |
 
 ## AuthService
+
+### Google OAuth Flow
+1. `exchangeCode()` — Exchange OAuth code for access token
+2. `fetchUserInfo()` — Get user info from Google
+3. `findOrCreateGoogleUser()` — Find or create user with anti-takeover
 
 ### Anti-Takeover Pattern
 Prevents Google OAuth account takeover by checking for existing Google-linked accounts first:
@@ -23,6 +28,7 @@ Prevents Google OAuth account takeover by checking for existing Google-linked ac
 ### Token Storage
 - Access tokens: Stored in `personal_access_tokens` table (Sanctum)
 - Refresh tokens: Hashed with HMAC-SHA256 before storage (never plaintext)
+- 7-day expiry for refresh tokens
 
 ## For AI Agents
 
@@ -32,7 +38,7 @@ Prevents Google OAuth account takeover by checking for existing Google-linked ac
 - All services should be stateless
 
 ### Security Notes
-- Refresh tokens hashed before database storage
+- Refresh tokens hashed before database storage (HMAC-SHA256)
 - JWT tokens hashed before storage
 - Google OAuth anti-takeover check prevents account hijacking
 

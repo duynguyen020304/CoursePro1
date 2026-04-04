@@ -45,12 +45,30 @@ React 19 frontend application for the CoursePro1 e-learning platform. Built with
 
 ### Common Patterns
 - **Context Layer**: `AuthContext`, `CartContext` for global state
-- **Layouts**: `PublicLayout`, `UserLayout`, `AdminLayout` for page wrappers
+- **Layouts**: `PublicLayout`, `UserLayout`, `AdminLayout`, `InstructorLayout` for page wrappers
 - **Services**: `api.js` provides centralized API client with interceptors
-- **Pages organized by audience**: `public/`, `user/`, `admin/`
+- **Pages organized by audience**: `public/`, `user/`, `admin/`, `instructor/`
+- **Zod Schemas**: 60+ validation schemas organized by domain
+- **TanStack Query**: Server state caching and data fetching
 - **Loading states**: Consistent spinner pattern during async operations
 - **Error handling**: try/catch with error state display
 - **Protected routes**: Check `isAuthenticated` from `AuthContext`
+
+## Large Files (>300 lines)
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| `src/pages/public/Checkout.tsx` | 671 | Multi-payment checkout flow |
+| `src/pages/instructor/EditCourse.tsx` | 560 | Edit course with chapters/lessons |
+| `src/pages/user/WatchVideo.tsx` | 491 | Video player with progress tracking |
+| `src/pages/public/Home.tsx` | 420 | Landing page with Swiper sliders |
+| `src/pages/admin/Revenue.tsx` | 360 | Revenue analytics with Chart.js |
+| `src/pages/admin/UploadVideo.tsx` | 377 | Video upload with selectors |
+| `src/pages/instructor/CreateCourse.tsx` | 379 | Course creation form |
+| `src/pages/admin/RoleManagement.tsx` | 340 | Role/permission management |
+| `src/pages/admin/Dashboard.tsx` | 313 | Admin dashboard with stats |
+| `src/pages/user/Certificates.tsx` | 309 | Certificate list with PDF generation |
+| `src/contexts/AuthContext.tsx` | 308 | Auth state with permissions |
 
 ## Dependencies
 

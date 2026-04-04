@@ -28,7 +28,10 @@ Core application code containing Laravel controllers, Eloquent models, and servi
 - **Validation**: Validate input in controllers before model operations
 
 ### Common Patterns
-- UUID primary keys: `public $incrementing = false; protected $keyType = 'string';`
+- **UUID Primary Keys**: All models use `public $incrementing = false; protected $keyType = 'string';`
+- **API Response Format**: `{ success: bool, data: mixed, message: string }`
+- **Validation**: Direct in controllers (no Request classes)
+- **No Observers/Events**: Direct model operations
 - Relationships: `hasMany`, `belongsTo`, `belongsToMany` with proper foreign keys
 - Controllers inject services/models via method hinting
 - Soft deletes not used by default

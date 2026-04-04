@@ -8,19 +8,20 @@ Publicly accessible pages that do not require authentication. Includes landing p
 
 ## Key Files
 
-| File | Route | Purpose |
-|------|-------|---------|
-| `Home.jsx` | `/` | Landing page with hero, featured courses, categories, testimonials |
-| `Courses.jsx` | `/courses` | Course listing with filters (search, category, difficulty, price) |
-| `CourseDetail.jsx` | `/courses/:id` | Individual course page with syllabus, reviews, add-to-cart |
-| `CategoryPage.jsx` | `/categories/:id` | Courses filtered by category |
-| `SignIn.jsx` | `/signin` | Login form with validation |
-| `SignUp.jsx` | `/signup` | Registration form with password confirmation |
-| `ForgotPassword.jsx` | `/forgot-password` | 3-step password reset flow |
-| `VerifyCode.jsx` | `/verify-code` | Email verification code input |
-| `ResetPassword.jsx` | `/reset-password` | New password form |
-| `Cart.jsx` | `/cart` | Shopping cart with order summary |
-| `Checkout.jsx` | `/checkout` | Multi-payment checkout with card preview |
+| File | Route | Lines | Purpose |
+|------|-------|-------|---------|
+| `Home.jsx` | `/` | 420 | Landing page with hero, Swiper sliders, testimonials |
+| `Courses.jsx` | `/courses` | 249 | Course listing with filters |
+| `CourseDetail.jsx` | `/courses/:id` | 274 | Course page with syllabus, reviews |
+| `CategoryPage.jsx` | `/categories/:id` | — | Courses filtered by category |
+| `SignIn.jsx` | `/signin` | — | Login form with validation |
+| `SignUp.jsx` | `/signup` | 212 | Registration form |
+| `ForgotPassword.jsx` | `/forgot-password` | 219 | 3-step password reset |
+| `VerifyCode.jsx` | `/verify-code` | — | Verification code input |
+| `ResetPassword.jsx` | `/reset-password` | — | New password form |
+| `Cart.jsx` | `/cart` | — | Shopping cart |
+| `Checkout.jsx` | `/checkout` | 671 | Multi-payment checkout |
+| `AuthCallback.jsx` | `/auth/callback` | — | OAuth callback handler |
 
 ## For AI Agents
 

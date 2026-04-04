@@ -9,7 +9,7 @@ Database layer containing migrations, seeders, and factories for the MySQL datab
 ## Key Files
 | File | Description |
 |------|-------------|
-| `migrations/` | 31 migration files defining schema |
+| `migrations/` | 43 migration files defining schema |
 | `seeders/DatabaseSeeder.php` | Master seeder orchestrating all seeders |
 
 ## Subdirectories
@@ -46,9 +46,13 @@ Database layer containing migrations, seeders, and factories for the MySQL datab
 | Table | Columns |
 |-------|---------|
 | `roles` | role_id, role_name |
-| `users` | user_id (UUID), role_id, first_name, last_name, email, password |
+| `permissions` | permission_id, name |
+| `permission_role` | role_id, permission_id (pivot) |
+| `users` | user_id (UUID), role_id, first_name, last_name, email |
+| `user_accounts` | account_id (UUID), user_id, provider, provider_id, email, password |
 | `password_reset_tokens` | email, token |
 | `sessions` | id, user_id, ip_address, payload, last_activity |
+| `refresh_tokens` | id, user_id, token (hashed), expires_at |
 | `instructors` | instructor_id, user_id, biography |
 | `students` | student_id, user_id |
 

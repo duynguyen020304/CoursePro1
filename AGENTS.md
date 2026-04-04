@@ -90,6 +90,47 @@ A comprehensive, full-stack e-learning platform built with **Laravel 13** (Backe
 - `chart.js` - Analytics charts
 - `jspdf` - PDF generation
 
+## Conventions
+
+### Backend
+- **UUID Primary Keys**: All models use `public $incrementing = false; protected $keyType = 'string'`
+- **API Response**: `{ success: bool, data: mixed, message: string }`
+- **Middleware Chain**: `auth:sanctum` → `UseAccessTokenFromCookie` → `CheckRole`/`CheckPermission`
+- **Google OAuth Anti-Takeover**: Check existing Google-linked account before creating new
+- **Refresh Tokens**: Hashed with HMAC-SHA256 before storage
+
+### Frontend
+- **TypeScript**: Strict mode enabled, `checkJs: true`
+- **ESLint**: Allows unused `ALL_CAPS` variables (React components)
+- **Zod Schemas**: 60+ validation schemas organized by domain
+- **Environment**: `VITE_*` prefix only, runtime validation via Zod
+- **State**: React Context (Auth, Cart) + TanStack Query (server state)
+- **Axios**: XSRF token handling, automatic Bearer token injection
+
+## Build & Test Commands
+
+```bash
+# Backend
+cd backend && composer test          # PHPUnit tests
+cd backend && ./vendor/bin/phpunit  # Direct PHPUnit
+
+# Frontend
+cd frontend && npm test            # Vitest watch
+cd frontend && npm run test:run    # Vitest single run
+cd frontend && npm run lint         # ESLint
+cd frontend && npm run build       # Production build
+
+# E2E
+npx playwright test                 # Run E2E tests
+
+# Database
+cd backend && php artisan migrate:fresh --seed
+```
+
+## CI/CD Status
+
+**No CI/CD pipelines configured** — manual testing only. No GitHub Actions, GitLab CI, or other CI systems.
+
 ## Database Schema
 
 ### Core Tables

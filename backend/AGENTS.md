@@ -69,6 +69,23 @@ Laravel 13.x backend API for the CoursePro1 e-learning platform. Provides RESTfu
 - `firebase/php-jwt` - JWT handling
 - `phpmailer/phpmailer` - Email functionality
 
+## Large Files (>300 lines)
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| `app/Http/Controllers/AuthController.php` | 459 | Login, signup, password reset, Google OAuth, refresh tokens |
+| `app/Http/Controllers/InstructorCourseController.php` | 390 | Instructor course CRUD with stats |
+| `app/Services/AuthService.php` | 307 | Google OAuth, token management, anti-takeover |
+
+## Architecture
+
+- **26 Controllers** — Auth, User, Student, Instructor, Course, Cart, Order, Payment, Review, etc.
+- **24 Models** — All use UUID primary keys
+- **3 Middleware** — CheckRole, CheckPermission, UseAccessTokenFromCookie
+- **43 Migrations** — User, Course, Cart, Order, Payment, Reviews, Permissions, etc.
+- **No Request classes** — Validation in controllers
+- **No Observers/Events** — Direct model operations
+
 ## Database Schema
 
 ### Core Tables

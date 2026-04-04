@@ -4,14 +4,15 @@
 # Pages
 
 ## Purpose
-React page components that serve as route handlers. Organized by audience: public pages (accessible to all), user pages (require authentication), and admin pages (require admin role).
+React page components that serve as route handlers. Organized by audience: **32 pages** total across public (13), user (7), admin (6), and instructor (5).
 
 ## Subdirectories
-| Directory | Purpose |
-|-----------|---------|
-| `public/` | Publicly accessible pages (see `public/AGENTS.md`) |
-| `user/` | Authenticated user pages (see `user/AGENTS.md`) |
-| `admin/` | Admin dashboard pages (see `admin/AGENTS.md`) |
+| Directory | Pages | Purpose |
+|-----------|-------|---------|
+| `public/` | 13 | Publicly accessible pages |
+| `user/` | 7 | Authenticated user pages |
+| `admin/` | 6 | Admin dashboard pages |
+| `instructor/` | 5 | Instructor pages |
 
 ## For AI Agents
 
@@ -24,19 +25,21 @@ React page components that serve as route handlers. Organized by audience: publi
 
 ### Page Organization
 
-**Public Pages** (`src/pages/public/`):
+**Public Pages** (`src/pages/public/`) — 13 pages:
 - Home, Courses, CourseDetail, CategoryPage
-- SignIn, SignUp, ForgotPassword, VerifyCode, ResetPassword
+- SignIn, SignUp, ForgotPassword, VerifyCode, ResetPassword, AuthCallback
 - Cart, Checkout
-- About, FAQ, Contact, Privacy, Terms
 
-**User Pages** (`src/pages/user/`):
+**User Pages** (`src/pages/user/`) — 7 pages:
 - MyCourses, Profile, EditProfile, PurchaseHistory
 - Certificates, WatchVideo
 
-**Admin Pages** (`src/pages/admin/`):
+**Admin Pages** (`src/pages/admin/`) — 6 pages:
 - Dashboard, CourseManagement, UserManagement
-- Revenue, UploadVideo
+- RoleManagement, Revenue, UploadVideo
+
+**Instructor Pages** (`src/pages/instructor/`) — 5 pages:
+- Dashboard, MyCourses, CreateCourse, EditCourse, Profile
 
 ## Dependencies
 

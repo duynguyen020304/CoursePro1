@@ -28,10 +28,17 @@ React Context providers for global state management. Provides authentication sta
 | `signup` | userData | Register new user |
 | `logout` | none | Clear auth state, redirect |
 | `updateUser` | userData | Update current user profile |
+| `hasRole` | role | Check if user has role |
+| `hasPermission` | permission | Check if user has permission |
 
 ### Storage
 - Token: `localStorage.token`
 - User: `localStorage.user`
+
+### Permissions
+- `canAccess(auth, permission)` — Check permission from `user.permissions` array
+- `hasRole(role)` — Check role from `user.role.role_name`
+- Permissions loaded on login, refreshed on profile update
 
 ## CartContext
 

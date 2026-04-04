@@ -7,14 +7,14 @@
 Zod validation schemas for API requests and responses. Organized by domain (auth, user, admin, course, order, common). Provides type-safe validation at runtime.
 
 ## Key Stats
-- **37 schema files** across 6 domains
+- **60+ schema files** across 6 domains
 - **Barrel exports** via `index.ts` files per domain
 
 ## Schema Organization
 
 | Domain | Files | Purpose |
 |--------|-------|---------|
-| `auth/` | 6 | signin, signup, forgotPassword, verifyCode, resetPassword |
+| `auth/` | 6 | signin, signup, forgotPassword, verifyCode, resetPassword, changePassword |
 | `user/` | 3 | profile, editProfile, apiResponses |
 | `admin/` | 5 | user, role, roleManagement, review, revenue |
 | `course/` | 7 | createCourse, chapter, lesson, category, uploadVideo, instructorPublic, apiResponses |

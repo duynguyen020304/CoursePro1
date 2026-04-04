@@ -48,10 +48,13 @@ public function run(): void
 
 | Seeder | Data Created |
 |--------|--------------|
-| `CategorySeeder` | Technology, Business, Design, Programming, Marketing, Lifestyle + subcategories |
-| `InstructorSeeder` | Nguyen Van A, Tran Thi B, Le Van C, Pham Thi D, Hoang Van E |
-| `StudentSeeder` | 10 students with emails student1@student.com - student10@student.com |
-| `CourseSeeder` | Python Bootcamp, ReactJS Mastery, Machine Learning A-Z, Node.js Backend, UI/UX Design |
+| `DatabaseSeeder` | Orchestrates all seeders |
+| `CategorySeeder` | 20 categories (8 main + 12 subcategories) |
+| `RoleSeeder` | admin, student, instructor roles |
+| `PermissionSeeder` | RBAC permissions |
+| `InstructorSeeder` | 5 instructors with Vietnamese names |
+| `StudentSeeder` | 10 students |
+| `CourseSeeder` | 5 full courses with chapters, lessons |
 | `OrderSeeder` | 24 completed orders, 3 carts with items |
 
 ## For AI Agents

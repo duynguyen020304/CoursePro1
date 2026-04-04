@@ -8,13 +8,14 @@ Admin dashboard pages for platform management. Requires admin role authenticatio
 
 ## Key Files
 
-| File | Route | Purpose |
-|------|-------|---------|
-| `Dashboard.jsx` | `/admin/dashboard` | Admin overview with stats, notifications, recent orders |
-| `CourseManagement.jsx` | `/admin/courses` | Course list table with create/edit modal |
-| `UserManagement.jsx` | `/admin/users` | User list with search, role badges |
-| `Revenue.jsx` | `/admin/revenue` | Revenue analytics with Chart.js trends |
-| `UploadVideo.jsx` | `/admin/upload-video` | Video upload form with course/chapter/lesson selectors |
+| File | Route | Lines | Purpose |
+|------|-------|-------|---------|
+| `Dashboard.jsx` | `/admin/dashboard` | 313 | Admin overview with stats, notifications |
+| `CourseManagement.jsx` | `/admin/courses` | — | Course list table |
+| `UserManagement.jsx` | `/admin/users` | — | User list with role badges |
+| `RoleManagement.jsx` | `/admin/roles` | 340 | Role/permission management |
+| `Revenue.jsx` | `/admin/revenue` | 360 | Revenue analytics with Chart.js |
+| `UploadVideo.jsx` | `/admin/upload-video` | 377 | Video upload form |
 
 ## For AI Agents
 
