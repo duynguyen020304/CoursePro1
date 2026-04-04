@@ -100,6 +100,38 @@ Laravel 13.x backend API for the CoursePro1 e-learning platform. Provides RESTfu
 - `orders`, `order_details`, `payments` - Order management
 - `reviews` - Course reviews with ratings
 
+### Audit Columns
+
+All models use the `HasAuditColumns` trait which provides:
+
+**SoftDeletes**: Models use Laravel's SoftDeletes trait internally. Deleted records have `deleted_at` set and are excluded from default queries.
+
+**Query Scopes**:
+- `Model::active()` — returns only active records (`where('is_active', true)`)
+- `Model::notDeleted()` — explicit alias for SoftDeletes default behavior
+- `Model::withTrashed()` — include soft-deleted records (from SoftDeletes)
+- `Model::onlyTrashed()` — only soft-deleted records (from SoftDeletes)
+
+**API Query Parameters**:
+- `?include_deleted=true` — include soft-deleted records in list endpoints
+- `?is_active=false` — filter by active status
+
+**Automatic Behavior**:
+- `is_active` defaults to `true` on new records
+- `is_active` is cast as boolean automatically
+- `deleted_at` is cast as datetime automatically
+
+**Usage**:
+```php
+use App\Models\Traits\HasAuditColumns;
+
+class MyModel extends Model
+{
+    use HasAuditColumns;
+    // ... rest of model
+}
+```
+
 ## API Endpoints
 
 ### Public

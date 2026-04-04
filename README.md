@@ -174,6 +174,16 @@ See `backend/database/migrations/` for full schema details.
 
 API endpoints are available under `/api/` when running the Laravel backend.
 
+## Audit Columns
+
+All application tables include standardized audit columns:
+- `is_active` (boolean, default true) — whether the record is active
+- `created_at` (timestamp) — when the record was created
+- `updated_at` (timestamp) — when the record was last updated
+- `deleted_at` (timestamp, nullable) — soft delete timestamp (Laravel SoftDeletes)
+
+Pivot tables (`permission_role`, `course_instructor`, `course_category`) use `is_deleted` (boolean) instead of `deleted_at`.
+
 ## License
 
 Proprietary - CoursePro1

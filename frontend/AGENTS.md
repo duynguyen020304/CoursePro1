@@ -54,6 +54,39 @@ React 19 frontend application for the CoursePro1 e-learning platform. Built with
 - **Error handling**: try/catch with error state display
 - **Protected routes**: Check `isAuthenticated` from `AuthContext`
 
+### BaseEntity Zod Schema
+
+All entity schemas extend the base entity schema with common audit fields:
+
+```typescript
+import { baseEntitySchema, extendBaseEntity } from '@/schemas/common';
+
+// Option 1: Use extendBaseEntity helper
+const courseSchema = extendBaseEntity(z.object({
+  title: z.string(),
+  price: z.number(),
+  // ... other fields
+}));
+
+// Option 2: Manually add fields
+const courseSchema = z.object({
+  id: z.string().uuid(),
+  is_active: z.boolean().optional().default(true),
+  is_deleted: z.boolean().optional().default(false),
+  created_at: z.string().datetime().nullable().optional(),
+  updated_at: z.string().datetime().nullable().optional(),
+  title: z.string(),
+  // ... other fields
+});
+```
+
+**BaseEntity Fields**:
+- `id` (UUID string)
+- `is_active` (boolean, default true)
+- `is_deleted` (boolean, default false)
+- `created_at` (nullable datetime)
+- `updated_at` (nullable datetime)
+
 ## Large Files (>300 lines)
 
 | File | Lines | Purpose |
