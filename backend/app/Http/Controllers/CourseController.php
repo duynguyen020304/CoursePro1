@@ -23,6 +23,16 @@ class CourseController extends Controller
     {
         $query = Course::with(['instructor.user', 'categories', 'images']);
 
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
         // Filter by category
         if ($request->filled('category_id')) {
             $query->whereHas('categories', function ($q) use ($request) {
@@ -71,9 +81,9 @@ class CourseController extends Controller
     /**
      * Display the specified course with full details
      */
-    public function show($courseId)
+    public function show(Request $request, $courseId)
     {
-        $course = Course::with([
+        $query = Course::with([
             'instructor.user',
             'categories',
             'images',
@@ -82,7 +92,14 @@ class CourseController extends Controller
             'chapters.lessons.videos',
             'chapters.lessons.resources',
             'reviews.user'
-        ])->findOrFail($courseId);
+        ]);
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        $course = $query->findOrFail($courseId);
 
         // Calculate average rating
         $averageRating = $course->reviews->avg('rating') ?? 0;
@@ -143,7 +160,7 @@ class CourseController extends Controller
             'language' => 'nullable|string|max:40',
         ]);
 
-        $course->update($request->only(['title', 'description', 'price', 'difficulty', 'language']));
+        $course->update($request->only(['title', 'description', 'price', 'difficulty', 'language', 'is_active']));
 
         return response()->json([
             'success' => true,

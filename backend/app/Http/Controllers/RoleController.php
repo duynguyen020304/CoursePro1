@@ -14,7 +14,19 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $roles = Role::with('permissions')->orderBy('role_name')->get();
+        $query = Role::with('permissions')->orderBy('role_name');
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        $roles = $query->get();
 
         return response()->json([
             'success' => true,
@@ -67,7 +79,7 @@ class RoleController extends Controller
             'role_name' => 'sometimes|string|max:255|unique:roles,role_name,' . $id . ',role_id',
         ]);
 
-        $role->update($request->only(['role_name']));
+        $role->update($request->only(['role_name', 'is_active']));
 
         return response()->json([
             'success' => true,

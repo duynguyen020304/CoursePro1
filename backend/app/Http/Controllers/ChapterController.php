@@ -12,12 +12,23 @@ class ChapterController extends Controller
     /**
      * Get chapters for a course
      */
-    public function index(Course $course)
+    public function index(Request $request, Course $course)
     {
-        $chapters = CourseChapter::where('course_id', $course->course_id)
+        $query = CourseChapter::where('course_id', $course->course_id)
             ->with(['lessons.videos', 'lessons.resources'])
-            ->orderBy('sort_order')
-            ->get();
+            ->orderBy('sort_order');
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        $chapters = $query->get();
 
         return response()->json([
             'success' => true,
@@ -62,7 +73,7 @@ class ChapterController extends Controller
             'sort_order' => 'sometimes|integer',
         ]);
 
-        $chapter->update($request->only(['title', 'description', 'sort_order']));
+        $chapter->update($request->only(['title', 'description', 'sort_order', 'is_active']));
 
         return response()->json([
             'success' => true,

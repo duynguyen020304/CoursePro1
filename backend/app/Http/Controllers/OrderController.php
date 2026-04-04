@@ -23,6 +23,16 @@ class OrderController extends Controller
             ->where('user_id', $user->user_id)
             ->orderBy('order_date', 'desc');
 
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
         $orders = $query->paginate($request->get('per_page', 10));
 
         return response()->json([

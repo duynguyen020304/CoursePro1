@@ -16,6 +16,16 @@ class InstructorController extends Controller
     {
         $query = Instructor::with(['user.userAccount']);
 
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
         if ($request->filled('search')) {
             $query->whereHas('user', function ($q) use ($request) {
                 $q->where('first_name', 'like', '%' . $request->search . '%')
@@ -127,7 +137,7 @@ class InstructorController extends Controller
             'biography' => 'sometimes|string|max:2000',
         ]);
 
-        $instructor->update($request->only(['biography']));
+        $instructor->update($request->only(['biography', 'is_active']));
 
         return response()->json([
             'success' => true,

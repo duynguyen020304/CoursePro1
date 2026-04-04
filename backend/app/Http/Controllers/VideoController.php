@@ -12,13 +12,24 @@ class VideoController extends Controller
     /**
      * Get videos for a lesson
      */
-    public function index($lessonId)
+    public function index(Request $request, $lessonId)
     {
         $lesson = CourseLesson::findOrFail($lessonId);
 
-        $videos = CourseVideo::where('lesson_id', $lessonId)
-            ->orderBy('sort_order')
-            ->get();
+        $query = CourseVideo::where('lesson_id', $lessonId)
+            ->orderBy('sort_order');
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        $videos = $query->get();
 
         return response()->json([
             'success' => true,
@@ -69,7 +80,7 @@ class VideoController extends Controller
             'sort_order' => 'sometimes|integer',
         ]);
 
-        $video->update($request->only(['url', 'title', 'duration', 'sort_order']));
+        $video->update($request->only(['url', 'title', 'duration', 'sort_order', 'is_active']));
 
         return response()->json([
             'success' => true,

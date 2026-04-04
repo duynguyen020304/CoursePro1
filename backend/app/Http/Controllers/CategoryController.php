@@ -14,12 +14,23 @@ class CategoryController extends Controller
     {
         // Get nested categories if requested
         if ($request->boolean('nested', false)) {
-            $categories = Category::whereNull('parent_id')
+            $query = Category::whereNull('parent_id')
                 ->with(['children' => function ($query) {
                     $query->orderBy('sort_order');
                 }])
-                ->orderBy('sort_order')
-                ->get();
+                ->orderBy('sort_order');
+
+            // Include soft-deleted records
+            if ($request->boolean('include_deleted', false)) {
+                $query->withTrashed();
+            }
+
+            // Filter by is_active status
+            if ($request->has('is_active')) {
+                $query->where('is_active', $request->boolean('is_active'));
+            }
+
+            $categories = $query->get();
 
             return response()->json([
                 'success' => true,
@@ -28,9 +39,20 @@ class CategoryController extends Controller
         }
 
         // Get all categories with parent info
-        $categories = Category::with('parent')
-            ->orderBy('sort_order')
-            ->get();
+        $query = Category::with('parent')
+            ->orderBy('sort_order');
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        $categories = $query->get();
 
         return response()->json([
             'success' => true,
@@ -41,15 +63,22 @@ class CategoryController extends Controller
     /**
      * Display the specified category with its courses
      */
-    public function show($slug)
+    public function show(Request $request, $slug)
     {
-        $category = Category::with([
+        $query = Category::with([
             'courses' => function ($query) {
                 $query->with(['instructor.user', 'images'])
                     ->orderBy('created_at', 'desc');
             },
             'children'
-        ])->where('slug', $slug)->firstOrFail();
+        ])->where('slug', $slug);
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        $category = $query->firstOrFail();
 
         return response()->json([
             'success' => true,
@@ -94,7 +123,7 @@ class CategoryController extends Controller
             'sort_order' => 'sometimes|integer',
         ]);
 
-        $category->update($request->only(['name', 'parent_id', 'sort_order']));
+        $category->update($request->only(['name', 'parent_id', 'sort_order', 'is_active']));
 
         return response()->json([
             'success' => true,

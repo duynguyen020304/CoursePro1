@@ -12,13 +12,24 @@ class CourseRequirementController extends Controller
     /**
      * Get requirements for a course
      */
-    public function index($courseId)
+    public function index(Request $request, $courseId)
     {
         $course = Course::findOrFail($courseId);
 
-        $requirements = CourseRequirement::where('course_id', $courseId)
-            ->orderBy('sort_order')
-            ->get();
+        $query = CourseRequirement::where('course_id', $courseId)
+            ->orderBy('sort_order');
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        $requirements = $query->get();
 
         return response()->json([
             'success' => true,
@@ -63,7 +74,7 @@ class CourseRequirementController extends Controller
             'sort_order' => 'sometimes|integer',
         ]);
 
-        $requirement->update($request->only(['requirement', 'sort_order']));
+        $requirement->update($request->only(['requirement', 'sort_order', 'is_active']));
 
         return response()->json([
             'success' => true,

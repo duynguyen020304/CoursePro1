@@ -29,10 +29,21 @@ class InstructorCourseController extends Controller
             ], 403);
         }
 
-        $courses = Course::where('created_by', $user->instructor->instructor_id)
+        $query = Course::where('created_by', $user->instructor->instructor_id)
             ->with(['categories', 'images', 'chapters.lessons'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc');
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        $courses = $query->get();
 
         // Add stats for each course
         $coursesWithStats = $courses->map(function ($course) {
@@ -141,7 +152,7 @@ class InstructorCourseController extends Controller
      */
     public function show(Request $request, $courseId)
     {
-        $course = $this->getInstructorCourse($request, $courseId);
+        $course = $this->getInstructorCourse($request, $courseId, $request->boolean('include_deleted', false));
 
         if (!$course) {
             return response()->json([
@@ -193,7 +204,7 @@ class InstructorCourseController extends Controller
             'requirements.*' => 'string|max:500',
         ]);
 
-        $course->update($request->only(['title', 'description', 'price', 'difficulty', 'language']));
+        $course->update($request->only(['title', 'description', 'price', 'difficulty', 'language', 'is_active']));
 
         // Sync categories
         if ($request->has('category_ids')) {
@@ -375,7 +386,7 @@ class InstructorCourseController extends Controller
     /**
      * Helper to get course owned by the authenticated instructor
      */
-    private function getInstructorCourse(Request $request, $courseId)
+    private function getInstructorCourse(Request $request, $courseId, $withTrashed = false)
     {
         $user = $request->user();
 
@@ -383,8 +394,13 @@ class InstructorCourseController extends Controller
             return null;
         }
 
-        return Course::where('course_id', $courseId)
-            ->where('created_by', $user->instructor->instructor_id)
-            ->first();
+        $query = Course::where('course_id', $courseId)
+            ->where('created_by', $user->instructor->instructor_id);
+
+        if ($withTrashed) {
+            $query->withTrashed();
+        }
+
+        return $query->first();
     }
 }

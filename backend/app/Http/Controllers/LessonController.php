@@ -13,12 +13,23 @@ class LessonController extends Controller
     /**
      * Get lessons for a chapter
      */
-    public function index(Course $course, CourseChapter $chapter)
+    public function index(Request $request, Course $course, CourseChapter $chapter)
     {
-        $lessons = CourseLesson::where('chapter_id', $chapter->chapter_id)
+        $query = CourseLesson::where('chapter_id', $chapter->chapter_id)
             ->with(['videos', 'resources'])
-            ->orderBy('sort_order')
-            ->get();
+            ->orderBy('sort_order');
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        $lessons = $query->get();
 
         return response()->json([
             'success' => true,
@@ -77,7 +88,7 @@ class LessonController extends Controller
             'sort_order' => 'sometimes|integer',
         ]);
 
-        $lesson->update($request->only(['title', 'content', 'sort_order']));
+        $lesson->update($request->only(['title', 'content', 'sort_order', 'is_active']));
 
         return response()->json([
             'success' => true,

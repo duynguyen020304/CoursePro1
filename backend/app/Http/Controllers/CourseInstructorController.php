@@ -11,11 +11,23 @@ class CourseInstructorController extends Controller
     /**
      * Get instructors for a course
      */
-    public function index($courseId)
+    public function index(Request $request, $courseId)
     {
         $course = Course::findOrFail($courseId);
 
-        $instructors = $course->instructors()->with('user')->get();
+        $query = $course->instructors()->with('user');
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        $instructors = $query->get();
 
         return response()->json([
             'success' => true,

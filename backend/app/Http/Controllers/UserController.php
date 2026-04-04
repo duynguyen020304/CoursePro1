@@ -15,6 +15,16 @@ class UserController extends Controller
     {
         $query = User::with(['role', 'student', 'instructor', 'userAccount']);
 
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
         if ($request->filled('role_id')) {
             $query->where('role_id', $request->role_id);
         }
@@ -97,10 +107,16 @@ class UserController extends Controller
     /**
      * Display the specified user (admin only)
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $user = User::with(['role', 'student', 'instructor', 'orders', 'reviews', 'userAccount'])
-            ->findOrFail($id);
+        $query = User::with(['role', 'student', 'instructor', 'orders', 'reviews', 'userAccount']);
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        $user = $query->findOrFail($id);
 
         $user->email = $user->userAccount?->email;
 
@@ -126,7 +142,7 @@ class UserController extends Controller
         ]);
 
         // Update profile fields in User
-        $user->update($request->only(['first_name', 'last_name', 'role_id', 'profile_image']));
+        $user->update($request->only(['first_name', 'last_name', 'role_id', 'profile_image', 'is_active']));
 
         // Update email in UserAccount if provided
         if ($request->has('email') && $user->userAccount) {

@@ -16,6 +16,16 @@ class ReviewController extends Controller
     {
         $query = Review::with('user')->orderBy('created_at', 'desc');
 
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
         if ($request->filled('course_id')) {
             $query->where('course_id', $request->course_id);
         }
@@ -92,7 +102,7 @@ class ReviewController extends Controller
             'review_text' => 'nullable|string|max:1000',
         ]);
 
-        $review->update($request->only(['rating', 'review_text']));
+        $review->update($request->only(['rating', 'review_text', 'is_active']));
 
         return response()->json([
             'success' => true,

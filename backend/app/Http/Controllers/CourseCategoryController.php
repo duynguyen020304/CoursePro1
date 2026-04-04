@@ -11,11 +11,23 @@ class CourseCategoryController extends Controller
     /**
      * Get categories for a course
      */
-    public function index($courseId)
+    public function index(Request $request, $courseId)
     {
         $course = Course::findOrFail($courseId);
 
-        $categories = $course->categories()->with('parent')->get();
+        $query = $course->categories()->with('parent');
+
+        // Include soft-deleted records
+        if ($request->boolean('include_deleted', false)) {
+            $query->withTrashed();
+        }
+
+        // Filter by is_active status
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        $categories = $query->get();
 
         return response()->json([
             'success' => true,
