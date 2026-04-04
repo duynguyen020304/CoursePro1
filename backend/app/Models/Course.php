@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -9,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Course extends Model
 {
+    use HasAuditColumns;
+
     protected $primaryKey = 'course_id';
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false;
 
     public function getRouteKeyName()
     {
@@ -27,16 +29,8 @@ class Course extends Model
         'difficulty',
         'language',
         'created_by',
+        'is_active',
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($model) {
-            $model->created_at = $model->freshTimestamp();
-        });
-    }
 
     public function instructor(): BelongsTo
     {

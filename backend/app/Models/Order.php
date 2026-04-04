@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,11 +10,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
+    use HasAuditColumns;
+
     protected $primaryKey = 'order_id';
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['order_id', 'user_id', 'course_id', 'order_date', 'total_amount', 'status', 'created_at', 'updated_at'];
+    protected $fillable = ['order_id', 'user_id', 'course_id', 'order_date', 'total_amount', 'status', 'created_at', 'updated_at', 'is_active'];
 
     protected $casts = [
         'order_date' => 'datetime',

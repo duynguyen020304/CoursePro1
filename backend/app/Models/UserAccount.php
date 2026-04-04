@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -9,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class UserAccount extends Authenticatable
 {
-    use HasApiTokens, HasFactory;
+    use HasApiTokens, HasFactory, HasAuditColumns;
 
     protected $primaryKey = 'user_id';
     public $incrementing = false;
@@ -23,7 +24,7 @@ class UserAccount extends Authenticatable
         'email_verified_at',
         'password',
         'remember_token',
-        'is_deleted',
+        'is_active',
         'is_verified',
     ];
 
@@ -34,7 +35,6 @@ class UserAccount extends Authenticatable
         return [
             'password' => 'hashed',
             'email_verified_at' => 'datetime',
-            'is_deleted' => 'boolean',
             'is_verified' => 'boolean',
         ];
     }
@@ -59,7 +59,7 @@ class UserAccount extends Authenticatable
     {
         return static::where('email', $email)
             ->where('provider', 'email')
-            ->where('is_deleted', false)
+            ->whereNull('deleted_at')
             ->first();
     }
 

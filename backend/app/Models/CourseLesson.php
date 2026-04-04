@@ -2,32 +2,25 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CourseLesson extends Model
 {
+    use HasAuditColumns;
+
     protected $primaryKey = 'lesson_id';
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false;
 
     public function getRouteKeyName()
     {
         return 'lesson_id';
     }
 
-    protected $fillable = ['lesson_id', 'course_id', 'chapter_id', 'title', 'content', 'sort_order'];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($model) {
-            $model->created_at = $model->freshTimestamp();
-        });
-    }
+    protected $fillable = ['lesson_id', 'course_id', 'chapter_id', 'title', 'content', 'sort_order', 'is_active'];
 
     public function course(): BelongsTo
     {

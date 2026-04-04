@@ -2,18 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Role extends Model
 {
+    use HasAuditColumns;
+
     protected $primaryKey = 'role_id';
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false;
 
-    protected $fillable = ['role_id', 'role_name'];
+    protected $fillable = ['role_id', 'role_name', 'is_active'];
 
     public function users(): HasMany
     {

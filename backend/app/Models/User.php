@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,7 +12,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasAuditColumns;
 
     protected $primaryKey = 'user_id';
     public $incrementing = false;
@@ -23,6 +24,7 @@ class User extends Model
         'last_name',
         'role_id',
         'profile_image',
+        'is_active',
     ];
 
     protected $hidden = [];

@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RefreshToken extends Model
 {
-    use HasFactory;
+    use HasFactory, HasAuditColumns;
 
     protected $primaryKey = 'id';
     public $incrementing = false;
@@ -22,7 +23,7 @@ class RefreshToken extends Model
         'ip_address',
         'user_agent',
         'is_revoked',
-        'is_deleted',
+        'is_active',
     ];
 
     protected function casts(): array
@@ -32,7 +33,6 @@ class RefreshToken extends Model
             'user_id' => 'string',
             'expires_at' => 'datetime',
             'is_revoked' => 'boolean',
-            'is_deleted' => 'boolean',
         ];
     }
 
@@ -58,7 +58,7 @@ class RefreshToken extends Model
     public function isValid(): bool
     {
         return !$this->is_revoked
-            && !$this->is_deleted
+            && !$this->trashed()
             && $this->expires_at->isFuture();
     }
 
@@ -79,11 +79,11 @@ class RefreshToken extends Model
     }
 
     /**
-     * Soft delete this token
+     * Delete this token (uses SoftDeletes via HasAuditColumns)
      */
     public function softDelete(): void
     {
-        $this->update(['is_deleted' => true]);
+        $this->delete();
     }
 
     /**
@@ -93,7 +93,7 @@ class RefreshToken extends Model
     {
         return static::where('token', $hashedToken)
             ->where('is_revoked', false)
-            ->where('is_deleted', false)
+            ->whereNull('deleted_at')
             ->where('expires_at', '>', now())
             ->first();
     }

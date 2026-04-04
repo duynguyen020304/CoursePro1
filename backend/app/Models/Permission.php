@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Permission extends Model
 {
+    use HasAuditColumns;
+
     protected $primaryKey = 'permission_id';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -16,6 +19,7 @@ class Permission extends Model
         'name',
         'display_name',
         'description',
+        'is_active',
     ];
 
     public function roles(): BelongsToMany
