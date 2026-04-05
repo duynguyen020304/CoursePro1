@@ -19,10 +19,7 @@ class OrderDetailController extends Controller
             ->with(['course.instructor.user'])
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $details,
-        ]);
+        return $this->success($details, 'Order details retrieved successfully');
     }
 
     /**
@@ -36,15 +33,9 @@ class OrderDetailController extends Controller
             ->first();
 
         if (!$detail) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Order detail not found',
-            ], 404);
+            return $this->error('Order detail not found', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $detail,
-        ]);
+        return $this->success($detail, 'Order detail retrieved successfully');
     }
 }

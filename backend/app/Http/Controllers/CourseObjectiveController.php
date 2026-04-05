@@ -31,10 +31,7 @@ class CourseObjectiveController extends Controller
 
         $objectives = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $objectives,
-        ]);
+        return $this->success($objectives, 'Objectives retrieved successfully');
     }
 
     /**
@@ -55,11 +52,7 @@ class CourseObjectiveController extends Controller
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Course objective created successfully',
-            'data' => $objective,
-        ], 201);
+        return $this->created($objective, 'Course objective created successfully');
     }
 
     /**
@@ -76,11 +69,7 @@ class CourseObjectiveController extends Controller
 
         $objective->update($request->only(['objective', 'sort_order', 'is_active']));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Course objective updated successfully',
-            'data' => $objective,
-        ]);
+        return $this->success($objective, 'Course objective updated successfully');
     }
 
     /**
@@ -91,9 +80,6 @@ class CourseObjectiveController extends Controller
         $objective = CourseObjective::findOrFail($objectiveId);
         $objective->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Course objective deleted successfully',
-        ]);
+        return $this->emptySuccess('Course objective deleted successfully');
     }
 }

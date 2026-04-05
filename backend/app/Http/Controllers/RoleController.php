@@ -28,10 +28,7 @@ class RoleController extends Controller
 
         $roles = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $roles,
-        ]);
+        return $this->success($roles, 'Roles retrieved successfully');
     }
 
     /**
@@ -41,10 +38,7 @@ class RoleController extends Controller
     {
         $role = Role::with(['users', 'permissions'])->findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'data' => $role,
-        ]);
+        return $this->success($role, 'Role retrieved successfully');
     }
 
     /**
@@ -61,11 +55,7 @@ class RoleController extends Controller
             'role_name' => $request->role_name,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Role created successfully',
-            'data' => $role,
-        ], 201);
+        return $this->created($role, 'Role created successfully');
     }
 
     /**
@@ -81,11 +71,7 @@ class RoleController extends Controller
 
         $role->update($request->only(['role_name', 'is_active']));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Role updated successfully',
-            'data' => $role,
-        ]);
+        return $this->success($role, 'Role updated successfully');
     }
 
     /**
@@ -97,19 +83,13 @@ class RoleController extends Controller
 
         // Prevent deleting core roles
         if (in_array($id, ['admin', 'student', 'instructor'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot delete core system roles',
-            ], 403);
+            return $this->error('Cannot delete core system roles', 403);
         }
 
         $role->permissions()->detach();
         $role->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Role deleted successfully',
-        ]);
+        return $this->emptySuccess('Role deleted successfully');
     }
 
     /**
@@ -120,10 +100,7 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
         $permissions = $role->permissions;
 
-        return response()->json([
-            'success' => true,
-            'data' => $permissions,
-        ]);
+        return $this->success($permissions, 'Permissions retrieved successfully');
     }
 
     /**
@@ -140,11 +117,7 @@ class RoleController extends Controller
 
         $role->permissions()->syncWithoutDetaching($request->permissions);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Permissions assigned successfully',
-            'data' => $role->permissions,
-        ]);
+        return $this->success($role->permissions, 'Permissions assigned successfully');
     }
 
     /**
@@ -155,10 +128,7 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
         $role->permissions()->detach($permissionId);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Permission removed successfully',
-        ]);
+        return $this->emptySuccess('Permission removed successfully');
     }
 
     /**
@@ -175,11 +145,7 @@ class RoleController extends Controller
 
         $role->permissions()->sync($request->permissions);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Permissions synced successfully',
-            'data' => $role->permissions,
-        ]);
+        return $this->success($role->permissions, 'Permissions synced successfully');
     }
 
     /**
@@ -189,9 +155,6 @@ class RoleController extends Controller
     {
         $permissions = Permission::orderBy('name')->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $permissions,
-        ]);
+        return $this->success($permissions, 'Permissions retrieved successfully');
     }
 }

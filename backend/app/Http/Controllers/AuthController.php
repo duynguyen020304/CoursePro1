@@ -53,13 +53,9 @@ class AuthController extends Controller
             $request->userAgent()
         )['raw_token'];
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Login successful',
-            'data' => [
+        return $this->success([
                 'user' => $this->formatUserPayload($userAccount),
-            ],
-        ])
+            ], 'Login successful')
             ->withCookie($this->makeAccessTokenCookie($accessToken))
             ->withCookie($this->makeRefreshTokenCookie($refreshToken));
     }
@@ -109,13 +105,9 @@ class AuthController extends Controller
             $request->userAgent()
         )['raw_token'];
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Account created successfully',
-            'data' => [
+        return $this->created([
                 'user' => $this->formatUserPayload($userAccount),
-            ],
-        ], 201)
+            ], 'Account created successfully')
             ->withCookie($this->makeAccessTokenCookie($accessToken))
             ->withCookie($this->makeRefreshTokenCookie($refreshToken));
     }
@@ -132,10 +124,7 @@ class AuthController extends Controller
         $userAccount = UserAccount::findByEmail($request->email);
 
         if (!$userAccount) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Account not found',
-            ], 404);
+            return $this->error('Account not found', 404);
         }
 
         // Generate 6-digit code
@@ -158,10 +147,7 @@ class AuthController extends Controller
 
         Log::info("[password_reset] forgot_password email={$userAccount->email} ip={$request->ip()} user_agent={$request->userAgent()} result=code_sent");
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Password reset code sent to your email',
-        ]);
+        return $this->emptySuccess('Password reset code sent to your email');
     }
 
     /**
@@ -176,10 +162,7 @@ class AuthController extends Controller
         $userAccount = UserAccount::findByEmail($request->email);
 
         if (!$userAccount) {
-            return response()->json([
-                'success' => true,
-                'message' => 'If that email exists, a reset link has been sent',
-            ]);
+            return $this->emptySuccess('If that email exists, a reset link has been sent');
         }
 
         $passwordResetService = new \App\Services\PasswordResetService();
@@ -197,10 +180,7 @@ class AuthController extends Controller
 
         Log::info("[password_reset] jwt_link_request email={$userAccount->email} ip={$request->ip()} result=email_sent");
 
-        return response()->json([
-            'success' => true,
-            'message' => 'If that email exists, a reset link has been sent',
-        ]);
+        return $this->emptySuccess('If that email exists, a reset link has been sent');
     }
 
     /**
@@ -216,10 +196,7 @@ class AuthController extends Controller
         $userAccount = UserAccount::where('email', $request->email)->first();
 
         if (!$userAccount) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Account not found',
-            ], 404);
+            return $this->error('Account not found', 404);
         }
 
         $reset = PasswordResetToken::where('user_id', $userAccount->user_id)
@@ -228,18 +205,12 @@ class AuthController extends Controller
 
         if (!$reset) {
             Log::info("[password_reset] verify_code email={$request->email} ip={$request->ip()} user_agent={$request->userAgent()} result=failure_invalid_code");
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid code',
-            ], 400);
+            return $this->error('Invalid code', 400);
         }
 
         Log::info("[password_reset] verify_code email={$request->email} ip={$request->ip()} user_agent={$request->userAgent()} result=success");
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Code verified successfully',
-        ]);
+        return $this->emptySuccess('Code verified successfully');
     }
 
     /**
@@ -256,10 +227,7 @@ class AuthController extends Controller
         $userAccount = UserAccount::where('email', $request->email)->first();
 
         if (!$userAccount) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Account not found',
-            ], 404);
+            return $this->error('Account not found', 404);
         }
 
         $token = $request->token;
@@ -272,10 +240,7 @@ class AuthController extends Controller
 
             if (!$validUserId || $validUserId !== $userAccount->user_id) {
                 Log::info("[password_reset] reset_password_attempt email={$request->email} ip={$request->ip()} method=jwt result=failure_invalid_token");
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid or expired token',
-                ], 401);
+            return $this->error('Invalid or expired token', 401);
             }
 
             // Invalidate all refresh tokens (security: prevent session hijacking)
@@ -291,19 +256,13 @@ class AuthController extends Controller
                 ->first();
 
             if (!$reset) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid or expired code',
-                ], 400);
+                return $this->error('Invalid or expired code', 400);
             }
 
             // Check expiry
             if ($reset->expires_at && $reset->expires_at->isPast()) {
                 Log::info("[password_reset] reset_password_attempt email={$request->email} ip={$request->ip()} method=code result=failure_code_expired");
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Code has expired',
-                ], 400);
+                return $this->error('Code has expired', 400);
             }
 
             // Delete used reset token
@@ -318,10 +277,7 @@ class AuthController extends Controller
 
         Log::info("[password_reset] password_changed email={$userAccount->email} method=" . ($isJwt ? 'jwt' : 'code'));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Password reset successfully',
-        ]);
+        return $this->emptySuccess('Password reset successfully');
     }
 
     /**
@@ -338,19 +294,13 @@ class AuthController extends Controller
         $userAccount = $request->user();
 
         if (!Hash::check($request->current_password, $userAccount->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Current password is incorrect',
-            ], 400);
+            return $this->error('Current password is incorrect', 400);
         }
 
         $userAccount->password = Hash::make($request->password);
         $userAccount->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Password changed successfully',
-        ]);
+        return $this->emptySuccess('Password changed successfully');
     }
 
     /**
@@ -358,12 +308,9 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
-        return response()->json([
-            'success' => true,
-            'data' => [
+        return $this->success([
                 'user' => $this->formatUserPayload($request->user()),
-            ],
-        ]);
+            ], 'User retrieved successfully');
     }
 
     /**
@@ -383,10 +330,7 @@ class AuthController extends Controller
             $authService->revokeRefreshToken($refreshToken);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logged out successfully',
-        ])
+        return $this->emptySuccess('Logged out successfully')
             ->withCookie($this->expireCookie(name: 'access_token', path: '/'))
             ->withCookie($this->expireCookie(name: 'refresh_token', path: '/api/auth'));
     }
@@ -411,33 +355,22 @@ class AuthController extends Controller
                 $request->userAgent()
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => $result['is_new_user'] ? 'Account created successfully' : 'Login successful',
-                'data' => [
+            return $this->success([
                     'user' => $result['user'],
                     'is_new_user' => $result['is_new_user'],
-                ],
-            ])
+                ], $result['is_new_user'] ? 'Account created successfully' : 'Login successful')
                 ->withCookie($this->makeAccessTokenCookie($result['access_token']))
                 ->withCookie($this->makeRefreshTokenCookie($result['refresh_token']));
 
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Authentication failed',
-                'errors' => $e->errors(),
-            ], 401);
+            return $this->error('Authentication failed', 401);
         } catch (\Exception $e) {
             Log::error('Google OAuth error', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred during authentication',
-            ], 500);
+            return $this->error('An error occurred during authentication', 500);
         }
     }
 
@@ -449,10 +382,7 @@ class AuthController extends Controller
         $refreshToken = $request->cookie('refresh_token');
 
         if (!$refreshToken) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Refresh token not provided',
-            ], 401);
+            return $this->error('Refresh token not provided', 401);
         }
 
         $authService = new AuthService();
@@ -470,21 +400,14 @@ class AuthController extends Controller
 
             $currentRefreshToken->revoke();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Token refreshed successfully',
-                'data' => [
+            return $this->success([
                     'user' => $this->formatUserPayload($userAccount),
-                ],
-            ])
+                ], 'Token refreshed successfully')
                 ->withCookie($this->makeAccessTokenCookie($accessToken))
                 ->withCookie($this->makeRefreshTokenCookie($newRefreshToken));
 
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid or expired refresh token',
-            ], 401)
+            return $this->error('Invalid or expired refresh token', 401)
                 ->withCookie($this->expireCookie(name: 'access_token', path: '/'))
                 ->withCookie($this->expireCookie(name: 'refresh_token', path: '/api/auth'));
         }

@@ -29,10 +29,7 @@ class CourseCategoryController extends Controller
 
         $categories = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $categories,
-        ]);
+        return $this->success($categories, 'Categories retrieved successfully');
     }
 
     /**
@@ -52,19 +49,12 @@ class CourseCategoryController extends Controller
         $exists = $course->categories()->where('category_id', $request->category_id)->exists();
 
         if ($exists) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Category already assigned to this course',
-            ], 400);
+            return $this->error('Category already assigned to this course', 400);
         }
 
         $course->categories()->attach($request->category_id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Category assigned successfully',
-            'data' => $course->categories()->with('parent')->get(),
-        ]);
+        return $this->success($course->categories()->with('parent')->get(), 'Category assigned successfully');
     }
 
     /**
@@ -77,9 +67,6 @@ class CourseCategoryController extends Controller
 
         $course->categories()->detach($categoryId);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Category removed from course successfully',
-        ]);
+        return $this->emptySuccess('Category removed from course successfully');
     }
 }

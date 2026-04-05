@@ -33,10 +33,7 @@ class CartItemController extends Controller
             ->first();
 
         if ($existingItem) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Course already in cart',
-            ], 400);
+            return $this->error('Course already in cart', 400);
         }
 
         $cartItem = CartItem::create([
@@ -46,11 +43,7 @@ class CartItemController extends Controller
             'quantity' => $request->quantity ?? 1,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Added to cart successfully',
-            'data' => $cartItem->load('course.instructor.user', 'course.images'),
-        ], 201);
+        return $this->created($cartItem->load('course.instructor.user', 'course.images'), 'Added to cart successfully');
     }
 
     /**
@@ -61,9 +54,6 @@ class CartItemController extends Controller
         $cartItem = CartItem::findOrFail($cartItemId);
         $cartItem->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Item removed from cart',
-        ]);
+        return $this->emptySuccess('Item removed from cart');
     }
 }

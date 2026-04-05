@@ -72,10 +72,7 @@ class CourseController extends Controller
         $perPage = $request->get('per_page', 12);
         $courses = $query->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
-            'data' => $courses,
-        ]);
+        return $this->paginated($courses, 'Courses retrieved successfully');
     }
 
     /**
@@ -107,6 +104,7 @@ class CourseController extends Controller
 
         return response()->json([
             'success' => true,
+            'message' => 'Course retrieved successfully',
             'data' => [
                 'course' => $course,
                 'average_rating' => round($averageRating, 1),
@@ -180,6 +178,7 @@ class CourseController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Course deleted successfully',
+            'data' => null,
         ]);
     }
 }

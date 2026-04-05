@@ -19,10 +19,7 @@ class StudentController extends Controller
         $student = Student::where('user_id', $user->user_id)->first();
 
         if (!$student) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Student profile not found',
-            ], 404);
+            return $this->error('Student profile not found', 404);
         }
 
         // Get purchased courses
@@ -36,13 +33,10 @@ class StudentController extends Controller
             })
             ->unique('course_id');
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'student' => $student->load('user.role'),
-                'purchased_courses' => $purchasedCourses,
-            ],
-        ]);
+        return $this->success([
+            'student' => $student->load('user.role'),
+            'purchased_courses' => $purchasedCourses,
+        ], 'Student profile retrieved successfully');
     }
 
     /**
@@ -62,9 +56,9 @@ class StudentController extends Controller
             })
             ->exists();
 
-        return response()->json([
-            'success' => true,
-            'data' => ['has_purchased' => $hasPurchased],
-        ]);
+        return $this->success(
+            ['has_purchased' => $hasPurchased],
+            'Purchase status retrieved successfully'
+        );
     }
 }

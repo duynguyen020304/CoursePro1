@@ -31,10 +31,7 @@ class CourseRequirementController extends Controller
 
         $requirements = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $requirements,
-        ]);
+        return $this->success($requirements, 'Requirements retrieved successfully');
     }
 
     /**
@@ -55,11 +52,7 @@ class CourseRequirementController extends Controller
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Course requirement created successfully',
-            'data' => $requirement,
-        ], 201);
+        return $this->created($requirement, 'Course requirement created successfully');
     }
 
     /**
@@ -76,11 +69,7 @@ class CourseRequirementController extends Controller
 
         $requirement->update($request->only(['requirement', 'sort_order', 'is_active']));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Course requirement updated successfully',
-            'data' => $requirement,
-        ]);
+        return $this->success($requirement, 'Course requirement updated successfully');
     }
 
     /**
@@ -91,9 +80,6 @@ class CourseRequirementController extends Controller
         $requirement = CourseRequirement::findOrFail($requirementId);
         $requirement->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Course requirement deleted successfully',
-        ]);
+        return $this->emptySuccess('Course requirement deleted successfully');
     }
 }

@@ -39,9 +39,6 @@ class SearchController extends Controller
 
         $courses = $courseQuery->limit(10)->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $courses,
-        ]);
+        return $this->success($courses, 'Search results retrieved successfully');
     }
 }

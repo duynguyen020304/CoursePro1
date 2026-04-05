@@ -21,16 +21,10 @@ class CartController extends Controller
             ->first();
 
         if (!$cart) {
-            return response()->json([
-                'success' => true,
-                'data' => null,
-            ]);
+            return $this->emptySuccess('Cart is empty');
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $cart,
-        ]);
+        return $this->success($cart, 'Cart retrieved successfully');
     }
 
     /**
@@ -56,9 +50,6 @@ class CartController extends Controller
             CartItem::where('cart_id', $cart->cart_id)->delete();
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Cart cleared successfully',
-        ]);
+        return $this->emptySuccess('Cart cleared successfully');
     }
 }

@@ -31,10 +31,7 @@ class CourseImageController extends Controller
 
         $images = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $images,
-        ]);
+        return $this->success($images, 'Course images retrieved successfully');
     }
 
     /**
@@ -63,11 +60,7 @@ class CourseImageController extends Controller
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Course image created successfully',
-            'data' => $image,
-        ], 201);
+        return $this->created($image, 'Course image created successfully');
     }
 
     /**
@@ -92,11 +85,7 @@ class CourseImageController extends Controller
 
         $image->update($request->only(['image_url', 'is_primary', 'sort_order', 'is_active']));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Course image updated successfully',
-            'data' => $image,
-        ]);
+        return $this->success($image, 'Course image updated successfully');
     }
 
     /**
@@ -107,9 +96,6 @@ class CourseImageController extends Controller
         $image = CourseImage::findOrFail($imageId);
         $image->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Course image deleted successfully',
-        ]);
+        return $this->emptySuccess('Course image deleted successfully');
     }
 }

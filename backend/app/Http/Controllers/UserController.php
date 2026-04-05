@@ -43,10 +43,7 @@ class UserController extends Controller
             return $user;
         });
 
-        return response()->json([
-            'success' => true,
-            'data' => $users,
-        ]);
+        return $this->paginated($users, 'Users retrieved successfully');
     }
 
     /**
@@ -58,20 +55,17 @@ class UserController extends Controller
         $userAccount = $request->user();
         $user = $userAccount->user->load(['role.permissions', 'student', 'instructor']);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'user_id' => $user->user_id,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'email' => $userAccount->email,
-                'role_id' => $user->role_id,
-                'profile_image' => $user->profile_image,
-                'role' => $user->role,
-                'student' => $user->student,
-                'instructor' => $user->instructor,
-            ],
-        ]);
+        return $this->success([
+            'user_id' => $user->user_id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $userAccount->email,
+            'role_id' => $user->role_id,
+            'profile_image' => $user->profile_image,
+            'role' => $user->role,
+            'student' => $user->student,
+            'instructor' => $user->instructor,
+        ], 'Profile retrieved successfully');
     }
 
     /**
@@ -90,18 +84,14 @@ class UserController extends Controller
 
         $user->update($request->only(['first_name', 'last_name', 'profile_image']));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Profile updated successfully',
-            'data' => [
-                'user_id' => $user->user_id,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'email' => $userAccount->email,
-                'role_id' => $user->role_id,
-                'profile_image' => $user->profile_image,
-            ],
-        ]);
+        return $this->success([
+            'user_id' => $user->user_id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $userAccount->email,
+            'role_id' => $user->role_id,
+            'profile_image' => $user->profile_image,
+        ], 'Profile updated successfully');
     }
 
     /**
@@ -120,10 +110,7 @@ class UserController extends Controller
 
         $user->email = $user->userAccount?->email;
 
-        return response()->json([
-            'success' => true,
-            'data' => $user,
-        ]);
+        return $this->success($user, 'User retrieved successfully');
     }
 
     /**
@@ -152,11 +139,7 @@ class UserController extends Controller
         $user->load(['role', 'student', 'instructor', 'userAccount']);
         $user->email = $user->userAccount?->email;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User updated successfully',
-            'data' => $user,
-        ]);
+        return $this->success($user, 'User updated successfully');
     }
 
     /**
@@ -168,10 +151,7 @@ class UserController extends Controller
         // Cascade delete will handle userAccount via foreign key
         $user->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User deleted successfully',
-        ]);
+        return $this->emptySuccess('User deleted successfully');
     }
 
     /**
@@ -187,10 +167,9 @@ class UserController extends Controller
 
         $user->update(['role_id' => $request->role_id]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Role assigned successfully',
-            'data' => $user->fresh(['role', 'student', 'instructor', 'userAccount']),
-        ]);
+        return $this->success(
+            $user->fresh(['role', 'student', 'instructor', 'userAccount']),
+            'Role assigned successfully'
+        );
     }
 }

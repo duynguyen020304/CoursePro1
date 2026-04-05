@@ -31,10 +31,7 @@ class VideoController extends Controller
 
         $videos = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $videos,
-        ]);
+        return $this->success($videos, 'Videos retrieved successfully');
     }
 
     /**
@@ -59,11 +56,7 @@ class VideoController extends Controller
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Video created successfully',
-            'data' => $video,
-        ], 201);
+        return $this->created($video, 'Video created successfully');
     }
 
     /**
@@ -82,11 +75,7 @@ class VideoController extends Controller
 
         $video->update($request->only(['url', 'title', 'duration', 'sort_order', 'is_active']));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Video updated successfully',
-            'data' => $video,
-        ]);
+        return $this->success($video, 'Video updated successfully');
     }
 
     /**
@@ -97,9 +86,6 @@ class VideoController extends Controller
         $video = CourseVideo::findOrFail($videoId);
         $video->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Video deleted successfully',
-        ]);
+        return $this->emptySuccess('Video deleted successfully');
     }
 }

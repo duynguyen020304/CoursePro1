@@ -29,10 +29,7 @@ class CourseInstructorController extends Controller
 
         $instructors = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $instructors,
-        ]);
+        return $this->success($instructors, 'Instructors retrieved successfully');
     }
 
     /**
@@ -52,19 +49,12 @@ class CourseInstructorController extends Controller
         $exists = $course->instructors()->where('instructor_id', $request->instructor_id)->exists();
 
         if ($exists) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Instructor already assigned to this course',
-            ], 400);
+            return $this->error('Instructor already assigned to this course', 400);
         }
 
         $course->instructors()->attach($request->instructor_id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Instructor assigned successfully',
-            'data' => $course->instructors()->with('user')->get(),
-        ]);
+        return $this->success($course->instructors()->with('user')->get(), 'Instructor assigned successfully');
     }
 
     /**
@@ -77,9 +67,6 @@ class CourseInstructorController extends Controller
 
         $course->instructors()->detach($instructorId);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Instructor removed from course successfully',
-        ]);
+        return $this->emptySuccess('Instructor removed from course successfully');
     }
 }

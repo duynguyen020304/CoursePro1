@@ -31,10 +31,7 @@ class LessonController extends Controller
 
         $lessons = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $lessons,
-        ]);
+        return $this->success($lessons, 'Lessons retrieved successfully');
     }
 
     /**
@@ -57,11 +54,7 @@ class LessonController extends Controller
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lesson created successfully',
-            'data' => $lesson,
-        ], 201);
+        return $this->created($lesson, 'Lesson created successfully');
     }
 
     /**
@@ -71,10 +64,7 @@ class LessonController extends Controller
     {
         $lesson->load(['videos', 'resources', 'chapter']);
 
-        return response()->json([
-            'success' => true,
-            'data' => $lesson,
-        ]);
+        return $this->success($lesson, 'Lesson retrieved successfully');
     }
 
     /**
@@ -90,11 +80,7 @@ class LessonController extends Controller
 
         $lesson->update($request->only(['title', 'content', 'sort_order', 'is_active']));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lesson updated successfully',
-            'data' => $lesson->fresh(['videos', 'resources']),
-        ]);
+        return $this->success($lesson->fresh(['videos', 'resources']), 'Lesson updated successfully');
     }
 
     /**
@@ -104,9 +90,6 @@ class LessonController extends Controller
     {
         $lesson->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lesson deleted successfully',
-        ]);
+        return $this->emptySuccess('Lesson deleted successfully');
     }
 }

@@ -20,16 +20,10 @@ class PaymentController extends Controller
             ->first();
 
         if (!$payment) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Payment not found for this order',
-            ], 404);
+            return $this->error('Payment not found for this order', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $payment,
-        ]);
+        return $this->success($payment, 'Payment retrieved successfully');
     }
 
     /**
@@ -44,11 +38,7 @@ class PaymentController extends Controller
         $payment = Payment::findOrFail($paymentId);
         $payment->update(['payment_status' => $request->payment_status]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Payment status updated successfully',
-            'data' => $payment->fresh(['order']),
-        ]);
+        return $this->success($payment->fresh(['order']), 'Payment status updated successfully');
     }
 
     /**
@@ -64,10 +54,7 @@ class PaymentController extends Controller
         $order = Order::where('order_id', $request->order_id)->first();
 
         if (!$order) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Order not found',
-            ], 404);
+            return $this->error('Order not found', 404);
         }
 
         $payment = Payment::where('order_id', $request->order_id)->first();
@@ -88,10 +75,6 @@ class PaymentController extends Controller
             ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Payment completed successfully',
-            'data' => $payment->fresh(['order']),
-        ]);
+        return $this->success($payment->fresh(['order']), 'Payment completed successfully');
     }
 }

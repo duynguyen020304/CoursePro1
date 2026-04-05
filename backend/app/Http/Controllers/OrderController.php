@@ -35,10 +35,7 @@ class OrderController extends Controller
 
         $orders = $query->paginate($request->get('per_page', 10));
 
-        return response()->json([
-            'success' => true,
-            'data' => $orders,
-        ]);
+        return $this->paginated($orders, 'Orders retrieved successfully');
     }
 
     /**
@@ -52,10 +49,7 @@ class OrderController extends Controller
         $cart = Cart::with('items.course')->where('user_id', $user->user_id)->first();
 
         if (!$cart || $cart->items->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cart is empty',
-            ], 400);
+            return $this->error('Cart is empty', 400);
         }
 
         DB::beginTransaction();
@@ -98,18 +92,11 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Order created successfully',
-                'data' => $order->load(['details.course.instructor.user', 'payment']),
-            ], 201);
+            return $this->created($order->load(['details.course.instructor.user', 'payment']), 'Order created successfully');
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create order: ' . $e->getMessage(),
-            ], 500);
+            return $this->error('Failed to create order', 500);
         }
     }
 
@@ -126,16 +113,10 @@ class OrderController extends Controller
             ->first();
 
         if (!$order) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Order not found',
-            ], 404);
+            return $this->error('Order not found', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $order,
-        ]);
+        return $this->success($order, 'Order retrieved successfully');
     }
 
     /**
@@ -155,10 +136,6 @@ class OrderController extends Controller
             ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Payment status updated successfully',
-            'data' => $order->fresh(['payment']),
-        ]);
+        return $this->success($order->fresh(['payment']), 'Payment status updated successfully');
     }
 }

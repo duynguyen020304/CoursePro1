@@ -26,6 +26,7 @@ class InstructorCourseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'User is not an instructor',
+                'data' => null,
             ], 403);
         }
 
@@ -67,6 +68,7 @@ class InstructorCourseController extends Controller
 
         return response()->json([
             'success' => true,
+            'message' => 'Courses retrieved successfully',
             'data' => $coursesWithStats,
         ]);
     }
@@ -82,6 +84,7 @@ class InstructorCourseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'User is not an instructor',
+                'data' => null,
             ], 403);
         }
 
@@ -158,6 +161,7 @@ class InstructorCourseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Course not found or you do not have permission to access it',
+                'data' => null,
             ], 404);
         }
 
@@ -172,6 +176,7 @@ class InstructorCourseController extends Controller
 
         return response()->json([
             'success' => true,
+            'message' => 'Course retrieved successfully',
             'data' => $course,
         ]);
     }
@@ -187,6 +192,7 @@ class InstructorCourseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Course not found or you do not have permission to update it',
+                'data' => null,
             ], 404);
         }
 
@@ -257,6 +263,7 @@ class InstructorCourseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Course not found or you do not have permission to delete it',
+                'data' => null,
             ], 404);
         }
 
@@ -265,6 +272,7 @@ class InstructorCourseController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Course deleted successfully',
+            'data' => null,
         ]);
     }
 
@@ -279,6 +287,7 @@ class InstructorCourseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Course not found or you do not have permission',
+                'data' => null,
             ], 404);
         }
 
@@ -319,6 +328,7 @@ class InstructorCourseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Course not found or you do not have permission',
+                'data' => null,
             ], 404);
         }
 
@@ -330,6 +340,7 @@ class InstructorCourseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Image not found',
+                'data' => null,
             ], 404);
         }
 
@@ -338,6 +349,7 @@ class InstructorCourseController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Image deleted successfully',
+            'data' => null,
         ]);
     }
 
@@ -352,6 +364,7 @@ class InstructorCourseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'User is not an instructor',
+                'data' => null,
             ], 403);
         }
 
@@ -371,6 +384,7 @@ class InstructorCourseController extends Controller
 
         return response()->json([
             'success' => true,
+            'message' => 'Statistics retrieved successfully',
             'data' => [
                 'total_courses' => $totalCourses,
                 'total_students' => $totalStudents,

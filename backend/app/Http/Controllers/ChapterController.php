@@ -30,10 +30,7 @@ class ChapterController extends Controller
 
         $chapters = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $chapters,
-        ]);
+        return $this->success($chapters, 'Chapters retrieved successfully');
     }
 
     /**
@@ -55,11 +52,7 @@ class ChapterController extends Controller
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Chapter created successfully',
-            'data' => $chapter,
-        ], 201);
+        return $this->created($chapter, 'Chapter created successfully');
     }
 
     /**
@@ -75,11 +68,7 @@ class ChapterController extends Controller
 
         $chapter->update($request->only(['title', 'description', 'sort_order', 'is_active']));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Chapter updated successfully',
-            'data' => $chapter->fresh(['lessons']),
-        ]);
+        return $this->success($chapter->fresh(['lessons']), 'Chapter updated successfully');
     }
 
     /**
@@ -89,9 +78,6 @@ class ChapterController extends Controller
     {
         $chapter->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Chapter deleted successfully',
-        ]);
+        return $this->emptySuccess('Chapter deleted successfully');
     }
 }

@@ -31,10 +31,7 @@ class ResourceController extends Controller
 
         $resources = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $resources,
-        ]);
+        return $this->success($resources, 'Resources retrieved successfully');
     }
 
     /**
@@ -57,11 +54,7 @@ class ResourceController extends Controller
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Resource created successfully',
-            'data' => $resource,
-        ], 201);
+        return $this->created($resource, 'Resource created successfully');
     }
 
     /**
@@ -79,11 +72,7 @@ class ResourceController extends Controller
 
         $resource->update($request->only(['resource_path', 'title', 'sort_order', 'is_active']));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Resource updated successfully',
-            'data' => $resource,
-        ]);
+        return $this->success($resource, 'Resource updated successfully');
     }
 
     /**
@@ -94,9 +83,6 @@ class ResourceController extends Controller
         $resource = CourseResource::findOrFail($resourceId);
         $resource->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Resource deleted successfully',
-        ]);
+        return $this->emptySuccess('Resource deleted successfully');
     }
 }

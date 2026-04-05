@@ -36,10 +36,7 @@ class ReviewController extends Controller
 
         $reviews = $query->paginate($request->get('per_page', 10));
 
-        return response()->json([
-            'success' => true,
-            'data' => $reviews,
-        ]);
+        return $this->paginated($reviews, 'Reviews retrieved successfully');
     }
 
     /**
@@ -64,6 +61,7 @@ class ReviewController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'You have already reviewed this course',
+                'data' => null,
             ], 400);
         }
 
@@ -94,6 +92,7 @@ class ReviewController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized',
+                'data' => null,
             ], 403);
         }
 
@@ -123,6 +122,7 @@ class ReviewController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized',
+                'data' => null,
             ], 403);
         }
 
@@ -131,6 +131,7 @@ class ReviewController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Review deleted successfully',
+            'data' => null,
         ]);
     }
 }

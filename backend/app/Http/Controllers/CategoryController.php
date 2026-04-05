@@ -32,10 +32,7 @@ class CategoryController extends Controller
 
             $categories = $query->get();
 
-            return response()->json([
-                'success' => true,
-                'data' => $categories,
-            ]);
+            return $this->success($categories, 'Categories retrieved successfully');
         }
 
         // Get all categories with parent info
@@ -54,10 +51,7 @@ class CategoryController extends Controller
 
         $categories = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $categories,
-        ]);
+        return $this->success($categories, 'Categories retrieved successfully');
     }
 
     /**
@@ -80,10 +74,7 @@ class CategoryController extends Controller
 
         $category = $query->firstOrFail();
 
-        return response()->json([
-            'success' => true,
-            'data' => $category,
-        ]);
+        return $this->success($category, 'Category retrieved successfully');
     }
 
     /**
@@ -103,11 +94,7 @@ class CategoryController extends Controller
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Category created successfully',
-            'data' => $category,
-        ], 201);
+        return $this->created($category, 'Category created successfully');
     }
 
     /**
@@ -125,11 +112,7 @@ class CategoryController extends Controller
 
         $category->update($request->only(['name', 'parent_id', 'sort_order', 'is_active']));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Category updated successfully',
-            'data' => $category,
-        ]);
+        return $this->success($category, 'Category updated successfully');
     }
 
     /**
@@ -140,9 +123,6 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $category->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Category deleted successfully',
-        ]);
+        return $this->emptySuccess('Category deleted successfully');
     }
 }
