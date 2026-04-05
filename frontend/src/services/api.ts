@@ -218,6 +218,27 @@ function validated<T extends z.ZodTypeAny>(
 }
 
 /**
+ * Auth-specific validation helper that unwraps the nested { user } layer.
+ * Auth endpoints (login/signup) return { success, message, data: { user: {...} } }.
+ * This helper extracts the user directly so consumers access response.data.user (NOT response.data.data.user).
+ * For endpoints that return flat user data (profile/current), use standard validated().
+ */
+function unwrapAuthUser(
+  call: Promise<unknown>,
+  schema: z.ZodTypeAny,
+  key: string
+): Promise<{ data: z.infer<typeof userSchema> }> {
+  return validated(call, schema, key).then((result) => {
+    // Auth responses have { success, message, data: { user } } - extract user directly
+    const user = (result.data as { data?: { user?: unknown } })?.data?.user;
+    return { data: user as z.infer<typeof userSchema> };
+  });
+}
+
+// Re-export userSchema type for use in authApi
+export type { User } from '../schemas/auth/apiResponses.schema';
+
+/**
  * Generic API response wrapper — validates { success, data } shape.
  * Used for endpoints without domain-specific schemas.
  */
@@ -236,6 +257,7 @@ import {
   resetPasswordResponseSchema,
   changePasswordResponseSchema,
   logoutResponseSchema,
+  userSchema,
 } from '../schemas/auth/apiResponses.schema';
 
 import {
@@ -301,9 +323,9 @@ import {
 // Auth API methods
 export const authApi = {
   login: (credentials: { email: string; password: string }) =>
-    validated(api.post('/login', credentials), loginResponseSchema, 'authApi.login'),
+    unwrapAuthUser(api.post('/login', credentials), loginResponseSchema, 'authApi.login'),
   signup: (data: { first_name: string; last_name: string; email: string; password: string; password_confirmation: string }) =>
-    validated(api.post('/signup', data), signupResponseSchema, 'authApi.signup'),
+    unwrapAuthUser(api.post('/signup', data), signupResponseSchema, 'authApi.signup'),
   forgotPassword: (email: string) =>
     validated(api.post('/forgot-password', { email }), forgotPasswordResponseSchema, 'authApi.forgotPassword'),
   forgotPasswordJwt: (email: string) =>
