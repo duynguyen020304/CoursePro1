@@ -54,13 +54,12 @@ export default function Home() {
           instructorPublicApi.list({ limit: 6 }),
         ]);
 
-        // New schema: coursesRes.data.data is the courses array
-        const coursesData = coursesRes.data.data || [];
-        const categoriesData = (categoriesRes.data.data as Category[]) || [];
-        const instructorsPayload = instructorsRes.data as { data?: { data?: Instructor[] } | Instructor[] };
-        const instructorsData = Array.isArray(instructorsPayload.data)
-          ? instructorsPayload.data
-          : (instructorsPayload.data?.data || []);
+        // T12/T13: Service layer returns { data: <validated_response> }
+        // For paginated: validated_response = { success, message, data: [...items], pagination... }
+        // For non-paginated: validated_response = { success, message, data: [...] }
+        const coursesData = coursesRes.data?.data || [];
+        const categoriesData = (categoriesRes.data?.data as Category[]) || [];
+        const instructorsData = (instructorsRes.data?.data as Instructor[]) || [];
 
         setFeaturedCourses(Array.isArray(coursesData) ? coursesData : []);
         setCategories(Array.isArray(categoriesData) ? categoriesData : []);

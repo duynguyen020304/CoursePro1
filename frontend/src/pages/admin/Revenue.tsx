@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import { Chart, registerables } from 'chart.js';
-import api from '../../services/api';
+import { orderApi } from '../../services/api';
 import {
   revenueDateRangeSchema,
   type RevenueDateRangeFormData,
@@ -61,13 +61,10 @@ export default function Revenue() {
   useEffect(() => {
     async function fetchRevenueData() {
       try {
-        const ordersRes = await api.get('/orders', { params: { page: 1, per_page: 100 } }).catch(() => null);
+        const ordersRes = await orderApi.list({ page: 1, per_page: 100 }).catch(() => null);
 
         if (ordersRes?.data?.data) {
-          // Handle paginated response - orders could be in data.data or data.data.data
-          const orders = Array.isArray(ordersRes.data.data)
-            ? ordersRes.data.data
-            : (ordersRes.data.data?.data || []);
+          const orders = ordersRes.data.data;
 
           // Filter by date range
           const filteredOrders = orders.filter((order: any) => {

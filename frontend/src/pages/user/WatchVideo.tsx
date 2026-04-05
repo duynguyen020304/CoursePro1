@@ -61,15 +61,17 @@ export default function WatchVideo() {
       try {
         if (isAuthenticated) {
           try {
+            // T12/T13: hasPurchasedSchema = { success, message, data: { has_purchased } }
             const purchaseCheck = await studentApi.hasPurchased(courseId!);
-            setHasPurchased(purchaseCheck.data.data?.has_purchased || false);
+            setHasPurchased(purchaseCheck.data?.data?.has_purchased || false);
           } catch (err) {
             console.error('Failed to check purchase:', err);
           }
         }
 
+        // T12/T13: courseDetailResponseSchema = { success, message, data: { course, average_rating, total_reviews } }
         const response = await courseApi.get(courseId!);
-        const courseData = response.data.data?.course || response.data.data;
+        const courseData = response.data?.data?.course || response.data?.data;
         setCourse(courseData as CourseData);
 
         const allLessons = ((courseData.chapters as Chapter[] | undefined)?.flatMap((ch) => ch.lessons || []) || []) as Lesson[];

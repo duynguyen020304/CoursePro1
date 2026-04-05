@@ -75,11 +75,11 @@ export default function CourseDetail() {
   useEffect(() => {
     async function fetchCourse() {
       try {
+        // T12/T13: courseDetailResponseSchema = { success, message, data: { course, average_rating, total_reviews } }
         const response = await courseApi.get(id || '');
-        // New schema: response.data is { course, average_rating, total_reviews }
-        setCourse(response.data.data.course);
-        setAverageRating(response.data.data.average_rating || 0);
-        setTotalReviews(response.data.data.total_reviews || 0);
+        setCourse(response.data?.data?.course);
+        setAverageRating(response.data?.data?.average_rating || 0);
+        setTotalReviews(response.data?.data?.total_reviews || 0);
       } catch (error) {
         console.error('Failed to fetch course:', error);
       } finally {

@@ -30,8 +30,10 @@ export default function PurchaseHistory() {
   useEffect(() => {
     async function fetchOrders() {
       try {
+        // T12/T13: Service layer returns { data: <validated_response> }
+        // For paginated: validated_response = { success, message, data: [...orders], pagination... }
         const response = await orderApi.list();
-        const ordersData = response.data.data as unknown as Order[];
+        const ordersData = (response.data?.data || []) as unknown as Order[];
         setOrders(ordersData);
       } catch (error) {
         console.error('Failed to fetch orders:', error);

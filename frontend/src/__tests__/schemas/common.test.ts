@@ -103,10 +103,12 @@ describe('Common Zod Schemas', () => {
     it('should validate correctly structured pagination response', async () => {
       const { paginationSchema } = await import('../../schemas/common/pagination.schema')
       
+      // Flat pagination contract from backend paginated() helper
       const validPagination = {
-        data: [{ id: 1 }, { id: 2 }],
-        total: 100,
-        page: 1,
+        hasNextPage: true,
+        hasPreviousPage: false,
+        totalPage: 10,
+        totalItem: 100,
       }
       
       const result = paginationSchema.safeParse(validPagination)
@@ -117,8 +119,8 @@ describe('Common Zod Schemas', () => {
       const { paginationSchema } = await import('../../schemas/common/pagination.schema')
       
       const invalidPagination = {
-        data: [],
-        // missing total and page
+        hasNextPage: true,
+        // missing hasPreviousPage, totalPage, totalItem
       }
       
       const result = paginationSchema.safeParse(invalidPagination)
@@ -143,9 +145,11 @@ describe('Common Zod Schemas', () => {
     it('should validate error response', async () => {
       const { apiResponseSchema } = await import('../../schemas/common/apiResponse.schema')
       
+      // Standard error envelope: success=false, message, data: null
       const errorResponse = {
         success: false,
-        error: 'Something went wrong',
+        message: 'Something went wrong',
+        data: null,
       }
       
       const result = apiResponseSchema.safeParse(errorResponse)
@@ -158,6 +162,30 @@ describe('Common Zod Schemas', () => {
       const invalidResponse = {
         data: {},
         message: 'No success flag',
+      }
+      
+      const result = apiResponseSchema.safeParse(invalidResponse)
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject response without message', async () => {
+      const { apiResponseSchema } = await import('../../schemas/common/apiResponse.schema')
+      
+      const invalidResponse = {
+        success: true,
+        data: { id: 1 },
+      }
+      
+      const result = apiResponseSchema.safeParse(invalidResponse)
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject response without data', async () => {
+      const { apiResponseSchema } = await import('../../schemas/common/apiResponse.schema')
+      
+      const invalidResponse = {
+        success: true,
+        message: 'Missing data field',
       }
       
       const result = apiResponseSchema.safeParse(invalidResponse)

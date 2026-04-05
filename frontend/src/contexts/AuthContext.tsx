@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { authApi, userApi } from '../services/api';
 import type { UserProfile, UpdateProfileResponse } from '../schemas/user/apiResponses.schema';
-import type { LoginResponse, SignupResponse, User } from '../schemas/auth/apiResponses.schema';
+import type { User } from '../schemas/auth/apiResponses.schema';
 
 /**
  * Auth context state shape
@@ -82,8 +82,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const fetchUserPermissions = useCallback(async (): Promise<void> => {
     try {
       const response = await userApi.profile();
-      const responseData = response.data as { data?: { role?: { permissions?: Array<{ name: string }> } } };
-      const userData = responseData?.data;
+      // userApi.profile() returns { data: UserProfile } directly (flat structure)
+      const userData = response.data as { role?: { permissions?: Array<{ name: string }> } };
 
       if (userData?.role?.permissions) {
         setUserPermissions(userData.role.permissions.map((permission) => permission.name));
@@ -102,8 +102,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const refreshAuth = useCallback(async (): Promise<{ success: boolean; user?: User | UserProfile }> => {
     try {
       const response = await userApi.current();
-      const responseData = response.data as { data?: { user?: User | UserProfile } };
-      const userData = responseData?.data?.user;
+      // userApi.current() returns { data: { success, message, data: userProfile } }
+      // response.data.data is the userProfile object directly
+      const userData = (response.data as { data?: User | UserProfile })?.data;
 
       if (!userData) {
         clearAuthState();
@@ -144,11 +145,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   const login = useCallback(
     async (email: string, password: string): Promise<{ success: boolean; user?: User | UserProfile; message?: string }> => {
+      // authApi.login() returns { data: User } with user directly in data (unwrapped from { user } layer)
       const response = await authApi.login({ email, password });
-      const data = (response as unknown as { data: LoginResponse }).data;
+      const userData = response.data as User | undefined;
 
-      if (data.success && data.data?.user) {
-        const userData = data.data.user;
+      if (userData && 'user_id' in userData) {
         setUser(userData);
         setIsAuthenticated(true);
 
@@ -159,7 +160,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { success: true, user: userData };
       }
 
-      return { success: false, message: data.message || 'Login failed' };
+      return { success: false, message: 'Login failed' };
     },
     [fetchUserPermissions]
   );
@@ -175,11 +176,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       password: string;
       password_confirmation: string;
     }): Promise<{ success: boolean; user?: User | UserProfile; message?: string }> => {
+      // authApi.signup() returns { data: User } with user directly in data (unwrapped from { user } layer)
       const response = await authApi.signup(formData);
-      const data = (response as unknown as { data: SignupResponse }).data;
+      const userData = response.data as User | undefined;
 
-      if (data.success && data.data?.user) {
-        const userData = data.data.user;
+      if (userData && 'user_id' in userData) {
         setUser(userData);
         setIsAuthenticated(true);
 
@@ -190,7 +191,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { success: true, user: userData };
       }
 
-      return { success: false, message: data.message || 'Signup failed' };
+      return { success: false, message: 'Signup failed' };
     },
     [fetchUserPermissions]
   );

@@ -26,9 +26,7 @@ export default function CourseManagement() {
   async function fetchCourses() {
     try {
       const response = await courseApi.list();
-      const coursesData = Array.isArray(response.data.data)
-        ? response.data.data
-        : (response.data.data?.data || []);
+      const coursesData = response.data.data ?? [];
       setCourses(coursesData);
     } catch (error) {
       console.error('Failed to fetch courses:', error);

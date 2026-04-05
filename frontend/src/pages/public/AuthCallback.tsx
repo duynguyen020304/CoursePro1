@@ -62,17 +62,19 @@ export default function AuthCallback() {
         const redirectUri = `${window.location.origin}/auth/callback`;
         const response = await authApi.googleLogin(code, redirectUri);
 
-        if (response.data.success) {
+        // T12/T13: authApi.googleLogin() returns raw axios response
+        // Backend returns: { success, message, data: { is_new_user, user } }
+        if (response.data?.success) {
           if (handledCodeKey) {
             sessionStorage.setItem(handledCodeKey, '1');
           }
 
-          const { is_new_user } = response.data.data;
+          const { is_new_user } = response.data.data || {};
           await refreshAuth();
 
           navigate(is_new_user ? '/profile' : '/', { replace: true });
         } else {
-          setError(response.data.message || 'Authentication failed');
+          setError(response.data?.message || 'Authentication failed');
           setTimeout(() => navigate('/signin'), 2000);
         }
       } catch (err) {

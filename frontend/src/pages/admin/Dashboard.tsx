@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../../services/api';
+import { adminUserApi, courseApi, orderApi } from '../../services/api';
 
 interface Stats {
   totalUsers: number;
@@ -42,19 +42,17 @@ export default function AdminDashboard() {
     async function fetchStats() {
       try {
         const [usersRes, coursesRes, ordersRes] = await Promise.all([
-          api.get('/admin/users').catch(() => null),
-          api.get('/admin/courses').catch(() => null),
-          api.get('/orders', { params: { page: 1, per_page: 5 } }).catch(() => null),
+          adminUserApi.list({ page: 1, per_page: 1 }).catch(() => null),
+          courseApi.list({ page: 1, per_page: 1 }).catch(() => null),
+          orderApi.list({ page: 1, per_page: 5 }).catch(() => null),
         ]);
 
         const newStats: Stats = {
-          totalUsers: usersRes?.data?.data?.total || usersRes?.data?.data?.length || 0,
-          totalCourses: coursesRes?.data?.data?.total || coursesRes?.data?.data?.length || 0,
-          totalOrders: ordersRes?.data?.data?.total || ordersRes?.data?.data?.length || 0,
+          totalUsers: usersRes?.data?.totalItem ?? 0,
+          totalCourses: coursesRes?.data?.totalItem ?? 0,
+          totalOrders: ordersRes?.data?.totalItem ?? 0,
           totalRevenue: (() => {
-            const ordersData = Array.isArray(ordersRes?.data?.data)
-              ? ordersRes.data.data
-              : (ordersRes?.data?.data?.data || []);
+            const ordersData = ordersRes?.data?.data ?? [];
             return ordersData.reduce((sum: number, order: Order) => sum + (order.total_amount || 0), 0);
           })(),
         };
@@ -62,10 +60,7 @@ export default function AdminDashboard() {
         setStats(newStats);
 
         if (ordersRes?.data?.data) {
-          const ordersData = Array.isArray(ordersRes.data.data)
-            ? ordersRes.data.data
-            : (ordersRes.data.data?.data || []);
-          setRecentOrders(ordersData.slice(0, 5));
+          setRecentOrders(ordersRes.data.data.slice(0, 5));
         }
 
         // Generate notifications

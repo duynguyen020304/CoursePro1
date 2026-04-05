@@ -27,8 +27,10 @@ export default function Certificates() {
   useEffect(() => {
     async function fetchCertificates() {
       try {
+        // T12/T13: Service layer returns { data: <validated_response> }
+        // For paginated: validated_response = { success, message, data: [...orders], pagination... }
         const response = await orderApi.list();
-        const orders = response.data.data as unknown as Array<{
+        const orders = (response.data?.data || []) as unknown as Array<{
           order_id?: string;
           status?: string;
           course?: { course_id?: string | number; title?: string };

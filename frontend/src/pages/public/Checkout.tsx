@@ -105,9 +105,10 @@ export default function Checkout() {
         }
       }
       
-      // Create order
+      // T12/T13: Service layer returns { data: <validated_response> }
+      // createOrderResponseSchema = { order: {...}, client_secret: "..." }
       const orderResponse = await orderApi.create();
-      const orderId = ((orderResponse.data as unknown as { order?: { order_id?: string } }).order?.order_id || '');
+      const orderId = orderResponse.data?.order?.order_id || '';
 
       // Simulate payment processing
       await simulatePaymentProcessing();

@@ -44,14 +44,14 @@ export default function CategoryPage() {
     async function fetchData() {
       try {
         setLoading(true);
-        // Fetch category details
+        // T12/T13: Service layer returns { data: <validated_response> }
+        // For single entity: validated_response = { success, message, data: {...} }
         const categoryRes = await categoryApi.get(slug!);
-        setCategory(categoryRes.data.data as Category);
+        setCategory(categoryRes.data?.data as Category);
 
-        // Fetch courses in category
+        // For paginated: validated_response = { success, message, data: [...items], pagination... }
         const coursesRes = await courseApi.list({ category_id: slug });
-        // API returns paginated response: {data: {current_page, data: []}}
-        const coursesData = coursesRes.data.data || [];
+        const coursesData = coursesRes.data?.data || [];
         setCourses(Array.isArray(coursesData) ? coursesData : []);
       } catch (error) {
         console.error('Failed to fetch category data:', error);
