@@ -22,6 +22,7 @@ class CheckRole
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized',
+                'data' => null,
             ], 401);
         }
 
@@ -29,6 +30,7 @@ class CheckRole
             return response()->json([
                 'success' => false,
                 'message' => 'User has no role assigned',
+                'data' => null,
             ], 403);
         }
 
@@ -47,6 +49,7 @@ class CheckRole
         return response()->json([
             'success' => false,
             'message' => 'You do not have the required role to access this resource',
+            'data' => null,
         ], 403);
     }
 }

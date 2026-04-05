@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Model
 {
-    use HasFactory, Notifiable, HasAuditColumns;
+    use HasApiTokens, HasFactory, Notifiable, HasAuditColumns;
 
     protected $primaryKey = 'user_id';
     public $incrementing = false;
