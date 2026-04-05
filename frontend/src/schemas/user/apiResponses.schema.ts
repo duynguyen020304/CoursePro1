@@ -69,12 +69,9 @@ export type UpdateProfileResponse = z.infer<typeof updateProfileResponseSchema>;
 /**
  * CurrentUserResponse schema
  * Response returned from /user endpoint with current authenticated user
+ * Backend returns flat user data directly in data (NOT wrapped in { user })
  */
-export const currentUserResponseSchema = userApiResponseWrapperSchema(
-  z.object({
-    user: userProfileSchema,
-  })
-);
+export const currentUserResponseSchema = userApiResponseWrapperSchema(userProfileSchema);
 
 /**
  * Type inference from schema

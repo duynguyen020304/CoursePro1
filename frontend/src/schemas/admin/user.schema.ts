@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { paginationSchema } from '../common';
 
 /**
  * Admin User schema - represents a user managed by admin
@@ -23,10 +22,17 @@ export const adminUserSchema = z.object({
 
 /**
  * AdminUserListResponse - paginated list of admin users
+ * Flat pagination contract from backend paginated() helper:
+ * { success, message, data: [...users], hasNextPage, hasPreviousPage, totalPage, totalItem }
  */
 export const adminUserListResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
   data: z.array(adminUserSchema),
-  pagination: paginationSchema.optional(),
+  hasNextPage: z.boolean(),
+  hasPreviousPage: z.boolean(),
+  totalPage: z.number(),
+  totalItem: z.number(),
 });
 
 /**

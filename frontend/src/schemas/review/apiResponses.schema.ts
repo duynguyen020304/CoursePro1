@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { paginationSchema } from '../common';
 
 export const reviewSchema = z.object({
   review_id: z.string(),
@@ -22,12 +21,11 @@ export const reviewSchema = z.object({
 export const reviewListResponseSchema = z.object({
   success: z.boolean(),
   message: z.string().optional(),
-  data: z.object({
-    current_page: z.number().int().positive(),
-    data: z.array(reviewSchema),
-    total: z.number().int().nonnegative(),
-    per_page: z.number().int().positive(),
-  }).passthrough(),
+  data: z.array(reviewSchema),
+  hasNextPage: z.boolean(),
+  hasPreviousPage: z.boolean(),
+  totalPage: z.number(),
+  totalItem: z.number(),
 });
 
 export const reviewCreateResponseSchema = z.object({

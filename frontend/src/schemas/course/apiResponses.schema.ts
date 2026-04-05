@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { paginationSchema } from '../common';
 
 // User schema for nested User within Instructor
 const userSchema = z.object({
@@ -186,35 +185,27 @@ export const courseSchema = z.object({
 // API Response Schemas
 
 /**
- * CourseListResponse - Paginated list of courses (backend wraps in data.data)
+ * CourseListResponse - Paginated list of courses
+ * Flat pagination contract from backend paginated() helper:
+ * { success, message, data: [...courses], hasNextPage, hasPreviousPage, totalPage, totalItem }
  */
 export const courseListResponseSchema = z.object({
-  data: z.object({
-    current_page: z.number(),
-    data: z.array(courseSchema),
-    first_page_url: z.string().nullable(),
-    from: z.number().nullable(),
-    last_page: z.number(),
-    last_page_url: z.string().nullable(),
-    links: z.array(z.object({
-      url: z.string().nullable(),
-      label: z.string(),
-      page: z.number().nullable(),
-      active: z.boolean(),
-    })),
-    next_page_url: z.string().nullable(),
-    path: z.string(),
-    per_page: z.number(),
-    prev_page_url: z.string().nullable(),
-    to: z.number().nullable(),
-    total: z.number(),
-  }),
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: z.array(courseSchema),
+  hasNextPage: z.boolean(),
+  hasPreviousPage: z.boolean(),
+  totalPage: z.number(),
+  totalItem: z.number(),
 });
 
 /**
- * CourseDetailResponse - Single course with instructors, chapters, nested in data.data
+ * CourseDetailResponse - Single course with rating summary
+ * Standard envelope: { success, message, data }
  */
 export const courseDetailResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
   data: z.object({
     course: courseSchema,
     average_rating: z.number().optional(),

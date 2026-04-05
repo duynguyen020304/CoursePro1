@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { paginationSchema } from '../common';
 import { courseSchema } from '../course';
 
 /**
@@ -47,10 +46,17 @@ export const paymentSchema = z.object({
 
 /**
  * OrderListResponse - paginated list of orders
+ * Flat pagination contract from backend paginated() helper:
+ * { success, message, data: [...orders], hasNextPage, hasPreviousPage, totalPage, totalItem }
  */
 export const orderListResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
   data: z.array(orderSchema),
-  pagination: paginationSchema,
+  hasNextPage: z.boolean(),
+  hasPreviousPage: z.boolean(),
+  totalPage: z.number(),
+  totalItem: z.number(),
 });
 
 /**

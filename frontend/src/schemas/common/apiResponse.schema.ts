@@ -1,11 +1,14 @@
 import { z } from 'zod'
 
-// API response wrapper - simple object for easy .data access
+// Standard API response envelope - matches backend Controller helpers:
+// Success: { success: true, message: string, data: T }
+// Failure: { success: false, message: string, data: null }
 export const apiResponseSchema = z.object({
   success: z.boolean(),
-  data: z.unknown().optional(),
-  message: z.string().optional(),
-  error: z.string().optional(),
+  message: z.string(),
+  data: z.unknown().nullable().refine(val => val !== undefined, {
+    message: 'data must not be undefined',
+  }),
 })
 
 // Type inference helpers
