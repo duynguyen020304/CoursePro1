@@ -46,11 +46,12 @@ export default function CategoryPage() {
         setLoading(true);
         // Fetch category details
         const categoryRes = await categoryApi.get(slug!);
-        setCategory(categoryRes.data.data);
+        setCategory(categoryRes.data.data as Category);
 
         // Fetch courses in category
         const coursesRes = await courseApi.list({ category_id: slug });
-        const coursesData = coursesRes.data.data?.data || coursesRes.data.data || [];
+        // API returns paginated response: {data: {current_page, data: []}}
+        const coursesData = coursesRes.data.data || [];
         setCourses(Array.isArray(coursesData) ? coursesData : []);
       } catch (error) {
         console.error('Failed to fetch category data:', error);

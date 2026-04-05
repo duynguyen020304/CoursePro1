@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('categories', function (Blueprint $table) {
             $table->boolean('is_active')->default(true)->after('sort_order');
             $table->timestamp('updated_at')->nullable()->after('is_active');
-            $table->softDeletes()->after('updated_at');
+            // deleted_at already exists from softDeletes() in create_categories_table
         });
     }
 

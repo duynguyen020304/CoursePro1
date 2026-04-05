@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->integer('sort_order')->default(0);
             $table->timestamp('created_at')->useCurrent();
+            $table->softDeletes();
 
             $table->foreign('parent_id')->references('id')->on('categories')->onDelete('cascade');
         });

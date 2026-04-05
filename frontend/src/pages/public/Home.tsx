@@ -13,7 +13,7 @@ interface Course {
   price?: number;
   average_rating?: number;
   total_ratings?: number;
-  images?: Array<{ image_url: string }>;
+  images?: Array<{ image_url?: string; image_path?: string }>;
   instructor?: {
     user?: {
       first_name?: string;
@@ -54,9 +54,13 @@ export default function Home() {
           instructorPublicApi.list({ limit: 6 }),
         ]);
 
-        const coursesData = coursesRes.data.data?.data || coursesRes.data.data || [];
-        const categoriesData = categoriesRes.data.data || [];
-        const instructorsData = instructorsRes.data.data?.data || instructorsRes.data.data || [];
+        // New schema: coursesRes.data.data is the courses array
+        const coursesData = coursesRes.data.data || [];
+        const categoriesData = (categoriesRes.data.data as Category[]) || [];
+        const instructorsPayload = instructorsRes.data as { data?: { data?: Instructor[] } | Instructor[] };
+        const instructorsData = Array.isArray(instructorsPayload.data)
+          ? instructorsPayload.data
+          : (instructorsPayload.data?.data || []);
 
         setFeaturedCourses(Array.isArray(coursesData) ? coursesData : []);
         setCategories(Array.isArray(categoriesData) ? categoriesData : []);

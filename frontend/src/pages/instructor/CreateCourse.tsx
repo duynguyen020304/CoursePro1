@@ -36,7 +36,7 @@ export default function CreateCourse() {
     try {
       const response = await categoryApi.list();
       if (response.data.success) {
-        setCategories(response.data.data);
+        setCategories(response.data.data as Category[]);
       }
     } catch (err) {
       console.error('Failed to fetch categories:', err);

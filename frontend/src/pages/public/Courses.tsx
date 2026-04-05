@@ -65,8 +65,8 @@ export default function Courses() {
           courseApi.list(filters as unknown as Record<string, unknown>),
           categoryApi.list(),
         ]);
-        // API returns paginated response: {data: {data: []}}
-        const coursesData = coursesRes.data.data?.data || coursesRes.data.data || [];
+        // API returns paginated response: {data: {current_page, data: []}}
+        const coursesData = coursesRes.data.data || [];
         const categoriesData = categoriesRes.data.data || [];
         setCourses(Array.isArray(coursesData) ? coursesData : []);
         setCategories(Array.isArray(categoriesData) ? categoriesData : []);

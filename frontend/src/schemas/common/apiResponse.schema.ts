@@ -1,18 +1,12 @@
 import { z } from 'zod'
 
-// Discriminated union for API responses
-export const apiResponseSchema = z.discriminatedUnion('success', [
-  z.object({
-    success: z.literal(true),
-    data: z.unknown(),
-    message: z.string().optional(),
-  }),
-  z.object({
-    success: z.literal(false),
-    error: z.string(),
-    message: z.string().optional(),
-  }),
-])
+// API response wrapper - simple object for easy .data access
+export const apiResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.unknown().optional(),
+  message: z.string().optional(),
+  error: z.string().optional(),
+})
 
 // Type inference helpers
 export type ApiSuccessResponse = z.infer<typeof apiResponseSchema>

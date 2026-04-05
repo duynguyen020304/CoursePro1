@@ -17,7 +17,7 @@ interface CourseRequirement {
 interface CourseChapter {
   chapter_id: string | number;
   title: string;
-  description?: string;
+  description?: string | null;
   lessons?: CourseLesson[];
 }
 
@@ -29,10 +29,10 @@ interface CourseLesson {
 interface CourseReview {
   review_id: string | number;
   rating: number;
-  review_text?: string;
+  review_text?: string | null;
   user?: {
-    first_name?: string;
-    last_name?: string;
+    first_name?: string | null;
+    last_name?: string | null;
   };
 }
 
@@ -42,8 +42,8 @@ interface CourseImage {
 
 interface CourseInstructor {
   user?: {
-    first_name?: string;
-    last_name?: string;
+    first_name?: string | null;
+    last_name?: string | null;
   };
 }
 
@@ -52,9 +52,8 @@ interface Course {
   title: string;
   description?: string;
   price?: number;
-  created_at?: string;
-  average_rating?: number;
-  images?: CourseImage[];
+  created_at?: string | null;
+  images?: Array<{ image_url?: string; image_path?: string }>;
   instructor?: CourseInstructor;
   objectives?: CourseObjective[];
   requirements?: CourseRequirement[];
@@ -68,6 +67,8 @@ export default function CourseDetail() {
   const { isAuthenticated } = useAuth();
   const { addItem } = useCart();
   const [course, setCourse] = useState<Course | null>(null);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [totalReviews, setTotalReviews] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
 
@@ -75,7 +76,10 @@ export default function CourseDetail() {
     async function fetchCourse() {
       try {
         const response = await courseApi.get(id || '');
-        setCourse(response.data.data);
+        // New schema: response.data is { course, average_rating, total_reviews }
+        setCourse(response.data.data.course);
+        setAverageRating(response.data.data.average_rating || 0);
+        setTotalReviews(response.data.data.total_reviews || 0);
       } catch (error) {
         console.error('Failed to fetch course:', error);
       } finally {
@@ -262,7 +266,7 @@ export default function CourseDetail() {
               <div className="flex items-center gap-2">
                 <span>⭐</span>
                 <span>
-                  {course.average_rating?.toFixed(1) || '0'} ({course.reviews?.length || 0} reviews)
+                  {averageRating.toFixed(1)} ({totalReviews} reviews)
                 </span>
               </div>
             </div>

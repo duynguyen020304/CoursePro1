@@ -7,9 +7,7 @@ interface User {
   last_name?: string;
   email?: string;
   avatar_url?: string;
-  role?: {
-    role_name?: string;
-  };
+  role?: string;
   created_at?: string;
 }
 
@@ -25,10 +23,17 @@ export default function UserManagement() {
   async function fetchUsers() {
     try {
       const response = await adminUserApi.list();
-      const userData = Array.isArray(response.data.data)
-        ? response.data.data
-        : (response.data.data?.data || []);
-      setUsers(userData);
+      setUsers(
+        response.data.data.map((user) => ({
+          user_id: user.id,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          email: user.email,
+          avatar_url: user.avatar_url ?? undefined,
+          role: user.role,
+          created_at: user.created_at ?? undefined,
+        }))
+      );
     } catch (error) {
       console.error('Failed to fetch users:', error);
     } finally {
@@ -104,9 +109,9 @@ export default function UserManagement() {
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">{user.email}</td>
                   <td className="px-6 py-4">
-                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                      {user.role?.role_name || 'Student'}
-                    </span>
+                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                      {user.role || 'Student'}
+                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}

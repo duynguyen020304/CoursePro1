@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { instructorApi } from '../../services/api';
 
 interface InstructorProfile {
-  biography?: string;
+  biography?: string | null;
 }
 
 export default function InstructorProfile() {

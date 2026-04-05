@@ -217,7 +217,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const updateUser = useCallback(
     async (userData: Record<string, unknown>): Promise<{ success: boolean; user?: User | UserProfile; message?: string }> => {
       try {
-        const response: UpdateProfileResponse = await userApi.updateProfile(userData);
+        const { data: response }: { data: UpdateProfileResponse } = await userApi.updateProfile(userData);
 
         if (response.success && response.data) {
           setUser(response.data);

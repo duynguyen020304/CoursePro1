@@ -31,8 +31,7 @@ export default function PurchaseHistory() {
     async function fetchOrders() {
       try {
         const response = await orderApi.list();
-        // Handle paginated response - data.data.data for Laravel pagination
-        const ordersData = response.data.data?.data || response.data.data || [];
+        const ordersData = response.data.data as unknown as Order[];
         setOrders(ordersData);
       } catch (error) {
         console.error('Failed to fetch orders:', error);

@@ -5,11 +5,11 @@ interface Course {
   course_id: string | number;
   title: string;
   price?: number | string;
-  images?: Array<{ image_url: string }>;
+  images?: Array<{ image_url?: string; image_path?: string }>;
   instructor?: {
     user?: {
-      first_name?: string;
-      last_name?: string;
+      first_name?: string | null;
+      last_name?: string | null;
     };
   };
 }
@@ -82,7 +82,7 @@ export default function CourseManagement() {
                     <div className="flex items-center">
                       {course.images?.[0]?.image_url ? (
                         <img
-                          src={course.images[0].image_url}
+                          src={course.images[0].image_url || course.images[0].image_path}
                           alt={course.title}
                           className="h-10 w-10 rounded object-cover"
                         />

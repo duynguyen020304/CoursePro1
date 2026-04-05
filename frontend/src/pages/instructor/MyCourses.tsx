@@ -7,8 +7,8 @@ interface CourseItem {
     course_id: string | number;
     title?: string;
     price?: number;
-    difficulty?: string;
-    language?: string;
+    difficulty?: string | null;
+    language?: string | null;
     images?: Array<{ image_path?: string }>;
   };
   stats: {
@@ -34,7 +34,10 @@ export default function MyCourses() {
       setLoading(true);
       const response = await instructorApi.getCourses();
       if (response.data.success) {
-        setCourses(response.data.data);
+        setCourses((response.data.data.courses || []).map((course) => ({
+          course,
+          stats: {},
+        })));
       }
     } catch (err) {
       setError('Failed to load courses');

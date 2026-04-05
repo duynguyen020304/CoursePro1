@@ -28,8 +28,14 @@ export default function Certificates() {
     async function fetchCertificates() {
       try {
         const response = await orderApi.list();
-        // Handle paginated response - data.data.data is the orders array
-        const orders = response.data.data?.data || response.data.data || [];
+        const orders = response.data.data as unknown as Array<{
+          order_id?: string;
+          status?: string;
+          course?: { course_id?: string | number; title?: string };
+          details?: Array<{ course_id?: string | number; course?: { title?: string } }>;
+          user?: { first_name?: string; last_name?: string };
+          created_at?: string | null;
+        }>;
 
         const completedOrders = orders
           .filter((order: { status?: string }) => order.status === 'completed')
@@ -38,14 +44,14 @@ export default function Certificates() {
             course?: { course_id?: string | number; title?: string };
             details?: Array<{ course_id?: string | number; course?: { title?: string } }>;
             user?: { first_name?: string; last_name?: string };
-            created_at?: string;
+            created_at?: string | null;
           }) => ({
             certificate_id: `CERT-${order.order_id?.substring(0, 8).toUpperCase() || 'UNKNOWN'}`,
-            course_id: order.details?.[0]?.course_id || order.course?.course_id,
+            course_id: order.details?.[0]?.course_id || order.course?.course_id || 'unknown',
             course_name: order.details?.[0]?.course?.title || order.course?.title || 'Unknown Course',
             student_name: `${order.user?.first_name || ''} ${order.user?.last_name || ''}`.trim() || 'Student',
-            completion_date: order.created_at,
-            certificate_url: `/certificates/${order.details?.[0]?.course_id || order.course?.course_id}`,
+            completion_date: order.created_at || '',
+            certificate_url: `/certificates/${order.details?.[0]?.course_id || order.course?.course_id || 'unknown'}`,
           }));
 
         setCertificates(completedOrders);

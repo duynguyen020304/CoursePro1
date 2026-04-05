@@ -9,7 +9,7 @@ interface Category {
 
 interface Course {
   title?: string;
-  description?: string;
+  description?: string | null;
   price?: number;
   difficulty?: string;
   language?: string;
@@ -98,7 +98,7 @@ export default function EditCourse() {
     try {
       const response = await categoryApi.list();
       if (response.data.success) {
-        setCategories(response.data.data);
+        setCategories(response.data.data as Category[]);
       }
     } catch (err) {
       console.error('Failed to fetch categories:', err);
@@ -178,7 +178,7 @@ export default function EditCourse() {
       });
 
       if (response.data.success) {
-        setChapters([...chapters, response.data.data]);
+        setChapters([...chapters, response.data.data as Chapter]);
         setNewChapter({ title: '', description: '' });
       }
     } catch (err) {
@@ -218,13 +218,14 @@ export default function EditCourse() {
       });
 
       if (response.data.success) {
+        const lesson = response.data.data as Lesson;
         // Update chapters with new lesson
         setChapters(
           chapters.map((c) => {
             if (c.chapter_id === newLesson.chapterId) {
               return {
                 ...c,
-                lessons: [...(c.lessons || []), response.data.data],
+                lessons: [...(c.lessons || []), lesson],
               };
             }
             return c;

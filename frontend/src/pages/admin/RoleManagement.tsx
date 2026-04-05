@@ -19,6 +19,17 @@ interface Role {
   permissions?: Permission[];
 }
 
+interface ApiPermission {
+  id: string;
+  name: string;
+}
+
+interface ApiRole {
+  id: string;
+  name: string;
+  permissions?: ApiPermission[];
+}
+
 export default function RoleManagement() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -58,8 +69,24 @@ export default function RoleManagement() {
         roleApi.list(),
         permissionApi.list(),
       ]);
-      setRoles(rolesRes.data.data || []);
-      setPermissions(permissionsRes.data.data || []);
+      setRoles(
+        (rolesRes.data.data || []).map((role: ApiRole) => ({
+          role_id: role.id,
+          role_name: role.name,
+          permissions: role.permissions?.map((permission) => ({
+            permission_id: permission.id,
+            name: permission.name,
+            display_name: permission.name,
+          })),
+        }))
+      );
+      setPermissions(
+        (permissionsRes.data.data || []).map((permission: ApiPermission) => ({
+          permission_id: permission.id,
+          name: permission.name,
+          display_name: permission.name,
+        }))
+      );
     } catch (err) {
       setError('Failed to load data');
       console.error(err);
@@ -80,7 +107,7 @@ export default function RoleManagement() {
     reset({ role_name: role.role_name, permissions: [] });
     try {
       const res = await roleApi.getPermissions(role.role_id);
-      const permIds = (res.data.data || []).map((p: Permission) => p.permission_id);
+      const permIds = (res.data.data || []).map((permission: ApiPermission) => permission.id);
       setSelectedPermissions(permIds);
       setValue('permissions', permIds);
     } catch (err) {
@@ -120,7 +147,7 @@ export default function RoleManagement() {
       } else {
         const res = await roleApi.create({ role_name: data.role_name });
         if (selectedPermissions.length > 0) {
-          await roleApi.assignPermissions(res.data.data.role_id, selectedPermissions);
+          await roleApi.assignPermissions(res.data.data.id, selectedPermissions);
         }
       }
       await fetchData();

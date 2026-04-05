@@ -205,15 +205,15 @@ function validated<T extends z.ZodTypeAny>(
   call: Promise<unknown>,
   schema: T,
   key: string
-): Promise<z.infer<T>> {
+): Promise<{ data: z.infer<T> }> {
   return call.then(async (resp: unknown) => {
     const data = (resp as { data?: unknown }).data ?? resp;
     const result = schema.safeParse(data);
     if (!result.success) {
       console.error(`[API] ${key}:`, result.error.flatten());
-      return data as z.infer<T>;
+      return { data: data as z.infer<T> };
     }
-    return result.data;
+    return { data: result.data };
   });
 }
 
@@ -223,7 +223,7 @@ function validated<T extends z.ZodTypeAny>(
  */
 function apiData<T>(key: string) {
   return (call: Promise<unknown>) =>
-    validated(call, z.object({ success: z.boolean(), message: z.string().optional(), data: z.any() }), key) as Promise<T>;
+    validated(call, z.object({ success: z.boolean(), message: z.string().optional(), data: z.any() }), key) as Promise<{ data: T }>;
 }
 
 // ─── Auth Response Schemas ─────────────────────────────────────────────────
@@ -291,6 +291,7 @@ import {
 } from '../schemas/order/apiResponses.schema';
 
 import {
+  courseSchema,
   courseListResponseSchema,
   courseDetailResponseSchema,
 } from '../schemas/course/apiResponses.schema';
@@ -353,11 +354,23 @@ export const instructorApi = {
   getCourses: () =>
     validated(api.get('/instructor/courses'), instructorCourseListResponseSchema, 'instructorApi.getCourses'),
   getCourse: (courseId: string | number) =>
-    validated(api.get(`/instructor/courses/${courseId}`), instructorCourseListResponseSchema, 'instructorApi.getCourse'),
+    validated(
+      api.get(`/instructor/courses/${courseId}`),
+      z.object({ success: z.boolean(), message: z.string().optional(), data: courseSchema }),
+      'instructorApi.getCourse'
+    ),
   createCourse: (data: Record<string, unknown>) =>
-    apiData<{ success: boolean; message?: string; data: unknown }>('instructorApi.createCourse')(api.post('/instructor/courses', data)),
+    validated(
+      api.post('/instructor/courses', data),
+      z.object({ success: z.boolean(), message: z.string().optional(), data: courseSchema }),
+      'instructorApi.createCourse'
+    ),
   updateCourse: (courseId: string | number, data: Record<string, unknown>) =>
-    apiData<{ success: boolean; message?: string; data: unknown }>('instructorApi.updateCourse')(api.put(`/instructor/courses/${courseId}`, data)),
+    validated(
+      api.put(`/instructor/courses/${courseId}`, data),
+      z.object({ success: z.boolean(), message: z.string().optional(), data: courseSchema }),
+      'instructorApi.updateCourse'
+    ),
   deleteCourse: (courseId: string | number) =>
     apiData<{ success: boolean; message?: string }>('instructorApi.deleteCourse')(api.delete(`/instructor/courses/${courseId}`)),
   addImage: (courseId: string | number, data: Record<string, unknown>) =>

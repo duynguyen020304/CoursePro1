@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_active')->default(true)->after('updated_at');
-            $table->softDeletes()->after('is_active');
+        Schema::table('course_images', function (Blueprint $table) {
+            $table->boolean('is_primary')->default(false)->after('caption');
         });
     }
 
@@ -22,9 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['is_active']);
-            $table->dropSoftDeletes();
+        Schema::table('course_images', function (Blueprint $table) {
+            $table->dropColumn('is_primary');
         });
     }
 };

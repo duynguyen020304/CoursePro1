@@ -4,8 +4,8 @@ import { courseApi, studentApi } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface Video {
-  url?: string;
-  duration?: string;
+  url?: string | null;
+  duration?: string | number | null;
 }
 
 interface Resource {
@@ -19,7 +19,7 @@ interface Resource {
 interface Lesson {
   lesson_id: string | number;
   title?: string;
-  content?: string;
+  content?: string | null;
   is_free?: boolean;
   videos?: Video[];
   resources?: Resource[];
@@ -70,9 +70,9 @@ export default function WatchVideo() {
 
         const response = await courseApi.get(courseId!);
         const courseData = response.data.data?.course || response.data.data;
-        setCourse(courseData);
+        setCourse(courseData as CourseData);
 
-        const allLessons = courseData.chapters?.flatMap((ch: Chapter) => ch.lessons || []) || [];
+        const allLessons = ((courseData.chapters as Chapter[] | undefined)?.flatMap((ch) => ch.lessons || []) || []) as Lesson[];
         const lesson = allLessons.find((l: Lesson) => l.lesson_id === lessonId) || allLessons[0];
         setSelectedLesson(lesson);
 

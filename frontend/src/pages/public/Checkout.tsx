@@ -104,10 +104,10 @@ export default function Checkout() {
           return;
         }
       }
-
+      
       // Create order
       const orderResponse = await orderApi.create();
-      const orderId = orderResponse.data.data.order_id;
+      const orderId = ((orderResponse.data as unknown as { order?: { order_id?: string } }).order?.order_id || '');
 
       // Simulate payment processing
       await simulatePaymentProcessing();

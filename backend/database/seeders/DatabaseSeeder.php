@@ -20,43 +20,71 @@ class DatabaseSeeder extends Seeder
         \App\Models\Role::firstOrCreate(['role_id' => 'student'], ['role_name' => 'Student']);
         \App\Models\Role::firstOrCreate(['role_id' => 'instructor'], ['role_name' => 'Instructor']);
 
-        // 2. Create admin user - skip if exists
-        $adminUserId = Str::uuid();
-        User::firstOrCreate(
-            ['user_id' => $adminUserId],
-            [
-                'first_name' => 'Admin',
-                'last_name' => 'User',
-                'role_id' => 'admin',
-            ]
-        );
-        UserAccount::firstOrCreate(
-            ['user_id' => $adminUserId],
-            [
-                'email' => 'admin@example.com',
-                'password' => Hash::make('password'),
-                'provider' => 'email',
-            ]
-        );
+        // 2. Create admin user - skip if exists by email
+        $adminAccount = UserAccount::where('email', 'admin@example.com')->first();
+        if ($adminAccount) {
+            // User exists, ensure User record is complete
+            User::firstOrCreate(
+                ['user_id' => $adminAccount->user_id],
+                [
+                    'first_name' => 'Admin',
+                    'last_name' => 'User',
+                    'role_id' => 'admin',
+                ]
+            );
+        } else {
+            // Create new admin user
+            $adminUserId = Str::uuid();
+            User::firstOrCreate(
+                ['user_id' => $adminUserId],
+                [
+                    'first_name' => 'Admin',
+                    'last_name' => 'User',
+                    'role_id' => 'admin',
+                ]
+            );
+            UserAccount::firstOrCreate(
+                ['user_id' => $adminUserId],
+                [
+                    'email' => 'admin@example.com',
+                    'password' => Hash::make('password'),
+                    'provider' => 'email',
+                ]
+            );
+        }
 
-        // 3. Create a test student user for testing
-        $testStudentUserId = Str::uuid();
-        User::firstOrCreate(
-            ['user_id' => $testStudentUserId],
-            [
-                'first_name' => 'Test',
-                'last_name' => 'Student',
-                'role_id' => 'student',
-            ]
-        );
-        UserAccount::firstOrCreate(
-            ['user_id' => $testStudentUserId],
-            [
-                'email' => 'student@example.com',
-                'password' => Hash::make('password'),
-                'provider' => 'email',
-            ]
-        );
+        // 3. Create a test student user for testing - skip if exists by email
+        $testStudentAccount = UserAccount::where('email', 'student@example.com')->first();
+        if ($testStudentAccount) {
+            // User exists, ensure User record is complete
+            User::firstOrCreate(
+                ['user_id' => $testStudentAccount->user_id],
+                [
+                    'first_name' => 'Test',
+                    'last_name' => 'Student',
+                    'role_id' => 'student',
+                ]
+            );
+        } else {
+            // Create new test student user
+            $testStudentUserId = Str::uuid();
+            User::firstOrCreate(
+                ['user_id' => $testStudentUserId],
+                [
+                    'first_name' => 'Test',
+                    'last_name' => 'Student',
+                    'role_id' => 'student',
+                ]
+            );
+            UserAccount::firstOrCreate(
+                ['user_id' => $testStudentUserId],
+                [
+                    'email' => 'student@example.com',
+                    'password' => Hash::make('password'),
+                    'provider' => 'email',
+                ]
+            );
+        }
 
         // 4. Seed permissions and assign to roles
         $this->call(PermissionSeeder::class);

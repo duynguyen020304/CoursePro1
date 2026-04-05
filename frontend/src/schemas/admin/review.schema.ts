@@ -2,9 +2,9 @@ import { z } from 'zod';
 import { paginationSchema } from '../common';
 
 /**
- * Review schema - represents a course review
+ * AdminReview schema - represents a course review (admin context)
  */
-export const reviewSchema = z.object({
+export const adminReviewSchema = z.object({
   id: z.string().uuid(),
   user_id: z.string().uuid(),
   course_id: z.string().uuid(),
@@ -24,30 +24,30 @@ export const reviewSchema = z.object({
 });
 
 /**
- * ReviewListResponse - paginated list of reviews
+ * AdminReviewListResponse - paginated list of reviews
  */
-export const reviewListResponseSchema = z.object({
-  data: z.array(reviewSchema),
+export const adminReviewListResponseSchema = z.object({
+  data: z.array(adminReviewSchema),
   pagination: paginationSchema.optional(),
 });
 
 /**
- * ReviewResponse - single review response
+ * AdminReviewResponse - single review response
  */
-export const reviewResponseSchema = z.object({
-  review: reviewSchema,
+export const adminReviewResponseSchema = z.object({
+  review: adminReviewSchema,
 });
 
 /**
- * CreateReviewResponse - response after creating a review
+ * AdminCreateReviewResponse - response after creating a review
  */
-export const createReviewResponseSchema = z.object({
-  review: reviewSchema,
+export const adminCreateReviewResponseSchema = z.object({
+  review: adminReviewSchema,
   message: z.string().optional(),
 });
 
 // Type inference helpers
-export type Review = z.infer<typeof reviewSchema>;
-export type ReviewListResponse = z.infer<typeof reviewListResponseSchema>;
-export type ReviewResponse = z.infer<typeof reviewResponseSchema>;
-export type CreateReviewResponse = z.infer<typeof createReviewResponseSchema>;
+export type AdminReview = z.infer<typeof adminReviewSchema>;
+export type AdminReviewListResponse = z.infer<typeof adminReviewListResponseSchema>;
+export type AdminReviewResponse = z.infer<typeof adminReviewResponseSchema>;
+export type AdminCreateReviewResponse = z.infer<typeof adminCreateReviewResponseSchema>;
