@@ -16,22 +16,27 @@ export default function InstructorProfile() {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await instructorApi.getProfile();
+        if (response.data.success && response.data.data) {
+          setProfile(response.data.data);
+          setFormData({
+            biography: response.data.data.biography || '',
+          });
+        } else {
+          console.warn('Profile fetch succeeded but data missing:', response.data);
+          // Keep empty biography to avoid blank form
+          setFormData({ biography: '' });
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+        // Keep empty biography on error
+        setFormData({ biography: '' });
+      }
+    };
     fetchProfile();
   }, []);
-
-  const fetchProfile = async () => {
-    try {
-      const response = await instructorApi.getProfile();
-      if (response.data.success) {
-        setProfile(response.data.data);
-        setFormData({
-          biography: response.data.data.biography || '',
-        });
-      }
-    } catch (err) {
-      console.error('Failed to fetch profile:', err);
-    }
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -90,10 +95,11 @@ export default function InstructorProfile() {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="biography" className="block text-sm font-medium text-gray-700 mb-1">
               Biography
             </label>
             <textarea
+              id="biography"
               name="biography"
               value={formData.biography}
               onChange={handleChange}

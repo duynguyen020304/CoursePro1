@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Instructor;
+use App\Http\Controllers\Traits\EnsuresCourseOwnership;
 use Illuminate\Http\Request;
 
 class CourseInstructorController extends Controller
 {
+    use EnsuresCourseOwnership;
+
     /**
      * Get instructors for a course
      */
@@ -43,6 +46,12 @@ class CourseInstructorController extends Controller
         ]);
 
         $course = Course::findOrFail($request->course_id);
+
+        $error = $this->authorizeCourseOwner($course);
+        if ($error) {
+            return $error;
+        }
+
         $instructor = Instructor::findOrFail($request->instructor_id);
 
         // Check if already assigned
@@ -63,6 +72,12 @@ class CourseInstructorController extends Controller
     public function destroy($courseId, $instructorId)
     {
         $course = Course::findOrFail($courseId);
+
+        $error = $this->authorizeCourseOwner($course);
+        if ($error) {
+            return $error;
+        }
+
         $instructor = Instructor::findOrFail($instructorId);
 
         $course->instructors()->detach($instructorId);

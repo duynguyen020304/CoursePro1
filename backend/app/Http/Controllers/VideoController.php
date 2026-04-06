@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\CourseVideo;
 use App\Models\CourseLesson;
+use App\Http\Controllers\Traits\EnsuresCourseOwnership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class VideoController extends Controller
 {
+    use EnsuresCourseOwnership;
+
     /**
      * Get videos for a lesson
      */
@@ -47,8 +50,19 @@ class VideoController extends Controller
             'sort_order' => 'nullable|integer',
         ]);
 
+        // Ownership check: lesson → course → owner
+        $lesson = CourseLesson::where('lesson_id', $request->lesson_id)->first();
+        if (!$lesson) {
+            return $this->error('Lesson not found', 404);
+        }
+
+        $error = $this->authorizeLessonOwner($lesson);
+        if ($error) {
+            return $error;
+        }
+
         $video = CourseVideo::create([
-            'video_id' => 'video_' . Str::uuid(),
+            'video_id' => Str::uuid(),
             'lesson_id' => $request->lesson_id,
             'url' => $request->url,
             'title' => $request->title,
@@ -65,6 +79,11 @@ class VideoController extends Controller
     public function update(Request $request, $videoId)
     {
         $video = CourseVideo::findOrFail($videoId);
+
+        $error = $this->authorizeVideoOwner($video);
+        if ($error) {
+            return $error;
+        }
 
         $request->validate([
             'url' => 'sometimes|string|max:500',
@@ -84,6 +103,12 @@ class VideoController extends Controller
     public function destroy($videoId)
     {
         $video = CourseVideo::findOrFail($videoId);
+
+        $error = $this->authorizeVideoOwner($video);
+        if ($error) {
+            return $error;
+        }
+
         $video->delete();
 
         return $this->emptySuccess('Video deleted successfully');

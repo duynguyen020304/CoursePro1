@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\CourseRequirement;
 use App\Models\Course;
+use App\Http\Controllers\Traits\EnsuresCourseOwnership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CourseRequirementController extends Controller
 {
+    use EnsuresCourseOwnership;
+
     /**
      * Get requirements for a course
      */
@@ -45,8 +48,13 @@ class CourseRequirementController extends Controller
             'sort_order' => 'nullable|integer',
         ]);
 
+        [$course, $error] = $this->loadAndAuthorizeCourse($request->course_id);
+        if ($error) {
+            return $error;
+        }
+
         $requirement = CourseRequirement::create([
-            'requirement_id' => 'requirement_' . Str::uuid(),
+            'requirement_id' => Str::uuid(),
             'course_id' => $request->course_id,
             'requirement' => $request->requirement,
             'sort_order' => $request->sort_order ?? 0,
@@ -61,6 +69,11 @@ class CourseRequirementController extends Controller
     public function update(Request $request, $requirementId)
     {
         $requirement = CourseRequirement::findOrFail($requirementId);
+
+        $error = $this->authorizeRequirementOwner($requirement);
+        if ($error) {
+            return $error;
+        }
 
         $request->validate([
             'requirement' => 'sometimes|string|max:500',
@@ -78,6 +91,12 @@ class CourseRequirementController extends Controller
     public function destroy($requirementId)
     {
         $requirement = CourseRequirement::findOrFail($requirementId);
+
+        $error = $this->authorizeRequirementOwner($requirement);
+        if ($error) {
+            return $error;
+        }
+
         $requirement->delete();
 
         return $this->emptySuccess('Course requirement deleted successfully');

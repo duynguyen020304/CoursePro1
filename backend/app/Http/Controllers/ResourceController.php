@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\CourseResource;
 use App\Models\CourseLesson;
+use App\Http\Controllers\Traits\EnsuresCourseOwnership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ResourceController extends Controller
 {
+    use EnsuresCourseOwnership;
+
     /**
      * Get resources for a lesson
      */
@@ -46,8 +49,19 @@ class ResourceController extends Controller
             'sort_order' => 'nullable|integer',
         ]);
 
+        // Ownership check: lesson → course → owner
+        $lesson = CourseLesson::where('lesson_id', $request->lesson_id)->first();
+        if (!$lesson) {
+            return $this->error('Lesson not found', 404);
+        }
+
+        $error = $this->authorizeLessonOwner($lesson);
+        if ($error) {
+            return $error;
+        }
+
         $resource = CourseResource::create([
-            'resource_id' => 'resource_' . Str::uuid(),
+            'resource_id' => Str::uuid(),
             'lesson_id' => $request->lesson_id,
             'resource_path' => $request->resource_path,
             'title' => $request->title,
@@ -63,6 +77,11 @@ class ResourceController extends Controller
     public function update(Request $request, $resourceId)
     {
         $resource = CourseResource::findOrFail($resourceId);
+
+        $error = $this->authorizeResourceOwner($resource);
+        if ($error) {
+            return $error;
+        }
 
         $request->validate([
             'resource_path' => 'sometimes|string|max:500',
@@ -81,6 +100,12 @@ class ResourceController extends Controller
     public function destroy($resourceId)
     {
         $resource = CourseResource::findOrFail($resourceId);
+
+        $error = $this->authorizeResourceOwner($resource);
+        if ($error) {
+            return $error;
+        }
+
         $resource->delete();
 
         return $this->emptySuccess('Resource deleted successfully');

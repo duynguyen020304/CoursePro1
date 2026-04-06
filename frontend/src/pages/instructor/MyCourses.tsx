@@ -33,11 +33,15 @@ export default function MyCourses() {
     try {
       setLoading(true);
       const response = await instructorApi.getCourses();
-      if (response.data.success) {
-        setCourses((response.data.data.courses || []).map((course) => ({
-          course,
-          stats: {},
-        })));
+      // Contract: { success, data: [{ course, stats }, ...] }
+      // validated() returns { data: { success, data: [...] } }
+      const coursesData = response.data.data;
+      if (Array.isArray(coursesData)) {
+        setCourses(coursesData);
+      } else {
+        // Contract violation: expected array from /instructor/courses
+        console.error('[MyCourses] Contract violation: expected data array, got', typeof coursesData, coursesData);
+        setError('Failed to load courses: unexpected response format');
       }
     } catch (err) {
       setError('Failed to load courses');

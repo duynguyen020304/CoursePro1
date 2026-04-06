@@ -348,7 +348,7 @@ export const userApi = {
   current: () =>
     validated(api.get('/user'), currentUserResponseSchema, 'userApi.current'),
   profile: () =>
-    validated(api.get('/user/profile'), userProfileSchema, 'userApi.profile'),
+    validated(api.get('/user/profile'), currentUserResponseSchema, 'userApi.profile'),
   updateProfile: (data: Record<string, unknown>) =>
     validated(api.put('/user/profile', data), updateProfileResponseSchema, 'userApi.updateProfile'),
 };

@@ -110,4 +110,22 @@ class UserAccount extends Authenticatable
     {
         return $this->user?->role_id;
     }
+
+    /**
+     * Get the instructor profile (delegates to User model)
+     * Allows $request->user()->instructor to work in controllers
+     */
+    public function getInstructorAttribute()
+    {
+        return $this->user?->instructor;
+    }
+
+    /**
+     * Get the student profile (delegates to User model)
+     * Allows $request->user()->student to work in controllers
+     */
+    public function getStudentAttribute()
+    {
+        return $this->user?->student;
+    }
 }

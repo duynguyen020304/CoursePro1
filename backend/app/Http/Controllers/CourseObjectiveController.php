@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\CourseObjective;
 use App\Models\Course;
+use App\Http\Controllers\Traits\EnsuresCourseOwnership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CourseObjectiveController extends Controller
 {
+    use EnsuresCourseOwnership;
+
     /**
      * Get objectives for a course
      */
@@ -45,8 +48,13 @@ class CourseObjectiveController extends Controller
             'sort_order' => 'nullable|integer',
         ]);
 
+        [$course, $error] = $this->loadAndAuthorizeCourse($request->course_id);
+        if ($error) {
+            return $error;
+        }
+
         $objective = CourseObjective::create([
-            'objective_id' => 'objective_' . Str::uuid(),
+            'objective_id' => Str::uuid(),
             'course_id' => $request->course_id,
             'objective' => $request->objective,
             'sort_order' => $request->sort_order ?? 0,
@@ -61,6 +69,11 @@ class CourseObjectiveController extends Controller
     public function update(Request $request, $objectiveId)
     {
         $objective = CourseObjective::findOrFail($objectiveId);
+
+        $error = $this->authorizeObjectiveOwner($objective);
+        if ($error) {
+            return $error;
+        }
 
         $request->validate([
             'objective' => 'sometimes|string|max:500',
@@ -78,6 +91,12 @@ class CourseObjectiveController extends Controller
     public function destroy($objectiveId)
     {
         $objective = CourseObjective::findOrFail($objectiveId);
+
+        $error = $this->authorizeObjectiveOwner($objective);
+        if ($error) {
+            return $error;
+        }
+
         $objective->delete();
 
         return $this->emptySuccess('Course objective deleted successfully');

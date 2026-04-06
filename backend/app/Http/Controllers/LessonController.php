@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\CourseLesson;
 use App\Models\CourseChapter;
 use App\Models\Course;
+use App\Http\Controllers\Traits\EnsuresCourseOwnership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class LessonController extends Controller
 {
+    use EnsuresCourseOwnership;
+
     /**
      * Get lessons for a chapter
      */
@@ -39,6 +42,11 @@ class LessonController extends Controller
      */
     public function store(Request $request, Course $course, CourseChapter $chapter)
     {
+        $error = $this->authorizeCourseOwner($course);
+        if ($error) {
+            return $error;
+        }
+
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
@@ -72,6 +80,11 @@ class LessonController extends Controller
      */
     public function update(Request $request, CourseLesson $lesson)
     {
+        $error = $this->authorizeLessonOwner($lesson);
+        if ($error) {
+            return $error;
+        }
+
         $request->validate([
             'title' => 'sometimes|string|max:255',
             'content' => 'nullable|string',
@@ -88,6 +101,11 @@ class LessonController extends Controller
      */
     public function destroy(CourseLesson $lesson)
     {
+        $error = $this->authorizeLessonOwner($lesson);
+        if ($error) {
+            return $error;
+        }
+
         $lesson->delete();
 
         return $this->emptySuccess('Lesson deleted successfully');

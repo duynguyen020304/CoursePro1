@@ -103,10 +103,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const response = await userApi.current();
       // userApi.current() returns { data: { success, message, data: userProfile } }
-      // response.data.data is the userProfile object directly
-      const userData = (response.data as { data?: User | UserProfile })?.data;
+      // The validated() function returns the full parsed response in response.data
+      // We need to extract the inner `data` field which is the userProfile
+      const outerData = response.data as { data?: User | UserProfile };
+      const userData = outerData?.data ?? outerData;
 
-      if (!userData) {
+      if (!userData || !('user_id' in userData)) {
         clearAuthState();
         return { success: false };
       }
@@ -114,8 +116,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(userData);
       setIsAuthenticated(true);
 
+      // Extract permissions from user data if role.permissions is present
+      const userProfile = userData as UserProfile;
       if ('role_id' in userData && userData.role_id) {
-        await fetchUserPermissions();
+        if (userProfile.role?.permissions) {
+          setUserPermissions(userProfile.role.permissions.map((p) => p.name));
+        } else {
+          await fetchUserPermissions();
+        }
       } else {
         setUserPermissions([]);
       }

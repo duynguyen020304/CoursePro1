@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\CourseChapter;
 use App\Models\Course;
+use App\Http\Controllers\Traits\EnsuresCourseOwnership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ChapterController extends Controller
 {
+    use EnsuresCourseOwnership;
+
     /**
      * Get chapters for a course
      */
@@ -38,6 +41,11 @@ class ChapterController extends Controller
      */
     public function store(Request $request, Course $course)
     {
+        $error = $this->authorizeCourseOwner($course);
+        if ($error) {
+            return $error;
+        }
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -60,6 +68,11 @@ class ChapterController extends Controller
      */
     public function update(Request $request, Course $course, CourseChapter $chapter)
     {
+        $error = $this->authorizeCourseOwner($course);
+        if ($error) {
+            return $error;
+        }
+
         $request->validate([
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
@@ -76,6 +89,11 @@ class ChapterController extends Controller
      */
     public function destroy(Course $course, CourseChapter $chapter)
     {
+        $error = $this->authorizeCourseOwner($course);
+        if ($error) {
+            return $error;
+        }
+
         $chapter->delete();
 
         return $this->emptySuccess('Chapter deleted successfully');

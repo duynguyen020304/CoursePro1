@@ -305,12 +305,25 @@ class AuthController extends Controller
 
     /**
      * Return the authenticated user payload.
+     * Returns flat user data with role/student/instructor relations
+     * to match the currentUserResponseSchema expected by the frontend.
      */
     public function user(Request $request)
     {
+        $userAccount = $request->user();
+        $user = $userAccount->user->load(['role.permissions', 'student', 'instructor']);
+
         return $this->success([
-                'user' => $this->formatUserPayload($request->user()),
-            ], 'User retrieved successfully');
+            'user_id' => $user->user_id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $userAccount->email,
+            'role_id' => $user->role_id,
+            'profile_image' => $user->profile_image,
+            'role' => $user->role,
+            'student' => $user->student,
+            'instructor' => $user->instructor,
+        ], 'User retrieved successfully');
     }
 
     /**
@@ -415,7 +428,7 @@ class AuthController extends Controller
 
     private function formatUserPayload(\App\Models\UserAccount $userAccount): array
     {
-        $user = $userAccount->user;
+        $user = $userAccount->user->load(['role.permissions', 'student', 'instructor']);
 
         return [
             'user_id' => $user->user_id,
@@ -424,6 +437,9 @@ class AuthController extends Controller
             'email' => $userAccount->email,
             'role_id' => $user->role_id,
             'profile_image' => $user->profile_image,
+            'role' => $user->role,
+            'student' => $user->student,
+            'instructor' => $user->instructor,
         ];
     }
 

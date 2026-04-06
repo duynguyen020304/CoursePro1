@@ -45,7 +45,7 @@ class InstructorController extends Controller
     {
         $user = $request->user();
 
-        $instructor = Instructor::where('user_id', $user->user_id)
+        $instructor = Instructor::where('user_id', $user->user->user_id)
             ->with(['courses' => function ($q) {
                 $q->withCount(['students', 'reviews'])
                     ->orderBy('created_at', 'desc');

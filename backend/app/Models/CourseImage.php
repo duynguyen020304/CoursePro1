@@ -16,6 +16,10 @@ class CourseImage extends Model
 
     protected $fillable = ['image_id', 'course_id', 'image_path', 'caption', 'is_primary', 'sort_order', 'is_active'];
 
+    protected $casts = [
+        'is_primary' => 'boolean',
+    ];
+
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class, 'course_id', 'course_id');

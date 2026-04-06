@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Category;
+use App\Http\Controllers\Traits\EnsuresCourseOwnership;
 use Illuminate\Http\Request;
 
 class CourseCategoryController extends Controller
 {
+    use EnsuresCourseOwnership;
+
     /**
      * Get categories for a course
      */
@@ -43,6 +46,12 @@ class CourseCategoryController extends Controller
         ]);
 
         $course = Course::findOrFail($request->course_id);
+
+        $error = $this->authorizeCourseOwner($course);
+        if ($error) {
+            return $error;
+        }
+
         $category = Category::findOrFail($request->category_id);
 
         // Check if already assigned
@@ -63,6 +72,12 @@ class CourseCategoryController extends Controller
     public function destroy($courseId, $categoryId)
     {
         $course = Course::findOrFail($courseId);
+
+        $error = $this->authorizeCourseOwner($course);
+        if ($error) {
+            return $error;
+        }
+
         $category = Category::findOrFail($categoryId);
 
         $course->categories()->detach($categoryId);

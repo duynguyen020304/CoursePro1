@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\CourseImage;
 use App\Models\Course;
+use App\Http\Controllers\Traits\EnsuresCourseOwnership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CourseImageController extends Controller
 {
+    use EnsuresCourseOwnership;
+
     /**
      * Get images for a course
      */
@@ -46,6 +49,11 @@ class CourseImageController extends Controller
             'sort_order' => 'nullable|integer',
         ]);
 
+        [$course, $error] = $this->loadAndAuthorizeCourse($request->course_id);
+        if ($error) {
+            return $error;
+        }
+
         // If is_primary, unset other primary images
         if ($request->boolean('is_primary')) {
             CourseImage::where('course_id', $request->course_id)
@@ -53,9 +61,9 @@ class CourseImageController extends Controller
         }
 
         $image = CourseImage::create([
-            'image_id' => 'image_' . Str::uuid(),
+            'image_id' => Str::uuid(),
             'course_id' => $request->course_id,
-            'image_url' => $request->image_url,
+            'image_path' => $request->image_url,
             'is_primary' => $request->boolean('is_primary', false),
             'sort_order' => $request->sort_order ?? 0,
         ]);
@@ -70,6 +78,11 @@ class CourseImageController extends Controller
     {
         $image = CourseImage::findOrFail($imageId);
 
+        $error = $this->authorizeImageOwner($image);
+        if ($error) {
+            return $error;
+        }
+
         $request->validate([
             'image_url' => 'sometimes|string|max:500',
             'is_primary' => 'nullable|boolean',
@@ -83,7 +96,11 @@ class CourseImageController extends Controller
                 ->update(['is_primary' => false]);
         }
 
-        $image->update($request->only(['image_url', 'is_primary', 'sort_order', 'is_active']));
+        $updateData = $request->only(['is_primary', 'sort_order', 'is_active']);
+        if ($request->has('image_url')) {
+            $updateData['image_path'] = $request->image_url;
+        }
+        $image->update($updateData);
 
         return $this->success($image, 'Course image updated successfully');
     }
@@ -94,6 +111,12 @@ class CourseImageController extends Controller
     public function destroy($imageId)
     {
         $image = CourseImage::findOrFail($imageId);
+
+        $error = $this->authorizeImageOwner($image);
+        if ($error) {
+            return $error;
+        }
+
         $image->delete();
 
         return $this->emptySuccess('Course image deleted successfully');
