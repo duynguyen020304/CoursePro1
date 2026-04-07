@@ -10,6 +10,8 @@ import PublicLayout from './layouts/PublicLayout';
 import UserLayout from './layouts/UserLayout';
 import AdminLayout from './layouts/AdminLayout';
 import InstructorLayout from './layouts/InstructorLayout';
+import AdminRoute from './components/AdminRoute';
+import PermissionRoute from './components/PermissionRoute';
 
 // Public Pages
 import Home from './pages/public/Home';
@@ -108,31 +110,28 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          <Route path="/my-courses" element={<MyCourses />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/edit-profile" element={<EditProfile />} />
-          <Route path="/purchase-history" element={<PurchaseHistory />} />
-          <Route path="/certificates" element={<Certificates />} />
-          <Route path="/watch/:courseId/:lessonId?" element={<WatchVideo />} />
+          <Route path="/my-courses" element={<PermissionRoute anyOf={['my-courses.view', 'learning.view']}><MyCourses /></PermissionRoute>} />
+          <Route path="/profile" element={<PermissionRoute anyOf={['profile.view.own', 'profile.view']}><Profile /></PermissionRoute>} />
+          <Route path="/edit-profile" element={<PermissionRoute anyOf={['profile.edit.own', 'profile.edit']}><EditProfile /></PermissionRoute>} />
+          <Route path="/purchase-history" element={<PermissionRoute anyOf={['purchase-history.view', 'orders.view.own', 'orders.view']}><PurchaseHistory /></PermissionRoute>} />
+          <Route path="/certificates" element={<PermissionRoute anyOf={['certificates.view.own', 'certificates.view']}><Certificates /></PermissionRoute>} />
+          <Route path="/watch/:courseId/:lessonId?" element={<PermissionRoute anyOf={['courses.consume.own', 'lessons.watch']}><WatchVideo /></PermissionRoute>} />
         </Route>
 
         {/* Admin Routes */}
         <Route
           element={
-            <ProtectedRoute>
+            <AdminRoute>
               <AdminLayout />
-            </ProtectedRoute>
+            </AdminRoute>
           }
         >
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/courses" element={<CourseManagement />} />
-          <Route path="/admin/users" element={<UserManagement />} />
-          <Route path="/admin/roles" element={<RoleManagement />} />
-          <Route path="/admin/instructors" element={<div>Instructors Management</div>} />
-          <Route path="/admin/orders" element={<div>Orders Management</div>} />
-          <Route path="/admin/reviews" element={<div>Reviews Management</div>} />
-          <Route path="/admin/revenue" element={<Revenue />} />
-          <Route path="/admin/upload-video" element={<UploadVideo />} />
+          <Route path="/admin/dashboard" element={<PermissionRoute anyOf={['dashboard.admin.view', 'dashboard.view']}><AdminDashboard /></PermissionRoute>} />
+          <Route path="/admin/courses" element={<PermissionRoute anyOf={['courses.view.any', 'courses.view', 'courses.manage']}><CourseManagement /></PermissionRoute>} />
+          <Route path="/admin/users" element={<PermissionRoute anyOf={['users.view', 'users.manage']}><UserManagement /></PermissionRoute>} />
+          <Route path="/admin/roles" element={<PermissionRoute anyOf={['roles.view', 'roles.manage']}><RoleManagement /></PermissionRoute>} />
+          <Route path="/admin/revenue" element={<PermissionRoute anyOf={['revenue.view', 'analytics.view']}><Revenue /></PermissionRoute>} />
+          <Route path="/admin/upload-video" element={<PermissionRoute anyOf={['videos.manage.any', 'videos.manage', 'courses.manage', 'courses.edit']}><UploadVideo /></PermissionRoute>} />
         </Route>
 
         {/* Instructor Routes */}
@@ -143,11 +142,11 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          <Route path="/instructor/dashboard" element={<InstructorDashboard />} />
-          <Route path="/instructor/courses" element={<InstructorCourses />} />
-          <Route path="/instructor/courses/create" element={<CreateCourse />} />
-          <Route path="/instructor/courses/:courseId/edit" element={<EditCourse />} />
-          <Route path="/instructor/profile" element={<InstructorProfile />} />
+          <Route path="/instructor/dashboard" element={<PermissionRoute anyOf={['dashboard.instructor.view', 'dashboard.view', 'instructor.dashboard.view']}><InstructorDashboard /></PermissionRoute>} />
+          <Route path="/instructor/courses" element={<PermissionRoute anyOf={['instructor.courses.view', 'courses.view.own', 'courses.manage.own', 'courses.manage']}><InstructorCourses /></PermissionRoute>} />
+          <Route path="/instructor/courses/create" element={<PermissionRoute anyOf={['instructor.courses.create', 'courses.create']}><CreateCourse /></PermissionRoute>} />
+          <Route path="/instructor/courses/:courseId/edit" element={<PermissionRoute anyOf={['instructor.courses.edit', 'courses.manage.own', 'courses.edit.own', 'courses.manage.any', 'courses.edit.any']}><EditCourse /></PermissionRoute>} />
+          <Route path="/instructor/profile" element={<PermissionRoute anyOf={['instructor.profile.view', 'instructor.profile.edit', 'profile.view.own', 'profile.edit.own']}><InstructorProfile /></PermissionRoute>} />
         </Route>
 
         {/* 404 */}

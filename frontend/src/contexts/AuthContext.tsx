@@ -45,6 +45,15 @@ interface AuthContextValue extends AuthState {
   fetchUserPermissions: () => Promise<void>;
 }
 
+function extractPermissionNames(userData: User | UserProfile | null | undefined): string[] {
+  if (!userData) {
+    return [];
+  }
+
+  const permissions = ('role' in userData ? userData.role?.permissions : undefined) ?? [];
+  return permissions.map((permission) => permission.name);
+}
+
 /**
  * Auth context with nullable initial value
  */
@@ -82,14 +91,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const fetchUserPermissions = useCallback(async (): Promise<void> => {
     try {
       const response = await userApi.profile();
-      // userApi.profile() returns { data: UserProfile } directly (flat structure)
-      const userData = response.data as { role?: { permissions?: Array<{ name: string }> } };
-
-      if (userData?.role?.permissions) {
-        setUserPermissions(userData.role.permissions.map((permission) => permission.name));
-      } else {
-        setUserPermissions([]);
-      }
+      const userData = response.data.data as UserProfile;
+      setUserPermissions(extractPermissionNames(userData));
     } catch (error) {
       console.error('Failed to fetch user permissions:', error);
       setUserPermissions([]);
@@ -116,11 +119,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(userData);
       setIsAuthenticated(true);
 
-      // Extract permissions from user data if role.permissions is present
-      const userProfile = userData as UserProfile;
       if ('role_id' in userData && userData.role_id) {
-        if (userProfile.role?.permissions) {
-          setUserPermissions(userProfile.role.permissions.map((p) => p.name));
+        const permissionNames = extractPermissionNames(userData);
+        if (permissionNames.length > 0) {
+          setUserPermissions(permissionNames);
         } else {
           await fetchUserPermissions();
         }
@@ -162,7 +164,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setIsAuthenticated(true);
 
         if ('role_id' in userData) {
-          await fetchUserPermissions();
+          const permissionNames = extractPermissionNames(userData);
+          if (permissionNames.length > 0) {
+            setUserPermissions(permissionNames);
+          } else {
+            await fetchUserPermissions();
+          }
         }
 
         return { success: true, user: userData };
@@ -193,7 +200,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setIsAuthenticated(true);
 
         if ('role_id' in userData) {
-          await fetchUserPermissions();
+          const permissionNames = extractPermissionNames(userData);
+          if (permissionNames.length > 0) {
+            setUserPermissions(permissionNames);
+          } else {
+            await fetchUserPermissions();
+          }
         }
 
         return { success: true, user: userData };
@@ -244,11 +256,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   /**
    * Checks if user has a specific role
+   * Compares roleName against user.role_id (which stores the role name string like 'admin')
+   * Also checks nested user.role.role_id as fallback
    */
   const hasRole = useCallback(
     (roleName: string): boolean => {
       if (!user) return false;
-      return 'role_id' in user && user.role_id === roleName;
+      // Check flat role_id field first (e.g., user.role_id === 'admin')
+      if ('role_id' in user && user.role_id === roleName) return true;
+      // Fallback to nested role fields
+      const userWithRole = user as { role?: { role_id?: string; role_name?: string } };
+      if (userWithRole.role?.role_id === roleName) return true;
+      if (userWithRole.role?.role_name?.toLowerCase() === roleName.toLowerCase()) return true;
+      return false;
     },
     [user]
   );
