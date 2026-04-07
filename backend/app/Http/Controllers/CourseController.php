@@ -122,7 +122,7 @@ class CourseController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'difficulty' => 'nullable|in:beginner,intermediate,advanced',
+            'difficulty' => 'nullable|string|in:Beginner,Intermediate,Expert,All Level',
             'language' => 'nullable|string|max:40',
         ]);
 
@@ -154,7 +154,7 @@ class CourseController extends Controller
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'price' => 'sometimes|numeric|min:0',
-            'difficulty' => 'nullable|in:beginner,intermediate,advanced',
+            'difficulty' => 'nullable|string|in:Beginner,Intermediate,Expert,All Level',
             'language' => 'nullable|string|max:40',
         ]);
 

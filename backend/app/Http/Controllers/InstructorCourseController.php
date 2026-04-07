@@ -8,8 +8,6 @@ use App\Models\CourseLesson;
 use App\Models\CourseImage;
 use App\Models\CourseObjective;
 use App\Models\CourseRequirement;
-use App\Models\Category;
-use App\Models\Instructor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -155,15 +153,11 @@ class InstructorCourseController extends Controller
      */
     public function show(Request $request, $courseId)
     {
-        $course = $this->getInstructorCourse($request, $courseId, $request->boolean('include_deleted', false));
-
-        if (!$course) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Course not found or you do not have permission to access it',
-                'data' => null,
-            ], 404);
+        $courseAccess = $this->getInstructorCourse($request, $courseId, $request->boolean('include_deleted', false));
+        if ($courseAccess['response']) {
+            return $courseAccess['response'];
         }
+        $course = $courseAccess['course'];
 
         $course->load([
             'categories',
@@ -186,15 +180,11 @@ class InstructorCourseController extends Controller
      */
     public function update(Request $request, $courseId)
     {
-        $course = $this->getInstructorCourse($request, $courseId);
-
-        if (!$course) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Course not found or you do not have permission to update it',
-                'data' => null,
-            ], 404);
+        $courseAccess = $this->getInstructorCourse($request, $courseId);
+        if ($courseAccess['response']) {
+            return $courseAccess['response'];
         }
+        $course = $courseAccess['course'];
 
         $request->validate([
             'title' => 'sometimes|string|max:255',
@@ -257,15 +247,11 @@ class InstructorCourseController extends Controller
      */
     public function destroy(Request $request, $courseId)
     {
-        $course = $this->getInstructorCourse($request, $courseId);
-
-        if (!$course) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Course not found or you do not have permission to delete it',
-                'data' => null,
-            ], 404);
+        $courseAccess = $this->getInstructorCourse($request, $courseId);
+        if ($courseAccess['response']) {
+            return $courseAccess['response'];
         }
+        $course = $courseAccess['course'];
 
         $course->delete();
 
@@ -281,18 +267,14 @@ class InstructorCourseController extends Controller
      */
     public function addImage(Request $request, $courseId)
     {
-        $course = $this->getInstructorCourse($request, $courseId);
-
-        if (!$course) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Course not found or you do not have permission',
-                'data' => null,
-            ], 404);
+        $courseAccess = $this->getInstructorCourse($request, $courseId);
+        if ($courseAccess['response']) {
+            return $courseAccess['response'];
         }
 
         $request->validate([
-            'image_url' => 'required|string|max:500',
+            'image_url' => 'nullable|string|max:500|required_without:image_path',
+            'image_path' => 'nullable|string|max:500|required_without:image_url',
             'is_primary' => 'nullable|boolean',
             'sort_order' => 'nullable|integer',
         ]);
@@ -305,7 +287,7 @@ class InstructorCourseController extends Controller
         $image = CourseImage::create([
             'image_id' => Str::uuid(),
             'course_id' => $courseId,
-            'image_path' => $request->image_url,
+            'image_path' => $request->image_url ?? $request->image_path,
             'is_primary' => $request->is_primary ?? false,
             'sort_order' => $request->sort_order ?? 0,
         ]);
@@ -322,14 +304,9 @@ class InstructorCourseController extends Controller
      */
     public function deleteImage(Request $request, $courseId, $imageId)
     {
-        $course = $this->getInstructorCourse($request, $courseId);
-
-        if (!$course) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Course not found or you do not have permission',
-                'data' => null,
-            ], 404);
+        $courseAccess = $this->getInstructorCourse($request, $courseId);
+        if ($courseAccess['response']) {
+            return $courseAccess['response'];
         }
 
         $image = CourseImage::where('image_id', $imageId)
@@ -400,21 +377,54 @@ class InstructorCourseController extends Controller
     /**
      * Helper to get course owned by the authenticated instructor
      */
-    private function getInstructorCourse(Request $request, $courseId, $withTrashed = false)
+    private function getInstructorCourse(Request $request, $courseId, $withTrashed = false): array
     {
         $user = $request->user();
 
         if (!$user->instructor) {
-            return null;
+            return [
+                'course' => null,
+                'response' => response()->json([
+                    'success' => false,
+                    'message' => 'User is not an instructor',
+                    'data' => null,
+                ], 403),
+            ];
         }
 
-        $query = Course::where('course_id', $courseId)
-            ->where('created_by', $user->instructor->instructor_id);
+        $query = Course::where('course_id', $courseId);
 
         if ($withTrashed) {
             $query->withTrashed();
         }
 
-        return $query->first();
+        $course = $query->first();
+
+        if (!$course) {
+            return [
+                'course' => null,
+                'response' => response()->json([
+                    'success' => false,
+                    'message' => 'Course not found',
+                    'data' => null,
+                ], 404),
+            ];
+        }
+
+        if ($course->created_by !== $user->instructor->instructor_id) {
+            return [
+                'course' => null,
+                'response' => response()->json([
+                    'success' => false,
+                    'message' => 'You do not have permission to access this course',
+                    'data' => null,
+                ], 403),
+            ];
+        }
+
+        return [
+            'course' => $course,
+            'response' => null,
+        ];
     }
 }

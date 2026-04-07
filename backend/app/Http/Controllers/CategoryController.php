@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -84,12 +85,14 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:categories,slug',
             'parent_id' => 'nullable|exists:categories,id',
             'sort_order' => 'nullable|integer',
         ]);
 
         $category = Category::create([
             'name' => $request->name,
+            'slug' => $request->slug,
             'parent_id' => $request->parent_id,
             'sort_order' => $request->sort_order ?? 0,
         ]);
@@ -106,11 +109,12 @@ class CategoryController extends Controller
 
         $request->validate([
             'name' => 'sometimes|string|max:255',
+            'slug' => ['sometimes', 'nullable', 'string', 'max:255', Rule::unique('categories', 'slug')->ignore($category->id)],
             'parent_id' => 'nullable|exists:categories,id',
             'sort_order' => 'sometimes|integer',
         ]);
 
-        $category->update($request->only(['name', 'parent_id', 'sort_order', 'is_active']));
+        $category->update($request->only(['name', 'slug', 'parent_id', 'sort_order', 'is_active']));
 
         return $this->success($category, 'Category updated successfully');
     }
