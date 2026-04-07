@@ -93,7 +93,8 @@ class User extends Model
         if (!$this->role) {
             return false;
         }
-        return $this->role->permissions()->whereIn('name', $permissions)->exists();
+
+        return $this->role->hasAnyPermission($permissions);
     }
 
     public function hasAllPermissions(array $permissions): bool
@@ -101,8 +102,38 @@ class User extends Model
         if (!$this->role) {
             return false;
         }
-        $rolePermissions = $this->role->permissions()->pluck('name')->toArray();
-        return count(array_diff($permissions, $rolePermissions)) === 0;
+
+        return $this->role->hasAllPermissions($permissions);
+    }
+
+    public function canAccessAdminPanel(): bool
+    {
+        return $this->hasPermission('admin.access');
+    }
+
+    public function canAccessInstructorPanel(): bool
+    {
+        return $this->hasAnyPermission(['instructor.access', 'admin.access']);
+    }
+
+    public function canManageAnyCourse(): bool
+    {
+        return $this->hasAnyPermission(['courses.manage.any', 'admin.access']);
+    }
+
+    public function canManageOwnCourses(): bool
+    {
+        return $this->canManageAnyCourse() || $this->hasPermission('courses.manage.own');
+    }
+
+    public function canManageOrders(): bool
+    {
+        return $this->hasAnyPermission(['orders.manage', 'admin.access']);
+    }
+
+    public function canManagePayments(): bool
+    {
+        return $this->hasAnyPermission(['payments.manage', 'admin.access']);
     }
 
     /**

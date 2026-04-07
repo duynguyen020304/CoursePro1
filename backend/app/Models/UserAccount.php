@@ -95,6 +95,36 @@ class UserAccount extends Authenticatable
         return $this->user?->hasAllPermissions($permissions) ?? false;
     }
 
+    public function canAccessAdminPanel(): bool
+    {
+        return $this->user?->canAccessAdminPanel() ?? false;
+    }
+
+    public function canAccessInstructorPanel(): bool
+    {
+        return $this->user?->canAccessInstructorPanel() ?? false;
+    }
+
+    public function canManageAnyCourse(): bool
+    {
+        return $this->user?->canManageAnyCourse() ?? false;
+    }
+
+    public function canManageOwnCourses(): bool
+    {
+        return $this->user?->canManageOwnCourses() ?? false;
+    }
+
+    public function canManageOrders(): bool
+    {
+        return $this->user?->canManageOrders() ?? false;
+    }
+
+    public function canManagePayments(): bool
+    {
+        return $this->user?->canManagePayments() ?? false;
+    }
+
     /**
      * Get the user's role (delegates to User model)
      */
