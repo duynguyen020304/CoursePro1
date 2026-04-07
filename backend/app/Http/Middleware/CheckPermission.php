@@ -34,6 +34,11 @@ class CheckPermission
             ], 403);
         }
 
+        // Flatten comma-separated permissions (Laravel may pass "a,b" as one param)
+        $permissions = collect($permissions)->flatMap(function ($permission) {
+            return array_map('trim', explode(',', $permission));
+        })->filter()->all();
+
         // Check if user has any of the required permissions
         foreach ($permissions as $permission) {
             if ($user->hasPermission($permission)) {
