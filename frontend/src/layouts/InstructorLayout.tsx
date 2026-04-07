@@ -1,9 +1,8 @@
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import type { ReactNode } from 'react';
 
 export default function InstructorLayout() {
-  const { user, hasRole, loading, logout } = useAuth();
+  const { user, hasAnyPermission, loading, logout } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -15,7 +14,7 @@ export default function InstructorLayout() {
   }
 
   // Redirect non-instructor users
-  if (!hasRole('instructor') && !hasRole('admin')) {
+  if (!hasAnyPermission(['instructor.access', 'admin.access'])) {
     return <Navigate to="/" replace />;
   }
 
@@ -27,11 +26,11 @@ export default function InstructorLayout() {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/instructor/dashboard', label: 'Dashboard', icon: '📊' },
-    { path: '/instructor/courses', label: 'My Courses', icon: '📚' },
-    { path: '/instructor/courses/create', label: 'Create Course', icon: '➕' },
-    { path: '/instructor/profile', label: 'Profile', icon: '👤' },
-  ];
+    { path: '/instructor/dashboard', label: 'Dashboard', icon: '📊', permissions: ['dashboard.instructor.view', 'dashboard.view', 'instructor.dashboard.view'] },
+    { path: '/instructor/courses', label: 'My Courses', icon: '📚', permissions: ['instructor.courses.view', 'courses.view.own', 'courses.manage.own', 'courses.manage'] },
+    { path: '/instructor/courses/create', label: 'Create Course', icon: '➕', permissions: ['instructor.courses.create', 'courses.create'] },
+    { path: '/instructor/profile', label: 'Profile', icon: '👤', permissions: ['instructor.profile.view', 'instructor.profile.edit', 'profile.view.own', 'profile.edit.own'] },
+  ].filter((item) => hasAnyPermission(item.permissions));
 
   return (
     <div className="min-h-screen flex bg-gray-100">

@@ -7,7 +7,7 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, hasRole, loading, logout } = useAuth();
+  const { user, loading, logout, hasAnyPermission } = useAuth();
 
   if (loading) {
     return (
@@ -17,15 +17,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  // Redirect non-admin users
-  if (!hasRole('admin')) {
-    return <Navigate to="/" replace />;
-  }
-
   const handleLogout = async () => {
     await logout();
     window.location.assign('/signin');
   };
+
+  const navItems = [
+    { to: '/admin/dashboard', label: 'Dashboard', permissions: ['dashboard.admin.view', 'dashboard.view'] },
+    { to: '/admin/courses', label: 'Courses', permissions: ['courses.view.any', 'courses.view', 'courses.manage'] },
+    { to: '/admin/users', label: 'Users', permissions: ['users.view', 'users.manage'] },
+    { to: '/admin/roles', label: 'Roles & Permissions', permissions: ['roles.view', 'roles.manage'] },
+    { to: '/admin/revenue', label: 'Revenue', permissions: ['revenue.view', 'analytics.view'] },
+  ].filter((item) => hasAnyPermission(item.permissions));
 
   return (
     <div className="min-h-screen flex bg-gray-100">
@@ -35,30 +38,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <h1 className="text-xl font-bold">Admin Panel</h1>
         </div>
         <nav className="mt-4">
-          <Link to="/admin/dashboard" className="block px-4 py-2 hover:bg-gray-800">
-            Dashboard
-          </Link>
-          <Link to="/admin/courses" className="block px-4 py-2 hover:bg-gray-800">
-            Courses
-          </Link>
-          <Link to="/admin/users" className="block px-4 py-2 hover:bg-gray-800">
-            Users
-          </Link>
-          <Link to="/admin/roles" className="block px-4 py-2 hover:bg-gray-800">
-            Roles & Permissions
-          </Link>
-          <Link to="/admin/instructors" className="block px-4 py-2 hover:bg-gray-800">
-            Instructors
-          </Link>
-          <Link to="/admin/orders" className="block px-4 py-2 hover:bg-gray-800">
-            Orders
-          </Link>
-          <Link to="/admin/reviews" className="block px-4 py-2 hover:bg-gray-800">
-            Reviews
-          </Link>
-          <Link to="/admin/revenue" className="block px-4 py-2 hover:bg-gray-800">
-            Revenue
-          </Link>
+          {navItems.map((item) => (
+            <Link key={item.to} to={item.to} className="block px-4 py-2 hover:bg-gray-800">
+              {item.label}
+            </Link>
+          ))}
         </nav>
         <div className="absolute bottom-0 w-full p-4 border-t border-gray-800">
           <div className="text-sm text-gray-400 mb-2">
