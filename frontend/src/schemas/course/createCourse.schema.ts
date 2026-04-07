@@ -18,7 +18,7 @@ export const createCourseSchema = z.object({
       (val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0,
       'Price must be a non-negative number'
     ),
-  category_ids: z.array(z.number()).optional(),
+  category_ids: z.array(uuidSchema).optional(),
   thumbnail: z.union([z.string(), z.instanceof(File)]).optional(),
 });
 

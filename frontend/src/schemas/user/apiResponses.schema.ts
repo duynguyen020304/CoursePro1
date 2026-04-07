@@ -19,7 +19,7 @@ export const userProfileSchema = z.object({
   updated_at: z.string().datetime().nullable().optional(),
   role: z.object({
     role_id: z.string(),
-    name: z.string(),
+    role_name: z.string(),
     permissions: z.array(z.object({ name: z.string() })).optional(),
   }).optional(),
   student: z.any().optional(),

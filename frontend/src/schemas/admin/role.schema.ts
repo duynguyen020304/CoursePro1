@@ -5,11 +5,10 @@ import { paginationSchema } from '../common';
  * Permission schema - represents a system permission
  */
 export const permissionSchema = z.object({
-  id: z.string().uuid(),
+  permission_id: z.string(),
   name: z.string(),
-  slug: z.string(),
+  display_name: z.string().optional(),
   description: z.string().nullable().optional(),
-  group: z.string().optional(),
   is_active: z.boolean().optional().default(true),
   deleted_at: z.string().datetime().nullable().optional(),
   created_at: z.string().datetime().nullable().optional(),
@@ -20,10 +19,8 @@ export const permissionSchema = z.object({
  * Role schema - represents a system role
  */
 export const roleSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
-  slug: z.string(),
-  description: z.string().nullable().optional(),
+  role_id: z.string(),
+  role_name: z.string(),
   permissions: z.array(permissionSchema).optional(),
   is_active: z.boolean().optional().default(true),
   deleted_at: z.string().datetime().nullable().optional(),
@@ -43,15 +40,14 @@ export const roleListResponseSchema = z.object({
  * RoleResponse - single role response
  */
 export const roleResponseSchema = z.object({
-  role: roleSchema,
+  data: roleSchema,
 });
 
 /**
  * RolePermissionsResponse - role with its permissions
  */
 export const rolePermissionsResponseSchema = z.object({
-  role: roleSchema,
-  permissions: z.array(permissionSchema),
+  data: z.array(permissionSchema),
 });
 
 /**
@@ -65,13 +61,13 @@ export const permissionListResponseSchema = z.object({
 export const roleListApiResponseSchema = z.object({
   success: z.boolean(),
   message: z.string().optional(),
-  data: z.array(roleSchema.extend({ permissions: z.array(permissionSchema).optional() })),
+  data: z.array(roleSchema),
 });
 
 export const roleApiResponseSchema = z.object({
   success: z.boolean(),
   message: z.string().optional(),
-  data: roleSchema.extend({ permissions: z.array(permissionSchema).optional() }),
+  data: roleSchema,
 });
 
 export const roleCreateApiResponseSchema = z.object({

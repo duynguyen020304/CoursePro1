@@ -3,24 +3,58 @@ import { courseSchema } from '../course';
 
 /**
  * Order schema - represents an order in the system
+ * Backend uses order_id (e.g. 'order_<uuid>') as the primary key
+ * Includes loaded relations: user, details (with course), payment
  */
 export const orderSchema = z.object({
-  id: z.string().uuid(),
-  user_id: z.string().uuid(),
-  status: z.enum(['pending', 'processing', 'completed', 'cancelled', 'refunded']),
+  order_id: z.string(),
+  user_id: z.string(),
+  status: z.enum(['pending', 'processing', 'completed', 'cancelled', 'refunded']).optional(),
   total_amount: z.number().nonnegative(),
   is_active: z.boolean().optional().default(true),
   deleted_at: z.string().datetime().nullable().optional(),
   created_at: z.string().datetime().nullable().optional(),
   updated_at: z.string().datetime().nullable().optional(),
+  // Include user relation when loaded (admin order listing)
+  user: z.object({
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
+    email: z.string().optional(),
+  }).optional(),
+  // Include details relation (array of order details, each with a course)
+  details: z.array(z.object({
+    order_id: z.string(),
+    course_id: z.string(),
+    price: z.number().nonnegative(),
+    course: z.object({
+      course_id: z.string(),
+      title: z.string(),
+      description: z.string().nullable().optional(),
+      price: z.number().nonnegative().optional(),
+      difficulty: z.string().nullable().optional(),
+      language: z.string().nullable().optional(),
+      created_by: z.string().nullable().optional(),
+      is_active: z.boolean().nullable().optional(),
+    }).nullable().optional(),
+  })).optional(),
+  // Include payment relation when loaded
+  payment: z.object({
+    payment_id: z.string(),
+    order_id: z.string(),
+    amount: z.number().nonnegative(),
+    payment_method: z.string().optional(),
+    payment_status: z.string().optional(),
+    payment_date: z.string().nullable().optional(),
+    created_at: z.string().nullable().optional(),
+  }).optional(),
 });
 
 /**
  * OrderDetail schema - individual item within an order
  */
 export const orderDetailSchema = z.object({
-  id: z.string().uuid(),
-  course_id: z.string().uuid(),
+  order_id: z.string(),
+  course_id: z.string(),
   price: z.number().nonnegative(),
   is_active: z.boolean().optional().default(true),
   deleted_at: z.string().datetime().nullable().optional(),
