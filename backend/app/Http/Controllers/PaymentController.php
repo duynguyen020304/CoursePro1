@@ -44,14 +44,18 @@ class PaymentController extends Controller
     /**
      * Record a completed payment
      */
-    public function complete(Request $request)
+    public function complete(Request $request, $orderId)
     {
         $request->validate([
-            'order_id' => 'required|string|exists:orders,order_id',
             'payment_method' => 'required|string',
         ]);
 
-        $order = Order::where('order_id', $request->order_id)->first();
+        $resolvedOrderId = $orderId ?: $request->input('order_id');
+        if (!$resolvedOrderId) {
+            return $this->error('Order not found', 404);
+        }
+
+        $order = Order::where('order_id', $resolvedOrderId)->first();
 
         if (!$order) {
             return $this->error('Order not found', 404);
@@ -63,7 +67,7 @@ class PaymentController extends Controller
             return $this->error('Unauthorized to complete this order payment', 403);
         }
 
-        $payment = Payment::where('order_id', $request->order_id)->first();
+        $payment = Payment::where('order_id', $resolvedOrderId)->first();
 
         if ($payment) {
             $payment->update([
@@ -73,7 +77,7 @@ class PaymentController extends Controller
         } else {
             $payment = Payment::create([
                 'payment_id' => 'payment_' . uniqid(),
-                'order_id' => $request->order_id,
+                'order_id' => $resolvedOrderId,
                 'payment_date' => now(),
                 'payment_method' => $request->payment_method,
                 'payment_status' => 'completed',

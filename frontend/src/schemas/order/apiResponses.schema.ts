@@ -9,8 +9,9 @@ import { courseSchema } from '../course';
 export const orderSchema = z.object({
   order_id: z.string(),
   user_id: z.string(),
-  status: z.enum(['pending', 'processing', 'completed', 'cancelled', 'refunded']).optional(),
-  total_amount: z.number().nonnegative(),
+  order_date: z.string().nullable().optional(),
+  status: z.enum(['pending', 'processing', 'completed', 'cancelled', 'refunded']).nullable().optional(),
+  total_amount: z.coerce.number().nonnegative(),
   is_active: z.boolean().optional().default(true),
   deleted_at: z.string().datetime().nullable().optional(),
   created_at: z.string().datetime().nullable().optional(),
@@ -25,12 +26,12 @@ export const orderSchema = z.object({
   details: z.array(z.object({
     order_id: z.string(),
     course_id: z.string(),
-    price: z.number().nonnegative(),
+    price: z.coerce.number().nonnegative(),
     course: z.object({
       course_id: z.string(),
       title: z.string(),
       description: z.string().nullable().optional(),
-      price: z.number().nonnegative().optional(),
+      price: z.coerce.number().nonnegative().optional(),
       difficulty: z.string().nullable().optional(),
       language: z.string().nullable().optional(),
       created_by: z.string().nullable().optional(),
@@ -41,7 +42,7 @@ export const orderSchema = z.object({
   payment: z.object({
     payment_id: z.string(),
     order_id: z.string(),
-    amount: z.number().nonnegative(),
+    amount: z.coerce.number().nonnegative(),
     payment_method: z.string().optional(),
     payment_status: z.string().optional(),
     payment_date: z.string().nullable().optional(),
@@ -55,7 +56,7 @@ export const orderSchema = z.object({
 export const orderDetailSchema = z.object({
   order_id: z.string(),
   course_id: z.string(),
-  price: z.number().nonnegative(),
+  price: z.coerce.number().nonnegative(),
   is_active: z.boolean().optional().default(true),
   deleted_at: z.string().datetime().nullable().optional(),
   created_at: z.string().datetime().nullable().optional(),
@@ -67,11 +68,11 @@ export const orderDetailSchema = z.object({
  * Payment schema - payment record for an order
  */
 export const paymentSchema = z.object({
-  id: z.string().uuid(),
-  order_id: z.string().uuid(),
-  amount: z.number().nonnegative(),
-  payment_method: z.enum(['credit_card', 'paypal', 'applepay', 'googlepay', 'bank_transfer']),
-  status: z.enum(['pending', 'completed', 'failed', 'refunded']),
+  payment_id: z.string(),
+  order_id: z.string(),
+  amount: z.coerce.number().nonnegative(),
+  payment_method: z.enum(['pending', 'credit_card', 'paypal', 'applepay', 'googlepay', 'bank_transfer']),
+  payment_status: z.enum(['pending', 'processing', 'completed', 'failed', 'refunded']),
   is_active: z.boolean().optional().default(true),
   deleted_at: z.string().datetime().nullable().optional(),
   created_at: z.string().datetime().nullable().optional(),
@@ -94,20 +95,23 @@ export const orderListResponseSchema = z.object({
 });
 
 /**
- * OrderDetailResponse - single order with details and payments
+ * OrderDetailResponse - single order with loaded details and payment
+ * Backend returns the standard envelope: { success, message, data: order }
  */
 export const orderDetailResponseSchema = z.object({
-  order: orderSchema,
-  order_details: z.array(orderDetailSchema),
-  payments: z.array(paymentSchema),
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: orderSchema,
 });
 
 /**
- * CreateOrderResponse - response after creating an order (includes client_secret for payment)
+ * CreateOrderResponse - backend envelope returned after creating an order
+ * The backend returns the created order in the data field.
  */
 export const createOrderResponseSchema = z.object({
-  order: orderSchema,
-  client_secret: z.string(),
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: orderSchema,
 });
 
 // Type inference helpers

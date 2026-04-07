@@ -28,10 +28,10 @@ const instructorSchema = z.object({
 
 // Category schema
 const categorySchema = z.object({
-  id: z.number(),
+  id: z.string(),
   name: z.string(),
   slug: z.string().nullable().optional(),
-  parent_id: z.number().nullable(),
+  parent_id: z.string().nullable(),
   is_active: z.boolean().optional().default(true),
   deleted_at: z.string().nullable().optional(),
   created_at: z.string().nullable().optional(),
@@ -44,7 +44,7 @@ const imageSchema = z.object({
   course_id: z.string(),
   image_path: z.string(),
   caption: z.string().nullable().optional(),
-  is_primary: z.number().optional().default(0),
+  is_primary: z.boolean().optional().default(false),
   sort_order: z.number().optional().default(0),
   is_active: z.boolean().optional().default(true),
   deleted_at: z.string().nullable().optional(),
@@ -164,7 +164,7 @@ export const courseSchema = z.object({
   course_id: z.string(),
   title: z.string(),
   description: z.string().optional(),
-  price: z.number().optional(),
+  price: z.coerce.number().optional(),
   difficulty: z.string().optional().default('Beginner'),
   language: z.string().optional().default('vi'),
   is_active: z.boolean().optional().default(true),

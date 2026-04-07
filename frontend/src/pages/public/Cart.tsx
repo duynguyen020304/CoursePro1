@@ -1,6 +1,5 @@
 import { useCart } from '../../contexts/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
-import type { CartItem } from '../../schemas/order/cart.schema';
 
 export default function Cart() {
   const { cart, items, loading, removeItem, clearCart } = useCart();
@@ -43,7 +42,7 @@ export default function Cart() {
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow p-4 flex gap-4">
+            <div key={item.cart_item_id} className="bg-white rounded-lg shadow p-4 flex gap-4">
               {item.course?.thumbnail_url ? (
                 <img
                   src={item.course.thumbnail_url}
@@ -60,7 +59,7 @@ export default function Cart() {
                 <p className="text-indigo-600 font-bold mt-2">${String(item.course?.price || 0)}</p>
               </div>
               <button
-                onClick={() => removeItem(String(item.id))}
+                onClick={() => removeItem(item.cart_item_id)}
                 className="text-red-500 hover:text-red-700 self-start"
               >
                 Remove

@@ -10,17 +10,17 @@ import {
   type ReactNode,
 } from 'react';
 import { cartApi } from '../services/api';
+import type { Cart } from '../schemas/cart/apiResponses.schema';
 import { useAuth } from './AuthContext';
-import type { CartResponse } from '../schemas/order/cart.schema';
 
 /**
  * Cart context state
  */
 interface CartState {
-  cart: CartResponse | null;
+  cart: Cart | null;
   loading: boolean;
   initialized: boolean;
-  items: CartResponse['items'] | [];
+  items: Cart['items'] | [];
   itemCount: number;
 }
 
@@ -51,7 +51,7 @@ interface CartProviderProps {
  * Manages shopping cart state including items, loading, and operations
  */
 export function CartProvider({ children }: CartProviderProps) {
-  const [cart, setCart] = useState<CartResponse | null>(null);
+  const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -69,8 +69,7 @@ export function CartProvider({ children }: CartProviderProps) {
     try {
       setLoading(true);
       const response = await cartApi.get();
-      // cartApi returns null on validation failure, preserve that behavior
-      setCart((response as unknown as { data: CartResponse | null }).data);
+      setCart(response.data.data);
     } catch (error) {
       const errorResponse = error as { response?: { status?: number } };
       if (errorResponse.response?.status !== 401) {

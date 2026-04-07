@@ -543,7 +543,7 @@ export const orderApi = {
   get: (orderId: string | number) =>
     validated(api.get(`/orders/${orderId}`), orderDetailResponseSchema, 'orderApi.get'),
   completePayment: (orderId: string | number, payment_method: string) =>
-    apiData<{ success: boolean; message?: string; data: unknown }>('orderApi.completePayment')(api.post(`/orders/${orderId}/payment`, { payment_method })),
+    apiData<{ success: boolean; message?: string; data: unknown }>('orderApi.completePayment')(api.post(`/orders/${orderId}/payment`, { order_id: orderId, payment_method })),
 };
 
 // Review API methods

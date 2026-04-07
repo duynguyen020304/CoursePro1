@@ -105,10 +105,13 @@ export default function Checkout() {
         }
       }
       
-      // T12/T13: Service layer returns { data: <validated_response> }
-      // createOrderResponseSchema = { order: {...}, client_secret: "..." }
+      // Service layer returns the backend envelope; the created order is in `data`
       const orderResponse = await orderApi.create();
-      const orderId = orderResponse.data?.order?.order_id || '';
+      const orderId = orderResponse.data?.data?.order_id || '';
+
+      if (!orderId) {
+        throw new Error('Unable to create order. Please try again.');
+      }
 
       // Simulate payment processing
       await simulatePaymentProcessing();
@@ -602,7 +605,7 @@ export default function Checkout() {
 
             <div className="space-y-3 mb-4">
               {items.map((item) => (
-                <div key={item.id} className="flex gap-3 items-start">
+                <div key={item.cart_item_id} className="flex gap-3 items-start">
                   {item.course?.thumbnail_url ? (
                     <img
                       src={item.course.thumbnail_url}
