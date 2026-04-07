@@ -81,7 +81,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/instructor', [InstructorController::class, 'update']);
 
     // Admin only routes (protected by role middleware)
-    Route::middleware('role:admin')->prefix('admin')->group(function () {
+    Route::middleware('permission:admin.access')->prefix('admin')->group(function () {
         Route::apiResource('users', UserController::class);
         Route::apiResource('students', StudentController::class);
         Route::apiResource('instructors', InstructorController::class);
@@ -129,8 +129,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/chapters/{chapter}/lessons', [LessonController::class, 'index']);
     });
 
-    // Course write operations - admin/instructor only
-    Route::middleware('role:admin,instructor')->group(function () {
+    // Course write operations - permission-based course management only
+    Route::middleware('permission:courses.manage.any,courses.manage.own,admin.access')->group(function () {
         Route::prefix('courses/{course}')->group(function () {
             Route::post('/instructors', [CourseInstructorController::class, 'store']);
             Route::delete('/instructors/{instructor}', [CourseInstructorController::class, 'destroy']);
@@ -190,7 +190,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
 
     // Instructor routes (instructor and admin only)
-    Route::middleware('role:instructor,admin')->prefix('instructor')->group(function () {
+    Route::middleware('permission:instructor.access,admin.access')->prefix('instructor')->group(function () {
         // Instructor dashboard stats
         Route::get('/stats', [InstructorCourseController::class, 'stats']);
 
@@ -206,3 +206,4 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/courses/{course}/images/{image}', [InstructorCourseController::class, 'deleteImage']);
     });
 });
+

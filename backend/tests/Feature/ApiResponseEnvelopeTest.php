@@ -349,7 +349,7 @@ class ApiResponseEnvelopeTest extends TestCase
         $token = $student->createToken('test-token');
 
         // Try to access admin-only route (GET /api/admin/users)
-        // The CheckRole middleware should return 403 for non-admin users
+        // The permission middleware should return 403 for users without admin access
         $response = $this->withHeader('Authorization', 'Bearer ' . $token->plainTextToken)
             ->getJson('/api/admin/users');
 
@@ -365,7 +365,7 @@ class ApiResponseEnvelopeTest extends TestCase
             ]);
 
         // Verify the message indicates forbidden action (exact message from middleware)
-        $this->assertEquals('You do not have the required role to access this resource', $response->json('message'));
+        $this->assertEquals('You do not have the required permission to access this resource', $response->json('message'));
     }
 
     /**
