@@ -16,8 +16,8 @@ use Illuminate\Http\JsonResponse;
  * Reusable ownership guard for shared-write endpoints.
  *
  * Rules:
- *  - Admins always pass through.
- *  - Instructors must own the course (course.created_by === instructor_id).
+ *  - Users with global course-management capability always pass through.
+ *  - Users with own-course capability must own the course (course.created_by === instructor_id).
  *  - Everyone else receives 403.
  */
 trait EnsuresCourseOwnership
@@ -32,13 +32,11 @@ trait EnsuresCourseOwnership
     {
         $user = request()->user();
 
-        // Admins always have access
-        if ($user->hasRole('admin')) {
+        if ($user->canManageAnyCourse()) {
             return null;
         }
 
-        // Instructors must own the course
-        if ($user->hasRole('instructor') && $user->instructor) {
+        if ($user->canManageOwnCourses() && $user->instructor) {
             if ($course->created_by === $user->instructor->instructor_id) {
                 return null;
             }

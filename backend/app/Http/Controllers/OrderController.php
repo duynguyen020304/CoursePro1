@@ -13,15 +13,20 @@ use Illuminate\Support\Str;
 class OrderController extends Controller
 {
     /**
-     * Display a listing of orders for the authenticated user
+     * Display a listing of orders
+     * Admins see all orders; other users see only their own orders
      */
     public function index(Request $request)
     {
         $user = $request->user();
 
-        $query = Order::with(['details.course.instructor.user', 'payment'])
-            ->where('user_id', $user->user_id)
+        $query = Order::with(['user', 'details.course.instructor.user', 'payment'])
             ->orderBy('order_date', 'desc');
+
+        // Users without elevated order-management permissions can only see their own orders
+        if (!$user->canManageOrders()) {
+            $query->where('user_id', $user->user_id);
+        }
 
         // Include soft-deleted records
         if ($request->boolean('include_deleted', false)) {

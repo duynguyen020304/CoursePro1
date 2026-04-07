@@ -57,6 +57,12 @@ class PaymentController extends Controller
             return $this->error('Order not found', 404);
         }
 
+        // Authorization: only the order owner or a user with payment-management capability can complete payment
+        $user = $request->user();
+        if (!$user->canManagePayments() && $order->user_id !== $user->user_id) {
+            return $this->error('Unauthorized to complete this order payment', 403);
+        }
+
         $payment = Payment::where('order_id', $request->order_id)->first();
 
         if ($payment) {
