@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { instructorApi, categoryApi } from '../../services/api';
 
 interface Category {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -19,7 +19,7 @@ export default function CreateCourse() {
     price: '',
     difficulty: 'All Level',
     language: 'Vietnamese',
-    category_ids: [] as number[],
+    category_ids: [] as string[],
     objectives: [''],
     requirements: [''],
   });
@@ -54,10 +54,10 @@ export default function CreateCourse() {
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const options = e.target.options;
-    const selected: number[] = [];
+    const selected: string[] = [];
     for (let i = 0; i < options.length; i++) {
       if (options[i].selected) {
-        selected.push(parseInt(options[i].value, 10));
+        selected.push(options[i].value);
       }
     }
     setFormData((prev) => ({ ...prev, category_ids: selected }));

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { instructorApi, categoryApi, courseApi } from '../../services/api';
 
 interface Category {
-  id: string | number;
+  id: string;
   name?: string;
 }
 
@@ -13,7 +13,7 @@ interface Course {
   price?: number;
   difficulty?: string;
   language?: string;
-  categories?: Array<{ id: string | number }>;
+  categories?: Array<{ id: string }>;
   objectives?: Array<{ objective?: string }>;
   requirements?: Array<{ requirement?: string }>;
   chapters?: Chapter[];
@@ -36,7 +36,7 @@ interface FormData {
   price: string;
   difficulty: string;
   language: string;
-  category_ids: (string | number)[];
+  category_ids: string[];
   objectives: string[];
   requirements: string[];
 }
@@ -80,7 +80,7 @@ export default function EditCourse() {
           price: courseData.price?.toString() || '',
           difficulty: courseData.difficulty || 'All Level',
           language: courseData.language || 'Vietnamese',
-          category_ids: courseData.categories?.map((c: { id: string | number }) => c.id) || [],
+          category_ids: courseData.categories?.map((c: { id: string }) => c.id) || [],
           objectives: courseData.objectives?.map((o: { objective?: string }) => o.objective || '') || [''],
           requirements: courseData.requirements?.map((r: { requirement?: string }) => r.requirement || '') || [''],
         });
@@ -112,10 +112,10 @@ export default function EditCourse() {
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const options = e.target.options;
-    const selected: (string | number)[] = [];
+    const selected: string[] = [];
     for (let i = 0; i < options.length; i++) {
       if (options[i].selected) {
-        selected.push(parseInt(options[i].value));
+        selected.push(options[i].value);
       }
     }
     setFormData((prev) => ({ ...prev, category_ids: selected }));
