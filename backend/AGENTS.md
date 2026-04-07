@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-04-01 | Updated: 2026-04-01 -->
+<!-- Generated: 2026-04-01 | Updated: 2026-07-04 -->
 
 # Backend
 
@@ -14,7 +14,7 @@ Laravel 13.x backend API for the CoursePro1 e-learning platform. Provides RESTfu
 | `artisan` | Laravel CLI command tool |
 | `phpunit.xml` | PHPUnit testing configuration |
 | `vite.config.js` | Vite bundler for frontend assets |
-| `routes/api.php` | Main API route definitions (180+ endpoints) |
+| `routes/api.php` | Main API route definitions (~110 endpoints) |
 
 ## Subdirectories
 | Directory | Purpose |
@@ -73,16 +73,16 @@ Laravel 13.x backend API for the CoursePro1 e-learning platform. Provides RESTfu
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `app/Http/Controllers/AuthController.php` | 459 | Login, signup, password reset, Google OAuth, refresh tokens |
-| `app/Http/Controllers/InstructorCourseController.php` | 390 | Instructor course CRUD with stats |
-| `app/Services/AuthService.php` | 307 | Google OAuth, token management, anti-takeover |
+| `app/Http/Controllers/AuthController.php` | 405 | Login, signup, password reset, Google OAuth, refresh tokens |
+| `app/Http/Controllers/InstructorCourseController.php` | 360 | Instructor course CRUD with stats |
+| `app/Services/AuthService.php` | 261 | Google OAuth, token management, anti-takeover |
 
 ## Architecture
 
-- **26 Controllers** — Auth, User, Student, Instructor, Course, Cart, Order, Payment, Review, etc.
-- **24 Models** — All use UUID primary keys
+- **25 Controllers** — Auth, User, Student, Instructor, Course, Cart, Order, Payment, Review, etc.
+- **23 Models** — Most use UUID primary keys (see `app/AGENTS.md` for exceptions)
 - **3 Middleware** — CheckRole, CheckPermission, UseAccessTokenFromCookie
-- **43 Migrations** — User, Course, Cart, Order, Payment, Reviews, Permissions, etc.
+- **70 Migrations** — User, Course, Cart, Order, Payment, Reviews, Permissions, OAuth, audit columns, etc.
 - **No Request classes** — Validation in controllers
 - **No Observers/Events** — Direct model operations
 

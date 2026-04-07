@@ -1,5 +1,5 @@
 <!-- Parent: ../../AGENTS.md -->
-<!-- Generated: 2026-04-01 | Updated: 2026-04-01 -->
+<!-- Generated: 2026-04-01 | Updated: 2026-07-04 -->
 
 # Models
 
@@ -29,7 +29,7 @@ Eloquent ORM models representing database entities. Each model corresponds to a 
 | Model | Table | Key Relationships |
 |-------|-------|-------------------|
 | `Course` | courses | belongsTo User (creator), belongsToMany Instructors, belongsToMany Categories, hasMany Chapters, hasMany Images, hasMany Objectives, hasMany Requirements |
-| `Category` | categories | hasMany Children (self-referencing), belongsTo Parent, belongsToMany Courses |
+| `Category` | categories | hasMany Children (self-referencing via nullable `parent_id`), belongsTo Parent, belongsToMany Courses, slug-based public lookup |
 | `CourseChapter` | course_chapters | belongsTo Course, hasMany Lessons |
 | `CourseLesson` | course_lessons | belongsTo Course, belongsTo Chapter, hasMany Videos, hasMany Resources |
 | `CourseVideo` | course_videos | belongsTo Lesson |
@@ -50,7 +50,7 @@ Eloquent ORM models representing database entities. Each model corresponds to a 
 ## For AI Agents
 
 ### Working In This Directory
-- **Primary Keys**: All models use UUID strings (`public $incrementing = false; protected $keyType = 'string';`)
+- **Primary Keys**: All models use UUID strings (`public $incrementing = false; protected $keyType = 'string';`), including `Category.id`
 - **Timestamps**: Some models disable timestamps and use manual `boot()` method
 - **Relationships**: Define proper inverse relationships
 - **Mass Assignment**: Use `$fillable` or `$guarded` for security

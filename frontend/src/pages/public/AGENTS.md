@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-04-01 | Updated: 2026-04-01 -->
+<!-- Generated: 2026-04-01 | Updated: 2026-07-04 -->
 
 # Public Pages
 
@@ -13,7 +13,7 @@ Publicly accessible pages that do not require authentication. Includes landing p
 | `Home.jsx` | `/` | 420 | Landing page with hero, Swiper sliders, testimonials |
 | `Courses.jsx` | `/courses` | 249 | Course listing with filters |
 | `CourseDetail.jsx` | `/courses/:id` | 274 | Course page with syllabus, reviews |
-| `CategoryPage.jsx` | `/categories/:id` | — | Courses filtered by category |
+| `CategoryPage.tsx` | `/categories/:slug` | — | Courses filtered by category slug |
 | `SignIn.jsx` | `/signin` | — | Login form with validation |
 | `SignUp.jsx` | `/signup` | 212 | Registration form |
 | `ForgotPassword.jsx` | `/forgot-password` | 219 | 3-step password reset |

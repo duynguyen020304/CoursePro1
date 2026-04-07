@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-04-01 | Updated: 2026-04-01 -->
+<!-- Generated: 2026-04-01 | Updated: 2026-07-04 -->
 
 # Routes
 
@@ -35,7 +35,7 @@ GET  /api/courses/search
 GET  /api/courses
 GET  /api/courses/{id}
 GET  /api/categories
-GET  /api/categories/{id}
+GET  /api/categories/{slug}
 GET  /api/instructors
 GET  /api/instructors/{id}
 ```

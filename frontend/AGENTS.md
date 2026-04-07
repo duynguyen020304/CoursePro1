@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-04-01 | Updated: 2026-04-01 -->
+<!-- Generated: 2026-04-01 | Updated: 2026-07-04 -->
 
 # Frontend
 
@@ -46,9 +46,9 @@ React 19 frontend application for the CoursePro1 e-learning platform. Built with
 ### Common Patterns
 - **Context Layer**: `AuthContext`, `CartContext` for global state
 - **Layouts**: `PublicLayout`, `UserLayout`, `AdminLayout`, `InstructorLayout` for page wrappers
-- **Services**: `api.js` provides centralized API client with interceptors
+- **Services**: `api.ts` provides centralized API client with interceptors
 - **Pages organized by audience**: `public/`, `user/`, `admin/`, `instructor/`
-- **Zod Schemas**: 60+ validation schemas organized by domain
+- **Zod Schemas**: 46 validation schemas organized by domain
 - **TanStack Query**: Server state caching and data fetching
 - **Loading states**: Consistent spinner pattern during async operations
 - **Error handling**: try/catch with error state display
@@ -91,17 +91,17 @@ const courseSchema = z.object({
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `src/pages/public/Checkout.tsx` | 671 | Multi-payment checkout flow |
-| `src/pages/instructor/EditCourse.tsx` | 560 | Edit course with chapters/lessons |
-| `src/pages/user/WatchVideo.tsx` | 491 | Video player with progress tracking |
-| `src/pages/public/Home.tsx` | 420 | Landing page with Swiper sliders |
-| `src/pages/admin/Revenue.tsx` | 360 | Revenue analytics with Chart.js |
+| `src/pages/public/Checkout.tsx` | 672 | Multi-payment checkout flow |
+| `src/pages/instructor/EditCourse.tsx` | 561 | Edit course with chapters/lessons |
+| `src/pages/user/WatchVideo.tsx` | 493 | Video player with progress tracking |
+| `src/pages/public/Home.tsx` | 423 | Landing page with Swiper sliders |
+| `src/pages/admin/Revenue.tsx` | 357 | Revenue analytics with Chart.js |
 | `src/pages/admin/UploadVideo.tsx` | 377 | Video upload with selectors |
 | `src/pages/instructor/CreateCourse.tsx` | 379 | Course creation form |
 | `src/pages/admin/RoleManagement.tsx` | 340 | Role/permission management |
 | `src/pages/admin/Dashboard.tsx` | 313 | Admin dashboard with stats |
 | `src/pages/user/Certificates.tsx` | 309 | Certificate list with PDF generation |
-| `src/contexts/AuthContext.tsx` | 308 | Auth state with permissions |
+| `src/contexts/AuthContext.tsx` | 316 | Auth state with permissions |
 
 ## Dependencies
 
@@ -115,7 +115,6 @@ const courseSchema = z.object({
 - `react` v19 - UI framework
 - `react-router-dom` v7 - Client-side routing
 - `@tanstack/react-query` - Data fetching/caching
-- `zustand` - State management
 - `axios` - HTTP client
 - `react-hook-form` - Form handling
 - `tailwindcss` v4 - Styling
@@ -150,16 +149,18 @@ src/
 
 ### Routes
 
-**Public Routes**: `/`, `/courses`, `/courses/:id`, `/signin`, `/signup`, `/forgot-password`, `/cart`, `/checkout`, `/categories/:id`
+**Public Routes**: `/`, `/courses`, `/courses/:id`, `/signin`, `/signup`, `/forgot-password`, `/verify-code`, `/reset-password`, `/cart`, `/checkout`, `/categories/:slug`, `/instructors`
 
-**Protected User Routes**: `/my-courses`, `/profile`, `/purchase-history`, `/certificates`, `/watch/:courseId/:lessonId`
+**Protected User Routes**: `/my-courses`, `/profile`, `/edit-profile`, `/purchase-history`, `/certificates`, `/watch/:courseId/:lessonId?`
 
-**Protected Admin Routes**: `/admin/dashboard`, `/admin/courses`, `/admin/users`, `/admin/revenue`, `/admin/upload-video`
+**Protected Admin Routes**: `/admin/dashboard`, `/admin/courses`, `/admin/users`, `/admin/roles`, `/admin/instructors`, `/admin/orders`, `/admin/reviews`, `/admin/revenue`, `/admin/upload-video`
+
+**Protected Instructor Routes**: `/instructor/dashboard`, `/instructor/courses`, `/instructor/courses/create`, `/instructor/courses/:courseId/edit`, `/instructor/profile`
 
 ### API Integration
 - Axios instance with base URL from `VITE_API_URL`
 - Request interceptor adds `Authorization: Bearer <token>` header
 - Response interceptor handles 401 by clearing auth and redirecting
-- All API methods organized in modules: `authApi`, `courseApi`, `orderApi`, etc.
+- API methods: `api.ts` (main client), `authApi.ts` (auth endpoints)
 
 <!-- MANUAL: Custom frontend notes can be added below -->

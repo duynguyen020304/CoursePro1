@@ -1,4 +1,4 @@
-<!-- Generated: 2026-04-01 | Updated: 2026-04-01 -->
+<!-- Generated: 2026-04-01 | Updated: 2026-07-04 -->
 
 # CoursePro1
 
@@ -72,99 +72,30 @@ A comprehensive, full-stack e-learning platform built with **Laravel 13** (Backe
 - **API**: Consistent response format `{ success, data, message }`
 - **Database**: 30+ migrations, seeders for test data
 
-## Dependencies
-
-### Backend
-- `laravel/framework` v13.x - Web framework
-- `laravel/sanctum` - API authentication
-- `firebase/php-jwt` - JWT handling
-- `phpmailer/phpmailer` - Email functionality
-
-### Frontend
-- `react` v19 - UI framework
-- `react-router-dom` v7 - Client-side routing
-- `@tanstack/react-query` - Data fetching
-- `axios` - HTTP client
-- `react-hook-form` - Form handling
-- `tailwindcss` v4 - Styling
-- `chart.js` - Analytics charts
-- `jspdf` - PDF generation
-
-## Conventions
-
-### Backend
-- **UUID Primary Keys**: All models use `public $incrementing = false; protected $keyType = 'string'`
-- **API Response**: `{ success: bool, data: mixed, message: string }`
-- **Middleware Chain**: `auth:sanctum` → `UseAccessTokenFromCookie` → `CheckRole`/`CheckPermission`
-- **Google OAuth Anti-Takeover**: Check existing Google-linked account before creating new
-- **Refresh Tokens**: Hashed with HMAC-SHA256 before storage
-
-### Frontend
-- **TypeScript**: Strict mode enabled, `checkJs: true`
-- **ESLint**: Allows unused `ALL_CAPS` variables (React components)
-- **Zod Schemas**: 60+ validation schemas organized by domain
-- **Environment**: `VITE_*` prefix only, runtime validation via Zod
-- **State**: React Context (Auth, Cart) + TanStack Query (server state)
-- **Axios**: XSRF token handling, automatic Bearer token injection
-
-## Build & Test Commands
-
+## Commands
 ```bash
-# Backend
-cd backend && composer test          # PHPUnit tests
-cd backend && ./vendor/bin/phpunit  # Direct PHPUnit
-
-# Frontend
-cd frontend && npm test            # Vitest watch
-cd frontend && npm run test:run    # Vitest single run
-cd frontend && npm run lint         # ESLint
-cd frontend && npm run build       # Production build
-
-# E2E
-npx playwright test                 # Run E2E tests
-
-# Database
-cd backend && php artisan migrate:fresh --seed
+docker-compose -f docker-compose.mysql-only.yml up -d   # Start MySQL
+cd backend && composer install && php artisan serve      # Backend dev
+cd frontend && npm install && npm run dev                 # Frontend dev
+cd backend && ./vendor/bin/phpunit                        # Backend tests
+cd frontend && npm run lint && npm run build              # Frontend checks
+npx playwright test                                       # E2E tests
 ```
 
-## CI/CD Status
-
-**No CI/CD pipelines configured** — manual testing only. No GitHub Actions, GitLab CI, or other CI systems.
-
-## Database Schema
-
-### Core Tables
-- `users`, `roles`, `instructors`, `students` - User management
-- `courses`, `categories` - Course catalog
-- `course_chapters`, `course_lessons`, `course_videos` - Course content
-- `carts`, `cart_items` - Shopping cart
-- `orders`, `order_details`, `payments` - Order management
-- `reviews` - Course reviews
+## CI/CD
+None configured — manual testing only.
 
 ## Quick Start
-
-```bash
-# Start MySQL Docker
-docker-compose -f docker-compose.mysql-only.yml up -d
-
-# Backend setup
-cd backend
-composer install
-php artisan migrate
-php artisan db:seed
-php artisan serve
-
-# Frontend setup
-cd frontend
-npm install
-npm run dev
-```
+1. Start MySQL: `docker-compose -f docker-compose.mysql-only.yml up -d`
+2. Backend: `cd backend && composer install && php artisan migrate:fresh --seed && php artisan serve`
+3. Frontend: `cd frontend && npm install && npm run dev`
 
 ## Documentation
-
-- `README.md` - Setup guide and project overview
-- `backend/AGENTS.md` - Backend architecture and API docs
-- `frontend/AGENTS.md` - Frontend architecture and components
-- `backend/database/AGENTS.md` - Database schema and seeders
+- `README.md` - Full setup guide, DB schema, env config
+- `backend/AGENTS.md` - Backend architecture, API endpoints, auth, DB schema
+- `frontend/AGENTS.md` - Frontend architecture, routes, components, Zod schemas
+- `backend/app/AGENTS.md` - Controllers, models, service providers
+- `frontend/src/AGENTS.md` - React source structure, component patterns
+- `backend/database/AGENTS.md` - Migrations, seeders, factories
 
 <!-- MANUAL: Project-specific notes can be added below -->

@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-04-01 | Updated: 2026-04-01 -->
+<!-- Generated: 2026-04-01 | Updated: 2026-07-04 -->
 
 # Source
 
@@ -9,8 +9,8 @@ React application source code containing all components, pages, layouts, context
 ## Key Files
 | File | Description |
 |------|-------------|
-| `main.jsx` | React entry point, renders App component |
-| `App.jsx` | Root component with routing and providers |
+| `main.tsx` | React entry point, renders App component |
+| `App.tsx` | Root component with routing and providers |
 | `index.css` | Global Tailwind CSS styles |
 | `App.css` | Component-specific styles |
 
@@ -20,9 +20,9 @@ React application source code containing all components, pages, layouts, context
 | `components/` | 3 | Shared UI components (Header, Footer, GoogleLoginButton) |
 | `contexts/` | 2 | React Context providers (Auth, Cart) |
 | `layouts/` | 4 | Page layout wrappers (Public, User, Admin, Instructor) |
-| `pages/` | 32 | Route pages organized by audience |
-| `services/` | 15 | API client and methods |
-| `schemas/` | 60+ | Zod validation schemas by domain |
+| `pages/` | 29 | Route pages organized by audience |
+| `services/` | 3 | API client (`api.ts`, `authApi.ts`, `index.ts`) |
+| `schemas/` | 46 | Zod validation schemas by domain |
 | `hooks/` | 0 | Custom hooks (exported from contexts) |
 | `utils/` | 3 | Utility functions (env, apiValidator) |
 | `types/` | 0 | Types defined in schemas |
@@ -36,47 +36,7 @@ React application source code containing all components, pages, layouts, context
 - **Imports**: Use ES6 imports, barrel exports from `index.js` files
 - **Components**: Function components with hooks (no class components)
 - **Styling**: Tailwind CSS utility classes, avoid inline styles
-
-### Component Patterns
-```jsx
-// Basic component structure
-function ComponentName({ prop1, prop2 }) {
-  // Hooks at top
-  const [state, setState] = useState(initialValue);
-
-  // Event handlers
-  const handleClick = () => { ... };
-
-  // Render
-  return <div className="tailwind-classes">...</div>;
-}
-```
-
-### State Management
-- **Local**: `useState`, `useReducer`
-- **Global**: React Context (`AuthContext`, `CartContext`)
-- **Persistence**: `localStorage` for auth token, user data, cart
-
-### API Integration
-- Import from `services/api.js`
-- Use async/await with try/catch
-- Loading states with boolean flags
-- Error states display to user
-
-## Dependencies
-
-### Internal
-- `src/services/api.js` - API client
-- `src/contexts/AuthContext.jsx` - Auth state
-- `src/contexts/CartContext.jsx` - Cart state
-- `src/layouts/` - Layout components
-
-### External
-- `react`, `react-dom` - Core React
-- `react-router-dom` - Routing
-- `@tanstack/react-query` - Data fetching
-- `axios` - HTTP client
-- `react-hook-form` - Forms
-- `tailwindcss` - Styling
+- **Pages**: Organized by audience (`public/`, `user/`, `admin/`, `instructor/`)
+- **Schemas**: Zod validation in `schemas/` - 60+ schemas, all extend `baseEntitySchema`
 
 <!-- MANUAL: Custom src notes can be added below -->

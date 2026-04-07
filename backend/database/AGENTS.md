@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-04-01 | Updated: 2026-04-01 -->
+<!-- Generated: 2026-04-01 | Updated: 2026-07-04 -->
 
 # Database
 
@@ -9,7 +9,7 @@ Database layer containing migrations, seeders, and factories for the MySQL datab
 ## Key Files
 | File | Description |
 |------|-------------|
-| `migrations/` | 43 migration files defining schema |
+| `migrations/` | 70+ migration files defining schema |
 | `seeders/DatabaseSeeder.php` | Master seeder orchestrating all seeders |
 
 ## Subdirectories
@@ -60,7 +60,7 @@ Database layer containing migrations, seeders, and factories for the MySQL datab
 | Table | Columns |
 |-------|---------|
 | `courses` | course_id, title, description, price, difficulty, language, created_by |
-| `categories` | id, name, parent_id, sort_order |
+| `categories` | id (UUID), name, slug, parent_id (nullable UUID, null = root), sort_order |
 | `course_chapters` | chapter_id, course_id, title, description, sort_order |
 | `course_lessons` | lesson_id, course_id, chapter_id, title, content, sort_order |
 | `course_videos` | video_id, lesson_id, url, title, duration, sort_order |
@@ -73,7 +73,7 @@ Database layer containing migrations, seeders, and factories for the MySQL datab
 | Table | Columns |
 |-------|---------|
 | `course_instructor` | course_id, instructor_id (composite PK) |
-| `course_category` | course_id, category_id (composite PK) |
+| `course_category` | course_id, category_id (UUID, composite PK) |
 
 ### E-commerce Tables
 | Table | Columns |
