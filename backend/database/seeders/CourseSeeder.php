@@ -10,6 +10,7 @@ use App\Models\CourseLesson;
 use App\Models\CourseObjective;
 use App\Models\CourseRequirement;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB as DBFacade;
 use Illuminate\Support\Str;
 
 class CourseSeeder extends Seeder
@@ -39,7 +40,7 @@ class CourseSeeder extends Seeder
                 'price' => 799000,
                 'difficulty' => 'Beginner',
                 'language' => 'vi',
-                'category_ids' => [9, 5], // Python (child of Technology), Data Science
+                'category_slugs' => ['python', 'data-science'],
                 'requirements' => [
                     'Không yêu cầu kinh nghiệm lập trình trước.',
                     'Máy tính cá nhân có kết nối internet.',
@@ -325,7 +326,7 @@ class CourseSeeder extends Seeder
                 'price' => 899000,
                 'difficulty' => 'Intermediate',
                 'language' => 'vi',
-                'category_ids' => [13, 6], // ReactJS, Web Development
+                'category_slugs' => ['reactjs', 'web-development'],
                 'requirements' => [
                     'Kiến thức cơ bản về HTML, CSS và JavaScript.',
                     'Hiểu về ES6+ syntax.',
@@ -589,7 +590,7 @@ class CourseSeeder extends Seeder
                 'price' => 999000,
                 'difficulty' => 'Intermediate',
                 'language' => 'vi',
-                'category_ids' => [18, 5], // Machine Learning, Data Science
+                'category_slugs' => ['machine-learning', 'data-science'],
                 'requirements' => [
                     'Kiến thức Python cơ bản.',
                     'Hiểu biết cơ bản về thống kê và đại số tuyến tính.',
@@ -874,7 +875,7 @@ class CourseSeeder extends Seeder
                 'price' => 849000,
                 'difficulty' => 'Intermediate',
                 'language' => 'vi',
-                'category_ids' => [14, 6], // Node.js, Web Development
+                'category_slugs' => ['nodejs', 'web-development'],
                 'requirements' => [
                     'Kiến thức JavaScript cơ bản.',
                     'Hiểu về HTTP và REST API.',
@@ -1148,7 +1149,7 @@ class CourseSeeder extends Seeder
                 'price' => 749000,
                 'difficulty' => 'Beginner',
                 'language' => 'vi',
-                'category_ids' => [3], // Design
+                'category_slugs' => ['design'],
                 'requirements' => [
                     'Không yêu cầu kinh nghiệm thiết kế trước.',
                     'Máy tính có cài đặt Figma (miễn phí).',
@@ -1442,12 +1443,12 @@ class CourseSeeder extends Seeder
 
         foreach ($courses as $courseData) {
             $chapterList = $courseData['chapters'];
-            $categoryIds = $courseData['category_ids'];
+            $categorySlugs = $courseData['category_slugs'];
             $requirements = $courseData['requirements'];
             $objectives = $courseData['objectives'];
             $images = $courseData['images'] ?? [];
 
-            unset($courseData['chapters'], $courseData['category_ids'], $courseData['requirements'], $courseData['objectives'], $courseData['images']);
+            unset($courseData['chapters'], $courseData['category_slugs'], $courseData['requirements'], $courseData['objectives'], $courseData['images']);
 
             // Create course
             $course = Course::create([
@@ -1461,15 +1462,22 @@ class CourseSeeder extends Seeder
             ]);
 
             // Attach instructor
-            \DB::table('course_instructor')->insert([
+            DBFacade::table('course_instructor')->insert([
                 'course_id' => $course->course_id,
                 'instructor_id' => $instructor->instructor_id,
                 'created_at' => now(),
             ]);
 
             // Attach categories
+            $categoryIds = Category::whereIn('slug', $categorySlugs)->pluck('id')->all();
+
+            if (count($categoryIds) !== count($categorySlugs)) {
+                $missingSlugs = implode(', ', array_diff($categorySlugs, Category::whereIn('slug', $categorySlugs)->pluck('slug')->all()));
+                throw new \RuntimeException("Missing categories for slugs: {$missingSlugs}");
+            }
+
             foreach ($categoryIds as $categoryId) {
-                \DB::table('course_category')->insert([
+                DBFacade::table('course_category')->insert([
                     'course_id' => $course->course_id,
                     'category_id' => $categoryId,
                     'created_at' => now(),

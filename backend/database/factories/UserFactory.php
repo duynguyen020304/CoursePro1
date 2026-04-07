@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\User;
 use App\Models\UserAccount;
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -30,7 +31,16 @@ class UserFactory extends Factory
      */
     public function configure(): static
     {
-        return $this->afterCreating(function (User $user) {
+        return $this->afterMaking(function (User $user) {
+            if (!$user->role_id) {
+                return;
+            }
+
+            Role::firstOrCreate(
+                ['role_id' => $user->role_id],
+                ['role_name' => Str::headline($user->role_id)]
+            );
+        })->afterCreating(function (User $user) {
             UserAccount::factory()->create([
                 'user_id' => $user->user_id,
             ]);
