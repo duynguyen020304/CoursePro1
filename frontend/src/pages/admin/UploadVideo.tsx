@@ -117,21 +117,11 @@ export default function UploadVideo() {
     setUploading(true);
 
     try {
-      console.log('Uploading video:', {
-        ...data,
-        course_id: selectedCourse,
-        chapter_id: selectedChapter,
-        lesson_id: selectedLesson,
-      });
-
-      // Simulate upload delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      toast.success('Video uploaded successfully!');
-      setVideoPreview(null);
-    } catch (error) {
-      console.error('Failed to upload video:', error);
-      toast.error('Failed to upload video. Please try again.');
+      // File-based upload is not yet available.
+      // The backend VideoController::store() expects a 'url' field, not a binary file.
+      // No file-storage service exists in this implementation.
+      // Until a proper file-to-URL pipeline exists, we must reject uploads honestly.
+      toast.error('File-based video upload is not available yet. Please provide a video URL instead.');
     } finally {
       setUploading(false);
     }

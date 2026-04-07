@@ -47,6 +47,19 @@ export default function UserManagement() {
     user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleDelete = async (user: User) => {
+    if (!confirm(`Are you sure you want to delete the user "${user.email}"?`)) {
+      return;
+    }
+    try {
+      await adminUserApi.delete(user.user_id);
+      await fetchUsers();
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      alert(errorObj.response?.data?.message || 'Failed to delete user');
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -117,8 +130,13 @@ export default function UserManagement() {
                     {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
                   </td>
                   <td className="px-6 py-4 text-sm font-medium">
-                    <button className="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                    <button className="text-red-600 hover:text-red-900">Delete</button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(user)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}

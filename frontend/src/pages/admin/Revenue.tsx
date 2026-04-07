@@ -42,15 +42,20 @@ export default function Revenue() {
 
   const watchedDateRange = watch();
 
-  function getTopCoursesByRevenue(orders: Array<{ course?: { title?: string }; total_amount?: number }>) {
+  function getTopCoursesByRevenue(orders: Array<{ details?: Array<{ course?: { title?: string }; price?: number }>; total_amount?: number }>) {
     const courseMap = new Map<string, { name: string; revenue: number; orders: number }>();
     orders.forEach(order => {
-      const courseName = order.course?.title || 'Unknown Course';
-      const existing = courseMap.get(courseName);
-      courseMap.set(courseName, {
-        name: courseName,
-        revenue: (existing?.revenue || 0) + (order.total_amount || 0),
-        orders: (existing?.orders || 0) + 1,
+      const details = order.details ?? [];
+      details.forEach(detail => {
+        const courseName = detail.course?.title || 'Unknown Course';
+        const existing = courseMap.get(courseName);
+        courseMap.set(courseName, {
+          name: courseName,
+          // Attribute per-detail price (not order total) since one order can have multiple courses
+          revenue: (existing?.revenue || 0) + (detail.price || 0),
+          // Count each (order, course) pair once - avoid double-counting one order across multiple courses
+          orders: (existing?.orders || 0) + 1,
+        });
       });
     });
     return Array.from(courseMap.values())

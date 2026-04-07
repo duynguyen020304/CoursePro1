@@ -20,13 +20,14 @@ interface Role {
 }
 
 interface ApiPermission {
-  id: string;
+  permission_id: string;
   name: string;
+  display_name?: string;
 }
 
 interface ApiRole {
-  id: string;
-  name: string;
+  role_id: string;
+  role_name: string;
   permissions?: ApiPermission[];
 }
 
@@ -46,7 +47,6 @@ export default function RoleManagement() {
     reset,
     formState: { errors },
     setValue,
-    watch,
   } = useForm<RoleManagementFormData>({
     resolver: zodResolver(roleManagementSchema),
     mode: 'onBlur',
@@ -55,8 +55,6 @@ export default function RoleManagement() {
       permissions: [],
     },
   });
-
-  const watchPermissions = watch('permissions', []);
 
   useEffect(() => {
     void fetchData();
@@ -71,20 +69,20 @@ export default function RoleManagement() {
       ]);
       setRoles(
         (rolesRes.data.data || []).map((role: ApiRole) => ({
-          role_id: role.id,
-          role_name: role.name,
+          role_id: role.role_id,
+          role_name: role.role_name,
           permissions: role.permissions?.map((permission) => ({
-            permission_id: permission.id,
+            permission_id: permission.permission_id,
             name: permission.name,
-            display_name: permission.name,
+            display_name: permission.display_name || permission.name,
           })),
         }))
       );
       setPermissions(
         (permissionsRes.data.data || []).map((permission: ApiPermission) => ({
-          permission_id: permission.id,
+          permission_id: permission.permission_id,
           name: permission.name,
-          display_name: permission.name,
+          display_name: permission.display_name || permission.name,
         }))
       );
     } catch (err) {
@@ -107,7 +105,7 @@ export default function RoleManagement() {
     reset({ role_name: role.role_name, permissions: [] });
     try {
       const res = await roleApi.getPermissions(role.role_id);
-      const permIds = (res.data.data || []).map((permission: ApiPermission) => permission.id);
+      const permIds = (res.data.data || []).map((permission: ApiPermission) => permission.permission_id);
       setSelectedPermissions(permIds);
       setValue('permissions', permIds);
     } catch (err) {
@@ -147,7 +145,7 @@ export default function RoleManagement() {
       } else {
         const res = await roleApi.create({ role_name: data.role_name });
         if (selectedPermissions.length > 0) {
-          await roleApi.assignPermissions(res.data.data.id, selectedPermissions);
+          await roleApi.assignPermissions(res.data.data.role_id, selectedPermissions);
         }
       }
       await fetchData();
@@ -266,7 +264,7 @@ export default function RoleManagement() {
                         >
                           Edit
                         </button>
-                        {!['admin', 'student', 'instructor'].includes(role.role_name) && (
+                        {!['admin', 'student', 'instructor'].includes(role.role_id) && (
                           <button
                             type="button"
                             onClick={() => handleDelete(role)}
