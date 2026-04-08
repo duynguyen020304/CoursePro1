@@ -127,6 +127,22 @@ test.describe('Learner Smoke Tests', () => {
     await expect(page).toHaveURL(`${frontendUrl}/profile`, { timeout: 5000 });
   });
 
+  test('student can log in and access my courses page', async ({ page }) => {
+    const studentEmail = 'student@example.com';
+    const studentPassword = 'password';
+
+    await page.goto(`${frontendUrl}/signin`);
+    await page.getByLabel('Email address').fill(studentEmail);
+    await page.getByLabel('Password').fill(studentPassword);
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await expect(page).toHaveURL(`${frontendUrl}/`, { timeout: 10000 });
+
+    await page.goto(`${frontendUrl}/my-courses`);
+
+    await expect(page).toHaveURL(`${frontendUrl}/my-courses`, { timeout: 5000 });
+    await expect(page.locator('h1')).toContainText('My Courses', { timeout: 10000 });
+  });
+
   // NOTE: Logout test skipped - pre-existing issue in AuthContext.tsx where 
   // logout() clears state but doesn't redirect to /signin. This affects both 
   // learner-smoke.spec.ts and auth-cookie-flow.spec.ts. Not contract-related.

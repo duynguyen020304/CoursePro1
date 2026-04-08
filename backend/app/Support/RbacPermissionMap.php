@@ -54,7 +54,7 @@ final class RbacPermissionMap
             'student' => [
                 'profile.view', 'profile.edit', 'profile.view.own', 'profile.edit.own', 'password.change',
                 'cart.view', 'cart.manage', 'cart.manage.own', 'checkout.create',
-                'courses.view', 'courses.learn', 'courses.consume.own',
+                'courses.view', 'courses.learn', 'courses.consume.own', 'my-courses.view',
                 'categories.view',
                 'reviews.view', 'reviews.create', 'reviews.edit',
                 'orders.view', 'orders.view.own', 'orders.create',

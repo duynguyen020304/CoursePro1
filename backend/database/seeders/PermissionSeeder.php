@@ -34,6 +34,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'checkout.create', 'display_name' => 'Create Checkout', 'description' => 'Can proceed to checkout'],
             ['name' => 'orders.create', 'display_name' => 'Create Orders', 'description' => 'Can create new orders'],
             ['name' => 'payments.complete', 'display_name' => 'Complete Payments', 'description' => 'Can complete payment for their own orders'],
+            ['name' => 'my-courses.view', 'display_name' => 'View My Courses', 'description' => 'Can view their purchased courses and learning dashboard'],
             ['name' => 'courses.learn', 'display_name' => 'Learn Courses', 'description' => 'Can access course learning content'],
             ['name' => 'courses.consume.own', 'display_name' => 'Consume Owned Courses', 'description' => 'Can consume owned course lessons'],
             ['name' => 'certificates.view', 'display_name' => 'View Certificates', 'description' => 'Can view earned certificates'],

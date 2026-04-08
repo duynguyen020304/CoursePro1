@@ -110,7 +110,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          <Route path="/my-courses" element={<PermissionRoute anyOf={['my-courses.view', 'learning.view']}><MyCourses /></PermissionRoute>} />
+          <Route
+            path="/my-courses"
+            element={
+              <PermissionRoute anyOf={['courses.learn', 'courses.consume.own']}>
+                <MyCourses />
+              </PermissionRoute>
+            }
+          />
           <Route path="/profile" element={<PermissionRoute anyOf={['profile.view.own', 'profile.view']}><Profile /></PermissionRoute>} />
           <Route path="/edit-profile" element={<PermissionRoute anyOf={['profile.edit.own', 'profile.edit']}><EditProfile /></PermissionRoute>} />
           <Route path="/purchase-history" element={<PermissionRoute anyOf={['purchase-history.view', 'orders.view.own', 'orders.view']}><PurchaseHistory /></PermissionRoute>} />

@@ -3,8 +3,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 
 export default function Header() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, hasAnyPermission, logout } = useAuth();
   const { itemCount } = useCart();
+  const canAccessMyCourses = hasAnyPermission(['courses.learn', 'courses.consume.own']);
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -23,7 +24,7 @@ export default function Header() {
             <Link to="/categories" className="text-gray-700 hover:text-indigo-600">
               Categories
             </Link>
-            {isAuthenticated && (
+            {isAuthenticated && canAccessMyCourses && (
               <>
                 <Link to="/my-courses" className="text-gray-700 hover:text-indigo-600">
                   My Courses
