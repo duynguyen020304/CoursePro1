@@ -89,7 +89,7 @@ export default function PurchaseHistory() {
                   {order.details?.map((detail, index) => (
                     <div key={`${detail.course_id}-${index}`} className="flex justify-between items-center">
                       <Link
-                        to={`/courses/${detail.course_id}`}
+                        to={`/watch/${detail.course_id}`}
                         className="text-indigo-600 hover:text-indigo-700"
                       >
                         {detail.course?.title}

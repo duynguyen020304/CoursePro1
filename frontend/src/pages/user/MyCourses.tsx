@@ -62,7 +62,7 @@ export default function MyCourses() {
           {courses.map((course) => (
             <Link
               key={course.course_id}
-              to={`/courses/${course.course_id}`}
+              to={`/watch/${course.course_id}`}
               className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
             >
               {course.images?.[0]?.image_url ? (
