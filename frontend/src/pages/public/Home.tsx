@@ -20,6 +20,34 @@ interface Course {
       last_name?: string;
     };
   };
+  instructors?: Array<{
+    user?: {
+      first_name?: string;
+      last_name?: string;
+    };
+  }>;
+}
+
+function formatInstructors(course: Course): string {
+  const list = course.instructors && course.instructors.length > 0
+    ? course.instructors
+    : course.instructor
+      ? [course.instructor]
+      : [];
+
+  if (list.length === 0) return 'Unknown Instructor';
+
+  const names = list.map(i => {
+    const first = i.user?.first_name?.trim() || '';
+    const last = i.user?.last_name?.trim() || '';
+    return `${first} ${last}`.trim() || 'Unknown';
+  });
+
+  if (names.length <= 2) return names.join(', ');
+
+  const shown = names.slice(0, 2);
+  const remaining = names.length - 2;
+  return `${shown.join(', ')} and ${remaining} more instructor${remaining > 1 ? 's' : ''}`;
 }
 
 interface Category {
@@ -149,30 +177,30 @@ export default function Home() {
                 <SwiperSlide key={course.course_id}>
                   <Link
                     to={`/courses/${course.course_id}`}
-                    className="block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition h-full"
+                    className="flex flex-col bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition h-full"
                   >
                     {course.images?.[0]?.image_url ? (
                       <img
                         src={course.images[0].image_url}
                         alt={course.title}
-                        className="w-full h-48 object-cover"
+                        className="w-full h-48 object-cover shrink-0"
                         onError={(e) => {
                           e.currentTarget.src = 'https://placehold.co/400x200/E2E8F0/94A3B8?text=No+Image';
                         }}
                       />
                     ) : (
-                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center shrink-0">
                         <span className="text-gray-400">No image</span>
                       </div>
                     )}
-                    <div className="p-4">
-                      <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2">
+                    <div className="p-4 flex flex-col flex-1">
+                      <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2 h-[3.25rem]">
                         {course.title}
                       </h3>
-                      <p className="text-gray-600 text-sm mb-3">
-                        {course.instructor?.user?.first_name} {course.instructor?.user?.last_name}
+                      <p className="text-gray-600 text-sm mb-3 truncate">
+                        {formatInstructors(course)}
                       </p>
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mt-auto">
                         <div className="flex items-center gap-1">
                           <span className="text-yellow-500 font-semibold">
                             {(course.average_rating || 0).toFixed(1)}
