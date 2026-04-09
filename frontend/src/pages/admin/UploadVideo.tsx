@@ -26,6 +26,16 @@ interface Lesson {
   title: string;
 }
 
+interface ChapterResponse {
+  chapter_id: string;
+  title: string;
+}
+
+interface LessonResponse {
+  lesson_id: string;
+  title: string;
+}
+
 export default function UploadVideo() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState('');
@@ -76,22 +86,46 @@ export default function UploadVideo() {
   }
 
   useEffect(() => {
-    if (selectedCourse) {
-      const course = courses.find((c) => c.course_id === selectedCourse);
-      if (course) {
-        setChapters(course.chapters || []);
+    if (!selectedCourse) {
+      setChapters([]);
+      setLessons([]);
+      return;
+    }
+
+    async function fetchChapters() {
+      try {
+        const response = await courseApi.getChapters(selectedCourse);
+        setChapters((response.data.data as ChapterResponse[] | undefined) ?? []);
+      } catch (error) {
+        console.error('Failed to load chapters:', error);
+        setChapters([]);
+        setLessons([]);
+        toast.error('Failed to load chapters');
       }
     }
-  }, [selectedCourse, courses]);
+
+    void fetchChapters();
+  }, [selectedCourse]);
 
   useEffect(() => {
-    if (selectedChapter) {
-      const chapter = chapters.find((c) => c.chapter_id === selectedChapter);
-      if (chapter) {
-        setLessons(chapter.lessons || []);
+    if (!selectedCourse || !selectedChapter) {
+      setLessons([]);
+      return;
+    }
+
+    async function fetchLessons() {
+      try {
+        const response = await courseApi.getLessons(selectedCourse, selectedChapter);
+        setLessons((response.data.data as LessonResponse[] | undefined) ?? []);
+      } catch (error) {
+        console.error('Failed to load lessons:', error);
+        setLessons([]);
+        toast.error('Failed to load lessons');
       }
     }
-  }, [selectedChapter, chapters]);
+
+    void fetchLessons();
+  }, [selectedCourse, selectedChapter]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -149,7 +183,6 @@ export default function UploadVideo() {
                 setValue('course_id', e.target.value, { shouldValidate: true });
                 setSelectedChapter('');
                 setSelectedLesson('');
-                setChapters([]);
                 setLessons([]);
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -177,7 +210,6 @@ export default function UploadVideo() {
                   shouldValidate: true,
                 });
                 setSelectedLesson('');
-                setLessons([]);
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               disabled={!selectedCourse}

@@ -11,6 +11,20 @@ interface User {
   created_at?: string;
 }
 
+interface ApiUser {
+  user_id: string | number;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  avatar_url?: string | null;
+  role?: {
+    role_id?: string;
+    role_name?: string;
+  } | null;
+  role_id?: string | null;
+  created_at?: string | null;
+}
+
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,13 +38,13 @@ export default function UserManagement() {
     try {
       const response = await adminUserApi.list();
       setUsers(
-        response.data.data.map((user) => ({
-          user_id: user.id,
+        response.data.data.map((user: ApiUser) => ({
+          user_id: user.user_id,
           first_name: user.first_name,
           last_name: user.last_name,
           email: user.email,
           avatar_url: user.avatar_url ?? undefined,
-          role: user.role,
+          role: user.role?.role_name || user.role_id || 'Student',
           created_at: user.created_at ?? undefined,
         }))
       );

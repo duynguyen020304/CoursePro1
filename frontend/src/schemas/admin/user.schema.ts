@@ -4,12 +4,18 @@ import { z } from 'zod';
  * Admin User schema - represents a user managed by admin
  */
 export const adminUserSchema = z.object({
-  id: z.string().uuid(),
+  user_id: z.string().uuid(),
   email: z.string().email(),
   first_name: z.string(),
   last_name: z.string(),
-  role: z.string().optional(),
-  role_id: z.string().uuid().nullable().optional(),
+  role: z
+    .object({
+      role_id: z.string(),
+      role_name: z.string().optional(),
+    })
+    .nullable()
+    .optional(),
+  role_id: z.string().nullable().optional(),
   avatar_url: z.string().url().nullable().optional(),
   phone: z.string().nullable().optional(),
   bio: z.string().nullable().optional(),
@@ -39,23 +45,27 @@ export const adminUserListResponseSchema = z.object({
  * AdminUserResponse - single admin user response
  */
 export const adminUserResponseSchema = z.object({
-  user: adminUserSchema,
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: adminUserSchema,
 });
 
 /**
  * CreateAdminUserResponse - response after creating a user
  */
 export const createAdminUserResponseSchema = z.object({
-  user: adminUserSchema,
+  success: z.boolean(),
   message: z.string().optional(),
+  data: adminUserSchema,
 });
 
 /**
  * AssignRoleResponse - response after assigning a role to user
  */
 export const assignRoleResponseSchema = z.object({
-  user: adminUserSchema,
+  success: z.boolean(),
   message: z.string().optional(),
+  data: adminUserSchema,
 });
 
 // Type inference helpers
