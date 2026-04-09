@@ -76,7 +76,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-800"></div>
       </div>
     );
   }
@@ -84,32 +84,33 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-20 relative overflow-hidden">
+      <section className="text-white py-20 relative overflow-hidden">
         <div
-          className="absolute inset-0 opacity-10"
+          className="absolute inset-0"
           style={{
             backgroundImage: 'url("https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1920")',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         />
+        <div className="absolute inset-0 bg-black/40" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
             Learn Without Limits
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-indigo-100">
+          <p className="text-xl md:text-2xl mb-8 text-white/90">
             Access thousands of courses from industry experts
           </p>
           <div className="flex justify-center gap-4 flex-wrap">
             <Link
               to="/courses"
-              className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition shadow-lg"
+              className="bg-white text-slate-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition shadow-lg"
             >
               Explore Courses
             </Link>
             <Link
               to="/signup"
-              className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-indigo-600 transition"
+              className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-slate-900 transition"
             >
               Get Started
             </Link>
@@ -180,7 +181,7 @@ export default function Home() {
                             ({course.total_ratings || 0})
                           </span>
                         </div>
-                        <span className="text-indigo-600 font-bold">
+                        <span className="text-blue-600 font-bold">
                           ${course.price || 0}
                         </span>
                       </div>
@@ -198,7 +199,7 @@ export default function Home() {
           <div className="text-center mt-8">
             <Link
               to="/courses"
-              className="text-indigo-600 font-semibold hover:text-indigo-700"
+              className="text-blue-600 font-semibold hover:text-blue-700"
             >
               View All Courses →
             </Link>
@@ -223,7 +224,7 @@ export default function Home() {
               <Link
                 key={category.id}
                 to={`/categories/${category.slug}`}
-                className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl shadow-md hover:shadow-lg transition text-center"
+                className="bg-white border border-gray-200 p-6 rounded-xl shadow-md hover:shadow-lg transition text-center"
               >
                 <div className="text-3xl mb-3">
                   {category.name === 'Technology' ? '💻' :
@@ -260,7 +261,7 @@ export default function Home() {
               </p>
               <Link
                 to="/courses"
-                className="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+                className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
               >
                 View Courses
               </Link>
@@ -317,7 +318,7 @@ export default function Home() {
                     <h3 className="font-semibold text-lg text-gray-900">
                       {instructor.user?.first_name} {instructor.user?.last_name}
                     </h3>
-                    <p className="text-indigo-600 text-sm">
+                    <p className="text-blue-600 text-sm">
                       {instructor.biography ? instructor.biography.substring(0, 80) + '...' : 'Expert Instructor'}
                     </p>
                   </div>
@@ -333,13 +334,13 @@ export default function Home() {
       </section>
 
       {/* Testimonials - Swiper Slider */}
-      <section className="py-16 bg-gradient-to-br from-indigo-600 to-purple-600 text-white">
+      <section className="py-16 bg-slate-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">
               What Our Students Say
             </h2>
-            <p className="text-indigo-100">
+            <p className="text-slate-300">
               Join thousands of satisfied learners
             </p>
           </div>
@@ -378,18 +379,18 @@ export default function Home() {
               },
             ].map((testimonial, idx) => (
               <SwiperSlide key={idx}>
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 h-full">
+                <div className="bg-white rounded-xl p-6 h-full text-gray-800">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold">
+                    <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-2xl font-bold text-slate-600">
                       {testimonial.name.charAt(0)}
                     </div>
                     <div>
-                      <h4 className="font-semibold">{testimonial.name}</h4>
-                      <p className="text-indigo-200 text-sm">{testimonial.course} Student</p>
+                      <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
+                      <p className="text-gray-500 text-sm">{testimonial.course} Student</p>
                     </div>
                   </div>
-                  <p className="text-indigo-100 italic mb-4">"{testimonial.text}"</p>
-                  <div className="flex gap-1 text-yellow-400">
+                  <p className="text-gray-700 italic mb-4">"{testimonial.text}"</p>
+                  <div className="flex gap-1 text-yellow-500">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <span key={i}>★</span>
                     ))}
@@ -412,7 +413,7 @@ export default function Home() {
           </p>
           <Link
             to="/signup"
-            className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition inline-block"
+            className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition inline-block"
           >
             Create Free Account
           </Link>
