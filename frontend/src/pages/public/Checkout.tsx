@@ -14,12 +14,13 @@ import {
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { cart, items, clearCart } = useCart();
+  const { cart, items, clearCart, initialized, loading: cartLoading } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedMethod, setSelectedMethod] = useState<string>('credit_card');
   const [cardFocused, setCardFocused] = useState('');
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [checkoutComplete, setCheckoutComplete] = useState(false);
 
   const {
     register,
@@ -119,6 +120,8 @@ export default function Checkout() {
       // Complete payment
       await orderApi.completePayment(orderId, selectedMethod);
 
+      setCheckoutComplete(true);
+
       // Clear cart
       await clearCart();
 
@@ -139,10 +142,18 @@ export default function Checkout() {
   };
 
   useEffect(() => {
-    if (!cart || items.length === 0) {
+    if (initialized && !checkoutComplete && !processingPayment && !loading && (!cart || items.length === 0)) {
       navigate('/cart');
     }
-  }, [cart, items, navigate]);
+  }, [cart, checkoutComplete, initialized, items, loading, navigate, processingPayment]);
+
+  if (!initialized || cartLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
   if (!cart || items.length === 0) {
     return (
