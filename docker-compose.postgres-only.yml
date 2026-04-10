@@ -1,0 +1,19 @@
+# PostgreSQL-only Docker setup for CoursePro1
+# Run: docker-compose -f docker-compose.postgres-only.yml up -d
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: coursepro_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecourse
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:

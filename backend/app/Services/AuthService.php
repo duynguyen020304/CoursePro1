@@ -7,6 +7,7 @@ use App\Models\UserAccount;
 use App\Models\RefreshToken;
 use App\Models\Role;
 use App\Models\Student;
+use App\Support\SeedData\DefaultRoles;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -143,13 +144,13 @@ class AuthService
         [$user, $userAccount] = DB::transaction(function () use ($email, $emailVerified, $firstName, $googleSub, $lastName, $picture) {
             $userId = Str::uuid();
 
-            Role::ensureDefaultRole('student');
+            $role = Role::ensureDefaultRole('student');
 
             $user = User::create([
                 'user_id' => $userId,
                 'first_name' => $firstName,
                 'last_name' => $lastName,
-                'role_id' => 'student',
+                'role_id' => $role->role_id,
                 'profile_image' => $picture,
             ]);
 
@@ -304,6 +305,7 @@ class AuthService
                 'last_name' => $user->last_name,
                 'email' => $userAccount->email,
                 'role_id' => $user->role_id,
+                'role_code' => $user->role?->role_code,
                 'profile_image' => $user->profile_image,
             ],
             'access_token' => $accessToken,

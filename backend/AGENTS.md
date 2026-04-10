@@ -4,7 +4,7 @@
 # Backend
 
 ## Purpose
-Laravel 13.x backend API for the CoursePro1 e-learning platform. Provides RESTful endpoints for authentication, user management, course content, shopping cart, orders, and payments. Uses MySQL 8.0 database with Laravel Sanctum for API token authentication.
+Laravel 13.x backend API for the CoursePro1 e-learning platform. Provides RESTful endpoints for authentication, user management, course content, shopping cart, orders, and payments. Uses PostgreSQL 18 with Laravel Sanctum for API token authentication.
 
 ## Key Files
 | File | Description |
@@ -33,9 +33,9 @@ Laravel 13.x backend API for the CoursePro1 e-learning platform. Provides RESTfu
 
 ### Working In This Directory
 - **Framework**: Laravel 13.x with PHP 8.3+
-- **Database**: MySQL 8.0 via Docker (`docker-compose.mysql-only.yml`)
+- **Database**: PostgreSQL 18 via Docker (`docker-compose.postgres-only.yml`)
   - Database: `ecourse`
-  - Host: `localhost:3306` (local) or `mysql:3306` (Docker)
+  - Host: `localhost:5434` (local) or `postgres:5432` (Docker)
   - Credentials: `root` / `rootpassword`
 - **Authentication**: Laravel Sanctum for API tokens
 - **Environment**: Copy `.env.example` to `.env` and configure

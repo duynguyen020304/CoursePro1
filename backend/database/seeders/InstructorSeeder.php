@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Instructor;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserAccount;
+use App\Support\SeedData\DefaultRoles;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -28,7 +30,7 @@ class InstructorSeeder extends Seeder
                 'password' => 'Instructor@123',
                 'first_name' => 'Nguyen',
                 'last_name' => 'Tuan',
-                'role_id' => 'instructor',
+                'role_id' => DefaultRoles::INSTRUCTOR_ID,
                 'biography' => 'Thầy Nguyễn Tuấn là một chuyên gia lập trình backend hàng đầu với hơn 18 năm kinh nghiệm trong ngành công nghiệp phần mềm. Chuyên môn: Java Enterprise Edition, Spring Framework, Python, Django, microservices.',
             ],
             [
@@ -36,7 +38,7 @@ class InstructorSeeder extends Seeder
                 'password' => 'Instructor@123',
                 'first_name' => 'Tran',
                 'last_name' => 'Mai',
-                'role_id' => 'instructor',
+                'role_id' => DefaultRoles::INSTRUCTOR_ID,
                 'biography' => 'Cô Trần Mai là một nhà thiết kế UI/UX tài năng với hơn 12 năm kinh nghiệm. Chuyên môn: Human-Centered Design, Design Thinking, Interaction Design, Figma, Adobe XD.',
             ],
             [
@@ -44,7 +46,7 @@ class InstructorSeeder extends Seeder
                 'password' => 'Instructor@123',
                 'first_name' => 'Le',
                 'last_name' => 'Thanh',
-                'role_id' => 'instructor',
+                'role_id' => DefaultRoles::INSTRUCTOR_ID,
                 'biography' => 'Thầy Lê Thanh là chuyên gia hàng đầu về AI và Machine Learning với Tiến sĩ từ Đại học Quốc gia Singapore. Chuyên môn: Deep Learning, NLP, Computer Vision, Reinforcement Learning.',
             ],
             [
@@ -52,7 +54,7 @@ class InstructorSeeder extends Seeder
                 'password' => 'Instructor@123',
                 'first_name' => 'Pham',
                 'last_name' => 'Huong',
-                'role_id' => 'instructor',
+                'role_id' => DefaultRoles::INSTRUCTOR_ID,
                 'biography' => 'Cô Phạm Hương là kỹ sư Full-stack với hơn 10 năm kinh nghiệm. Chuyên môn: React, Angular, Vue.js, Node.js, Express, PHP, Laravel.',
             ],
             [
@@ -60,7 +62,7 @@ class InstructorSeeder extends Seeder
                 'password' => 'Instructor@123',
                 'first_name' => 'Hoang',
                 'last_name' => 'Duc',
-                'role_id' => 'instructor',
+                'role_id' => DefaultRoles::INSTRUCTOR_ID,
                 'biography' => 'Thầy Hoàng Đức là chuyên gia Cybersecurity với hơn 20 năm kinh nghiệm. Chuyên môn: Penetration Testing, Incident Response, Security Architecture.',
             ],
         ];

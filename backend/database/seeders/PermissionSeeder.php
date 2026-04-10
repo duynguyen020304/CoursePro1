@@ -134,8 +134,8 @@ class PermissionSeeder extends Seeder
             );
         }
 
-        foreach (RbacPermissionMap::defaultRolePermissions() as $roleId => $permissionNames) {
-            $role = Role::find($roleId);
+        foreach (RbacPermissionMap::defaultRolePermissions() as $roleCode => $permissionNames) {
+            $role = Role::where('role_code', $roleCode)->first();
 
             if (!$role) {
                 continue;

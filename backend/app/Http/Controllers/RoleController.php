@@ -51,7 +51,8 @@ class RoleController extends Controller
         ]);
 
         $role = Role::create([
-            'role_id' => 'role_' . Str::random(10),
+            'role_id' => (string) Str::uuid(),
+            'role_code' => 'role_' . Str::random(10),
             'role_name' => $request->role_name,
         ]);
 
@@ -82,7 +83,8 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
 
         // Prevent deleting core roles
-        if (in_array($id, ['admin', 'student', 'instructor'])) {
+        $role = Role::findOrFail($id);
+        if (in_array($role->role_code, ['admin', 'student', 'instructor'], true)) {
             return $this->error('Cannot delete core system roles', 403);
         }
 

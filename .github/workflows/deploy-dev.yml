@@ -64,7 +64,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.3"
-          extensions: mbstring, xml, ctype, curl, zip, json, pdo, mysql
+          extensions: mbstring, xml, ctype, curl, zip, json, pdo, pgsql, pdo_pgsql
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
@@ -303,9 +303,8 @@ jobs:
           # ==========================================
           if ! command -v php &> /dev/null; then
             echo "Installing PHP 8.3..."
-            apt-get update -qq
-            apt-get install -y php8.3 php8.3-cli php8.3-common php8.3-mbstring php8.3-xml php8.3-curl php8.3-zip php8.3-mysql php8.3-fpm
-            update-alternatives --install /usr/bin/php php /usr/bin/php8.3 1
+            dnf clean all
+            dnf install -y php php-cli php-common php-mbstring php-xml php-process php-pecl-zip php-mysqlnd php-fpm php-pgsql
           fi
 
           PHP_PATH=$(which php || echo "/usr/bin/php")
@@ -335,9 +334,9 @@ jobs:
           export APP_DEBUG='false'
           export APP_URL="$public_app_url"
           export APP_KEY='${{ secrets.APP_KEY }}'
-          export DB_CONNECTION='mysql'
+          export DB_CONNECTION='pgsql'
           export DB_HOST='${{ secrets.DB_HOST }}'
-          export DB_PORT='3306'
+          export DB_PORT='5432'
           export DB_DATABASE='${{ secrets.DB_DATABASE }}'
           export DB_USERNAME='${{ secrets.DB_USERNAME }}'
           export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'

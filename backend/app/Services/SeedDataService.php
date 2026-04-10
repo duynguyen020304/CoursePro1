@@ -42,7 +42,7 @@ use Carbon\Carbon;
  * Idempotent Database Seeder Service
  *
  * Implements safe, repeatable seeding with:
- * - Natural key lookups (role_id, slug, email, name)
+ * - Natural key lookups (role_code, slug, email, name)
  * - Duplicate cleanup with warning
  * - Update existing, insert missing, skip ID conflicts
  * - Junction table resolution via natural keys
@@ -111,28 +111,26 @@ class SeedDataService implements ISeedDataService
         $this->info('Seeding roles...');
 
         $roles = DefaultRoles::getData();
-        $existingRoles = Role::pluck('role_name', 'role_id')->toArray();
-        $existingIds = Role::pluck('role_id')->toArray();
+        $existingRoles = Role::pluck('role_name', 'role_code')->toArray();
 
         foreach ($roles as $roleData) {
-            $roleId = $roleData['role_id'];
+            $roleCode = $roleData['role_code'];
 
-            // Check for ID collision (role_id exists but with different name)
-            if (isset($existingRoles[$roleId])) {
-                if ($existingRoles[$roleId] !== $roleData['role_name']) {
-                    $this->warn("Role ID '{$roleId}' exists with different name '{$existingRoles[$roleId]}'. Skipping.");
+            if (isset($existingRoles[$roleCode])) {
+                if ($existingRoles[$roleCode] !== $roleData['role_name']) {
+                    $this->warn("Role code '{$roleCode}' exists with different name '{$existingRoles[$roleCode]}'. Skipping.");
                 }
                 continue;
             }
 
-            // Insert new role
             Role::create([
-                'role_id' => $roleId,
+                'role_id' => $roleData['role_id'],
+                'role_code' => $roleCode,
                 'role_name' => $roleData['role_name'],
                 'is_active' => true,
             ]);
 
-            $this->info("  Created role: {$roleId}");
+            $this->info("  Created role: {$roleCode}");
         }
 
         $this->info('Roles seeded: ' . count($roles) . ' total.');
@@ -188,18 +186,18 @@ class SeedDataService implements ISeedDataService
     {
         $this->info('Assigning default permissions to roles...');
 
-        foreach (RbacPermissionMap::defaultRolePermissions() as $roleId => $permissionNames) {
-            $role = Role::find($roleId);
+        foreach (RbacPermissionMap::defaultRolePermissions() as $roleCode => $permissionNames) {
+            $role = Role::where('role_code', $roleCode)->first();
 
             if (!$role) {
-                $this->warn("Role '{$roleId}' not found. Skipping permission assignment.");
+                $this->warn("Role '{$roleCode}' not found. Skipping permission assignment.");
                 continue;
             }
 
             $permissionIds = Permission::whereIn('name', $permissionNames)->pluck('permission_id')->toArray();
             $role->permissions()->syncWithoutDetaching($permissionIds);
 
-            $this->info("  Assigned " . count($permissionIds) . " permissions to role: {$roleId}");
+            $this->info("  Assigned " . count($permissionIds) . " permissions to role: {$roleCode}");
         }
     }
 
@@ -299,7 +297,7 @@ class SeedDataService implements ISeedDataService
                     $user->update([
                         'first_name' => $userData['first_name'],
                         'last_name' => $userData['last_name'],
-                        'role_id' => $userData['role_id'],
+                        'role_id' => Role::where('role_code', $userData['role_code'])->value('role_id'),
                     ]);
                     $this->info("  Updated user: {$email}");
                 }
@@ -368,7 +366,7 @@ class SeedDataService implements ISeedDataService
                     'user_id' => $userId,
                     'first_name' => $instructorData['first_name'],
                     'last_name' => $instructorData['last_name'],
-                    'role_id' => 'instructor',
+                    'role_id' => Role::where('role_code', 'instructor')->value('role_id'),
                     'is_active' => true,
                 ]);
 
@@ -388,12 +386,12 @@ class SeedDataService implements ISeedDataService
                 if ($user && (
                     $user->first_name !== $instructorData['first_name'] ||
                     $user->last_name !== $instructorData['last_name'] ||
-                    $user->role_id !== 'instructor'
+                    $user->role?->role_code !== 'instructor'
                 )) {
                     $user->update([
                         'first_name' => $instructorData['first_name'],
                         'last_name' => $instructorData['last_name'],
-                        'role_id' => 'instructor',
+                        'role_id' => Role::where('role_code', 'instructor')->value('role_id'),
                     ]);
                 }
             }
@@ -408,8 +406,8 @@ class SeedDataService implements ISeedDataService
 
             // Update user role to instructor if needed
             $user = $account->user;
-            if ($user->role_id !== 'instructor') {
-                $user->update(['role_id' => 'instructor']);
+            if ($user->role?->role_code !== 'instructor') {
+                $user->update(['role_id' => Role::where('role_code', 'instructor')->value('role_id')]);
             }
 
             $this->info("  Created instructor: {$email}");
@@ -448,7 +446,7 @@ class SeedDataService implements ISeedDataService
                     'user_id' => $userId,
                     'first_name' => $studentData['first_name'],
                     'last_name' => $studentData['last_name'],
-                    'role_id' => 'student',
+                    'role_id' => Role::where('role_code', 'student')->value('role_id'),
                     'is_active' => true,
                 ]);
 
@@ -480,8 +478,8 @@ class SeedDataService implements ISeedDataService
 
             // Update user role to student if needed
             $user = $account->user;
-            if ($user->role_id !== 'student') {
-                $user->update(['role_id' => 'student']);
+            if ($user->role?->role_code !== 'student') {
+                $user->update(['role_id' => Role::where('role_code', 'student')->value('role_id')]);
             }
 
             $this->info("  Created student profile: {$email}");

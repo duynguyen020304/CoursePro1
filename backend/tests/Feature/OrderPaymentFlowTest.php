@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Course;
 use App\Models\Instructor;
+use App\Models\Role as UserRole;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\User;
@@ -24,6 +25,7 @@ class OrderPaymentFlowTest extends TestCase
 
     private function createCourse(float $price): Course
     {
+        $this->ensureRoles();
         $instructorUser = User::factory()->instructor()->create();
         $instructor = Instructor::create([
             'instructor_id' => (string) Str::uuid(),
@@ -46,6 +48,7 @@ class OrderPaymentFlowTest extends TestCase
 
     public function test_order_creation_uses_cart_items_and_returns_created_order(): void
     {
+        $this->ensureRoles();
         $user = User::factory()->create();
 
         $course = $this->createCourse(149.99);
@@ -85,6 +88,7 @@ class OrderPaymentFlowTest extends TestCase
 
     public function test_order_payment_uses_route_order_id_and_completes_payment(): void
     {
+        $this->ensureRoles();
         $user = User::factory()->create();
 
         $course = $this->createCourse(199.00);
@@ -134,5 +138,20 @@ class OrderPaymentFlowTest extends TestCase
             'payment_status' => 'completed',
             'payment_method' => 'paypal',
         ]);
+    }
+
+    private function ensureRoles(): void
+    {
+        if (!UserRole::where('role_code', 'admin')->exists()) {
+            UserRole::create(['role_id' => (string) Str::uuid(), 'role_code' => 'admin', 'role_name' => 'Admin']);
+        }
+
+        if (!UserRole::where('role_code', 'student')->exists()) {
+            UserRole::create(['role_id' => (string) Str::uuid(), 'role_code' => 'student', 'role_name' => 'Student']);
+        }
+
+        if (!UserRole::where('role_code', 'instructor')->exists()) {
+            UserRole::create(['role_id' => (string) Str::uuid(), 'role_code' => 'instructor', 'role_name' => 'Instructor']);
+        }
     }
 }

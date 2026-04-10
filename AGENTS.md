@@ -9,7 +9,7 @@ A comprehensive, full-stack e-learning platform built with **Laravel 13** (Backe
 | File | Description |
 |------|-------------|
 | `README.md` | Project documentation and setup guide |
-| `docker-compose.mysql-only.yml` | MySQL 8.0 Docker configuration |
+| `docker-compose.postgres-only.yml` | PostgreSQL Docker configuration |
 | `.env` | Root environment variables |
 | `backend/.env` | Laravel environment configuration |
 | `frontend/.env` | React/Vite environment configuration |
@@ -29,9 +29,9 @@ A comprehensive, full-stack e-learning platform built with **Laravel 13** (Backe
 ### Working In This Directory
 - **Backend Framework**: Laravel 13.x with PHP 8.3+
 - **Frontend Framework**: React 19 with Vite
-- **Database**: MySQL 8.0 via Docker
+- **Database**: PostgreSQL 18 via Docker
   - Database: `ecourse`
-  - Host: `localhost:3306` (or `mysql:3306` from Docker)
+  - Host: `localhost:5434` (or `postgres:5432` from Docker)
   - Credentials: `root` / `rootpassword`
 - **Environment**: Copy `.env.example` files and configure
 - **Dependencies**:
@@ -55,8 +55,8 @@ A comprehensive, full-stack e-learning platform built with **Laravel 13** (Backe
                        │ Eloquent ORM
                        ↓
 ┌─────────────────────────────────────────────────────────────┐
-│                    MySQL 8.0                                │
-│              Docker: coursepro_mysql                        │
+│                  PostgreSQL 18                              │
+│            Docker: coursepro_postgres                       │
 │              Database: ecourse                              │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -74,7 +74,7 @@ A comprehensive, full-stack e-learning platform built with **Laravel 13** (Backe
 
 ## Commands
 ```bash
-docker-compose -f docker-compose.mysql-only.yml up -d   # Start MySQL
+docker-compose -f docker-compose.postgres-only.yml up -d   # Start PostgreSQL
 cd backend && composer install && php artisan serve      # Backend dev
 cd frontend && npm install && npm run dev                 # Frontend dev
 cd backend && ./vendor/bin/phpunit                        # Backend tests
@@ -86,7 +86,7 @@ npx playwright test                                       # E2E tests
 None configured — manual testing only.
 
 ## Quick Start
-1. Start MySQL: `docker-compose -f docker-compose.mysql-only.yml up -d`
+1. Start PostgreSQL: `docker-compose -f docker-compose.postgres-only.yml up -d`
 2. Backend: `cd backend && composer install && php artisan migrate:fresh --seed && php artisan serve`
 3. Frontend: `cd frontend && npm install && npm run dev`
 

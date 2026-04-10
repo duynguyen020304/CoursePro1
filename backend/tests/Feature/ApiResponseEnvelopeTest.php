@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -14,13 +15,15 @@ use Tests\TestCase;
  * - Error: { success: false, message: string, data: null } or { data: errors } for 422
  * - Paginated: { success: true, message: string, data: [], hasNextPage, hasPreviousPage, totalPage, totalItem }
  *
- * These tests do NOT use the database - they test response structure only.
- *
  * @see backend/app/Http/Controllers/Controller.php - Helper methods
  * @see backend/bootstrap/app.php - Exception rendering
  */
 class ApiResponseEnvelopeTest extends TestCase
 {
+    use RefreshDatabase;
+
+    protected bool $seed = true;
+
     /**
      * =========================================================
      * SUCCESS ENVELOPE TESTS
@@ -345,7 +348,9 @@ class ApiResponseEnvelopeTest extends TestCase
     public function test_forbidden_response_returns_standard_envelope(): void
     {
         // Create a student user with Sanctum token
-        $student = \App\Models\User::factory()->create(['role_id' => 'student']);
+        $student = \App\Models\User::factory()->create([
+            'role_id' => \App\Models\Role::where('role_code', 'student')->value('role_id'),
+        ]);
         $token = $student->createToken('test-token');
 
         // Try to access admin-only route (GET /api/admin/users)

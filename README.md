@@ -1,6 +1,6 @@
 # CoursePro1 - E-Learning Platform
 
-A comprehensive, full-stack e-learning platform built with **Laravel (Backend)**, **React (Frontend)**, and **MySQL** database.
+A comprehensive, full-stack e-learning platform built with **Laravel (Backend)**, **React (Frontend)**, and **PostgreSQL** database.
 
 ## Tech Stack
 
@@ -8,34 +8,32 @@ A comprehensive, full-stack e-learning platform built with **Laravel (Backend)**
 |-----------|------------|
 | Backend | Laravel 11 (PHP 8.2+) |
 | Frontend | React 19 + Vite |
-| Database | MySQL 8.0 |
+| Database | PostgreSQL 18 |
 | Docker | Docker Compose |
 
 ## Database Setup
 
-### MySQL Configuration
+### PostgreSQL Configuration
 
 | Setting | Value |
 |---------|-------|
 | **Database Name** | `ecourse` |
-| **Host** | `localhost` (local) / `mysql` (Docker) |
-| **Port** | `3306` |
+| **Host** | `localhost` (local) / `postgres` (Docker) |
+| **Port** | `5434` |
 | **Username** | `root` |
 | **Password** | `rootpassword` |
-| **Character Set** | `utf8mb4` |
-| **Collation** | `utf8mb4_unicode_ci` |
 
-### Starting MySQL with Docker
+### Starting PostgreSQL with Docker
 
 ```bash
-# Start MySQL container
-docker-compose -f docker-compose.mysql-only.yml up -d
+# Start PostgreSQL container
+docker-compose -f docker-compose.postgres-only.yml up -d
 
 # Check container status
-docker-compose -f docker-compose.mysql-only.yml ps
+docker-compose -f docker-compose.postgres-only.yml ps
 
 # View logs
-docker-compose -f docker-compose.mysql-only.yml logs -f
+docker-compose -f docker-compose.postgres-only.yml logs -f
 ```
 
 ### Running Migrations
@@ -88,7 +86,7 @@ CoursePro1/
 ├── frontend/         # React frontend
 │   ├── src/
 │   └── .env
-├── docker-compose.mysql-only.yml
+├── docker-compose.postgres-only.yml
 ├── .env              # Root environment config
 └── AGENTS.md         # AI agent documentation
 ```
@@ -98,9 +96,9 @@ CoursePro1/
 ### Backend (.env)
 
 ```env
-DB_CONNECTION=mysql
+DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
-DB_PORT=3306
+DB_PORT=5434
 DB_DATABASE=ecourse
 DB_USERNAME=root
 DB_PASSWORD=rootpassword
@@ -113,25 +111,26 @@ DB_HOST=localhost
 DB_NAME=ecourse
 DB_USER=root
 DB_PASSWORD=rootpassword
-DB_PORT=3306
+DB_PORT=5434
 ```
 
 ## Docker Setup
 
-The project uses `docker-compose.mysql-only.yml` for MySQL database:
+The project uses `docker-compose.postgres-only.yml` for PostgreSQL database:
 
 ```yaml
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: coursepro_mysql
+  postgres:
+    image: postgres:18
+    container_name: coursepro_postgres
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: ecourse
+      POSTGRES_DB: ecourse
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
     ports:
-      - "3306:3306"
+      - "5434:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
 ```
 
 ## Development

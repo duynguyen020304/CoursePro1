@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Student;
 use App\Models\User;
 use App\Models\UserAccount;
+use App\Support\SeedData\DefaultRoles;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -42,7 +43,7 @@ class StudentSeeder extends Seeder
                 'user_id' => $userId,
                 'first_name' => $studentData['first_name'],
                 'last_name' => $studentData['last_name'],
-                'role_id' => 'student',
+                'role_id' => DefaultRoles::STUDENT_ID,
             ]);
 
             UserAccount::create([

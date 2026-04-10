@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\UserAccount;
 use App\Models\Role;
 use App\Models\Student;
+use App\Support\SeedData\DefaultRoles;
 use App\Models\EmailVerificationToken;
 use App\Models\PasswordResetToken;
 use App\Services\AuthService;
@@ -79,13 +80,13 @@ class AuthController extends Controller
         $userAccount = DB::transaction(function () use ($request) {
             $userId = Str::uuid();
 
-            Role::ensureDefaultRole('student');
+            $role = Role::ensureDefaultRole('student');
 
             User::create([
                 'user_id' => $userId,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
-                'role_id' => 'student',
+                'role_id' => $role->role_id,
             ]);
 
             $userAccount = UserAccount::create([
@@ -396,6 +397,7 @@ class AuthController extends Controller
             'email_verified_at' => optional($userAccount->email_verified_at)?->toISOString(),
             'is_verified' => $userAccount->is_verified,
             'role_id' => $user->role_id,
+            'role_code' => $user->role?->role_code,
             'profile_image' => $user->profile_image,
             'role' => $user->role,
             'student' => $user->student,
@@ -515,6 +517,7 @@ class AuthController extends Controller
             'email_verified_at' => optional($userAccount->email_verified_at)?->toISOString(),
             'is_verified' => $userAccount->is_verified,
             'role_id' => $user->role_id,
+            'role_code' => $user->role?->role_code,
             'profile_image' => $user->profile_image,
             'role' => $user->role,
             'student' => $user->student,

@@ -69,17 +69,17 @@ final class RbacPermissionMap
     /**
      * @return array<int, string>
      */
-    public static function permissionsForRole(?string $roleId): array
+    public static function permissionsForRole(?string $roleCode): array
     {
-        if (!$roleId) {
+        if (!$roleCode) {
             return [];
         }
 
-        return self::defaultRolePermissions()[$roleId] ?? [];
+        return self::defaultRolePermissions()[$roleCode] ?? [];
     }
 
-    public static function roleHasPermission(?string $roleId, string $permission): bool
+    public static function roleHasPermission(?string $roleCode, string $permission): bool
     {
-        return in_array($permission, self::permissionsForRole($roleId), true);
+        return in_array($permission, self::permissionsForRole($roleCode), true);
     }
 }

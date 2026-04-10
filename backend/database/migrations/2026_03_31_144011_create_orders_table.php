@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->string('order_id', 40)->primary();
-            $table->string('user_id', 40)->notNullable();
+            $table->uuid('user_id')->notNullable();
             $table->timestamp('order_date')->useCurrent();
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->timestamp('created_at')->useCurrent();

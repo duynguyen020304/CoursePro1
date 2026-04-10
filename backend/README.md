@@ -25,14 +25,14 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 
 ### Prerequisites
 
-Ensure MySQL is running before proceeding:
+Ensure PostgreSQL is running before proceeding:
 
 ```bash
-# Start MySQL container (from project root)
-docker-compose -f docker-compose.mysql-only.yml up -d
+# Start PostgreSQL container (from project root)
+docker-compose -f docker-compose.postgres-only.yml up -d
 
 # Verify container is running
-docker ps | grep coursepro_mysql
+docker ps | grep coursepro_postgres
 ```
 
 ### Configuration
@@ -43,7 +43,7 @@ This project uses the following database configuration:
 |---------|-------|
 | **Database** | `ecourse` |
 | **Host** | `127.0.0.1` |
-| **Port** | `3306` |
+| **Port** | `5434` |
 | **Username** | `root` |
 | **Password** | `rootpassword` |
 

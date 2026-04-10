@@ -77,7 +77,7 @@ class User extends Model
 
     public function hasRole(string $roleName): bool
     {
-        return $this->role && $this->role->role_id === $roleName;
+        return $this->role && $this->role->role_code === $roleName;
     }
 
     public function hasPermission(string $permissionName): bool

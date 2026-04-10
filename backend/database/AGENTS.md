@@ -4,7 +4,7 @@
 # Database
 
 ## Purpose
-Database layer containing migrations, seeders, and factories for the MySQL database. Defines the complete schema for the e-learning platform including users, courses, content, cart, orders, and payments.
+Database layer containing migrations, seeders, and factories for the PostgreSQL database. Defines the complete schema for the e-learning platform including users, courses, content, cart, orders, and payments.
 
 ## Key Files
 | File | Description |
@@ -22,7 +22,7 @@ Database layer containing migrations, seeders, and factories for the MySQL datab
 ## For AI Agents
 
 ### Working In This Directory
-- **Database**: MySQL 8.0
+- **Database**: PostgreSQL 18
 - **Migrations**: Run with `php artisan migrate`
 - **Seeders**: Run with `php artisan db:seed`
 - **Fresh Start**: `php artisan migrate:fresh --seed` drops and reseeds

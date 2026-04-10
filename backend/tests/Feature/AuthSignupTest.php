@@ -15,9 +15,9 @@ class AuthSignupTest extends TestCase
 
     public function test_signup_creates_missing_student_role_before_creating_user(): void
     {
-        Role::where('role_id', 'student')->delete();
+        Role::where('role_code', 'student')->forceDelete();
 
-        $this->assertDatabaseMissing('roles', ['role_id' => 'student']);
+        $this->assertDatabaseMissing('roles', ['role_code' => 'student']);
 
         $response = $this->postJson('/api/signup', [
             'first_name' => 'Duy',
@@ -34,7 +34,7 @@ class AuthSignupTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('roles', [
-            'role_id' => 'student',
+            'role_code' => 'student',
             'role_name' => 'Student',
         ]);
 
@@ -42,9 +42,9 @@ class AuthSignupTest extends TestCase
         $account = UserAccount::where('email', 'duy@example.com')->firstOrFail();
         $student = Student::where('user_id', $user->user_id)->first();
 
-        $this->assertSame('student', $user->role_id);
+        $this->assertSame('student', $user->role?->role_code);
         $this->assertNotNull($student);
         $this->assertSame($user->user_id, $account->user_id);
-        $this->assertTrue(Role::where('role_id', 'student')->exists());
+        $this->assertTrue(Role::where('role_code', 'student')->exists());
     }
 }

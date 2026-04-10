@@ -37,16 +37,25 @@ class CourseOwnershipTest extends TestCase
         parent::setUp();
 
         // Seed required roles
-        UserRole::create(['role_id' => 'admin', 'role_name' => 'Admin']);
-        UserRole::create(['role_id' => 'student', 'role_name' => 'Student']);
-        UserRole::create(['role_id' => 'instructor', 'role_name' => 'Instructor']);
+        UserRole::firstOrCreate(
+            ['role_code' => 'admin'],
+            ['role_id' => \App\Support\SeedData\DefaultRoles::ADMIN_ID, 'role_name' => 'Admin']
+        );
+        UserRole::firstOrCreate(
+            ['role_code' => 'student'],
+            ['role_id' => \App\Support\SeedData\DefaultRoles::STUDENT_ID, 'role_name' => 'Student']
+        );
+        UserRole::firstOrCreate(
+            ['role_code' => 'instructor'],
+            ['role_id' => \App\Support\SeedData\DefaultRoles::INSTRUCTOR_ID, 'role_name' => 'Instructor']
+        );
 
         // Create owner instructor + user
         $this->ownerUser = User::create([
             'user_id' => Str::uuid(),
             'first_name' => 'Owner',
             'last_name' => 'Instructor',
-            'role_id' => 'instructor',
+            'role_id' => UserRole::where('role_code', 'instructor')->value('role_id'),
         ]);
         UserAccount::create([
             'user_id' => $this->ownerUser->user_id,
@@ -67,7 +76,7 @@ class CourseOwnershipTest extends TestCase
             'user_id' => Str::uuid(),
             'first_name' => 'Other',
             'last_name' => 'Instructor',
-            'role_id' => 'instructor',
+            'role_id' => UserRole::where('role_code', 'instructor')->value('role_id'),
         ]);
         UserAccount::create([
             'user_id' => $this->otherUser->user_id,
@@ -88,7 +97,7 @@ class CourseOwnershipTest extends TestCase
             'user_id' => Str::uuid(),
             'first_name' => 'Admin',
             'last_name' => 'Admin',
-            'role_id' => 'admin',
+            'role_id' => UserRole::where('role_code', 'admin')->value('role_id'),
         ]);
         UserAccount::create([
             'user_id' => $this->adminUser->user_id,

@@ -18,18 +18,28 @@ class Role extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['role_id', 'role_name', 'is_active'];
+    protected $fillable = ['role_id', 'role_code', 'role_name', 'is_active'];
 
-    public static function ensureDefaultRole(string $roleId): self
+    public static function ensureDefaultRole(string $roleCode): self
     {
-        $defaultRole = collect(DefaultRoles::getData())
-            ->firstWhere('role_id', $roleId);
+        $defaultRoleCodes = collect(DefaultRoles::getData())->pluck('role_code')->all();
 
-        if (! $defaultRole) {
-            throw new InvalidArgumentException("Unknown default role [{$roleId}].");
+        if (! in_array($roleCode, $defaultRoleCodes, true)) {
+            $existingRole = static::withTrashed()->find($roleCode);
+
+            if ($existingRole && in_array($existingRole->role_code, $defaultRoleCodes, true)) {
+                $roleCode = $existingRole->role_code;
+            }
         }
 
-        $role = static::withTrashed()->find($roleId);
+        $defaultRole = collect(DefaultRoles::getData())
+            ->firstWhere('role_code', $roleCode);
+
+        if (! $defaultRole) {
+            throw new InvalidArgumentException("Unknown default role [{$roleCode}].");
+        }
+
+        $role = static::withTrashed()->where('role_code', $roleCode)->first();
 
         if ($role) {
             if ($role->trashed()) {
@@ -48,6 +58,7 @@ class Role extends Model
 
         return static::create([
             'role_id' => $defaultRole['role_id'],
+            'role_code' => $defaultRole['role_code'],
             'role_name' => $defaultRole['role_name'],
             'is_active' => true,
         ]);
@@ -69,7 +80,7 @@ class Role extends Model
             return true;
         }
 
-        return RbacPermissionMap::roleHasPermission($this->role_id, $permissionName);
+        return RbacPermissionMap::roleHasPermission($this->role_code, $permissionName);
     }
 
     /**
@@ -81,7 +92,7 @@ class Role extends Model
 
         return array_values(array_unique([
             ...$persistedPermissions,
-            ...RbacPermissionMap::permissionsForRole($this->role_id),
+            ...RbacPermissionMap::permissionsForRole($this->role_code),
         ]));
     }
 

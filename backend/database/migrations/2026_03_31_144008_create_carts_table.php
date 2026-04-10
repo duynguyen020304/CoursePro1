@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->string('cart_id', 40)->primary();
-            $table->string('user_id', 40)->notNullable();
+            $table->uuid('user_id')->notNullable();
             $table->timestamp('created_at')->useCurrent();
 
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');

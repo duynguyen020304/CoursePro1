@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->string('review_id', 40)->primary();
-            $table->string('user_id', 40)->notNullable();
+            $table->uuid('user_id')->notNullable();
             $table->string('course_id', 40)->notNullable();
             $table->integer('rating')->unsigned();
             $table->text('review_text')->nullable();

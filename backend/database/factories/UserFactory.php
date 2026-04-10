@@ -21,7 +21,7 @@ class UserFactory extends Factory
             'user_id' => Str::uuid(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
-            'role_id' => 'student',
+            'role_id' => Role::where('role_code', 'student')->value('role_id'),
             'profile_image' => null,
         ];
     }
@@ -36,10 +36,14 @@ class UserFactory extends Factory
                 return;
             }
 
-            Role::firstOrCreate(
-                ['role_id' => $user->role_id],
-                ['role_name' => Str::headline($user->role_id)]
-            );
+            if (! Role::where('role_id', $user->role_id)->exists()) {
+                Role::create([
+                    'role_id' => $user->role_id,
+                    'role_code' => 'student',
+                    'role_name' => 'Student',
+                    'is_active' => true,
+                ]);
+            }
         })->afterCreating(function (User $user) {
             UserAccount::factory()->create([
                 'user_id' => $user->user_id,
@@ -50,14 +54,14 @@ class UserFactory extends Factory
     public function instructor(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role_id' => 'instructor',
+            'role_id' => Role::where('role_code', 'instructor')->value('role_id'),
         ]);
     }
 
     public function admin(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role_id' => 'admin',
+            'role_id' => Role::where('role_code', 'admin')->value('role_id'),
         ]);
     }
 }
