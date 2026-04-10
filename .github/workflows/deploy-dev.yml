@@ -80,14 +80,6 @@ jobs:
           cd backend
           composer install --no-dev --optimize-autoloader
 
-      - name: Build Laravel Backend
-        run: |
-          cd backend
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-          php artisan event:cache
-
       - name: Upload Backend Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -409,7 +401,13 @@ jobs:
             composer install --no-dev --optimize-autoloader
           fi
 
-          # Clear and rebuild cache
+          # Load deployment-specific environment before any Artisan command.
+          set -a
+          . /root/CoursePro/backend/runtime-env.sh
+          set +a
+
+          # Clear stale cache from the shipped artifact, then rebuild with deploy env.
+          php artisan optimize:clear
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
