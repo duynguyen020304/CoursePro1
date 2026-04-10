@@ -377,8 +377,7 @@ jobs:
           rm -rf /tmp/coursepro-frontend-deploy
 
           # Install dependencies
-          echo "Installing frontend dependencies..."
-          /root/.bun/bin/bun install --production --no-frozen-lockfile
+          echo "Using packaged frontend dependencies from the build artifact..."
 
           # ==========================================
           # 6. Deploy Backend
