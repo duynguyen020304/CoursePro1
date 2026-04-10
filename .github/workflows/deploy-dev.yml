@@ -42,18 +42,46 @@ jobs:
       # ------------------------------------------
       - name: Install & Build Frontend
         env:
-          RAW_VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          RAW_PUBLIC_API_URL: ${{ secrets.API_APP_URL || secrets.PUBLIC_API_URL }}
-          RAW_PUBLIC_FRONTEND_URL: ${{ secrets.PUBLIC_APP_URL || secrets.APP_URL }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID || secrets.GOOGLE_CLIENT_ID }}
         run: |
           set -euo pipefail
+
+          validate_origin() {
+            local name="$1"
+            local value="${2:-}"
+            local stripped
+
+            if [ -z "$value" ]; then
+              echo "::error::${name} is required."
+              exit 1
+            fi
+
+            if [[ ! "$value" =~ ^https?:// ]]; then
+              echo "::error::${name} must start with http:// or https://. Received: $value"
+              exit 1
+            fi
+
+            stripped="${value#*://}"
+            if [[ "$stripped" == */* ]] || [[ "$stripped" == *\?* ]] || [[ "$stripped" == *\#* ]]; then
+              echo "::error::${name} must be a bare origin without path, query, or fragment. Received: $value"
+              exit 1
+            fi
+          }
+
           cd frontend
-          VITE_API_URL="${RAW_VITE_API_URL:-}"
-          if [ -z "${VITE_API_URL}" ]; then
-            api_origin="${RAW_PUBLIC_API_URL:-${RAW_PUBLIC_FRONTEND_URL:-}}"
-            VITE_API_URL="${api_origin%/}/api"
+          FRONTEND_URL="${FRONTEND_URL%/}"
+          BACKEND_URL="${BACKEND_URL%/}"
+          validate_origin "FRONTEND_URL" "$FRONTEND_URL"
+          validate_origin "BACKEND_URL" "$BACKEND_URL"
+
+          if [[ "$BACKEND_URL" =~ /api$ ]]; then
+            echo "::error::BACKEND_URL must be the backend origin only, not an /api endpoint. Received: $BACKEND_URL"
+            exit 1
           fi
+
+          VITE_API_URL="${BACKEND_URL}/api"
           test -n "${VITE_API_URL}"
           test -n "${VITE_GOOGLE_CLIENT_ID}"
           bun install --no-frozen-lockfile
@@ -122,8 +150,9 @@ jobs:
     env:
       ENABLE_CLOUDFLARE_TUNNEL: ${{ secrets.ENABLE_CLOUDFLARE_TUNNEL || '' }}
       RAW_CLOUDFLARE_TUNNEL_HOST: ${{ secrets.CLOUDFLARE_TUNNEL_HOST || vars.CLOUDFLARE_TUNNEL_HOST || 'https://ssh-hk1.vyta.io.vn/' }}
-      PUBLIC_FRONTEND_URL: ${{ secrets.PUBLIC_APP_URL || secrets.APP_URL }}
-      PUBLIC_API_URL: ${{ secrets.API_APP_URL || secrets.PUBLIC_API_URL || secrets.PUBLIC_APP_URL || secrets.APP_URL }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      BACKEND_URL: ${{ secrets.BACKEND_URL }}
+      SESSION_SAME_SITE: ${{ secrets.SESSION_SAME_SITE || '' }}
       DEPLOY_HOST: ${{ secrets.PRODUCTION_SERVER_HOST }}
       DEPLOY_PORT: ${{ secrets.PRODUCTION_SERVER_PORT }}
       DEPLOY_USER: ${{ secrets.PRODUCTION_SERVER_USER }}
@@ -330,17 +359,65 @@ jobs:
           # 3. Create Backend Runtime Environment
           # ==========================================
           echo "Writing backend runtime-env.sh..."
-          public_frontend_url='${{ env.PUBLIC_FRONTEND_URL }}'
-          public_api_url='${{ env.PUBLIC_API_URL }}'
-          public_frontend_host="${public_frontend_url#*://}"
-          public_frontend_host="${public_frontend_host%%/*}"
-          public_api_host="${public_api_url#*://}"
-          public_api_host="${public_api_host%%/*}"
+
+          validate_origin() {
+            local name="$1"
+            local value="${2:-}"
+            local stripped
+
+            if [ -z "$value" ]; then
+              echo "::error::${name} is required."
+              exit 1
+            fi
+
+            if [[ ! "$value" =~ ^https?:// ]]; then
+              echo "::error::${name} must start with http:// or https://. Received: $value"
+              exit 1
+            fi
+
+            stripped="${value#*://}"
+            if [[ "$stripped" == */* ]] || [[ "$stripped" == *\?* ]] || [[ "$stripped" == *\#* ]]; then
+              echo "::error::${name} must be a bare origin without path, query, or fragment. Received: $value"
+              exit 1
+            fi
+          }
+
+          frontend_url='${{ env.FRONTEND_URL }}'
+          backend_url='${{ env.BACKEND_URL }}'
+          session_same_site='${{ env.SESSION_SAME_SITE }}'
+          frontend_url="${frontend_url%/}"
+          backend_url="${backend_url%/}"
+          validate_origin "FRONTEND_URL" "$frontend_url"
+          validate_origin "BACKEND_URL" "$backend_url"
+
+          if [[ "$backend_url" =~ /api$ ]]; then
+            echo "::error::BACKEND_URL must be the backend origin only, not an /api endpoint. Received: $backend_url"
+            exit 1
+          fi
+
+          frontend_host="${frontend_url#*://}"
+          frontend_host="${frontend_host%%/*}"
+          backend_host="${backend_url#*://}"
+          backend_host="${backend_host%%/*}"
+
+          if [ -n "$session_same_site" ]; then
+            case "$session_same_site" in
+              lax|strict|none) ;;
+              *)
+                echo "::error::SESSION_SAME_SITE must be one of: lax, strict, none. Received: $session_same_site"
+                exit 1
+                ;;
+            esac
+          fi
+
+          if [ "$frontend_host" != "$backend_host" ] && [ -z "$session_same_site" ]; then
+            echo "::warning::FRONTEND_URL and BACKEND_URL use different hosts. Cookie auth may require SESSION_DOMAIN and SESSION_SAME_SITE=none depending on your site topology."
+          fi
 
           cat > /root/CoursePro/backend/runtime-env.sh << EOF
           export APP_ENV='production'
           export APP_DEBUG='false'
-          export APP_URL="$public_api_url"
+          export APP_URL="$backend_url"
           export APP_KEY='${{ secrets.APP_KEY }}'
           export DB_CONNECTION='pgsql'
           export DB_HOST='${{ secrets.DB_HOST }}'
@@ -358,13 +435,14 @@ jobs:
           export MAIL_PASSWORD='${{ secrets.MAIL_PASSWORD }}'
           export MAIL_FROM_ADDRESS='${{ secrets.MAIL_FROM_ADDRESS }}'
           export MAIL_FROM_NAME='${{ secrets.MAIL_FROM_NAME }}'
-          export CORS_ALLOWED_ORIGINS="$public_frontend_url"
+          export CORS_ALLOWED_ORIGINS="$frontend_url"
           export SESSION_DOMAIN='${{ secrets.SESSION_DOMAIN }}'
+          export SESSION_SAME_SITE='${{ secrets.SESSION_SAME_SITE || 'lax' }}'
           export SESSION_SECURE_COOKIE='true'
           export GOOGLE_CLIENT_ID='${{ secrets.GOOGLE_CLIENT_ID }}'
           export GOOGLE_CLIENT_SECRET='${{ secrets.GOOGLE_CLIENT_SECRET }}'
-          export GOOGLE_REDIRECT_URI="${public_frontend_url}/auth/callback"
-          export SANCTUM_STATEFUL_DOMAINS="$public_frontend_host,$public_api_host"
+          export GOOGLE_REDIRECT_URI="${frontend_url}/auth/callback"
+          export SANCTUM_STATEFUL_DOMAINS="$frontend_host,$backend_host"
           EOF
           chmod 600 /root/CoursePro/backend/runtime-env.sh
 
