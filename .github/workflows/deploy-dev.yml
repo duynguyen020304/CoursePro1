@@ -1,10 +1,10 @@
-name: Deploy to Dev (SSH / Cloudflare Tunnel)
+name: Deploy on Push (SSH / Cloudflare Tunnel)
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   # ==========================================
@@ -105,6 +105,7 @@ jobs:
     env:
       ENABLE_CLOUDFLARE_TUNNEL: ${{ secrets.ENABLE_CLOUDFLARE_TUNNEL || '' }}
       RAW_CLOUDFLARE_TUNNEL_HOST: ${{ secrets.CLOUDFLARE_TUNNEL_HOST || vars.CLOUDFLARE_TUNNEL_HOST || 'https://ssh-hk1.vyta.io.vn/' }}
+      PUBLIC_APP_URL: ${{ secrets.APP_URL }}
       DEPLOY_HOST: ${{ secrets.PRODUCTION_SERVER_HOST }}
       DEPLOY_PORT: ${{ secrets.PRODUCTION_SERVER_PORT }}
       DEPLOY_USER: ${{ secrets.PRODUCTION_SERVER_USER }}
@@ -312,9 +313,14 @@ jobs:
           # 3. Create Backend Runtime Environment
           # ==========================================
           echo "Writing backend runtime-env.sh..."
-          cat > /root/CoursePro/backend/runtime-env.sh << 'EOF'
+          public_app_url='${{ env.PUBLIC_APP_URL }}'
+          public_app_host="${public_app_url#*://}"
+          public_app_host="${public_app_host%%/*}"
+
+          cat > /root/CoursePro/backend/runtime-env.sh << EOF
           export APP_ENV='production'
           export APP_DEBUG='false'
+          export APP_URL="$public_app_url"
           export APP_KEY='${{ secrets.APP_KEY }}'
           export DB_CONNECTION='mysql'
           export DB_HOST='${{ secrets.DB_HOST }}'
@@ -334,6 +340,8 @@ jobs:
           export MAIL_FROM_NAME='${{ secrets.MAIL_FROM_NAME }}'
           export GOOGLE_CLIENT_ID='${{ secrets.GOOGLE_CLIENT_ID }}'
           export GOOGLE_CLIENT_SECRET='${{ secrets.GOOGLE_CLIENT_SECRET }}'
+          export GOOGLE_REDIRECT_URI="${public_app_url}/auth/callback"
+          export SANCTUM_STATEFUL_DOMAINS="$public_app_host"
           EOF
           chmod 600 /root/CoursePro/backend/runtime-env.sh
 
