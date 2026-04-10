@@ -336,7 +336,7 @@ jobs:
           export APP_KEY='${{ secrets.APP_KEY }}'
           export DB_CONNECTION='pgsql'
           export DB_HOST='${{ secrets.DB_HOST }}'
-          export DB_PORT='5432'
+          export DB_PORT='${{ secrets.DB_PORT }}'
           export DB_DATABASE='${{ secrets.DB_DATABASE }}'
           export DB_USERNAME='${{ secrets.DB_USERNAME }}'
           export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
