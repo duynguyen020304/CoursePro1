@@ -21,6 +21,7 @@ import CategoryPage from './pages/public/CategoryPage';
 import SignIn from './pages/public/SignIn';
 import SignUp from './pages/public/SignUp';
 import ForgotPassword from './pages/public/ForgotPassword';
+import VerifyEmail from './pages/public/VerifyEmail';
 import VerifyCode from './pages/public/VerifyCode';
 import ResetPassword from './pages/public/ResetPassword';
 import Cart from './pages/public/Cart';
@@ -87,6 +88,7 @@ function AppRoutes() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/verify-code" element={<VerifyCode />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/auth/callback" element={<AuthCallback />} />

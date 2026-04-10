@@ -48,7 +48,7 @@ export default function SignUp() {
       });
 
       if (result.success) {
-        navigate('/');
+        navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
       } else {
         setError(result.message || 'Signup failed');
       }

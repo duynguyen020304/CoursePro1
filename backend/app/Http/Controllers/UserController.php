@@ -60,6 +60,8 @@ class UserController extends Controller
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'email' => $userAccount->email,
+            'email_verified_at' => optional($userAccount->email_verified_at)?->toISOString(),
+            'is_verified' => $userAccount->is_verified,
             'role_id' => $user->role_id,
             'profile_image' => $user->profile_image,
             'role' => $user->role,
@@ -89,6 +91,8 @@ class UserController extends Controller
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'email' => $userAccount->email,
+            'email_verified_at' => optional($userAccount->email_verified_at)?->toISOString(),
+            'is_verified' => $userAccount->is_verified,
             'role_id' => $user->role_id,
             'profile_image' => $user->profile_image,
         ], 'Profile updated successfully');

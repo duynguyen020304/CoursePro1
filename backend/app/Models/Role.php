@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Models\Traits\HasAuditColumns;
 use App\Support\RbacPermissionMap;
+use App\Support\SeedData\DefaultRoles;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use InvalidArgumentException;
 
 class Role extends Model
 {
@@ -17,6 +19,39 @@ class Role extends Model
     protected $keyType = 'string';
 
     protected $fillable = ['role_id', 'role_name', 'is_active'];
+
+    public static function ensureDefaultRole(string $roleId): self
+    {
+        $defaultRole = collect(DefaultRoles::getData())
+            ->firstWhere('role_id', $roleId);
+
+        if (! $defaultRole) {
+            throw new InvalidArgumentException("Unknown default role [{$roleId}].");
+        }
+
+        $role = static::withTrashed()->find($roleId);
+
+        if ($role) {
+            if ($role->trashed()) {
+                $role->restore();
+            }
+
+            if (! $role->is_active || $role->role_name !== $defaultRole['role_name']) {
+                $role->forceFill([
+                    'role_name' => $defaultRole['role_name'],
+                    'is_active' => true,
+                ])->save();
+            }
+
+            return $role;
+        }
+
+        return static::create([
+            'role_id' => $defaultRole['role_id'],
+            'role_name' => $defaultRole['role_name'],
+            'is_active' => true,
+        ]);
+    }
 
     public function users(): HasMany
     {

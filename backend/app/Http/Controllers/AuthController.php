@@ -4,16 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\UserAccount;
+use App\Models\Role;
 use App\Models\Student;
+use App\Models\EmailVerificationToken;
 use App\Models\PasswordResetToken;
 use App\Services\AuthService;
 use App\Services\PasswordResetService;
+use App\Mail\EmailVerificationMail;
 use App\Mail\PasswordResetMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 
@@ -72,30 +76,33 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $userId = Str::uuid();
+        $userAccount = DB::transaction(function () use ($request) {
+            $userId = Str::uuid();
 
-        // Create user
-        $user = User::create([
-            'user_id' => $userId,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'role_id' => 'student',
-        ]);
+            Role::ensureDefaultRole('student');
 
-        // Create auth account
-        $userAccount = UserAccount::create([
-            'user_id' => $userId,
-            'provider' => 'email',
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'is_verified' => false,
-        ]);
+            User::create([
+                'user_id' => $userId,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'role_id' => 'student',
+            ]);
 
-        // Create student record
-        Student::create([
-            'student_id' => Str::uuid(),
-            'user_id' => $userId,
-        ]);
+            $userAccount = UserAccount::create([
+                'user_id' => $userId,
+                'provider' => 'email',
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'is_verified' => false,
+            ]);
+
+            Student::create([
+                'student_id' => Str::uuid(),
+                'user_id' => $userId,
+            ]);
+
+            return $userAccount;
+        });
 
         $authService = new AuthService();
         $accessToken = $authService->createAccessToken($userAccount);
@@ -105,11 +112,79 @@ class AuthController extends Controller
             $request->userAgent()
         )['raw_token'];
 
+        $this->dispatchVerificationCode($userAccount);
+
         return $this->created([
                 'user' => $this->formatUserPayload($userAccount),
             ], 'Account created successfully')
             ->withCookie($this->makeAccessTokenCookie($accessToken))
             ->withCookie($this->makeRefreshTokenCookie($refreshToken));
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string|size:6',
+        ]);
+
+        $userAccount = UserAccount::findByEmail($request->email);
+
+        if (!$userAccount) {
+            return $this->error('Account not found', 404);
+        }
+
+        if ($userAccount->is_verified) {
+            return $this->emptySuccess('Email already verified');
+        }
+
+        $verification = EmailVerificationToken::where('user_id', $userAccount->user_id)
+            ->where('token', $request->code)
+            ->first();
+
+        if (!$verification) {
+            Log::info("[email_verification] verify email={$request->email} ip={$request->ip()} result=failure_invalid_code");
+            return $this->error('Invalid verification code', 400);
+        }
+
+        if ($verification->expires_at && $verification->expires_at->isPast()) {
+            Log::info("[email_verification] verify email={$request->email} ip={$request->ip()} result=failure_expired");
+            return $this->error('Verification code has expired', 400);
+        }
+
+        $userAccount->forceFill([
+            'email_verified_at' => now(),
+            'is_verified' => true,
+        ])->save();
+
+        $verification->delete();
+
+        Log::info("[email_verification] verify email={$request->email} ip={$request->ip()} result=success");
+
+        return $this->emptySuccess('Email verified successfully');
+    }
+
+    public function resendVerification(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:user_accounts,email',
+        ]);
+
+        $userAccount = UserAccount::findByEmail($request->email);
+
+        if (!$userAccount) {
+            return $this->error('Account not found', 404);
+        }
+
+        if ($userAccount->is_verified) {
+            return $this->emptySuccess('Email already verified');
+        }
+
+        $this->dispatchVerificationCode($userAccount);
+
+        Log::info("[email_verification] resend email={$userAccount->email} ip={$request->ip()} result=sent");
+
+        return $this->emptySuccess('Verification code sent to your email');
     }
 
     /**
@@ -318,6 +393,8 @@ class AuthController extends Controller
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'email' => $userAccount->email,
+            'email_verified_at' => optional($userAccount->email_verified_at)?->toISOString(),
+            'is_verified' => $userAccount->is_verified,
             'role_id' => $user->role_id,
             'profile_image' => $user->profile_image,
             'role' => $user->role,
@@ -435,12 +512,34 @@ class AuthController extends Controller
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'email' => $userAccount->email,
+            'email_verified_at' => optional($userAccount->email_verified_at)?->toISOString(),
+            'is_verified' => $userAccount->is_verified,
             'role_id' => $user->role_id,
             'profile_image' => $user->profile_image,
             'role' => $user->role,
             'student' => $user->student,
             'instructor' => $user->instructor,
         ];
+    }
+
+    private function dispatchVerificationCode(UserAccount $userAccount): void
+    {
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $expiresAt = now()->addMinutes(60);
+
+        EmailVerificationToken::updateOrCreate(
+            ['user_id' => $userAccount->user_id],
+            ['token' => $code, 'created_at' => now(), 'expires_at' => $expiresAt]
+        );
+
+        try {
+            Mail::to($userAccount->email)->send(new EmailVerificationMail($code, $expiresAt));
+        } catch (\Exception $e) {
+            Log::error('Failed to send verification email', [
+                'email' => $userAccount->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function makeAccessTokenCookie(string $token): \Symfony\Component\HttpFoundation\Cookie

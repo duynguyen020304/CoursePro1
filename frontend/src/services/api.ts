@@ -15,6 +15,7 @@ const PUBLIC_REDIRECT_PREFIXES = [
   '/signin',
   '/signup',
   '/forgot-password',
+  '/verify-email',
   '/verify-code',
   '/reset-password',
   '/courses',
@@ -332,6 +333,10 @@ export const authApi = {
     validated(api.post('/forgot-password-jwt', { email }), forgotPasswordResponseSchema, 'authApi.forgotPasswordJwt'),
   verifyCode: (email: string, code: string) =>
     validated(api.post('/verify-code', { email, code }), verifyCodeResponseSchema, 'authApi.verifyCode'),
+  verifyEmail: (email: string, code: string) =>
+    validated(api.post('/email/verify', { email, code }), verifyCodeResponseSchema, 'authApi.verifyEmail'),
+  resendVerification: (email: string) =>
+    validated(api.post('/email/resend', { email }), forgotPasswordResponseSchema, 'authApi.resendVerification'),
   resetPassword: (email: string, code: string, password: string, password_confirmation: string) =>
     validated(api.post('/reset-password', { email, code, password, password_confirmation }), resetPasswordResponseSchema, 'authApi.resetPassword'),
   changePassword: (current_password: string, new_password: string, new_password_confirmation: string) =>

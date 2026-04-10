@@ -5,11 +5,13 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\UserAccount;
 use App\Models\RefreshToken;
+use App\Models\Role;
 use App\Models\Student;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class AuthService
@@ -138,34 +140,39 @@ class AuthService
         }
 
         // Step C: Create new user
-        $userId = Str::uuid();
+        [$user, $userAccount] = DB::transaction(function () use ($email, $emailVerified, $firstName, $googleSub, $lastName, $picture) {
+            $userId = Str::uuid();
 
-        $user = User::create([
-            'user_id' => $userId,
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'role_id' => 'student',
-            'profile_image' => $picture,
-        ]);
+            Role::ensureDefaultRole('student');
 
-        $userAccount = UserAccount::create([
-            'user_id' => $userId,
-            'provider' => 'google',
-            'provider_account_id' => $googleSub,
-            'email' => $email,
-            'email_verified_at' => $emailVerified ? now() : null,
-            'password' => null, // No password for OAuth-only accounts
-            'is_verified' => $emailVerified,
-        ]);
+            $user = User::create([
+                'user_id' => $userId,
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'role_id' => 'student',
+                'profile_image' => $picture,
+            ]);
 
-        // Create student record
-        Student::create([
-            'student_id' => Str::uuid(),
-            'user_id' => $userId,
-        ]);
+            $userAccount = UserAccount::create([
+                'user_id' => $userId,
+                'provider' => 'google',
+                'provider_account_id' => $googleSub,
+                'email' => $email,
+                'email_verified_at' => $emailVerified ? now() : null,
+                'password' => null,
+                'is_verified' => $emailVerified,
+            ]);
+
+            Student::create([
+                'student_id' => Str::uuid(),
+                'user_id' => $userId,
+            ]);
+
+            return [$user, $userAccount];
+        });
 
         Log::info('Google OAuth: Created new user', [
-            'user_id' => $userId,
+            'user_id' => $user->user_id,
             'email' => $email,
         ]);
 

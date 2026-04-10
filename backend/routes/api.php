@@ -44,6 +44,10 @@ Route::post('/forgot-password-jwt', [AuthController::class, 'forgotPasswordJwt']
     ->middleware('throttle:5,15');
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/email/verify', [AuthController::class, 'verifyEmail'])
+    ->middleware('throttle:5,15');
+Route::post('/email/resend', [AuthController::class, 'resendVerification'])
+    ->middleware('throttle:5,15');
 
 // Google OAuth routes
 Route::post('/auth/google', [AuthController::class, 'googleLogin']);
@@ -149,7 +153,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('/chapters/{chapter}', [ChapterController::class, 'update']);
             Route::delete('/chapters/{chapter}', [ChapterController::class, 'destroy']);
             Route::post('/chapters/{chapter}/lessons', [LessonController::class, 'store']);
-        });
+    });
 
         // Lesson write operations
         Route::prefix('lessons/{lesson}')->group(function () {
@@ -162,7 +166,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('/resources/{resource}', [ResourceController::class, 'update']);
             Route::delete('/resources/{resource}', [ResourceController::class, 'destroy']);
         });
-    });
+        });
 
     // Lesson read operations - accessible to all authenticated users
     Route::prefix('lessons/{lesson}')->group(function () {
@@ -171,23 +175,25 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/resources', [ResourceController::class, 'index']);
     });
 
-    // Cart
-    Route::get('/cart', [CartController::class, 'getUserCart']);
-    Route::post('/cart/items', [CartItemController::class, 'store']);
-    Route::delete('/cart/items/{cartItem}', [CartItemController::class, 'destroy']);
-    Route::delete('/cart', [CartController::class, 'clearCart']);
+    Route::middleware('email.verified')->group(function () {
+        // Cart
+        Route::get('/cart', [CartController::class, 'getUserCart']);
+        Route::post('/cart/items', [CartItemController::class, 'store']);
+        Route::delete('/cart/items/{cartItem}', [CartItemController::class, 'destroy']);
+        Route::delete('/cart', [CartController::class, 'clearCart']);
 
-    // Orders
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::post('/orders', [OrderController::class, 'store']);
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
-    Route::post('/orders/{order}/payment', [PaymentController::class, 'complete']);
+        // Orders
+        Route::get('/orders', [OrderController::class, 'index']);
+        Route::post('/orders', [OrderController::class, 'store']);
+        Route::get('/orders/{order}', [OrderController::class, 'show']);
+        Route::post('/orders/{order}/payment', [PaymentController::class, 'complete']);
 
-    // Reviews
-    Route::get('/reviews', [ReviewController::class, 'index']);
-    Route::post('/reviews', [ReviewController::class, 'store']);
-    Route::put('/reviews/{review}', [ReviewController::class, 'update']);
-    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
+        // Reviews
+        Route::get('/reviews', [ReviewController::class, 'index']);
+        Route::post('/reviews', [ReviewController::class, 'store']);
+        Route::put('/reviews/{review}', [ReviewController::class, 'update']);
+        Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
+    });
 
     // Instructor routes (instructor and admin only)
     Route::middleware('permission:instructor.access,admin.access')->prefix('instructor')->group(function () {

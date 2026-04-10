@@ -2,106 +2,45 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\UserAccount;
+use App\Contracts\ISeedDataService;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\App;
 
+/**
+ * Main Database Seeder
+ *
+ * This seeder acts as the entry point for all database seeding operations.
+ * It delegates to the SeedDataService which implements idempotent upsert logic.
+ *
+ * The service-based architecture allows for:
+ * - Easy testing through dependency injection
+ * - Consistent seeding behavior across contexts
+ * - Idempotent operations (safe to run multiple times)
+ *
+ * Usage:
+ *   php artisan db:seed
+ *   php artisan migrate:fresh --seed
+ */
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
+     *
+     * This method resolves the SeedDataService from the container and executes
+     * the master seedAll() method, which chains all seed operations in the
+     * correct dependency order.
+     *
+     * @return void
      */
     public function run(): void
     {
-        // 1. Create roles first (no dependencies) - skip if exists
-        \App\Models\Role::firstOrCreate(['role_id' => 'admin'], ['role_name' => 'Admin']);
-        \App\Models\Role::firstOrCreate(['role_id' => 'student'], ['role_name' => 'Student']);
-        \App\Models\Role::firstOrCreate(['role_id' => 'instructor'], ['role_name' => 'Instructor']);
+        // Resolve the seed data service from the container
+        $seedService = App::make(ISeedDataService::class);
 
-        // 2. Create admin user - skip if exists by email
-        $adminAccount = UserAccount::where('email', 'admin@example.com')->first();
-        if ($adminAccount) {
-            // User exists, ensure User record is complete
-            User::firstOrCreate(
-                ['user_id' => $adminAccount->user_id],
-                [
-                    'first_name' => 'Admin',
-                    'last_name' => 'User',
-                    'role_id' => 'admin',
-                ]
-            );
-        } else {
-            // Create new admin user
-            $adminUserId = Str::uuid();
-            User::firstOrCreate(
-                ['user_id' => $adminUserId],
-                [
-                    'first_name' => 'Admin',
-                    'last_name' => 'User',
-                    'role_id' => 'admin',
-                ]
-            );
-            UserAccount::firstOrCreate(
-                ['user_id' => $adminUserId],
-                [
-                    'email' => 'admin@example.com',
-                    'password' => Hash::make('password'),
-                    'provider' => 'email',
-                ]
-            );
-        }
+        // Pass command instance for output feedback
+        $seedService->setCommand($this->command);
 
-        // 3. Create a test student user for testing - skip if exists by email
-        $testStudentAccount = UserAccount::where('email', 'student@example.com')->first();
-        if ($testStudentAccount) {
-            // User exists, ensure User record is complete
-            User::firstOrCreate(
-                ['user_id' => $testStudentAccount->user_id],
-                [
-                    'first_name' => 'Test',
-                    'last_name' => 'Student',
-                    'role_id' => 'student',
-                ]
-            );
-        } else {
-            // Create new test student user
-            $testStudentUserId = Str::uuid();
-            User::firstOrCreate(
-                ['user_id' => $testStudentUserId],
-                [
-                    'first_name' => 'Test',
-                    'last_name' => 'Student',
-                    'role_id' => 'student',
-                ]
-            );
-            UserAccount::firstOrCreate(
-                ['user_id' => $testStudentUserId],
-                [
-                    'email' => 'student@example.com',
-                    'password' => Hash::make('password'),
-                    'provider' => 'email',
-                ]
-            );
-        }
-
-        // 4. Seed permissions and assign to roles
-        $this->call(PermissionSeeder::class);
-
-        // 5. Seed categories (no dependencies)
-        $this->call(CategorySeeder::class);
-
-        // 6. Seed instructors (depends on users/roles)
-        $this->call(InstructorSeeder::class);
-
-        // 7. Seed students (depends on users/roles)
-        $this->call(StudentSeeder::class);
-
-        // 8. Seed courses (depends on instructors, categories)
-        $this->call(CourseSeeder::class);
-
-        // 9. Seed orders, cart items, and reviews (depends on students, courses)
-        $this->call(OrderSeeder::class);
+        // Execute all seed operations in dependency order
+        $seedService->seedAll();
     }
 }

@@ -53,6 +53,11 @@ export default function SignIn() {
       const result = await login(data.email, data.password);
 
       if (result.success) {
+        if (!result.user?.is_verified) {
+          navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
+          return;
+        }
+
         navigate('/');
       } else {
         setError(result.message || 'Login failed');

@@ -3,12 +3,23 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 
 export default function Header() {
-  const { user, isAuthenticated, hasAnyPermission, logout } = useAuth();
+  const { user, isAuthenticated, hasAnyPermission, isEmailVerified, logout } = useAuth();
   const { itemCount } = useCart();
   const canAccessMyCourses = hasAnyPermission(['courses.learn', 'courses.consume.own']);
+  const showVerificationBanner = isAuthenticated && !isEmailVerified();
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
+      {showVerificationBanner && (
+        <div className="bg-amber-50 border-b border-amber-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 text-sm text-amber-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <span>Please verify your email to unlock all account features.</span>
+            <Link to={`/verify-email?email=${encodeURIComponent(user?.email ?? '')}`} className="font-medium underline underline-offset-2">
+              Verify now
+            </Link>
+          </div>
+        </div>
+      )}
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -65,6 +76,7 @@ export default function Header() {
                   </span>
                 </Link>
                 <button
+                  type="button"
                   onClick={logout}
                   className="text-gray-700 hover:text-indigo-600"
                 >

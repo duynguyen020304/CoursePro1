@@ -10,6 +10,7 @@ use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Validation\ValidationException;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\EnsureEmailVerified;
 use App\Http\Middleware\UseAccessTokenFromCookie;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => CheckRole::class,
             'permission' => CheckPermission::class,
+            'email.verified' => EnsureEmailVerified::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

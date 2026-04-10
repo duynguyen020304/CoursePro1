@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Contracts\ISeedDataService;
+use App\Services\SeedDataService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +13,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Bind ISeedDataService interface to SeedDataService implementation
+        $this->app->bind(ISeedDataService::class, SeedDataService::class);
     }
 
     /**

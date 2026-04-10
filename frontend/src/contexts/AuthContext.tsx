@@ -41,6 +41,7 @@ interface AuthContextValue extends AuthState {
   hasPermission: (permissionName: string) => boolean;
   hasAnyPermission: (permissions: string[]) => boolean;
   hasAllPermissions: (permissions: string[]) => boolean;
+  isEmailVerified: () => boolean;
   refreshAuth: () => Promise<{ success: boolean; user?: User | UserProfile }>;
   fetchUserPermissions: () => Promise<void>;
 }
@@ -147,8 +148,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refreshAuth().finally(() => {
       setLoading(false);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshAuth]);
 
   /**
    * Logs in a user with email and password
@@ -303,6 +303,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [userPermissions]
   );
 
+  const isEmailVerified = useCallback((): boolean => {
+    if (!user) {
+      return false;
+    }
+
+    if ('is_verified' in user && typeof user.is_verified === 'boolean') {
+      return user.is_verified;
+    }
+
+    if ('email_verified_at' in user) {
+      return Boolean(user.email_verified_at);
+    }
+
+    return false;
+  }, [user]);
+
   const value: AuthContextValue = {
     user,
     loading,
@@ -316,6 +332,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
+    isEmailVerified,
     refreshAuth,
     fetchUserPermissions,
   };
