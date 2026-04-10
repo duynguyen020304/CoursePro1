@@ -32,14 +32,19 @@ jobs:
           node -v
           npm -v
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       # ------------------------------------------
       # Build React Frontend
       # ------------------------------------------
       - name: Install & Build Frontend
         run: |
           cd frontend
-          npm install
-          npm run build
+          bun install
+          bun run build
 
       - name: Upload Frontend Artifact
         uses: actions/upload-artifact@v4
@@ -88,6 +93,7 @@ jobs:
         with:
           name: backend-full
           path: |
+            backend/app
             backend/bootstrap
             backend/public
             backend/storage
@@ -372,7 +378,7 @@ jobs:
 
           # Install dependencies
           echo "Installing frontend dependencies..."
-          npm install --production
+          /root/.bun/bin/bun install --production
 
           # ==========================================
           # 6. Deploy Backend
@@ -421,7 +427,7 @@ jobs:
           /root/.bun/bin/pm2 delete coursepro-api 2>/dev/null || true
 
           # Start Frontend (Vite preview or Node server)
-          /root/.bun/bin/pm2 start npm --name "coursepro-frontend" -- run preview -- --host 0.0.0.0 --port 5173
+          /root/.bun/bin/pm2 start /root/.bun/bin/bun --name "coursepro-frontend" -- run preview -- --host 0.0.0.0 --port 5173
 
           # Start Backend
           cat > /root/CoursePro/backend/start.sh << 'EOFSH'
