@@ -78,7 +78,10 @@ jobs:
       - name: Build Laravel Backend
         run: |
           cd backend
-          php artisan build --optimize
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          php artisan event:cache
 
       - name: Upload Backend Artifact
         uses: actions/upload-artifact@v4
