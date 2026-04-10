@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { uuidSchema } from '../common';
+
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const requiredUuid = (message: string) => z.string().min(1, message).regex(uuidPattern, message);
 
 /**
  * UploadVideo form schema using Zod
@@ -7,8 +10,9 @@ import { uuidSchema } from '../common';
  */
 export const uploadVideoSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  course_id: uuidSchema,
-  chapter_id: uuidSchema.optional(),
+  course_id: requiredUuid('Course is required'),
+  chapter_id: requiredUuid('Chapter is required'),
+  lesson_id: requiredUuid('Lesson is required'),
   video_file: z
     .instanceof(File, { message: 'Video file is required' })
     .refine(

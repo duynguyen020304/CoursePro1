@@ -1,24 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
-import { courseApi } from '../../services/api';
+import { courseApi, lessonApi } from '../../services/api';
 import {
   uploadVideoSchema,
   type UploadVideoFormData,
 } from '../../schemas/course/uploadVideo.schema';
+import {
+  convertDurationMinutesToSeconds,
+  isAbortError,
+  uploadMultipartVideoToS3,
+  uploadSingleVideoToS3,
+  type MultipartUploadPart,
+  type SingleUploadContract,
+} from './uploadVideo.upload';
 
 interface Course {
   course_id: string;
   title: string;
-  chapters?: Chapter[];
 }
 
 interface Chapter {
   chapter_id: string;
   title: string;
-  lessons?: Lesson[];
 }
 
 interface Lesson {
@@ -26,15 +32,17 @@ interface Lesson {
   title: string;
 }
 
-interface ChapterResponse {
-  chapter_id: string;
-  title: string;
+interface InitiateUploadData {
+  video_id: string;
+  upload_mode: 'single' | 'multipart';
+  storage_key: string;
+  upload_id: string | null;
+  part_size_bytes: number | null;
+  single_upload: SingleUploadContract | null;
+  multipart_parts: MultipartUploadPart[] | null;
 }
 
-interface LessonResponse {
-  lesson_id: string;
-  title: string;
-}
+type UploadPhase = 'idle' | 'initiating' | 'uploading' | 'finalizing';
 
 export default function UploadVideo() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -44,13 +52,16 @@ export default function UploadVideo() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploadPhase, setUploadPhase] = useState<UploadPhase>('idle');
+  const [progressPercent, setProgressPercent] = useState(0);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [currentAbortController, setCurrentAbortController] = useState<AbortController | null>(null);
 
   const {
     register,
     handleSubmit,
     setValue,
+    reset,
     watch,
     formState: { errors },
   } = useForm<UploadVideoFormData>({
@@ -58,18 +69,38 @@ export default function UploadVideo() {
     mode: 'onBlur',
     defaultValues: {
       title: '',
-      course_id: '',
-      chapter_id: undefined,
+      course_id: '' as never,
+      chapter_id: '' as never,
+      lesson_id: '' as never,
       video_file: undefined,
       duration: undefined,
     },
   });
 
   const watchedVideoFile = watch('video_file');
+  const isUploading = uploadPhase !== 'idle';
+  const uploadPhaseLabel = useMemo(() => {
+    switch (uploadPhase) {
+      case 'initiating':
+        return 'Preparing upload';
+      case 'uploading':
+        return 'Uploading to S3';
+      case 'finalizing':
+        return 'Finalizing lesson video';
+      default:
+        return null;
+    }
+  }, [uploadPhase]);
 
   useEffect(() => {
-    fetchCourses();
+    void fetchCourses();
   }, []);
+
+  useEffect(() => () => {
+    if (videoPreview) {
+      URL.revokeObjectURL(videoPreview);
+    }
+  }, [videoPreview]);
 
   async function fetchCourses() {
     setLoading(true);
@@ -95,7 +126,7 @@ export default function UploadVideo() {
     async function fetchChapters() {
       try {
         const response = await courseApi.getChapters(selectedCourse);
-        setChapters((response.data.data as ChapterResponse[] | undefined) ?? []);
+        setChapters((response.data.data as Chapter[] | undefined) ?? []);
       } catch (error) {
         console.error('Failed to load chapters:', error);
         setChapters([]);
@@ -116,7 +147,7 @@ export default function UploadVideo() {
     async function fetchLessons() {
       try {
         const response = await courseApi.getLessons(selectedCourse, selectedChapter);
-        setLessons((response.data.data as LessonResponse[] | undefined) ?? []);
+        setLessons((response.data.data as Lesson[] | undefined) ?? []);
       } catch (error) {
         console.error('Failed to load lessons:', error);
         setLessons([]);
@@ -127,66 +158,163 @@ export default function UploadVideo() {
     void fetchLessons();
   }, [selectedCourse, selectedChapter]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setValue('video_file', file, { shouldValidate: true });
-      setVideoPreview(URL.createObjectURL(file));
+    if (!file) {
+      return;
     }
+
+    if (videoPreview) {
+      URL.revokeObjectURL(videoPreview);
+    }
+
+    setValue('video_file', file, { shouldValidate: true });
+    setVideoPreview(URL.createObjectURL(file));
   };
 
-  // Shadow mode: Also run Zod validation separately to show toast on error
+  const handleCancelUpload = () => {
+    currentAbortController?.abort();
+  };
+
+  const resetFormState = () => {
+    if (videoPreview) {
+      URL.revokeObjectURL(videoPreview);
+    }
+
+    reset({
+      title: '',
+      course_id: '' as never,
+      chapter_id: '' as never,
+      lesson_id: '' as never,
+      video_file: undefined,
+      duration: undefined,
+    });
+    setSelectedCourse('');
+    setSelectedChapter('');
+    setSelectedLesson('');
+    setChapters([]);
+    setLessons([]);
+    setVideoPreview(null);
+    setProgressPercent(0);
+    setUploadPhase('idle');
+    setCurrentAbortController(null);
+  };
+
   const onSubmit: SubmitHandler<UploadVideoFormData> = async (data) => {
-    // Additional Zod validation in shadow mode
     const zodResult = uploadVideoSchema.safeParse(data);
     if (!zodResult.success) {
-      const zodErrors = zodResult.error.issues;
-      if (zodErrors.length > 0) {
-        const firstError = zodErrors[0];
+      const firstError = zodResult.error.issues[0];
+      if (firstError) {
         toast.error(firstError.message);
       }
       return;
     }
 
-    setUploading(true);
+    const abortController = new AbortController();
+    setCurrentAbortController(abortController);
+    setProgressPercent(0);
+    setUploadPhase('initiating');
+
+    let initiatedUpload: InitiateUploadData | null = null;
 
     try {
-      // File-based upload is not yet available.
-      // The backend VideoController::store() expects a 'url' field, not a binary file.
-      // No file-storage service exists in this implementation.
-      // Until a proper file-to-URL pipeline exists, we must reject uploads honestly.
-      toast.error('File-based video upload is not available yet. Please provide a video URL instead.');
-    } finally {
-      setUploading(false);
+      const initiateResponse = await lessonApi.initiateVideoUpload(data.lesson_id, {
+        title: data.title,
+        filename: data.video_file.name,
+        mime_type: data.video_file.type,
+        file_size_bytes: data.video_file.size,
+        duration: convertDurationMinutesToSeconds(data.duration),
+        sort_order: 0,
+      });
+
+      initiatedUpload = initiateResponse.data.data as InitiateUploadData;
+
+      setUploadPhase('uploading');
+
+      if (initiatedUpload.upload_mode === 'single' && initiatedUpload.single_upload) {
+        const etag = await uploadSingleVideoToS3(data.video_file, initiatedUpload.single_upload, {
+          signal: abortController.signal,
+          onProgress: setProgressPercent,
+        });
+
+        setUploadPhase('finalizing');
+        await lessonApi.completeVideoUpload(data.lesson_id, initiatedUpload.video_id, { etag });
+      } else if (initiatedUpload.upload_mode === 'multipart' && initiatedUpload.multipart_parts && initiatedUpload.part_size_bytes) {
+        const parts = await uploadMultipartVideoToS3(
+          data.video_file,
+          initiatedUpload.multipart_parts,
+          initiatedUpload.part_size_bytes,
+          {
+            signal: abortController.signal,
+            onProgress: setProgressPercent,
+          }
+        );
+
+        setUploadPhase('finalizing');
+        await lessonApi.completeVideoUpload(data.lesson_id, initiatedUpload.video_id, {
+          upload_id: initiatedUpload.upload_id,
+          parts,
+        });
+      } else {
+        throw new Error('Upload contract was incomplete');
+      }
+
+      toast.success('Video uploaded successfully');
+      resetFormState();
+    } catch (error) {
+      console.error('Failed to upload video:', error);
+
+      if (initiatedUpload) {
+        try {
+          await lessonApi.abortVideoUpload(data.lesson_id, initiatedUpload.video_id, {
+            upload_id: initiatedUpload.upload_id ?? undefined,
+          });
+        } catch (abortError) {
+          console.error('Failed to abort video upload:', abortError);
+        }
+      }
+
+      if (isAbortError(error)) {
+        toast.error('Upload canceled');
+      } else {
+        toast.error('Failed to upload video');
+      }
+
+      setUploadPhase('idle');
+      setProgressPercent(0);
+      setCurrentAbortController(null);
     }
   };
 
   return (
     <div>
       <Toaster position="top-right" />
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Upload Video</h1>
+      <h1 className="mb-8 text-2xl font-bold text-gray-900">Upload Video</h1>
 
       <div className="max-w-2xl">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-white rounded-xl shadow p-6 space-y-6"
+          className="space-y-6 rounded-xl bg-white p-6 shadow"
         >
-          {/* Course Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="course_id" className="mb-2 block text-sm font-medium text-gray-700">
               Select Course *
             </label>
             <select
+              id="course_id"
               value={selectedCourse}
               onChange={(e) => {
-                setSelectedCourse(e.target.value);
-                setValue('course_id', e.target.value, { shouldValidate: true });
+                const value = e.target.value;
+                setSelectedCourse(value);
+                setValue('course_id', value as never, { shouldValidate: true });
                 setSelectedChapter('');
                 setSelectedLesson('');
+                setValue('chapter_id', '' as never, { shouldValidate: true });
+                setValue('lesson_id', '' as never, { shouldValidate: true });
                 setLessons([]);
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              required
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              disabled={loading || isUploading}
             >
               <option value="">Choose a course</option>
               {courses.map((course) => (
@@ -195,25 +323,27 @@ export default function UploadVideo() {
                 </option>
               ))}
             </select>
+            {errors.course_id && (
+              <p className="mt-1 text-sm text-red-500">{errors.course_id.message}</p>
+            )}
           </div>
 
-          {/* Chapter Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="chapter_id" className="mb-2 block text-sm font-medium text-gray-700">
               Select Chapter *
             </label>
             <select
+              id="chapter_id"
               value={selectedChapter}
               onChange={(e) => {
-                setSelectedChapter(e.target.value);
-                setValue('chapter_id', e.target.value || undefined, {
-                  shouldValidate: true,
-                });
+                const value = e.target.value;
+                setSelectedChapter(value);
+                setValue('chapter_id', value as never, { shouldValidate: true });
                 setSelectedLesson('');
+                setValue('lesson_id', '' as never, { shouldValidate: true });
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={!selectedCourse}
-              required
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              disabled={!selectedCourse || isUploading}
             >
               <option value="">Choose a chapter</option>
               {chapters.map((chapter) => (
@@ -222,19 +352,25 @@ export default function UploadVideo() {
                 </option>
               ))}
             </select>
+            {errors.chapter_id && (
+              <p className="mt-1 text-sm text-red-500">{errors.chapter_id.message}</p>
+            )}
           </div>
 
-          {/* Lesson Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="lesson_id" className="mb-2 block text-sm font-medium text-gray-700">
               Select Lesson *
             </label>
             <select
+              id="lesson_id"
               value={selectedLesson}
-              onChange={(e) => setSelectedLesson(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={!selectedChapter}
-              required
+              onChange={(e) => {
+                const value = e.target.value;
+                setSelectedLesson(value);
+                setValue('lesson_id', value as never, { shouldValidate: true });
+              }}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              disabled={!selectedChapter || isUploading}
             >
               <option value="">Choose a lesson</option>
               {lessons.map((lesson) => (
@@ -243,42 +379,33 @@ export default function UploadVideo() {
                 </option>
               ))}
             </select>
+            {errors.lesson_id && (
+              <p className="mt-1 text-sm text-red-500">{errors.lesson_id.message}</p>
+            )}
           </div>
 
-          {/* Video Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="title" className="mb-2 block text-sm font-medium text-gray-700">
               Video Title *
             </label>
             <input
+              id="title"
               type="text"
               {...register('title')}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="Enter video title"
+              disabled={isUploading}
             />
             {errors.title && (
               <p className="mt-1 text-sm text-red-500">{errors.title.message}</p>
             )}
           </div>
 
-          {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description
-            </label>
-            <textarea
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              rows={4}
-              placeholder="Enter video description"
-            />
-          </div>
-
-          {/* Video File Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="video_file" className="mb-2 block text-sm font-medium text-gray-700">
               Video File *
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <div className="rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
               <svg
                 className="mx-auto h-12 w-12 text-gray-400"
                 stroke="currentColor"
@@ -295,18 +422,20 @@ export default function UploadVideo() {
               </svg>
               <p className="mt-2 text-sm text-gray-600">
                 Drag and drop your video file here, or{' '}
-                <label className="text-indigo-600 hover:text-indigo-500 cursor-pointer">
+                <label className="cursor-pointer text-indigo-600 hover:text-indigo-500">
                   browse
                   <input
+                    id="video_file"
                     type="file"
                     accept="video/*"
                     onChange={handleFileChange}
                     className="hidden"
+                    disabled={isUploading}
                   />
                 </label>
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                MP4, WebM, or OGV up to 500MB
+                MP4, WebM, OGV, or MOV up to 500MB
               </p>
               {videoPreview && (
                 <p className="mt-2 text-sm text-green-600">
@@ -321,75 +450,64 @@ export default function UploadVideo() {
             )}
           </div>
 
-          {/* Duration */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="duration" className="mb-2 block text-sm font-medium text-gray-700">
               Duration (minutes)
             </label>
             <input
+              id="duration"
               type="number"
               {...register('duration', {
                 setValueAs: (value) => (value === '' ? undefined : parseFloat(value)),
               })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="e.g., 15"
               step="0.1"
               min="0"
+              disabled={isUploading}
             />
             {errors.duration && (
               <p className="mt-1 text-sm text-red-500">{errors.duration.message}</p>
             )}
           </div>
 
-          {/* Free Preview */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="is_free_preview"
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-            />
-            <label
-              htmlFor="is_free_preview"
-              className="ml-2 block text-sm text-gray-700"
-            >
-              Make this video available as a free preview
-            </label>
-          </div>
+          {uploadPhaseLabel && (
+            <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+              <div className="mb-2 flex items-center justify-between text-sm font-medium text-indigo-900">
+                <span>{uploadPhaseLabel}</span>
+                <span>{progressPercent}%</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-indigo-100">
+                <div
+                  className="h-2 rounded-full bg-indigo-600 transition-all"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+          )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={uploading}
-            className={`w-full py-3 px-4 rounded-lg font-semibold text-white ${
-              uploading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-indigo-600 hover:bg-indigo-700'
-            }`}
-          >
-            {uploading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Uploading...
-              </span>
-            ) : (
-              'Upload Video'
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={isUploading}
+              className={`flex-1 rounded-lg px-4 py-3 font-semibold text-white ${
+                isUploading
+                  ? 'cursor-not-allowed bg-gray-400'
+                  : 'bg-indigo-600 hover:bg-indigo-700'
+              }`}
+            >
+              {isUploading ? 'Uploading...' : 'Upload Video'}
+            </button>
+            {isUploading && (
+              <button
+                type="button"
+                onClick={handleCancelUpload}
+                className="rounded-lg border border-gray-300 px-4 py-3 font-semibold text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
             )}
-          </button>
+          </div>
         </form>
       </div>
     </div>

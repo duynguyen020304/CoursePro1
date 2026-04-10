@@ -160,6 +160,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('/', [LessonController::class, 'update']);
             Route::delete('/', [LessonController::class, 'destroy']);
             Route::post('/videos', [VideoController::class, 'store']);
+            Route::post('/videos/uploads/initiate', [VideoController::class, 'initiateUpload']);
+            Route::post('/videos/{video}/uploads/complete', [VideoController::class, 'completeUpload']);
+            Route::post('/videos/{video}/uploads/abort', [VideoController::class, 'abortUpload']);
             Route::put('/videos/{video}', [VideoController::class, 'update']);
             Route::delete('/videos/{video}', [VideoController::class, 'destroy']);
             Route::post('/resources', [ResourceController::class, 'store']);

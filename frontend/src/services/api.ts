@@ -484,6 +484,12 @@ export const lessonApi = {
     apiData<{ success: boolean; data: unknown }>('lessonApi.getVideos')(api.get(`/lessons/${lessonId}/videos`)),
   addVideo: (lessonId: string | number, data: Record<string, unknown>) =>
     apiData<{ success: boolean; message?: string; data: unknown }>('lessonApi.addVideo')(api.post(`/lessons/${lessonId}/videos`, data)),
+  initiateVideoUpload: (lessonId: string | number, data: Record<string, unknown>) =>
+    apiData<{ success: boolean; message?: string; data: unknown }>('lessonApi.initiateVideoUpload')(api.post(`/lessons/${lessonId}/videos/uploads/initiate`, data)),
+  completeVideoUpload: (lessonId: string | number, videoId: string | number, data: Record<string, unknown>) =>
+    apiData<{ success: boolean; message?: string; data: unknown }>('lessonApi.completeVideoUpload')(api.post(`/lessons/${lessonId}/videos/${videoId}/uploads/complete`, data)),
+  abortVideoUpload: (lessonId: string | number, videoId: string | number, data?: Record<string, unknown>) =>
+    apiData<{ success: boolean; message?: string }>('lessonApi.abortVideoUpload')(api.post(`/lessons/${lessonId}/videos/${videoId}/uploads/abort`, data ?? {})),
   updateVideo: (lessonId: string | number, videoId: string | number, data: Record<string, unknown>) =>
     apiData<{ success: boolean; message?: string; data: unknown }>('lessonApi.updateVideo')(api.put(`/lessons/${lessonId}/videos/${videoId}`, data)),
   deleteVideo: (lessonId: string | number, videoId: string | number) =>

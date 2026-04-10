@@ -34,7 +34,11 @@ class CourseLesson extends Model
 
     public function videos(): HasMany
     {
-        return $this->hasMany(CourseVideo::class, 'lesson_id', 'lesson_id');
+        return $this->hasMany(CourseVideo::class, 'lesson_id', 'lesson_id')
+            ->where(function ($query) {
+                $query->whereNull('upload_status')
+                    ->orWhere('upload_status', 'ready');
+            });
     }
 
     public function resources(): HasMany
