@@ -418,8 +418,9 @@ jobs:
           php artisan view:cache
           php artisan event:cache
 
-          # Run migrations
+          # Run migrations and seed baseline data on every deployment.
           php artisan migrate --force
+          php artisan db:seed --force
 
           # Create storage link
           php artisan storage:link
