@@ -95,7 +95,11 @@ jobs:
           path: |
             backend/app
             backend/bootstrap
+            backend/config
+            backend/database
             backend/public
+            backend/resources
+            backend/routes
             backend/storage
             backend/vendor
             backend/composer.json
