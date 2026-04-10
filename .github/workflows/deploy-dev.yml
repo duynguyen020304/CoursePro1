@@ -54,7 +54,6 @@ jobs:
             frontend/dist
             frontend/package.json
             frontend/package-lock.json
-            frontend/node_modules
           retention-days: 1
 
       # ------------------------------------------
@@ -367,8 +366,6 @@ jobs:
           fi
           # Move new files
           mv /tmp/coursepro-frontend-deploy/dist .
-          rm -rf node_modules
-          mv /tmp/coursepro-frontend-deploy/node_modules .
           mv /tmp/coursepro-frontend-deploy/package.json .
           mv /tmp/coursepro-frontend-deploy/package-lock.json .
           rm -rf /tmp/coursepro-frontend-deploy
@@ -428,14 +425,8 @@ jobs:
           /root/.bun/bin/pm2 delete coursepro-frontend 2>/dev/null || true
           /root/.bun/bin/pm2 delete coursepro-api 2>/dev/null || true
 
-          # Start Frontend from the deployed frontend directory.
-          cat > /root/CoursePro/frontend/start.sh << 'EOFFRONT'
-          #!/bin/bash
-          cd /root/CoursePro/frontend
-          exec /root/.bun/bin/bun run preview -- --host 0.0.0.0 --port 5173
-          EOFFRONT
-          chmod +x /root/CoursePro/frontend/start.sh
-          /root/.bun/bin/pm2 start /root/CoursePro/frontend/start.sh --name "coursepro-frontend"
+          # Serve the built frontend as static files; no Vite runtime is needed in production.
+          /root/.bun/bin/pm2 serve /root/CoursePro/frontend/dist 5173 --name "coursepro-frontend" --spa
 
           # Start Backend
           cat > /root/CoursePro/backend/start.sh << 'EOFSH'
