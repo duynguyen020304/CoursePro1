@@ -332,7 +332,7 @@ jobs:
           export DB_DATABASE='${{ secrets.DB_DATABASE }}'
           export DB_USERNAME='${{ secrets.DB_USERNAME }}'
           export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
-          export CACHE_DRIVER='file'
+          export CACHE_STORE='file'
           export SESSION_DRIVER='file'
           export QUEUE_CONNECTION='sync'
           export MAIL_MAILER='smtp'
