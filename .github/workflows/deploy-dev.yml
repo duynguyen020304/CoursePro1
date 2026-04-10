@@ -43,7 +43,7 @@ jobs:
       - name: Install & Build Frontend
         run: |
           cd frontend
-          bun install
+          bun install --no-frozen-lockfile
           bun run build
 
       - name: Upload Frontend Artifact
@@ -378,7 +378,7 @@ jobs:
 
           # Install dependencies
           echo "Installing frontend dependencies..."
-          /root/.bun/bin/bun install --production
+          /root/.bun/bin/bun install --production --no-frozen-lockfile
 
           # ==========================================
           # 6. Deploy Backend
