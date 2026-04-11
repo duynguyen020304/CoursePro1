@@ -7,13 +7,11 @@ use App\Models\UserAccount;
 use App\Models\RefreshToken;
 use App\Models\Role;
 use App\Models\Student;
-use App\Support\SeedData\DefaultRoles;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class AuthService
 {
@@ -49,9 +47,7 @@ class AuthService
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
-            throw ValidationException::withMessages([
-                'google' => ['Failed to authenticate with Google.'],
-            ]);
+            throw new HttpException(400, 'Failed to authenticate with Google.');
         }
 
         return $response->json();
@@ -71,9 +67,7 @@ class AuthService
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
-            throw ValidationException::withMessages([
-                'google' => ['Failed to retrieve user information from Google.'],
-            ]);
+            throw new HttpException(400, 'Failed to retrieve user information from Google.');
         }
 
         return $response->json();
@@ -85,11 +79,15 @@ class AuthService
      */
     public function findOrCreateGoogleUser(array $googleUser): array
     {
-        $googleSub = $googleUser['id'];
-        $email = $googleUser['email'];
+        $googleSub = $googleUser['id'] ?? $googleUser['sub'] ?? null;
+        $email = $googleUser['email'] ?? null;
         $emailVerified = $googleUser['verified_email'] ?? false;
         $name = $googleUser['name'] ?? '';
         $picture = $googleUser['picture'] ?? null;
+
+        if (!$googleSub) {
+            throw new HttpException(400, 'Google account identifier is missing.');
+        }
 
         // Parse name into first/last
         $nameParts = explode(' ', $name, 2);
@@ -99,12 +97,17 @@ class AuthService
         // Step A: Look up existing Google-linked account (anti-takeover)
         $existingAccount = UserAccount::where('provider', 'google')
             ->where('provider_account_id', $googleSub)
-            ->where('is_deleted', false)
+            ->whereNull('deleted_at')
             ->first();
 
         if ($existingAccount) {
-            // Found existing Google link - use this user
             $user = $existingAccount->user;
+            $this->assertAccountCanAuthenticate($user, $existingAccount);
+
+            if ($picture && !$user->profile_image) {
+                $user->forceFill(['profile_image' => $picture])->save();
+            }
+
             Log::info('Google OAuth: Found existing linked account', [
                 'user_id' => $user->user_id,
                 'google_sub' => $googleSub,
@@ -112,18 +115,20 @@ class AuthService
             return [$user, $existingAccount, false]; // false = not new user
         }
 
-        // Step B: Link Google to existing email account
-        if ($emailVerified && $email) {
-            $emailAccount = UserAccount::where('email', $email)
-                ->where('provider', 'email')
-                ->where('is_deleted', false)
-                ->first();
+        if (!$emailVerified) {
+            throw new HttpException(400, 'Email not verified by Google.');
+        }
+
+        if ($email) {
+            $emailAccount = UserAccount::findByEmail($email);
 
             if ($emailAccount) {
-                // Link Google identity to existing email account
+                $user = $emailAccount->user;
+                $this->assertAccountCanAuthenticate($user, $emailAccount);
+
                 $googleAccount = UserAccount::create([
                     'user_id' => $emailAccount->user_id,
-                    'provider' => 'google',
+                    'provider' => UserAccount::PROVIDER_GOOGLE,
                     'provider_account_id' => $googleSub,
                     'email' => $email,
                     'email_verified_at' => now(),
@@ -131,7 +136,10 @@ class AuthService
                     'is_verified' => true,
                 ]);
 
-                $user = $emailAccount->user;
+                if ($picture && !$user->profile_image) {
+                    $user->forceFill(['profile_image' => $picture])->save();
+                }
+
                 Log::info('Google OAuth: Linked Google to existing email account', [
                     'user_id' => $user->user_id,
                     'email' => $email,
@@ -156,7 +164,7 @@ class AuthService
 
             $userAccount = UserAccount::create([
                 'user_id' => $userId,
-                'provider' => 'google',
+                'provider' => UserAccount::PROVIDER_GOOGLE,
                 'provider_account_id' => $googleSub,
                 'email' => $email,
                 'email_verified_at' => $emailVerified ? now() : null,
@@ -218,20 +226,16 @@ class AuthService
         $refreshToken = RefreshToken::findValidByToken($hashedToken);
 
         if (!$refreshToken) {
-            throw ValidationException::withMessages([
-                'token' => ['Invalid or expired refresh token.'],
-            ]);
+            throw new HttpException(401, 'Invalid or expired refresh token.');
         }
 
-        $userAccount = UserAccount::where('user_id', $refreshToken->user_id)
-            ->where('is_deleted', false)
-            ->first();
+        $userAccount = UserAccount::findPreferredForUser($refreshToken->user_id);
 
         if (!$userAccount) {
-            throw ValidationException::withMessages([
-                'token' => ['User account not found.'],
-            ]);
+            throw new HttpException(401, 'User account not found.');
         }
+
+        $this->assertAccountCanAuthenticate($userAccount->user, $userAccount);
 
         return [$userAccount, $refreshToken];
     }
@@ -312,5 +316,20 @@ class AuthService
             'refresh_token' => $rawRefreshToken,
             'is_new_user' => $isNewUser,
         ];
+    }
+
+    private function assertAccountCanAuthenticate(?User $user, UserAccount $account): void
+    {
+        if (!$user || $user->trashed() || $user->is_deleted) {
+            throw new HttpException(401, 'This account has been deleted.');
+        }
+
+        if ($account->trashed() || $account->is_deleted) {
+            throw new HttpException(401, 'This account has been deleted.');
+        }
+
+        if (!$user->is_active || !$account->is_active) {
+            throw new HttpException(401, 'This account has been deactivated.');
+        }
     }
 }

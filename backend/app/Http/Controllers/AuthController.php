@@ -20,7 +20,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class AuthController extends Controller
 {
@@ -73,7 +75,14 @@ class AuthController extends Controller
         $request->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
-            'email' => 'required|email|unique:user_accounts,email',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('user_accounts', 'email')
+                    ->where(fn ($query) => $query
+                        ->where('provider', UserAccount::PROVIDER_EMAIL)
+                        ->whereNull('deleted_at')),
+            ],
             'password' => 'required|min:6|confirmed',
         ]);
 
@@ -91,7 +100,7 @@ class AuthController extends Controller
 
             $userAccount = UserAccount::create([
                 'user_id' => $userId,
-                'provider' => 'email',
+                'provider' => UserAccount::PROVIDER_EMAIL,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'is_verified' => false,
@@ -168,7 +177,14 @@ class AuthController extends Controller
     public function resendVerification(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:user_accounts,email',
+            'email' => [
+                'required',
+                'email',
+                Rule::exists('user_accounts', 'email')
+                    ->where(fn ($query) => $query
+                        ->where('provider', UserAccount::PROVIDER_EMAIL)
+                        ->whereNull('deleted_at')),
+            ],
         ]);
 
         $userAccount = UserAccount::findByEmail($request->email);
@@ -194,7 +210,14 @@ class AuthController extends Controller
     public function forgotPassword(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:user_accounts,email',
+            'email' => [
+                'required',
+                'email',
+                Rule::exists('user_accounts', 'email')
+                    ->where(fn ($query) => $query
+                        ->where('provider', UserAccount::PROVIDER_EMAIL)
+                        ->whereNull('deleted_at')),
+            ],
         ]);
 
         $userAccount = UserAccount::findByEmail($request->email);
@@ -232,7 +255,14 @@ class AuthController extends Controller
     public function forgotPasswordJwt(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:user_accounts,email',
+            'email' => [
+                'required',
+                'email',
+                Rule::exists('user_accounts', 'email')
+                    ->where(fn ($query) => $query
+                        ->where('provider', UserAccount::PROVIDER_EMAIL)
+                        ->whereNull('deleted_at')),
+            ],
         ]);
 
         $userAccount = UserAccount::findByEmail($request->email);
@@ -269,7 +299,7 @@ class AuthController extends Controller
             'code' => 'required|string|size:6',
         ]);
 
-        $userAccount = UserAccount::where('email', $request->email)->first();
+        $userAccount = UserAccount::findByEmail($request->email);
 
         if (!$userAccount) {
             return $this->error('Account not found', 404);
@@ -300,7 +330,7 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $userAccount = UserAccount::where('email', $request->email)->first();
+        $userAccount = UserAccount::findByEmail($request->email);
 
         if (!$userAccount) {
             return $this->error('Account not found', 404);
@@ -454,8 +484,12 @@ class AuthController extends Controller
                 ->withCookie($this->makeAccessTokenCookie($result['access_token']))
                 ->withCookie($this->makeRefreshTokenCookie($result['refresh_token']));
 
+        } catch (HttpExceptionInterface $e) {
+            return $this->error($e->getMessage() ?: 'Authentication failed', $e->getStatusCode());
         } catch (ValidationException $e) {
-            return $this->error('Authentication failed', 401);
+            $message = collect($e->errors())->flatten()->first() ?: 'Authentication failed';
+
+            return $this->error($message, 400);
         } catch (\Exception $e) {
             Log::error('Google OAuth error', [
                 'message' => $e->getMessage(),
@@ -498,7 +532,7 @@ class AuthController extends Controller
                 ->withCookie($this->makeAccessTokenCookie($accessToken))
                 ->withCookie($this->makeRefreshTokenCookie($newRefreshToken));
 
-        } catch (ValidationException $e) {
+        } catch (HttpExceptionInterface|ValidationException $e) {
             return $this->error('Invalid or expired refresh token', 401)
                 ->withCookie($this->expireCookie(name: 'access_token', path: '/'))
                 ->withCookie($this->expireCookie(name: 'refresh_token', path: '/api/auth'));

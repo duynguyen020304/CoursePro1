@@ -6,17 +6,22 @@ use App\Models\Traits\HasAuditColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
 class UserAccount extends Authenticatable
 {
     use HasApiTokens, HasFactory, HasAuditColumns;
 
-    protected $primaryKey = 'user_id';
+    public const PROVIDER_EMAIL = 'email';
+    public const PROVIDER_GOOGLE = 'google';
+
+    protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
+        'id',
         'user_id',
         'provider',
         'provider_account_id',
@@ -33,10 +38,21 @@ class UserAccount extends Authenticatable
     protected function casts(): array
     {
         return [
+            'id' => 'string',
+            'user_id' => 'string',
             'password' => 'hashed',
             'email_verified_at' => 'datetime',
             'is_verified' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $account) {
+            if (!$account->getKey()) {
+                $account->{$account->getKeyName()} = (string) Str::uuid();
+            }
+        });
     }
 
     public function user(): BelongsTo
@@ -58,8 +74,22 @@ class UserAccount extends Authenticatable
     public static function findByEmail(string $email): ?self
     {
         return static::where('email', $email)
-            ->where('provider', 'email')
+            ->where('provider', self::PROVIDER_EMAIL)
             ->whereNull('deleted_at')
+            ->first();
+    }
+
+    public static function findPreferredForUser(string $userId): ?self
+    {
+        return static::query()
+            ->where('user_id', $userId)
+            ->whereNull('deleted_at')
+            ->where('is_active', true)
+            ->orderByRaw(
+                "CASE WHEN provider = ? THEN 0 WHEN provider = ? THEN 1 ELSE 2 END",
+                [self::PROVIDER_EMAIL, self::PROVIDER_GOOGLE]
+            )
+            ->orderBy('created_at')
             ->first();
     }
 

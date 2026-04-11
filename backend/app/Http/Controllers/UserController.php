@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserAccount;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -13,7 +14,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::with(['role', 'student', 'instructor', 'userAccount']);
+        $query = User::with(['role', 'student', 'instructor', 'userAccounts']);
 
         // Include soft-deleted records
         if ($request->boolean('include_deleted', false)) {
@@ -30,7 +31,7 @@ class UserController extends Controller
         }
 
         if ($request->filled('email')) {
-            $query->whereHas('userAccount', function ($q) use ($request) {
+            $query->whereHas('userAccounts', function ($q) use ($request) {
                 $q->where('email', 'like', '%' . $request->email . '%');
             });
         }
@@ -39,7 +40,7 @@ class UserController extends Controller
 
         // Add email to response from userAccount
         $users->getCollection()->transform(function ($user) {
-            $user->email = $user->userAccount?->email;
+            $user->email = $user->email;
             return $user;
         });
 
@@ -103,7 +104,7 @@ class UserController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $query = User::with(['role', 'student', 'instructor', 'orders', 'reviews', 'userAccount']);
+        $query = User::with(['role', 'student', 'instructor', 'orders', 'reviews', 'userAccounts']);
 
         // Include soft-deleted records
         if ($request->boolean('include_deleted', false)) {
@@ -112,7 +113,7 @@ class UserController extends Controller
 
         $user = $query->findOrFail($id);
 
-        $user->email = $user->userAccount?->email;
+        $user->email = $user->email;
 
         return $this->success($user, 'User retrieved successfully');
     }
@@ -122,12 +123,21 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $user = User::with('userAccount')->findOrFail($id);
+        $user = User::with(['userAccount', 'userAccounts'])->findOrFail($id);
 
         $request->validate([
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|max:255|unique:user_accounts,email,' . $user->user_id . ',user_id',
+            'email' => [
+                'sometimes',
+                'email',
+                'max:255',
+                Rule::unique('user_accounts', 'email')
+                    ->ignore(optional($user->userAccount)->id)
+                    ->where(fn ($query) => $query
+                        ->where('provider', UserAccount::PROVIDER_EMAIL)
+                        ->whereNull('deleted_at')),
+            ],
             'role_id' => 'sometimes|exists:roles,role_id',
             'profile_image' => 'nullable|string|max:255',
         ]);
@@ -140,8 +150,8 @@ class UserController extends Controller
             $user->userAccount->update(['email' => $request->email]);
         }
 
-        $user->load(['role', 'student', 'instructor', 'userAccount']);
-        $user->email = $user->userAccount?->email;
+        $user->load(['role', 'student', 'instructor', 'userAccount', 'userAccounts']);
+        $user->email = $user->email;
 
         return $this->success($user, 'User updated successfully');
     }
@@ -172,7 +182,7 @@ class UserController extends Controller
         $user->update(['role_id' => $request->role_id]);
 
         return $this->success(
-            $user->fresh(['role', 'student', 'instructor', 'userAccount']),
+            $user->fresh(['role', 'student', 'instructor', 'userAccount', 'userAccounts']),
             'Role assigned successfully'
         );
     }

@@ -42,7 +42,13 @@ class User extends Model
 
     public function userAccount(): HasOne
     {
-        return $this->hasOne(UserAccount::class, 'user_id', 'user_id');
+        return $this->hasOne(UserAccount::class, 'user_id', 'user_id')
+            ->where('provider', UserAccount::PROVIDER_EMAIL);
+    }
+
+    public function userAccounts(): HasMany
+    {
+        return $this->hasMany(UserAccount::class, 'user_id', 'user_id');
     }
 
     public function instructor(): HasOne
@@ -141,7 +147,19 @@ class User extends Model
      */
     public function getEmailAttribute(): ?string
     {
-        return $this->userAccount?->email;
+        if ($this->relationLoaded('userAccounts')) {
+            $preferred = $this->userAccounts
+                ->sortBy(fn (UserAccount $account) => match ($account->provider) {
+                    UserAccount::PROVIDER_EMAIL => 0,
+                    UserAccount::PROVIDER_GOOGLE => 1,
+                    default => 2,
+                })
+                ->first();
+
+            return $preferred?->email;
+        }
+
+        return UserAccount::findPreferredForUser($this->user_id)?->email;
     }
 
     /**
@@ -149,6 +167,14 @@ class User extends Model
      */
     public function getIsVerifiedAttribute(): bool
     {
-        return $this->userAccount?->is_verified ?? false;
+        if ($this->relationLoaded('userAccounts')) {
+            return (bool) optional(
+                $this->userAccounts
+                    ->sortByDesc(fn (UserAccount $account) => (int) $account->is_verified)
+                    ->first()
+            )->is_verified;
+        }
+
+        return UserAccount::findPreferredForUser($this->user_id)?->is_verified ?? false;
     }
 }
