@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { adminUserApi, courseApi, orderApi } from '../../services/api';
 
@@ -28,74 +29,67 @@ interface Order {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<Stats>({
+  const [dismissedNotificationIds, setDismissedNotificationIds] = useState<number[]>([]);
+  const { data, isLoading } = useQuery<{ stats: Stats; recentOrders: Order[] }>({
+    queryKey: ['admin', 'dashboard'],
+    queryFn: async () => {
+      const [usersRes, coursesRes, ordersRes] = await Promise.all([
+        adminUserApi.list({ page: 1, per_page: 1 }).catch(() => null),
+        courseApi.list({ page: 1, per_page: 1 }).catch(() => null),
+        orderApi.list({ page: 1, per_page: 5 }).catch(() => null),
+      ]);
+
+      const recentOrders = (ordersRes?.data?.data ?? []) as Order[];
+
+      return {
+        stats: {
+          totalUsers: usersRes?.data?.totalItem ?? 0,
+          totalCourses: coursesRes?.data?.totalItem ?? 0,
+          totalOrders: ordersRes?.data?.totalItem ?? 0,
+          totalRevenue: recentOrders.reduce((sum: number, order: Order) => sum + (order.total_amount || 0), 0),
+        },
+        recentOrders: recentOrders.slice(0, 5),
+      };
+    },
+  });
+
+  const stats = data?.stats ?? {
     totalUsers: 0,
     totalCourses: 0,
     totalOrders: 0,
     totalRevenue: 0,
-  });
-  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
+  };
+  const recentOrders = data?.recentOrders ?? [];
 
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const [usersRes, coursesRes, ordersRes] = await Promise.all([
-          adminUserApi.list({ page: 1, per_page: 1 }).catch(() => null),
-          courseApi.list({ page: 1, per_page: 1 }).catch(() => null),
-          orderApi.list({ page: 1, per_page: 5 }).catch(() => null),
-        ]);
-
-        const newStats: Stats = {
-          totalUsers: usersRes?.data?.totalItem ?? 0,
-          totalCourses: coursesRes?.data?.totalItem ?? 0,
-          totalOrders: ordersRes?.data?.totalItem ?? 0,
-          totalRevenue: (() => {
-            const ordersData = ordersRes?.data?.data ?? [];
-            return ordersData.reduce((sum: number, order: Order) => sum + (order.total_amount || 0), 0);
-          })(),
-        };
-
-        setStats(newStats);
-
-        if (ordersRes?.data?.data) {
-          setRecentOrders(ordersRes.data.data.slice(0, 5));
-        }
-
-        // Generate notifications
-        const newNotifications: Notification[] = [];
-        if (newStats.totalOrders > 0) {
-          newNotifications.push({
-            id: 1,
-            type: 'info',
-            message: `${newStats.totalOrders} new order(s) pending review`,
-            time: '5 mins ago',
-          });
-        }
-        if (newStats.totalUsers > 10) {
-          newNotifications.push({
-            id: 2,
-            type: 'success',
-            message: '10+ new students joined this week!',
-            time: '1 hour ago',
-          });
-        }
-        setNotifications(newNotifications);
-      } catch (error) {
-        console.error('Failed to fetch dashboard stats:', error);
-      } finally {
-        setLoading(false);
-      }
+  const notifications = useMemo(() => {
+    const nextNotifications: Notification[] = [];
+    if (stats.totalOrders > 0) {
+      nextNotifications.push({
+        id: 1,
+        type: 'info',
+        message: `${stats.totalOrders} new order(s) pending review`,
+        time: '5 mins ago',
+      });
     }
-    fetchStats();
-  }, []);
+    if (stats.totalUsers > 10) {
+      nextNotifications.push({
+        id: 2,
+        type: 'success',
+        message: '10+ new students joined this week!',
+        time: '1 hour ago',
+      });
+    }
+
+    return nextNotifications.filter(
+      (notification) => !dismissedNotificationIds.includes(notification.id)
+    );
+  }, [dismissedNotificationIds, stats.totalOrders, stats.totalUsers]);
 
   const dismissNotification = (id: number) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    setDismissedNotificationIds((prev) => [...prev, id]);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>

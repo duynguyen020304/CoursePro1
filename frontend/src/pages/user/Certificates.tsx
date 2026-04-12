@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { orderApi } from '../../services/api';
 import jsPDF from 'jspdf';
 
@@ -19,52 +20,42 @@ interface CertificateProps {
 }
 
 export default function Certificates() {
-  const [certificates, setCertificates] = useState<Certificate[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
   const [generatingPdf, setGeneratingPdf] = useState(false);
 
-  useEffect(() => {
-    async function fetchCertificates() {
-      try {
-        // T12/T13: Service layer returns { data: <validated_response> }
-        // For paginated: validated_response = { success, message, data: [...orders], pagination... }
-        const response = await orderApi.list();
-        const orders = (response.data?.data || []) as unknown as Array<{
+  const { data: certificates = [], isLoading } = useQuery<Certificate[]>({
+    queryKey: ['certificates'],
+    queryFn: async () => {
+      // T12/T13: Service layer returns { data: <validated_response> }
+      // For paginated: validated_response = { success, message, data: [...orders], pagination... }
+      const response = await orderApi.list();
+      const orders = (response.data?.data || []) as unknown as Array<{
+        order_id?: string;
+        status?: string;
+        course?: { course_id?: string | number; title?: string };
+        details?: Array<{ course_id?: string | number; course?: { title?: string } }>;
+        user?: { first_name?: string; last_name?: string };
+        created_at?: string | null;
+      }>;
+
+      return orders
+        .filter((order: { status?: string }) => order.status === 'completed')
+        .map((order: {
           order_id?: string;
-          status?: string;
           course?: { course_id?: string | number; title?: string };
           details?: Array<{ course_id?: string | number; course?: { title?: string } }>;
           user?: { first_name?: string; last_name?: string };
           created_at?: string | null;
-        }>;
-
-        const completedOrders = orders
-          .filter((order: { status?: string }) => order.status === 'completed')
-          .map((order: {
-            order_id?: string;
-            course?: { course_id?: string | number; title?: string };
-            details?: Array<{ course_id?: string | number; course?: { title?: string } }>;
-            user?: { first_name?: string; last_name?: string };
-            created_at?: string | null;
-          }) => ({
-            certificate_id: `CERT-${order.order_id?.substring(0, 8).toUpperCase() || 'UNKNOWN'}`,
-            course_id: order.details?.[0]?.course_id || order.course?.course_id || 'unknown',
-            course_name: order.details?.[0]?.course?.title || order.course?.title || 'Unknown Course',
-            student_name: `${order.user?.first_name || ''} ${order.user?.last_name || ''}`.trim() || 'Student',
-            completion_date: order.created_at || '',
-            certificate_url: `/certificates/${order.details?.[0]?.course_id || order.course?.course_id || 'unknown'}`,
-          }));
-
-        setCertificates(completedOrders);
-      } catch (error) {
-        console.error('Failed to fetch certificates:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchCertificates();
-  }, []);
+        }) => ({
+          certificate_id: `CERT-${order.order_id?.substring(0, 8).toUpperCase() || 'UNKNOWN'}`,
+          course_id: order.details?.[0]?.course_id || order.course?.course_id || 'unknown',
+          course_name: order.details?.[0]?.course?.title || order.course?.title || 'Unknown Course',
+          student_name: `${order.user?.first_name || ''} ${order.user?.last_name || ''}`.trim() || 'Student',
+          completion_date: order.created_at || '',
+          certificate_url: `/certificates/${order.details?.[0]?.course_id || order.course?.course_id || 'unknown'}`,
+        }));
+    },
+  });
 
   const generatePDF = async (cert: CertificateProps) => {
     setGeneratingPdf(true);
@@ -167,7 +158,7 @@ export default function Certificates() {
     setSelectedCertificate(null);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../contexts/AuthContext';
 import { instructorApi } from '../../services/api';
 
@@ -8,35 +9,39 @@ interface InstructorProfile {
 
 export default function InstructorProfile() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState<InstructorProfile | null>(null);
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     biography: '',
   });
   const [message, setMessage] = useState({ type: '', text: '' });
+  const { data: profile } = useQuery<InstructorProfile | null>({
+    queryKey: ['instructor', 'profile'],
+    queryFn: async () => {
+      const response = await instructorApi.getProfile();
+      if (response.data.success && response.data.data) {
+        return response.data.data as InstructorProfile;
+      }
+      return null;
+    },
+  });
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await instructorApi.getProfile();
-        if (response.data.success && response.data.data) {
-          setProfile(response.data.data);
-          setFormData({
-            biography: response.data.data.biography || '',
-          });
-        } else {
-          console.warn('Profile fetch succeeded but data missing:', response.data);
-          // Keep empty biography to avoid blank form
-          setFormData({ biography: '' });
-        }
-      } catch (err) {
-        console.error('Failed to fetch profile:', err);
-        // Keep empty biography on error
-        setFormData({ biography: '' });
-      }
-    };
-    fetchProfile();
-  }, []);
+    setFormData({
+      biography: profile?.biography || '',
+    });
+  }, [profile]);
+
+  const updateProfileMutation = useMutation({
+    mutationFn: async (biography: string) => instructorApi.updateProfile(biography),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['instructor', 'profile'] });
+      setMessage({ type: 'success', text: 'Profile updated successfully!' });
+    },
+    onError: (err) => {
+      console.error('Failed to update profile:', err);
+      setMessage({ type: 'error', text: 'Failed to update profile' });
+    },
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -46,16 +51,10 @@ export default function InstructorProfile() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      setLoading(true);
       setMessage({ type: '', text: '' });
-
-      await instructorApi.updateProfile(formData.biography);
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
-    } catch (err) {
-      console.error('Failed to update profile:', err);
-      setMessage({ type: 'error', text: 'Failed to update profile' });
-    } finally {
-      setLoading(false);
+      await updateProfileMutation.mutateAsync(formData.biography);
+    } catch {
+      // handled by mutation callbacks
     }
   };
 
@@ -113,10 +112,10 @@ export default function InstructorProfile() {
         <div className="mt-6 flex justify-end">
           <button
             type="submit"
-            disabled={loading}
+            disabled={updateProfileMutation.isPending}
             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
           >
-            {loading ? 'Saving...' : 'Save Profile'}
+            {updateProfileMutation.isPending ? 'Saving...' : 'Save Profile'}
           </button>
         </div>
       </form>

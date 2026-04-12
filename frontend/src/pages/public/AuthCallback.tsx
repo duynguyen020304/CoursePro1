@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '../../services/api';
@@ -7,9 +8,47 @@ export default function AuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { refreshAuth } = useAuth();
+  const queryClient = useQueryClient();
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
   const hasStartedRef = useRef(false);
+
+  const authCallbackMutation = useMutation({
+    mutationFn: async (code: string) => {
+      const redirectUri = `${window.location.origin}/auth/callback`;
+      const response = await authApi.googleLogin(code, redirectUri);
+
+      if (!response.data?.success) {
+        throw new Error(response.data?.message || 'Authentication failed');
+      }
+
+      return response.data.data || {};
+    },
+    onSuccess: async (data, code) => {
+      const handledCodeKey = `oauth_code_handled:${code}`;
+      sessionStorage.setItem(handledCodeKey, '1');
+      await queryClient.invalidateQueries({ queryKey: ['auth'] });
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'current'] });
+      await refreshAuth();
+      navigate(data?.is_new_user ? '/profile' : '/', { replace: true });
+    },
+    onError: (err, code) => {
+      const handledCodeKey = `oauth_code_handled:${code}`;
+      const alreadyHandled = sessionStorage.getItem(handledCodeKey) === '1';
+
+      if (alreadyHandled) {
+        navigate('/', { replace: true });
+        return;
+      }
+
+      console.error('Google OAuth error:', err);
+      setError(
+        (err as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message
+        || (err as Error)?.message
+        || 'Authentication failed. Please try again.'
+      );
+      window.setTimeout(() => navigate('/signin'), 2000);
+    },
+  });
 
   useEffect(() => {
     if (hasStartedRef.current) {
@@ -27,21 +66,18 @@ export default function AuthCallback() {
       // Handle OAuth error from Google
       if (errorParam) {
         setError('Authentication was cancelled or failed.');
-        setLoading(false);
-        setTimeout(() => navigate('/signin'), 2000);
+        window.setTimeout(() => navigate('/signin'), 2000);
         return;
       }
 
       // Missing code parameter
       if (!code) {
         setError('Invalid authentication response. Redirecting to login...');
-        setLoading(false);
-        setTimeout(() => navigate('/signin'), 2000);
+        window.setTimeout(() => navigate('/signin'), 2000);
         return;
       }
 
       if (handledCodeKey && sessionStorage.getItem(handledCodeKey) === '1') {
-        setLoading(false);
         navigate('/', { replace: true });
         return;
       }
@@ -50,52 +86,20 @@ export default function AuthCallback() {
       const storedState = sessionStorage.getItem('oauth_state');
       if (state && storedState && state !== storedState) {
         setError('Invalid authentication state. Possible CSRF attack.');
-        setLoading(false);
-        setTimeout(() => navigate('/signin'), 2000);
+        window.setTimeout(() => navigate('/signin'), 2000);
         return;
       }
 
       // Clear the stored state
       sessionStorage.removeItem('oauth_state');
 
-      try {
-        const redirectUri = `${window.location.origin}/auth/callback`;
-        const response = await authApi.googleLogin(code, redirectUri);
-
-        // T12/T13: authApi.googleLogin() returns raw axios response
-        // Backend returns: { success, message, data: { is_new_user, user } }
-        if (response.data?.success) {
-          if (handledCodeKey) {
-            sessionStorage.setItem(handledCodeKey, '1');
-          }
-
-          const { is_new_user } = response.data.data || {};
-          await refreshAuth();
-
-          navigate(is_new_user ? '/profile' : '/', { replace: true });
-        } else {
-          setError(response.data?.message || 'Authentication failed');
-          setTimeout(() => navigate('/signin'), 2000);
-        }
-      } catch (err) {
-        const alreadyHandled = handledCodeKey && sessionStorage.getItem(handledCodeKey) === '1';
-
-        if (alreadyHandled) {
-          setLoading(false);
-          navigate('/', { replace: true });
-          return;
-        }
-
-        console.error('Google OAuth error:', err);
-        setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Authentication failed. Please try again.');
-        setTimeout(() => navigate('/signin'), 2000);
-      } finally {
-        setLoading(false);
-      }
+      authCallbackMutation.mutate(code);
     };
 
     handleCallback();
-  }, [searchParams, navigate, refreshAuth]);
+  }, [authCallbackMutation, navigate, searchParams]);
+
+  const loading = authCallbackMutation.isPending || (!error && !authCallbackMutation.isError);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

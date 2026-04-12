@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { orderApi } from '../../services/api';
 import { Link } from 'react-router-dom';
 
@@ -24,27 +24,17 @@ interface Order {
 }
 
 export default function PurchaseHistory() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: orders = [], isLoading } = useQuery<Order[]>({
+    queryKey: ['orders', 'purchase-history'],
+    queryFn: async () => {
+      // T12/T13: Service layer returns { data: <validated_response> }
+      // For paginated: validated_response = { success, message, data: [...orders], pagination... }
+      const response = await orderApi.list();
+      return (response.data?.data || []) as unknown as Order[];
+    },
+  });
 
-  useEffect(() => {
-    async function fetchOrders() {
-      try {
-        // T12/T13: Service layer returns { data: <validated_response> }
-        // For paginated: validated_response = { success, message, data: [...orders], pagination... }
-        const response = await orderApi.list();
-        const ordersData = (response.data?.data || []) as unknown as Order[];
-        setOrders(ordersData);
-      } catch (error) {
-        console.error('Failed to fetch orders:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchOrders();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>

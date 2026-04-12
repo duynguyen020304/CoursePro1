@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import { instructorApi, categoryApi, courseApi } from '../../services/api';
 
@@ -44,10 +45,7 @@ interface FormData {
 export default function EditCourse() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [course, setCourse] = useState<Course | null>(null);
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('details');
   const [formData, setFormData] = useState<FormData>({
     title: '',
@@ -59,51 +57,120 @@ export default function EditCourse() {
     objectives: [''],
     requirements: [''],
   });
-  const [chapters, setChapters] = useState<Chapter[]>([]);
   const [errors, setErrors] = useState<{ load?: string }>({});
+  const [newChapter, setNewChapter] = useState({ title: '', description: '' });
+  const [newLesson, setNewLesson] = useState({ chapterId: '', title: '', content: '' });
+
+  const { data: course, isLoading, error } = useQuery<Course | null>({
+    queryKey: ['instructor', 'course', courseId],
+    enabled: Boolean(courseId),
+    queryFn: async () => {
+      const response = await instructorApi.getCourse(courseId!);
+      return response.data.success ? (response.data.data as Course) : null;
+    },
+  });
+
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ['instructor', 'course-edit', 'categories'],
+    queryFn: async () => {
+      const response = await categoryApi.list();
+      return response.data.success ? (response.data.data as Category[]) : [];
+    },
+  });
 
   useEffect(() => {
-    fetchCourse();
-    fetchCategories();
-  }, [courseId]);
-
-  const fetchCourse = async () => {
-    try {
-      setLoading(true);
-      const response = await instructorApi.getCourse(courseId!);
-      if (response.data.success) {
-        const courseData = response.data.data;
-        setCourse(courseData);
-        setFormData({
-          title: courseData.title || '',
-          description: courseData.description || '',
-          price: courseData.price?.toString() || '',
-          difficulty: courseData.difficulty || 'All Level',
-          language: courseData.language || 'Vietnamese',
-          category_ids: courseData.categories?.map((c: { id: string }) => c.id) || [],
-          objectives: courseData.objectives?.map((o: { objective?: string }) => o.objective || '') || [''],
-          requirements: courseData.requirements?.map((r: { requirement?: string }) => r.requirement || '') || [''],
-        });
-        setChapters(courseData.chapters || []);
-      }
-    } catch (err) {
-      console.error('Failed to fetch course:', err);
-      setErrors({ load: 'Failed to load course' });
-    } finally {
-      setLoading(false);
+    if (!course) {
+      return;
     }
+
+    setFormData({
+      title: course.title || '',
+      description: course.description || '',
+      price: course.price?.toString() || '',
+      difficulty: course.difficulty || 'All Level',
+      language: course.language || 'Vietnamese',
+      category_ids: course.categories?.map((category) => category.id) || [],
+      objectives: course.objectives?.map((objective) => objective.objective || '') || [''],
+      requirements: course.requirements?.map((requirement) => requirement.requirement || '') || [''],
+    });
+  }, [course]);
+
+  const refreshCourse = () => {
+    void queryClient.invalidateQueries({ queryKey: ['instructor', 'course', courseId] });
+    void queryClient.invalidateQueries({ queryKey: ['instructor', 'courses'] });
+    void queryClient.invalidateQueries({ queryKey: ['courses'] });
   };
 
-  const fetchCategories = async () => {
-    try {
-      const response = await categoryApi.list();
-      if (response.data.success) {
-        setCategories(response.data.data as Category[]);
-      }
-    } catch (err) {
-      console.error('Failed to fetch categories:', err);
-    }
-  };
+  const updateCourseMutation = useMutation({
+    mutationFn: async () => {
+      return instructorApi.updateCourse(courseId!, {
+        title: formData.title,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        difficulty: formData.difficulty,
+        language: formData.language,
+        category_ids: formData.category_ids,
+        objectives: formData.objectives.filter((objective) => objective.trim()),
+        requirements: formData.requirements.filter((requirement) => requirement.trim()),
+      });
+    },
+    onSuccess: () => {
+      refreshCourse();
+      alert('Course updated successfully!');
+    },
+    onError: (err) => {
+      console.error('Failed to update course:', err);
+      alert('Failed to update course');
+    },
+  });
+
+  const addChapterMutation = useMutation({
+    mutationFn: async () => {
+      return courseApi.addChapter(courseId!, {
+        title: newChapter.title,
+        description: newChapter.description,
+        sort_order: course?.chapters?.length || 0,
+      });
+    },
+    onSuccess: () => {
+      setNewChapter({ title: '', description: '' });
+      refreshCourse();
+    },
+    onError: (err) => {
+      console.error('Failed to add chapter:', err);
+      alert('Failed to add chapter');
+    },
+  });
+
+  const deleteChapterMutation = useMutation({
+    mutationFn: async (chapterId: string | number) => courseApi.deleteChapter(courseId!, chapterId),
+    onSuccess: () => {
+      refreshCourse();
+    },
+    onError: (err) => {
+      console.error('Failed to delete chapter:', err);
+      alert('Failed to delete chapter');
+    },
+  });
+
+  const addLessonMutation = useMutation({
+    mutationFn: async () => {
+      const chapter = course?.chapters?.find((entry) => String(entry.chapter_id) === newLesson.chapterId);
+      return courseApi.addLesson(courseId!, newLesson.chapterId, {
+        title: newLesson.title,
+        content: newLesson.content,
+        sort_order: chapter?.lessons?.length || 0,
+      });
+    },
+    onSuccess: () => {
+      setNewLesson({ chapterId: '', title: '', content: '' });
+      refreshCourse();
+    },
+    onError: (err) => {
+      console.error('Failed to add lesson:', err);
+      alert('Failed to add lesson');
+    },
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -113,7 +180,7 @@ export default function EditCourse() {
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const options = e.target.options;
     const selected: string[] = [];
-    for (let i = 0; i < options.length; i++) {
+    for (let i = 0; i < options.length; i += 1) {
       if (options[i].selected) {
         selected.push(options[i].value);
       }
@@ -133,115 +200,40 @@ export default function EditCourse() {
 
   const removeArrayItem = (field: 'objectives' | 'requirements', index: number) => {
     if (formData[field].length > 1) {
-      const newArray = formData[field].filter((_, i) => i !== index);
+      const newArray = formData[field].filter((_, itemIndex) => itemIndex !== index);
       setFormData((prev) => ({ ...prev, [field]: newArray }));
     }
   };
 
   const handleSaveDetails = async () => {
-    try {
-      setSaving(true);
-      const payload = {
-        title: formData.title,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        difficulty: formData.difficulty,
-        language: formData.language,
-        category_ids: formData.category_ids,
-        objectives: formData.objectives.filter((o) => o.trim()),
-        requirements: formData.requirements.filter((r) => r.trim()),
-      };
-
-      await instructorApi.updateCourse(courseId!, payload);
-      alert('Course updated successfully!');
-    } catch (err) {
-      console.error('Failed to update course:', err);
-      alert('Failed to update course');
-    } finally {
-      setSaving(false);
-    }
+    await updateCourseMutation.mutateAsync();
   };
 
-  // Chapter management
-  const [newChapter, setNewChapter] = useState({ title: '', description: '' });
-  const [addingChapter, setAddingChapter] = useState(false);
-
   const handleAddChapter = async () => {
-    if (!newChapter.title.trim()) return;
-
-    try {
-      setAddingChapter(true);
-      const response = await courseApi.addChapter(courseId!, {
-        title: newChapter.title,
-        description: newChapter.description,
-        sort_order: chapters.length,
-      });
-
-      if (response.data.success) {
-        setChapters([...chapters, response.data.data as Chapter]);
-        setNewChapter({ title: '', description: '' });
-      }
-    } catch (err) {
-      console.error('Failed to add chapter:', err);
-      alert('Failed to add chapter');
-    } finally {
-      setAddingChapter(false);
+    if (!newChapter.title.trim()) {
+      return;
     }
+
+    await addChapterMutation.mutateAsync();
   };
 
   const handleDeleteChapter = async (chapterId: string | number) => {
-    if (!window.confirm('Delete this chapter and all its lessons?')) return;
-
-    try {
-      await courseApi.deleteChapter(courseId!, chapterId);
-      setChapters(chapters.filter((c) => c.chapter_id !== chapterId));
-    } catch (err) {
-      console.error('Failed to delete chapter:', err);
-      alert('Failed to delete chapter');
+    if (!window.confirm('Delete this chapter and all its lessons?')) {
+      return;
     }
-  };
 
-  // Lesson management
-  const [newLesson, setNewLesson] = useState({ chapterId: '', title: '', content: '' });
-  const [addingLesson, setAddingLesson] = useState(false);
+    await deleteChapterMutation.mutateAsync(chapterId);
+  };
 
   const handleAddLesson = async () => {
-    if (!newLesson.chapterId || !newLesson.title.trim()) return;
-
-    try {
-      setAddingLesson(true);
-      const chapter = chapters.find((c) => c.chapter_id === newLesson.chapterId);
-      const response = await courseApi.addLesson(courseId!, newLesson.chapterId, {
-        title: newLesson.title,
-        content: newLesson.content,
-        sort_order: chapter?.lessons?.length || 0,
-      });
-
-      if (response.data.success) {
-        const lesson = response.data.data as Lesson;
-        // Update chapters with new lesson
-        setChapters(
-          chapters.map((c) => {
-            if (c.chapter_id === newLesson.chapterId) {
-              return {
-                ...c,
-                lessons: [...(c.lessons || []), lesson],
-              };
-            }
-            return c;
-          })
-        );
-        setNewLesson({ chapterId: '', title: '', content: '' });
-      }
-    } catch (err) {
-      console.error('Failed to add lesson:', err);
-      alert('Failed to add lesson');
-    } finally {
-      setAddingLesson(false);
+    if (!newLesson.chapterId || !newLesson.title.trim()) {
+      return;
     }
+
+    await addLessonMutation.mutateAsync();
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -249,15 +241,16 @@ export default function EditCourse() {
     );
   }
 
-  if (errors.load) {
+  if (error || !course) {
     return (
-      <div className="bg-red-50 text-red-600 p-4 rounded-lg">{errors.load}</div>
+      <div className="bg-red-50 text-red-600 p-4 rounded-lg">
+        {errors.load || 'Failed to load course'}
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">Edit Course</h1>
         <button
@@ -268,7 +261,6 @@ export default function EditCourse() {
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex gap-6">
           {['details', 'content'].map((tab) => (
@@ -287,7 +279,6 @@ export default function EditCourse() {
         </nav>
       </div>
 
-      {/* Details Tab */}
       {activeTab === 'details' && (
         <div className="space-y-6">
           <div className="bg-white rounded-lg shadow-sm p-6">
@@ -367,9 +358,9 @@ export default function EditCourse() {
                   onChange={handleCategoryChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg h-32"
                 >
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
                     </option>
                   ))}
                 </select>
@@ -377,7 +368,6 @@ export default function EditCourse() {
             </div>
           </div>
 
-          {/* Objectives */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Learning Objectives</h2>
             {formData.objectives.map((objective, index) => (
@@ -406,7 +396,6 @@ export default function EditCourse() {
             </button>
           </div>
 
-          {/* Requirements */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Requirements</h2>
             {formData.requirements.map((requirement, index) => (
@@ -438,19 +427,17 @@ export default function EditCourse() {
           <div className="flex justify-end">
             <button
               onClick={handleSaveDetails}
-              disabled={saving}
+              disabled={updateCourseMutation.isPending}
               className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
             >
-              {saving ? 'Saving...' : 'Save Changes'}
+              {updateCourseMutation.isPending ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>
       )}
 
-      {/* Content Tab */}
       {activeTab === 'content' && (
         <div className="space-y-6">
-          {/* Add Chapter */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Add New Chapter</h2>
             <div className="flex gap-4">
@@ -470,7 +457,7 @@ export default function EditCourse() {
               />
               <button
                 onClick={handleAddChapter}
-                disabled={addingChapter || !newChapter.title.trim()}
+                disabled={addChapterMutation.isPending || !newChapter.title.trim()}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
               >
                 Add
@@ -478,13 +465,12 @@ export default function EditCourse() {
             </div>
           </div>
 
-          {/* Chapters List */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Chapters & Lessons</h2>
 
-            {chapters.length > 0 ? (
+            {course.chapters && course.chapters.length > 0 ? (
               <div className="space-y-4">
-                {chapters.map((chapter, chapterIndex) => (
+                {course.chapters.map((chapter, chapterIndex) => (
                   <div key={chapter.chapter_id} className="border rounded-lg">
                     <div className="flex items-center justify-between p-4 bg-gray-50">
                       <div className="flex items-center gap-3">
@@ -499,7 +485,6 @@ export default function EditCourse() {
                       </button>
                     </div>
 
-                    {/* Lessons */}
                     <div className="p-4 border-t">
                       {chapter.lessons && chapter.lessons.length > 0 ? (
                         <ul className="space-y-2">
@@ -521,13 +506,12 @@ export default function EditCourse() {
                         <p className="text-gray-500 text-sm">No lessons yet</p>
                       )}
 
-                      {/* Add Lesson */}
                       <div className="mt-4 pt-4 border-t">
                         <div className="flex gap-2">
                           <input
                             type="text"
                             placeholder="New lesson title"
-                            value={newLesson.chapterId === chapter.chapter_id ? newLesson.title : ''}
+                            value={newLesson.chapterId === String(chapter.chapter_id) ? newLesson.title : ''}
                             onChange={(e) =>
                               setNewLesson({
                                 chapterId: String(chapter.chapter_id),
@@ -539,7 +523,11 @@ export default function EditCourse() {
                           />
                           <button
                             onClick={handleAddLesson}
-                            disabled={addingLesson || newLesson.chapterId !== chapter.chapter_id || !newLesson.title.trim()}
+                            disabled={
+                              addLessonMutation.isPending
+                              || newLesson.chapterId !== String(chapter.chapter_id)
+                              || !newLesson.title.trim()
+                            }
                             className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50"
                           >
                             + Add Lesson

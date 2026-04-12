@@ -5,10 +5,9 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
-  useState,
   type ReactNode,
 } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { cartApi } from '../services/api';
 import type { Cart } from '../schemas/cart/apiResponses.schema';
 import { useAuth } from './AuthContext';
@@ -51,45 +50,67 @@ interface CartProviderProps {
  * Manages shopping cart state including items, loading, and operations
  */
 export function CartProvider({ children }: CartProviderProps) {
-  const [cart, setCart] = useState<Cart | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [initialized, setInitialized] = useState(false);
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const queryClient = useQueryClient();
+  const { isAuthenticated, loading: authLoading, user } = useAuth();
+  const cartQueryKey = ['cart', user?.user_id ?? 'guest'] as const;
+  const cartQuery = useQuery({
+    queryKey: cartQueryKey,
+    queryFn: async () => {
+      try {
+        const response = await cartApi.get();
+        return response.data.data as Cart | null;
+      } catch (error) {
+        const errorResponse = error as { response?: { status?: number } };
+        if (errorResponse.response?.status === 401) {
+          return null;
+        }
+
+        throw error;
+      }
+    },
+    enabled: !authLoading && isAuthenticated,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
 
   /**
    * Fetches the current cart from the API
    */
   const fetchCart = useCallback(async (): Promise<void> => {
     if (!isAuthenticated) {
-      setCart(null);
-      setInitialized(true);
+      queryClient.removeQueries({ queryKey: ['cart'] });
       return;
     }
 
-    try {
-      setLoading(true);
-      const response = await cartApi.get();
-      setCart(response.data.data);
-    } catch (error) {
-      const errorResponse = error as { response?: { status?: number } };
-      if (errorResponse.response?.status !== 401) {
-        console.error('Failed to fetch cart:', error);
-      }
-    } finally {
-      setLoading(false);
-      setInitialized(true);
-    }
-  }, [isAuthenticated]);
+    await queryClient.invalidateQueries({ queryKey: cartQueryKey, exact: true });
+  }, [cartQueryKey, isAuthenticated, queryClient]);
 
-  // Fetch cart when auth state changes
-  useEffect(() => {
-    if (authLoading) {
-      return;
-    }
+  const addItemMutation = useMutation({
+    mutationFn: async ({ courseId, quantity }: { courseId: string; quantity: number }) => {
+      return cartApi.addItem(courseId, quantity);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: cartQueryKey, exact: true });
+    },
+  });
 
-    fetchCart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authLoading, isAuthenticated]);
+  const removeItemMutation = useMutation({
+    mutationFn: async (cartItemId: string) => {
+      return cartApi.removeItem(cartItemId);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: cartQueryKey, exact: true });
+    },
+  });
+
+  const clearCartMutation = useMutation({
+    mutationFn: async () => {
+      return cartApi.clear();
+    },
+    onSuccess: () => {
+      queryClient.setQueryData(cartQueryKey, null);
+    },
+  });
 
   /**
    * Adds an item to the cart
@@ -97,8 +118,7 @@ export function CartProvider({ children }: CartProviderProps) {
   const addItem = useCallback(
     async (courseId: string, quantity = 1): Promise<{ success: boolean; data?: unknown; message?: string }> => {
       try {
-        const response = await cartApi.addItem(courseId, quantity);
-        await fetchCart();
+        const response = await addItemMutation.mutateAsync({ courseId, quantity });
         return { success: true, data: response };
       } catch (error) {
         const errorResponse = error as { response?: { data?: { message?: string } } };
@@ -108,7 +128,7 @@ export function CartProvider({ children }: CartProviderProps) {
         };
       }
     },
-    [fetchCart]
+    [addItemMutation]
   );
 
   /**
@@ -117,8 +137,7 @@ export function CartProvider({ children }: CartProviderProps) {
   const removeItem = useCallback(
     async (cartItemId: string): Promise<{ success: boolean; message?: string }> => {
       try {
-        await cartApi.removeItem(cartItemId);
-        await fetchCart();
+        await removeItemMutation.mutateAsync(cartItemId);
         return { success: true };
       } catch (error) {
         const errorResponse = error as { response?: { data?: { message?: string } } };
@@ -128,7 +147,7 @@ export function CartProvider({ children }: CartProviderProps) {
         };
       }
     },
-    [fetchCart]
+    [removeItemMutation]
   );
 
   /**
@@ -136,8 +155,7 @@ export function CartProvider({ children }: CartProviderProps) {
    */
   const clearCart = useCallback(async (): Promise<{ success: boolean; message?: string }> => {
     try {
-      await cartApi.clear();
-      setCart(null);
+      await clearCartMutation.mutateAsync();
       return { success: true };
     } catch (error) {
       const errorResponse = error as { response?: { data?: { message?: string } } };
@@ -146,7 +164,11 @@ export function CartProvider({ children }: CartProviderProps) {
         message: errorResponse.response?.data?.message || 'Failed to clear cart',
       };
     }
-  }, []);
+  }, [clearCartMutation]);
+
+  const cart = isAuthenticated ? cartQuery.data ?? null : null;
+  const loading = !authLoading && isAuthenticated && (cartQuery.isPending || cartQuery.isFetching);
+  const initialized = !authLoading && (!isAuthenticated || cartQuery.isFetched || cartQuery.isError);
 
   const value: CartContextValue = {
     cart,

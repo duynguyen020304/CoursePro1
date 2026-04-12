@@ -5,10 +5,9 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
-  useState,
   type ReactNode,
 } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi, userApi } from '../services/api';
 import type { UserProfile, UpdateProfileResponse } from '../schemas/user/apiResponses.schema';
 import type { User } from '../schemas/auth/apiResponses.schema';
@@ -46,6 +45,15 @@ interface AuthContextValue extends AuthState {
   fetchUserPermissions: () => Promise<void>;
 }
 
+interface AuthSnapshot {
+  user: User | UserProfile | null;
+  userPermissions: string[];
+  isAuthenticated: boolean;
+}
+
+const AUTH_QUERY_KEY = ['auth', 'current'] as const;
+const CART_QUERY_KEY = ['cart'] as const;
+
 function extractPermissionNames(userData: User | UserProfile | null | undefined): string[] {
   if (!userData) {
     return [];
@@ -53,6 +61,60 @@ function extractPermissionNames(userData: User | UserProfile | null | undefined)
 
   const permissions = ('role' in userData ? userData.role?.permissions : undefined) ?? [];
   return permissions.map((permission) => permission.name);
+}
+
+function guestSnapshot(): AuthSnapshot {
+  return {
+    user: null,
+    userPermissions: [],
+    isAuthenticated: false,
+  };
+}
+
+async function buildAuthSnapshotFromUser(userData: User | UserProfile): Promise<AuthSnapshot> {
+  let resolvedUser: User | UserProfile = userData;
+  let userPermissions = extractPermissionNames(userData);
+
+  if ('role_id' in userData && userData.role_id && userPermissions.length === 0) {
+    try {
+      const profileResponse = await userApi.profile();
+      const profileData = profileResponse.data.data as UserProfile;
+
+      if (profileData && 'user_id' in profileData) {
+        resolvedUser = profileData;
+        userPermissions = extractPermissionNames(profileData);
+      }
+    } catch (error) {
+      console.error('Failed to fetch user permissions:', error);
+    }
+  }
+
+  return {
+    user: resolvedUser,
+    userPermissions,
+    isAuthenticated: true,
+  };
+}
+
+async function fetchAuthSnapshot(): Promise<AuthSnapshot> {
+  try {
+    const response = await userApi.current();
+    const outerData = response.data as { data?: User | UserProfile };
+    const userData = outerData?.data ?? outerData;
+
+    if (!userData || !('user_id' in userData)) {
+      return guestSnapshot();
+    }
+
+    return buildAuthSnapshotFromUser(userData);
+  } catch (error) {
+    const errorResponse = error as { response?: { status?: number } };
+    if (errorResponse.response?.status === 401) {
+      return guestSnapshot();
+    }
+
+    throw error;
+  }
 }
 
 /**
@@ -72,112 +134,141 @@ interface AuthProviderProps {
  * Manages authentication state including user, loading, and permissions
  */
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userPermissions, setUserPermissions] = useState<string[]>([]);
+  const queryClient = useQueryClient();
+  const authQuery = useQuery({
+    queryKey: AUTH_QUERY_KEY,
+    queryFn: fetchAuthSnapshot,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const authState = authQuery.data ?? guestSnapshot();
+  const currentUser = authState.user;
 
   /**
    * Clears all authentication state
    */
   const clearAuthState = useCallback(() => {
-    setUser(null);
-    setIsAuthenticated(false);
-    setUserPermissions([]);
-  }, []);
-
-  /**
-   * Fetches user permissions from the API
-   */
-  const fetchUserPermissions = useCallback(async (): Promise<void> => {
-    try {
-      const response = await userApi.profile();
-      const userData = response.data.data as UserProfile;
-      setUserPermissions(extractPermissionNames(userData));
-    } catch (error) {
-      console.error('Failed to fetch user permissions:', error);
-      setUserPermissions([]);
-    }
-  }, []);
+    queryClient.setQueryData(AUTH_QUERY_KEY, guestSnapshot());
+    queryClient.removeQueries({ queryKey: CART_QUERY_KEY });
+  }, [queryClient]);
 
   /**
    * Refreshes authentication state by fetching current user
    */
   const refreshAuth = useCallback(async (): Promise<{ success: boolean; user?: User | UserProfile }> => {
-    try {
-      const response = await userApi.current();
-      // userApi.current() returns { data: { success, message, data: userProfile } }
-      // The validated() function returns the full parsed response in response.data
-      // We need to extract the inner `data` field which is the userProfile
-      const outerData = response.data as { data?: User | UserProfile };
-      const userData = outerData?.data ?? outerData;
+    const snapshot = await queryClient.fetchQuery({
+      queryKey: AUTH_QUERY_KEY,
+      queryFn: fetchAuthSnapshot,
+    });
+
+    if (!snapshot.isAuthenticated || !snapshot.user) {
+      return { success: false };
+    }
+
+    return { success: true, user: snapshot.user };
+  }, [queryClient]);
+
+  const fetchUserPermissions = useCallback(async (): Promise<void> => {
+    await refreshAuth();
+  }, [refreshAuth]);
+
+  const loginMutation = useMutation({
+    mutationFn: async (credentials: { email: string; password: string }) => {
+      const response = await authApi.login(credentials);
+      const userData = response.data as User | undefined;
 
       if (!userData || !('user_id' in userData)) {
-        clearAuthState();
-        return { success: false };
+        throw new Error('Login failed');
       }
 
-      setUser(userData);
-      setIsAuthenticated(true);
+      return buildAuthSnapshotFromUser(userData);
+    },
+    onSuccess: (snapshot) => {
+      queryClient.setQueryData(AUTH_QUERY_KEY, snapshot);
+    },
+  });
 
-      if ('role_id' in userData && userData.role_id) {
-        const permissionNames = extractPermissionNames(userData);
-        if (permissionNames.length > 0) {
-          setUserPermissions(permissionNames);
-        } else {
-          await fetchUserPermissions();
+  const signupMutation = useMutation({
+    mutationFn: async (formData: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      password: string;
+      password_confirmation: string;
+    }) => {
+      const response = await authApi.signup(formData);
+      const userData = response.data as User | undefined;
+
+      if (!userData || !('user_id' in userData)) {
+        throw new Error('Signup failed');
+      }
+
+      return buildAuthSnapshotFromUser(userData);
+    },
+    onSuccess: (snapshot) => {
+      queryClient.setQueryData(AUTH_QUERY_KEY, snapshot);
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      try {
+        await authApi.logout();
+      } catch (error) {
+        const errorResponse = error as { response?: { status?: number } };
+        if (errorResponse.response?.status !== 401) {
+          throw error;
         }
-      } else {
-        setUserPermissions([]);
+      }
+    },
+    onSettled: () => {
+      clearAuthState();
+    },
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async (userData: Record<string, unknown>) => {
+      const { data: response }: { data: UpdateProfileResponse } = await userApi.updateProfile(userData);
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Update failed');
       }
 
-      return { success: true, user: userData };
-    } catch (error) {
-      const errorResponse = error as { response?: { status?: number } };
-      if (errorResponse.response?.status === 401) {
-        clearAuthState();
-        return { success: false };
-      }
+      return response.data;
+    },
+    onSuccess: (updatedUser) => {
+      queryClient.setQueryData<AuthSnapshot>(AUTH_QUERY_KEY, (current) => {
+        const currentSnapshot = current ?? guestSnapshot();
+        const nextPermissions = extractPermissionNames(updatedUser);
 
-      throw error;
-    }
-  }, [clearAuthState, fetchUserPermissions]);
-
-  // Initial auth check on mount
-  useEffect(() => {
-    refreshAuth().finally(() => {
-      setLoading(false);
-    });
-  }, [refreshAuth]);
+        return {
+          user: updatedUser,
+          userPermissions: nextPermissions.length > 0 ? nextPermissions : currentSnapshot.userPermissions,
+          isAuthenticated: true,
+        };
+      });
+    },
+  });
 
   /**
    * Logs in a user with email and password
    */
   const login = useCallback(
     async (email: string, password: string): Promise<{ success: boolean; user?: User | UserProfile; message?: string }> => {
-      // authApi.login() returns { data: User } with user directly in data (unwrapped from { user } layer)
-      const response = await authApi.login({ email, password });
-      const userData = response.data as User | undefined;
-
-      if (userData && 'user_id' in userData) {
-        setUser(userData);
-        setIsAuthenticated(true);
-
-        if ('role_id' in userData) {
-          const permissionNames = extractPermissionNames(userData);
-          if (permissionNames.length > 0) {
-            setUserPermissions(permissionNames);
-          } else {
-            await fetchUserPermissions();
-          }
-        }
-
-        return { success: true, user: userData };
+      try {
+        const snapshot = await loginMutation.mutateAsync({ email, password });
+        return snapshot.user
+          ? { success: true, user: snapshot.user }
+          : { success: false, message: 'Login failed' };
+      } catch (error) {
+        const errorResponse = error as { response?: { data?: { message?: string } }; message?: string };
+        return {
+          success: false,
+          message: errorResponse.response?.data?.message || errorResponse.message || 'Login failed',
+        };
       }
-
-      return { success: false, message: 'Login failed' };
     },
-    [fetchUserPermissions]
+    [loginMutation]
   );
 
   /**
@@ -191,29 +282,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
       password: string;
       password_confirmation: string;
     }): Promise<{ success: boolean; user?: User | UserProfile; message?: string }> => {
-      // authApi.signup() returns { data: User } with user directly in data (unwrapped from { user } layer)
-      const response = await authApi.signup(formData);
-      const userData = response.data as User | undefined;
-
-      if (userData && 'user_id' in userData) {
-        setUser(userData);
-        setIsAuthenticated(true);
-
-        if ('role_id' in userData) {
-          const permissionNames = extractPermissionNames(userData);
-          if (permissionNames.length > 0) {
-            setUserPermissions(permissionNames);
-          } else {
-            await fetchUserPermissions();
-          }
-        }
-
-        return { success: true, user: userData };
+      try {
+        const snapshot = await signupMutation.mutateAsync(formData);
+        return snapshot.user
+          ? { success: true, user: snapshot.user }
+          : { success: false, message: 'Signup failed' };
+      } catch (error) {
+        const errorResponse = error as { response?: { data?: { message?: string } }; message?: string };
+        return {
+          success: false,
+          message: errorResponse.response?.data?.message || errorResponse.message || 'Signup failed',
+        };
       }
-
-      return { success: false, message: 'Signup failed' };
     },
-    [fetchUserPermissions]
+    [signupMutation]
   );
 
   /**
@@ -221,16 +303,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   const logout = useCallback(async (): Promise<void> => {
     try {
-      await authApi.logout();
+      await logoutMutation.mutateAsync();
     } catch (error) {
-      const errorResponse = error as { response?: { status?: number } };
-      if (errorResponse.response?.status !== 401) {
-        console.error('Failed to logout:', error);
-      }
-    } finally {
-      clearAuthState();
+      console.error('Failed to logout:', error);
     }
-  }, [clearAuthState]);
+  }, [logoutMutation]);
 
   /**
    * Updates user profile data
@@ -238,20 +315,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const updateUser = useCallback(
     async (userData: Record<string, unknown>): Promise<{ success: boolean; user?: User | UserProfile; message?: string }> => {
       try {
-        const { data: response }: { data: UpdateProfileResponse } = await userApi.updateProfile(userData);
-
-        if (response.success && response.data) {
-          setUser(response.data);
-          return { success: true, user: response.data };
-        }
-
-        return { success: false, message: response.message || 'Update failed' };
+        const updatedUser = await updateUserMutation.mutateAsync(userData);
+        return { success: true, user: updatedUser };
       } catch (error) {
-        const errorResponse = error as { response?: { data?: { message?: string } } };
-        return { success: false, message: errorResponse.response?.data?.message || 'Update failed' };
+        const errorResponse = error as { response?: { data?: { message?: string } }; message?: string };
+        return {
+          success: false,
+          message: errorResponse.response?.data?.message || errorResponse.message || 'Update failed',
+        };
       }
     },
-    []
+    [updateUserMutation]
   );
 
   /**
@@ -261,16 +335,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   const hasRole = useCallback(
     (roleName: string): boolean => {
-      if (!user) return false;
+      if (!currentUser) return false;
       // Check flat role_id field first (e.g., user.role_id === 'admin')
-      if ('role_id' in user && user.role_id === roleName) return true;
+      if ('role_id' in currentUser && currentUser.role_id === roleName) return true;
       // Fallback to nested role fields
-      const userWithRole = user as { role?: { role_id?: string; role_name?: string } };
+      const userWithRole = currentUser as { role?: { role_id?: string; role_name?: string } };
       if (userWithRole.role?.role_id === roleName) return true;
       if (userWithRole.role?.role_name?.toLowerCase() === roleName.toLowerCase()) return true;
       return false;
     },
-    [user]
+    [currentUser]
   );
 
   /**
@@ -278,9 +352,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   const hasPermission = useCallback(
     (permissionName: string): boolean => {
-      return userPermissions.includes(permissionName);
+      return authState.userPermissions.includes(permissionName);
     },
-    [userPermissions]
+    [authState.userPermissions]
   );
 
   /**
@@ -288,9 +362,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   const hasAnyPermission = useCallback(
     (permissions: string[]): boolean => {
-      return permissions.some((permission) => userPermissions.includes(permission));
+      return permissions.some((permission) => authState.userPermissions.includes(permission));
     },
-    [userPermissions]
+    [authState.userPermissions]
   );
 
   /**
@@ -298,32 +372,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   const hasAllPermissions = useCallback(
     (permissions: string[]): boolean => {
-      return permissions.every((permission) => userPermissions.includes(permission));
+      return permissions.every((permission) => authState.userPermissions.includes(permission));
     },
-    [userPermissions]
+    [authState.userPermissions]
   );
 
   const isEmailVerified = useCallback((): boolean => {
-    if (!user) {
+    if (!currentUser) {
       return false;
     }
 
-    if ('is_verified' in user && typeof user.is_verified === 'boolean') {
-      return user.is_verified;
+    if ('is_verified' in currentUser && typeof currentUser.is_verified === 'boolean') {
+      return currentUser.is_verified;
     }
 
-    if ('email_verified_at' in user) {
-      return Boolean(user.email_verified_at);
+    if ('email_verified_at' in currentUser) {
+      return Boolean(currentUser.email_verified_at);
     }
 
     return false;
-  }, [user]);
+  }, [currentUser]);
 
   const value: AuthContextValue = {
-    user,
-    loading,
-    isAuthenticated,
-    userPermissions,
+    user: currentUser,
+    loading: authQuery.isPending,
+    isAuthenticated: authState.isAuthenticated,
+    userPermissions: authState.userPermissions,
     login,
     signup,
     logout,

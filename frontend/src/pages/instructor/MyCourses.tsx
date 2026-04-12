@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { instructorApi } from '../../services/api';
 
@@ -20,36 +21,32 @@ interface CourseItem {
 }
 
 export default function MyCourses() {
-  const [courses, setCourses] = useState<CourseItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [deletingId, setDeletingId] = useState<string | number | null>(null);
-
-  useEffect(() => {
-    fetchCourses();
-  }, []);
-
-  const fetchCourses = async () => {
-    try {
-      setLoading(true);
+  const { data: courses = [], isLoading, error } = useQuery<CourseItem[]>({
+    queryKey: ['instructor', 'courses'],
+    queryFn: async () => {
       const response = await instructorApi.getCourses();
-      // Contract: { success, data: [{ course, stats }, ...] }
-      // validated() returns { data: { success, data: [...] } }
       const coursesData = response.data.data;
-      if (Array.isArray(coursesData)) {
-        setCourses(coursesData);
-      } else {
-        // Contract violation: expected array from /instructor/courses
+      if (!Array.isArray(coursesData)) {
         console.error('[MyCourses] Contract violation: expected data array, got', typeof coursesData, coursesData);
-        setError('Failed to load courses: unexpected response format');
+        throw new Error('Failed to load courses: unexpected response format');
       }
-    } catch (err) {
-      setError('Failed to load courses');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return coursesData;
+    },
+  });
+
+  const deleteCourseMutation = useMutation({
+    mutationFn: async (courseId: string | number) => instructorApi.deleteCourse(courseId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['instructor', 'courses'] });
+      void queryClient.invalidateQueries({ queryKey: ['instructor', 'dashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['courses'] });
+    },
+    onSettled: () => {
+      setDeletingId(null);
+    },
+  });
 
   const handleDelete = async (courseId: string | number) => {
     if (!window.confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
@@ -58,17 +55,14 @@ export default function MyCourses() {
 
     try {
       setDeletingId(courseId);
-      await instructorApi.deleteCourse(courseId);
-      setCourses(courses.filter((item) => item.course.course_id !== courseId));
+      await deleteCourseMutation.mutateAsync(courseId);
     } catch (err) {
       alert('Failed to delete course');
       console.error(err);
-    } finally {
-      setDeletingId(null);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -79,7 +73,7 @@ export default function MyCourses() {
   if (error) {
     return (
       <div className="bg-red-50 text-red-600 p-4 rounded-lg">
-        {error}
+        Failed to load courses
       </div>
     );
   }

@@ -1,6 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { initializeCsrf } from './services/api';
@@ -56,6 +56,14 @@ import './index.css';
 
 const queryClient = new QueryClient();
 
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+  );
+}
+
 // Protected Route Component
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -65,11 +73,7 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return isAuthenticated ? children : <Navigate to="/signin" replace />;
@@ -165,30 +169,41 @@ function AppRoutes() {
   );
 }
 
-function App() {
-  const [csrfReady, setCsrfReady] = useState(false);
+function AppBootstrap({ children }: { children: ReactNode }) {
+  const csrfQuery = useQuery({
+    queryKey: ['app', 'csrf'],
+    queryFn: async () => {
+      try {
+        await initializeCsrf();
+      } catch (error) {
+        console.error('Failed to initialize CSRF:', error);
+      }
 
-  useEffect(() => {
-    initializeCsrf().finally(() => {
-      setCsrfReady(true);
-    });
-  }, []);
+      return true;
+    },
+    retry: false,
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: Number.POSITIVE_INFINITY,
+    refetchOnWindowFocus: false,
+  });
 
-  if (!csrfReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
+  if (csrfQuery.isPending) {
+    return <LoadingScreen />;
   }
 
+  return <>{children}</>;
+}
+
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <CartProvider>
-          <AppRoutes />
-        </CartProvider>
-      </AuthProvider>
+      <AppBootstrap>
+        <AuthProvider>
+          <CartProvider>
+            <AppRoutes />
+          </CartProvider>
+        </AuthProvider>
+      </AppBootstrap>
     </QueryClientProvider>
   );
 }

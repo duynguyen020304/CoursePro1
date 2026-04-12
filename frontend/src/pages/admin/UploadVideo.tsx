@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Toaster } from 'react-hot-toast';
@@ -45,17 +46,14 @@ interface InitiateUploadData {
 type UploadPhase = 'idle' | 'initiating' | 'uploading' | 'finalizing';
 
 export default function UploadVideo() {
-  const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState('');
   const [selectedChapter, setSelectedChapter] = useState('');
   const [selectedLesson, setSelectedLesson] = useState('');
-  const [chapters, setChapters] = useState<Chapter[]>([]);
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [loading, setLoading] = useState(false);
   const [uploadPhase, setUploadPhase] = useState<UploadPhase>('idle');
   const [progressPercent, setProgressPercent] = useState(0);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [currentAbortController, setCurrentAbortController] = useState<AbortController | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const {
     register,
@@ -92,71 +90,37 @@ export default function UploadVideo() {
     }
   }, [uploadPhase]);
 
-  useEffect(() => {
-    void fetchCourses();
-  }, []);
+  const { data: courses = [], isLoading: isCoursesLoading } = useQuery<Course[]>({
+    queryKey: ['admin', 'upload-video', 'courses'],
+    queryFn: async () => {
+      const response = await courseApi.list();
+      return (response.data.data ?? []) as Course[];
+    },
+  });
+
+  const { data: chapters = [], isLoading: isChaptersLoading } = useQuery<Chapter[]>({
+    queryKey: ['admin', 'upload-video', 'chapters', selectedCourse],
+    enabled: Boolean(selectedCourse),
+    queryFn: async () => {
+      const response = await courseApi.getChapters(selectedCourse);
+      return (response.data.data as Chapter[] | undefined) ?? [];
+    },
+  });
+
+  const { data: lessons = [], isLoading: isLessonsLoading } = useQuery<Lesson[]>({
+    queryKey: ['admin', 'upload-video', 'lessons', selectedCourse, selectedChapter],
+    enabled: Boolean(selectedCourse && selectedChapter),
+    queryFn: async () => {
+      const response = await courseApi.getLessons(selectedCourse, selectedChapter);
+      return (response.data.data as Lesson[] | undefined) ?? [];
+    },
+  });
 
   useEffect(() => () => {
     if (videoPreview) {
       URL.revokeObjectURL(videoPreview);
     }
   }, [videoPreview]);
-
-  async function fetchCourses() {
-    setLoading(true);
-    try {
-      const response = await courseApi.list();
-      const coursesData = response.data.data ?? [];
-      setCourses(coursesData as Course[]);
-    } catch (error) {
-      console.error('Failed to fetch courses:', error);
-      toast.error('Failed to load courses');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (!selectedCourse) {
-      setChapters([]);
-      setLessons([]);
-      return;
-    }
-
-    async function fetchChapters() {
-      try {
-        const response = await courseApi.getChapters(selectedCourse);
-        setChapters((response.data.data as Chapter[] | undefined) ?? []);
-      } catch (error) {
-        console.error('Failed to load chapters:', error);
-        setChapters([]);
-        setLessons([]);
-        toast.error('Failed to load chapters');
-      }
-    }
-
-    void fetchChapters();
-  }, [selectedCourse]);
-
-  useEffect(() => {
-    if (!selectedCourse || !selectedChapter) {
-      setLessons([]);
-      return;
-    }
-
-    async function fetchLessons() {
-      try {
-        const response = await courseApi.getLessons(selectedCourse, selectedChapter);
-        setLessons((response.data.data as Lesson[] | undefined) ?? []);
-      } catch (error) {
-        console.error('Failed to load lessons:', error);
-        setLessons([]);
-        toast.error('Failed to load lessons');
-      }
-    }
-
-    void fetchLessons();
-  }, [selectedCourse, selectedChapter]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -192,13 +156,99 @@ export default function UploadVideo() {
     setSelectedCourse('');
     setSelectedChapter('');
     setSelectedLesson('');
-    setChapters([]);
-    setLessons([]);
     setVideoPreview(null);
     setProgressPercent(0);
     setUploadPhase('idle');
     setCurrentAbortController(null);
+    abortControllerRef.current = null;
   };
+
+  const uploadVideoMutation = useMutation({
+    mutationFn: async (data: UploadVideoFormData) => {
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+      setCurrentAbortController(abortController);
+      setProgressPercent(0);
+      setUploadPhase('initiating');
+
+      let initiatedUpload: InitiateUploadData | null = null;
+
+      try {
+        const initiateResponse = await lessonApi.initiateVideoUpload(data.lesson_id, {
+          title: data.title,
+          filename: data.video_file.name,
+          mime_type: data.video_file.type,
+          file_size_bytes: data.video_file.size,
+          duration: convertDurationMinutesToSeconds(data.duration),
+          sort_order: 0,
+        });
+
+        initiatedUpload = initiateResponse.data.data as InitiateUploadData;
+        setUploadPhase('uploading');
+
+        if (initiatedUpload.upload_mode === 'single' && initiatedUpload.single_upload) {
+          const etag = await uploadSingleVideoToS3(data.video_file, initiatedUpload.single_upload, {
+            signal: abortController.signal,
+            onProgress: setProgressPercent,
+          });
+
+          setUploadPhase('finalizing');
+          await lessonApi.completeVideoUpload(data.lesson_id, initiatedUpload.video_id, { etag });
+          return;
+        }
+
+        if (initiatedUpload.upload_mode === 'multipart' && initiatedUpload.multipart_parts && initiatedUpload.part_size_bytes) {
+          const parts = await uploadMultipartVideoToS3(
+            data.video_file,
+            initiatedUpload.multipart_parts,
+            initiatedUpload.part_size_bytes,
+            {
+              signal: abortController.signal,
+              onProgress: setProgressPercent,
+            }
+          );
+
+          setUploadPhase('finalizing');
+          await lessonApi.completeVideoUpload(data.lesson_id, initiatedUpload.video_id, {
+            upload_id: initiatedUpload.upload_id,
+            parts,
+          });
+          return;
+        }
+
+        throw new Error('Upload contract was incomplete');
+      } catch (error) {
+        if (initiatedUpload) {
+          try {
+            await lessonApi.abortVideoUpload(data.lesson_id, initiatedUpload.video_id, {
+              upload_id: initiatedUpload.upload_id ?? undefined,
+            });
+          } catch (abortError) {
+            console.error('Failed to abort video upload:', abortError);
+          }
+        }
+
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success('Video uploaded successfully');
+      resetFormState();
+    },
+    onError: (error) => {
+      console.error('Failed to upload video:', error);
+      toast.error(isAbortError(error) ? 'Upload canceled' : 'Failed to upload video');
+      setUploadPhase('idle');
+      setProgressPercent(0);
+      setCurrentAbortController(null);
+      abortControllerRef.current = null;
+    },
+    onSettled: () => {
+      setCurrentAbortController(null);
+      abortControllerRef.current = null;
+      setUploadPhase('idle');
+    },
+  });
 
   const onSubmit: SubmitHandler<UploadVideoFormData> = async (data) => {
     const zodResult = uploadVideoSchema.safeParse(data);
@@ -210,80 +260,7 @@ export default function UploadVideo() {
       return;
     }
 
-    const abortController = new AbortController();
-    setCurrentAbortController(abortController);
-    setProgressPercent(0);
-    setUploadPhase('initiating');
-
-    let initiatedUpload: InitiateUploadData | null = null;
-
-    try {
-      const initiateResponse = await lessonApi.initiateVideoUpload(data.lesson_id, {
-        title: data.title,
-        filename: data.video_file.name,
-        mime_type: data.video_file.type,
-        file_size_bytes: data.video_file.size,
-        duration: convertDurationMinutesToSeconds(data.duration),
-        sort_order: 0,
-      });
-
-      initiatedUpload = initiateResponse.data.data as InitiateUploadData;
-
-      setUploadPhase('uploading');
-
-      if (initiatedUpload.upload_mode === 'single' && initiatedUpload.single_upload) {
-        const etag = await uploadSingleVideoToS3(data.video_file, initiatedUpload.single_upload, {
-          signal: abortController.signal,
-          onProgress: setProgressPercent,
-        });
-
-        setUploadPhase('finalizing');
-        await lessonApi.completeVideoUpload(data.lesson_id, initiatedUpload.video_id, { etag });
-      } else if (initiatedUpload.upload_mode === 'multipart' && initiatedUpload.multipart_parts && initiatedUpload.part_size_bytes) {
-        const parts = await uploadMultipartVideoToS3(
-          data.video_file,
-          initiatedUpload.multipart_parts,
-          initiatedUpload.part_size_bytes,
-          {
-            signal: abortController.signal,
-            onProgress: setProgressPercent,
-          }
-        );
-
-        setUploadPhase('finalizing');
-        await lessonApi.completeVideoUpload(data.lesson_id, initiatedUpload.video_id, {
-          upload_id: initiatedUpload.upload_id,
-          parts,
-        });
-      } else {
-        throw new Error('Upload contract was incomplete');
-      }
-
-      toast.success('Video uploaded successfully');
-      resetFormState();
-    } catch (error) {
-      console.error('Failed to upload video:', error);
-
-      if (initiatedUpload) {
-        try {
-          await lessonApi.abortVideoUpload(data.lesson_id, initiatedUpload.video_id, {
-            upload_id: initiatedUpload.upload_id ?? undefined,
-          });
-        } catch (abortError) {
-          console.error('Failed to abort video upload:', abortError);
-        }
-      }
-
-      if (isAbortError(error)) {
-        toast.error('Upload canceled');
-      } else {
-        toast.error('Failed to upload video');
-      }
-
-      setUploadPhase('idle');
-      setProgressPercent(0);
-      setCurrentAbortController(null);
-    }
+    await uploadVideoMutation.mutateAsync(data);
   };
 
   return (
@@ -311,10 +288,9 @@ export default function UploadVideo() {
                 setSelectedLesson('');
                 setValue('chapter_id', '' as never, { shouldValidate: true });
                 setValue('lesson_id', '' as never, { shouldValidate: true });
-                setLessons([]);
               }}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={loading || isUploading}
+              disabled={isCoursesLoading || isUploading}
             >
               <option value="">Choose a course</option>
               {courses.map((course) => (
@@ -343,7 +319,7 @@ export default function UploadVideo() {
                 setValue('lesson_id', '' as never, { shouldValidate: true });
               }}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={!selectedCourse || isUploading}
+              disabled={!selectedCourse || isUploading || isChaptersLoading}
             >
               <option value="">Choose a chapter</option>
               {chapters.map((chapter) => (
@@ -370,7 +346,7 @@ export default function UploadVideo() {
                 setValue('lesson_id', value as never, { shouldValidate: true });
               }}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={!selectedChapter || isUploading}
+              disabled={!selectedChapter || isUploading || isLessonsLoading}
             >
               <option value="">Choose a lesson</option>
               {lessons.map((lesson) => (

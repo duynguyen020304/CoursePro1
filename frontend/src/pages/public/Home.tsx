@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { courseApi, categoryApi, instructorPublicApi } from '../../services/api';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -68,38 +68,40 @@ interface Instructor {
 }
 
 export default function Home() {
-  const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [instructors, setInstructors] = useState<Instructor[]>([]);
-  const [loading, setLoading] = useState(true);
+  const featuredCoursesQuery = useQuery({
+    queryKey: ['courses', 'featured', { limit: 10 }],
+    queryFn: async () => {
+      const response = await courseApi.list({ limit: 10 });
+      const coursesData = response.data?.data || [];
+      return Array.isArray(coursesData) ? (coursesData as Course[]) : [];
+    },
+  });
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [coursesRes, categoriesRes, instructorsRes] = await Promise.all([
-          courseApi.list({ limit: 10 }),
-          categoryApi.list({ nested: true }),
-          instructorPublicApi.list({ limit: 6 }),
-        ]);
+  const categoriesQuery = useQuery({
+    queryKey: ['categories', { nested: true }],
+    queryFn: async () => {
+      const response = await categoryApi.list({ nested: true });
+      const categoriesData = (response.data?.data as Category[]) || [];
+      return Array.isArray(categoriesData) ? categoriesData : [];
+    },
+  });
 
-        // T12/T13: Service layer returns { data: <validated_response> }
-        // For paginated: validated_response = { success, message, data: [...items], pagination... }
-        // For non-paginated: validated_response = { success, message, data: [...] }
-        const coursesData = coursesRes.data?.data || [];
-        const categoriesData = (categoriesRes.data?.data as Category[]) || [];
-        const instructorsData = (instructorsRes.data?.data as Instructor[]) || [];
+  const instructorsQuery = useQuery({
+    queryKey: ['instructors', 'public', { limit: 6 }],
+    queryFn: async () => {
+      const response = await instructorPublicApi.list({ limit: 6 });
+      const instructorsData = (response.data?.data as Instructor[]) || [];
+      return Array.isArray(instructorsData) ? instructorsData : [];
+    },
+  });
 
-        setFeaturedCourses(Array.isArray(coursesData) ? coursesData : []);
-        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
-        setInstructors(Array.isArray(instructorsData) ? instructorsData : []);
-      } catch (error) {
-        console.error('Failed to fetch homepage data:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
+  const featuredCourses = featuredCoursesQuery.data ?? [];
+  const categories = categoriesQuery.data ?? [];
+  const instructors = instructorsQuery.data ?? [];
+  const loading =
+    featuredCoursesQuery.isLoading
+    || categoriesQuery.isLoading
+    || instructorsQuery.isLoading;
 
   if (loading) {
     return (

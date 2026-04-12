@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { courseApi } from '../../services/api';
 
 interface Course {
@@ -15,24 +15,13 @@ interface Course {
 }
 
 export default function CourseManagement() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchCourses();
-  }, []);
-
-  async function fetchCourses() {
-    try {
+  const { data: courses = [], isLoading } = useQuery<Course[]>({
+    queryKey: ['admin', 'courses'],
+    queryFn: async () => {
       const response = await courseApi.list();
-      const coursesData = response.data.data ?? [];
-      setCourses(coursesData);
-    } catch (error) {
-      console.error('Failed to fetch courses:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
+      return (response.data.data ?? []) as Course[];
+    },
+  });
 
   return (
     <div>
@@ -40,7 +29,7 @@ export default function CourseManagement() {
         <h1 className="text-2xl font-bold text-gray-900">Course Management</h1>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>
@@ -96,7 +85,13 @@ export default function CourseManagement() {
                   </td>
                   <td className="px-6 py-4 text-sm font-medium">
                     <button className="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                    <button className="text-red-600 hover:text-red-900">Delete</button>
+                    <button
+                      type="button"
+                      onClick={() => alert('Course deletion is not wired up in the API client yet.')}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}

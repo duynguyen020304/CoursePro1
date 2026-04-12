@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import { courseApi, studentApi } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -46,57 +47,58 @@ interface CourseData {
 export default function WatchVideo() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId?: string }>();
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
-  const [course, setCourse] = useState<CourseData | null>(null);
-  const [hasPurchased, setHasPurchased] = useState(false);
-  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [completedLessons, setCompletedLessons] = useState<(string | number)[]>([]);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copySuccess, setCopySuccess] = useState('');
 
+  const { data: hasPurchased = false, isLoading: isPurchaseLoading } = useQuery<boolean>({
+    queryKey: ['watch', 'purchase', courseId, isAuthenticated],
+    enabled: Boolean(courseId && isAuthenticated),
+    queryFn: async () => {
+      const purchaseCheck = await studentApi.hasPurchased(courseId!);
+      return purchaseCheck.data?.data?.has_purchased || false;
+    },
+  });
+
+  const { data: course, isLoading: isCourseLoading } = useQuery<CourseData | null>({
+    queryKey: ['watch', 'course', courseId],
+    enabled: Boolean(courseId),
+    queryFn: async () => {
+      const response = await courseApi.get(courseId!);
+      return (response.data?.data?.course || response.data?.data) as CourseData;
+    },
+  });
+
   useEffect(() => {
-    async function fetchData() {
-      try {
-        if (isAuthenticated) {
-          try {
-            // T12/T13: hasPurchasedSchema = { success, message, data: { has_purchased } }
-            const purchaseCheck = await studentApi.hasPurchased(courseId!);
-            setHasPurchased(purchaseCheck.data?.data?.has_purchased || false);
-          } catch (err) {
-            console.error('Failed to check purchase:', err);
-          }
-        }
+    const saved = localStorage.getItem(`completed_lessons_${courseId}`);
+    setCompletedLessons(saved ? JSON.parse(saved) : []);
+  }, [courseId]);
 
-        // T12/T13: courseDetailResponseSchema = { success, message, data: { course, average_rating, total_reviews } }
-        const response = await courseApi.get(courseId!);
-        const courseData = response.data?.data?.course || response.data?.data;
-        setCourse(courseData as CourseData);
+  const allLessons = useMemo(
+    () => course?.chapters?.flatMap((chapter) => chapter.lessons || []) || [],
+    [course]
+  );
+  const selectedLesson = useMemo(
+    () => allLessons.find((lesson) => String(lesson.lesson_id) === lessonId) || allLessons[0] || null,
+    [allLessons, lessonId]
+  );
+  const currentIndex = allLessons.findIndex((lesson) => lesson.lesson_id === selectedLesson?.lesson_id);
+  const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : undefined;
+  const nextLesson = currentIndex >= 0 ? allLessons[currentIndex + 1] : undefined;
+  const progress = allLessons.length > 0
+    ? Math.round((completedLessons.length / allLessons.length) * 100)
+    : 0;
 
-        const allLessons = ((courseData.chapters as Chapter[] | undefined)?.flatMap((ch) => ch.lessons || []) || []) as Lesson[];
-        const lesson = allLessons.find((l: Lesson) => l.lesson_id === lessonId) || allLessons[0];
-        setSelectedLesson(lesson);
-
-        // Load completed lessons from localStorage
-        const saved = localStorage.getItem(`completed_lessons_${courseId}`);
-        if (saved) {
-          setCompletedLessons(JSON.parse(saved));
-        }
-      } catch (error) {
-        console.error('Failed to fetch course:', error);
-      } finally {
-        setLoading(false);
-      }
+  const toggleLessonComplete = (lessonKey: string | number | undefined) => {
+    if (!lessonKey) {
+      return;
     }
-    fetchData();
-  }, [courseId, lessonId, isAuthenticated]);
 
-  const toggleLessonComplete = (lessonId: string | number | undefined) => {
-    if (!lessonId) return;
-    const newCompleted = completedLessons.includes(lessonId)
-      ? completedLessons.filter(id => id !== lessonId)
-      : [...completedLessons, lessonId];
+    const newCompleted = completedLessons.includes(lessonKey)
+      ? completedLessons.filter((id) => id !== lessonKey)
+      : [...completedLessons, lessonKey];
 
     setCompletedLessons(newCompleted);
     localStorage.setItem(`completed_lessons_${courseId}`, JSON.stringify(newCompleted));
@@ -120,7 +122,7 @@ export default function WatchVideo() {
     document.body.removeChild(link);
   };
 
-  if (loading) {
+  if (isCourseLoading || isPurchaseLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -156,18 +158,9 @@ export default function WatchVideo() {
     );
   }
 
-  const allLessons = course.chapters?.flatMap(ch => ch.lessons || []) || [];
-  const currentIndex = allLessons.findIndex(l => l.lesson_id === selectedLesson?.lesson_id);
-  const prevLesson = allLessons[currentIndex - 1];
-  const nextLesson = allLessons[currentIndex + 1];
-  const progress = allLessons.length > 0
-    ? Math.round((completedLessons.length / allLessons.length) * 100)
-    : 0;
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-4">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Video Player */}
         <div className="lg:col-span-2">
           <div className="bg-black rounded-xl overflow-hidden mb-4">
             {selectedLesson?.videos?.[0]?.url ? (
@@ -190,7 +183,6 @@ export default function WatchVideo() {
             )}
           </div>
 
-          {/* Lesson Title & Actions */}
           <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
             <h1 className="text-2xl font-bold text-gray-900">
               {selectedLesson?.title || 'Select a lesson'}
@@ -218,7 +210,6 @@ export default function WatchVideo() {
             <p className="text-green-600 text-sm mb-4">{copySuccess}</p>
           )}
 
-          {/* Progress Bar */}
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-1">
               <span className="text-gray-600">Course Progress</span>
@@ -235,7 +226,6 @@ export default function WatchVideo() {
             </p>
           </div>
 
-          {/* Tabs */}
           <div className="bg-white rounded-xl shadow">
             <div className="border-b">
               <nav className="flex gap-4">
@@ -344,14 +334,10 @@ export default function WatchVideo() {
             </div>
           </div>
 
-          {/* Navigation */}
           <div className="flex justify-between mt-6">
             {prevLesson ? (
               <button
-                onClick={() => {
-                  setSelectedLesson(prevLesson);
-                  navigate(`/watch/${courseId}/${prevLesson.lesson_id}`);
-                }}
+                onClick={() => navigate(`/watch/${courseId}/${prevLesson.lesson_id}`)}
                 className="text-indigo-600 hover:text-indigo-700 font-medium"
               >
                 ← Previous: {prevLesson.title}
@@ -361,10 +347,7 @@ export default function WatchVideo() {
             )}
             {nextLesson ? (
               <button
-                onClick={() => {
-                  setSelectedLesson(nextLesson);
-                  navigate(`/watch/${courseId}/${nextLesson.lesson_id}`);
-                }}
+                onClick={() => navigate(`/watch/${courseId}/${nextLesson.lesson_id}`)}
                 className="text-indigo-600 hover:text-indigo-700 font-medium"
               >
                 Next: {nextLesson.title} →
@@ -375,7 +358,6 @@ export default function WatchVideo() {
           </div>
         </div>
 
-        {/* Course Content Sidebar */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-xl shadow p-4 sticky top-4">
             <h2 className="font-bold text-lg mb-4">{course.title}</h2>
@@ -405,10 +387,7 @@ export default function WatchVideo() {
                     {chapter.lessons?.map((lesson, lIndex) => (
                       <button
                         key={lesson.lesson_id}
-                        onClick={() => {
-                          setSelectedLesson(lesson);
-                          navigate(`/watch/${courseId}/${lesson.lesson_id}`);
-                        }}
+                        onClick={() => navigate(`/watch/${courseId}/${lesson.lesson_id}`)}
                         className={`block w-full text-left text-sm py-2 px-2 rounded flex items-center gap-2 ${
                           selectedLesson?.lesson_id === lesson.lesson_id
                             ? 'bg-indigo-100 text-indigo-600'
@@ -439,7 +418,6 @@ export default function WatchVideo() {
         </div>
       </div>
 
-      {/* Share Modal */}
       {showShareModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-md mx-4">

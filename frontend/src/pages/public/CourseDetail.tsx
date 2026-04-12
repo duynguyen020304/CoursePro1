@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { courseApi } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -99,30 +100,26 @@ export default function CourseDetail() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { addItem } = useCart();
-  const [course, setCourse] = useState<Course | null>(null);
-  const [averageRating, setAverageRating] = useState<number>(0);
-  const [totalReviews, setTotalReviews] = useState<number>(0);
-  const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
   const [expandedChapters, setExpandedChapters] = useState<Set<string | number>>(new Set());
 
-  useEffect(() => {
-    async function fetchCourse() {
-      try {
-        const response = await courseApi.get(id || '');
-        setCourse(response.data?.data?.course);
-        setAverageRating(response.data?.data?.average_rating || 0);
-        setTotalReviews(response.data?.data?.total_reviews || 0);
-      } catch (error) {
-        console.error('Failed to fetch course:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (id) {
-      fetchCourse();
-    }
-  }, [id]);
+  const courseQuery = useQuery({
+    queryKey: ['course', id],
+    enabled: Boolean(id),
+    queryFn: async () => {
+      const response = await courseApi.get(id || '');
+      return {
+        course: (response.data?.data?.course as Course | null) ?? null,
+        averageRating: response.data?.data?.average_rating || 0,
+        totalReviews: response.data?.data?.total_reviews || 0,
+      };
+    },
+  });
+
+  const course = courseQuery.data?.course ?? null;
+  const averageRating = courseQuery.data?.averageRating ?? 0;
+  const totalReviews = courseQuery.data?.totalReviews ?? 0;
+  const loading = courseQuery.isLoading;
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {

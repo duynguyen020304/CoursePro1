@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
 import { studentApi } from '../../services/api';
 import { Link } from 'react-router-dom';
 
@@ -17,25 +16,15 @@ interface Course {
 }
 
 export default function MyCourses() {
-  const { user } = useAuth();
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: courses = [], isLoading } = useQuery<Course[]>({
+    queryKey: ['student', 'purchased-courses'],
+    queryFn: async () => {
+      const response = await studentApi.getProfile();
+      return response.data.data?.purchased_courses || [];
+    },
+  });
 
-  useEffect(() => {
-    async function fetchCourses() {
-      try {
-        const response = await studentApi.getProfile();
-        setCourses(response.data.data?.purchased_courses || []);
-      } catch (error) {
-        console.error('Failed to fetch courses:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchCourses();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>

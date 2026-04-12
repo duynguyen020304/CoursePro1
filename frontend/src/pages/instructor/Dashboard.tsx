@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { instructorApi } from '../../services/api';
 
@@ -18,30 +18,15 @@ interface Stats {
 }
 
 export default function InstructorDashboard() {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      setLoading(true);
+  const { data: stats, isLoading, error } = useQuery<Stats | null>({
+    queryKey: ['instructor', 'dashboard'],
+    queryFn: async () => {
       const response = await instructorApi.getStats();
-      if (response.data.success) {
-        setStats(response.data.data);
-      }
-    } catch (err) {
-      setError('Failed to load dashboard statistics');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return response.data.success ? (response.data.data as Stats) : null;
+    },
+  });
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -52,7 +37,7 @@ export default function InstructorDashboard() {
   if (error) {
     return (
       <div className="bg-red-50 text-red-600 p-4 rounded-lg">
-        {error}
+        Failed to load dashboard statistics
       </div>
     );
   }

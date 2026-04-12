@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Toaster } from 'react-hot-toast';
@@ -13,16 +14,6 @@ import {
 Chart.register(...registerables);
 
 export default function Revenue() {
-  const [loading, setLoading] = useState(true);
-  const [revenueData, setRevenueData] = useState({
-    totalRevenue: 0,
-    monthlyRevenue: 0,
-    ordersCount: 0,
-    averageOrderValue: 0,
-  });
-  const [monthlyData, setMonthlyData] = useState<{ month: string; revenue: number }[]>([]);
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
-  const [topCourses, setTopCourses] = useState<{ name: string; revenue: number; orders: number }[]>([]);
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
 
@@ -63,73 +54,61 @@ export default function Revenue() {
       .slice(0, 5);
   }
 
-  useEffect(() => {
-    async function fetchRevenueData() {
-      try {
-        const ordersRes = await orderApi.list({ page: 1, per_page: 100 }).catch(() => null);
+  const { data: orders = [], isLoading } = useQuery<any[]>({
+    queryKey: ['admin', 'revenue', 'orders'],
+    queryFn: async () => {
+      const ordersRes = await orderApi.list({ page: 1, per_page: 100 });
+      return (ordersRes.data?.data ?? []) as any[];
+    },
+  });
 
-        if (ordersRes?.data?.data) {
-          const orders = ordersRes.data.data;
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order: any) => {
+      const orderDate = new Date(order.created_at);
+      const startDate = new Date(watchedDateRange.start_date);
+      const endDate = new Date(watchedDateRange.end_date);
+      endDate.setHours(23, 59, 59, 999);
+      return orderDate >= startDate && orderDate <= endDate;
+    });
+  }, [orders, watchedDateRange.end_date, watchedDateRange.start_date]);
 
-          // Filter by date range
-          const filteredOrders = orders.filter((order: any) => {
-            const orderDate = new Date(order.created_at);
-            const startDate = new Date(watchedDateRange.start_date);
-            const endDate = new Date(watchedDateRange.end_date);
-            endDate.setHours(23, 59, 59, 999); // Include the entire end date
-            return orderDate >= startDate && orderDate <= endDate;
-          });
+  const revenueData = useMemo(() => {
+    const totalRevenue = filteredOrders.reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0);
+    const monthlyRevenue = filteredOrders
+      .filter((order: any) => {
+        const orderDate = new Date(order.created_at);
+        const now = new Date();
+        return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+      })
+      .reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0);
 
-          const totalRevenue = filteredOrders.reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0);
-          const monthlyRevenue = filteredOrders
-            .filter((order: any) => {
-              const orderDate = new Date(order.created_at);
-              const now = new Date();
-              return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
-            })
-            .reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0);
-          const averageOrderValue = filteredOrders.length > 0
-            ? totalRevenue / filteredOrders.length
-            : 0;
+    return {
+      totalRevenue,
+      monthlyRevenue,
+      ordersCount: filteredOrders.length,
+      averageOrderValue: filteredOrders.length > 0 ? totalRevenue / filteredOrders.length : 0,
+    };
+  }, [filteredOrders]);
 
-          setRevenueData({
-            totalRevenue,
-            monthlyRevenue,
-            ordersCount: filteredOrders.length,
-            averageOrderValue,
-          });
+  const monthlyData = useMemo(() => {
+    const monthlyMap = new Map<string, number>();
+    filteredOrders.forEach((order: any) => {
+      const date = new Date(order.created_at);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      monthlyMap.set(key, (monthlyMap.get(key) || 0) + (order.total_amount || 0));
+    });
 
-          setRecentOrders(filteredOrders.slice(0, 10));
+    return Array.from(monthlyMap.entries())
+      .sort()
+      .slice(-6)
+      .map(([month, amount]) => ({
+        month: new Date(`${month}-01`).toLocaleDateString('en-US', { month: 'short' }),
+        revenue: amount,
+      }));
+  }, [filteredOrders]);
 
-          // Calculate monthly data for chart
-          const monthlyMap = new Map<string, number>();
-          filteredOrders.forEach((order: any) => {
-            const date = new Date(order.created_at);
-            const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            monthlyMap.set(key, (monthlyMap.get(key) || 0) + (order.total_amount || 0));
-          });
-
-          const monthly = Array.from(monthlyMap.entries())
-            .sort()
-            .slice(-6)
-            .map(([month, amount]) => ({
-              month: new Date(month + '-01').toLocaleDateString('en-US', { month: 'short' }),
-              revenue: amount,
-            }));
-
-          setMonthlyData(monthly);
-          setTopCourses(getTopCoursesByRevenue(filteredOrders));
-        }
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Failed to fetch revenue data:', error);
-        setLoading(false);
-      }
-    }
-
-    fetchRevenueData();
-  }, [watchedDateRange.start_date, watchedDateRange.end_date]);
+  const recentOrders = useMemo(() => filteredOrders.slice(0, 10), [filteredOrders]);
+  const topCourses = useMemo(() => getTopCoursesByRevenue(filteredOrders), [filteredOrders]);
 
   // Create chart when monthlyData changes
   useEffect(() => {
@@ -237,7 +216,7 @@ export default function Revenue() {
         </div>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>

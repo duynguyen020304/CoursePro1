@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Toaster } from 'react-hot-toast';
@@ -32,13 +33,10 @@ interface ApiRole {
 }
 
 export default function RoleManagement() {
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [permissions, setPermissions] = useState<Permission[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   const {
@@ -56,42 +54,95 @@ export default function RoleManagement() {
     },
   });
 
-  useEffect(() => {
-    void fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [rolesRes, permissionsRes] = await Promise.all([
-        roleApi.list(),
-        permissionApi.list(),
-      ]);
-      setRoles(
-        (rolesRes.data.data || []).map((role: ApiRole) => ({
-          role_id: role.role_id,
-          role_name: role.role_name,
-          permissions: role.permissions?.map((permission) => ({
-            permission_id: permission.permission_id,
-            name: permission.name,
-            display_name: permission.display_name || permission.name,
-          })),
-        }))
-      );
-      setPermissions(
-        (permissionsRes.data.data || []).map((permission: ApiPermission) => ({
+  const {
+    data: roles = [],
+    isLoading: isRolesLoading,
+  } = useQuery<Role[]>({
+    queryKey: ['admin', 'roles'],
+    queryFn: async () => {
+      const rolesRes = await roleApi.list();
+      return (rolesRes.data.data || []).map((role: ApiRole) => ({
+        role_id: role.role_id,
+        role_name: role.role_name,
+        permissions: role.permissions?.map((permission) => ({
           permission_id: permission.permission_id,
           name: permission.name,
           display_name: permission.display_name || permission.name,
-        }))
-      );
-    } catch (err) {
-      setError('Failed to load data');
-      console.error(err);
-    } finally {
-      setLoading(false);
+        })),
+      }));
+    },
+  });
+
+  const {
+    data: permissions = [],
+    isLoading: isPermissionsLoading,
+  } = useQuery<Permission[]>({
+    queryKey: ['admin', 'permissions'],
+    queryFn: async () => {
+      const permissionsRes = await permissionApi.list();
+      return (permissionsRes.data.data || []).map((permission: ApiPermission) => ({
+        permission_id: permission.permission_id,
+        name: permission.name,
+        display_name: permission.display_name || permission.name,
+      }));
+    },
+  });
+
+  const { data: rolePermissions = [] } = useQuery<string[]>({
+    queryKey: ['admin', 'role-permissions', editingRole?.role_id],
+    enabled: showModal && Boolean(editingRole),
+    queryFn: async () => {
+      const res = await roleApi.getPermissions(editingRole!.role_id);
+      return (res.data.data || []).map((permission: ApiPermission) => permission.permission_id);
+    },
+  });
+
+  useEffect(() => {
+    if (!showModal) {
+      return;
     }
-  };
+
+    const nextPermissions = editingRole
+      ? rolePermissions
+      : [];
+
+    setSelectedPermissions(nextPermissions);
+    setValue('permissions', nextPermissions);
+  }, [editingRole, rolePermissions, setValue, showModal]);
+
+  const saveRoleMutation = useMutation({
+    mutationFn: async (data: RoleManagementFormData) => {
+      if (editingRole) {
+        await roleApi.update(editingRole.role_id, { role_name: data.role_name });
+        await roleApi.syncPermissions(editingRole.role_id, selectedPermissions);
+        return;
+      }
+
+      const res = await roleApi.create({ role_name: data.role_name });
+      if (selectedPermissions.length > 0) {
+        await roleApi.assignPermissions(res.data.data.role_id, selectedPermissions);
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'roles'] });
+      closeModal();
+    },
+    onError: (err: unknown) => {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      setError(errorObj.response?.data?.message || 'Failed to save role');
+    },
+  });
+
+  const deleteRoleMutation = useMutation({
+    mutationFn: async (roleId: string) => roleApi.delete(roleId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'roles'] });
+    },
+    onError: (err: unknown) => {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      alert(errorObj.response?.data?.message || 'Failed to delete role');
+    },
+  });
 
   const openCreateModal = () => {
     setEditingRole(null);
@@ -100,18 +151,12 @@ export default function RoleManagement() {
     setShowModal(true);
   };
 
-  const openEditModal = async (role: Role) => {
+  const openEditModal = (role: Role) => {
     setEditingRole(role);
     reset({ role_name: role.role_name, permissions: [] });
-    try {
-      const res = await roleApi.getPermissions(role.role_id);
-      const permIds = (res.data.data || []).map((permission: ApiPermission) => permission.permission_id);
-      setSelectedPermissions(permIds);
-      setValue('permissions', permIds);
-    } catch (err) {
-      setSelectedPermissions(role.permissions?.map(p => p.permission_id) || []);
-      setValue('permissions', role.permissions?.map(p => p.permission_id) || []);
-    }
+    const fallbackPermissions = role.permissions?.map((permission) => permission.permission_id) || [];
+    setSelectedPermissions(fallbackPermissions);
+    setValue('permissions', fallbackPermissions);
     setShowModal(true);
   };
 
@@ -124,7 +169,6 @@ export default function RoleManagement() {
   };
 
   const onSubmit: SubmitHandler<RoleManagementFormData> = async (data) => {
-    setSaving(true);
     setError('');
 
     // Shadow mode: Also run Zod validation separately to show toast on error
@@ -139,22 +183,9 @@ export default function RoleManagement() {
     }
 
     try {
-      if (editingRole) {
-        await roleApi.update(editingRole.role_id, { role_name: data.role_name });
-        await roleApi.syncPermissions(editingRole.role_id, selectedPermissions);
-      } else {
-        const res = await roleApi.create({ role_name: data.role_name });
-        if (selectedPermissions.length > 0) {
-          await roleApi.assignPermissions(res.data.data.role_id, selectedPermissions);
-        }
-      }
-      await fetchData();
-      closeModal();
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { message?: string } } };
-      setError(errorObj.response?.data?.message || 'Failed to save role');
-    } finally {
-      setSaving(false);
+      await saveRoleMutation.mutateAsync(data);
+    } catch {
+      // handled in mutation callbacks
     }
   };
 
@@ -164,11 +195,9 @@ export default function RoleManagement() {
     }
 
     try {
-      await roleApi.delete(role.role_id);
-      await fetchData();
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { message?: string } } };
-      alert(errorObj.response?.data?.message || 'Failed to delete role');
+      await deleteRoleMutation.mutateAsync(role.role_id);
+    } catch {
+      // handled in mutation callbacks
     }
   };
 
@@ -187,7 +216,7 @@ export default function RoleManagement() {
     return acc;
   }, {});
 
-  if (loading) {
+  if (isRolesLoading || isPermissionsLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -342,10 +371,10 @@ export default function RoleManagement() {
                 <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
                   <button
                     type="submit"
-                    disabled={saving}
+                    disabled={saveRoleMutation.isPending}
                     className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm disabled:opacity-50"
                   >
-                    {saving ? 'Saving...' : 'Save'}
+                    {saveRoleMutation.isPending ? 'Saving...' : 'Save'}
                   </button>
                   <button
                     type="button"

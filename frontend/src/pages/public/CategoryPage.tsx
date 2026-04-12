@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { courseApi, categoryApi } from '../../services/api';
 
@@ -33,36 +34,32 @@ interface Course {
 export default function CategoryPage() {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [category, setCategory] = useState<Category | null>(null);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'highest_rated');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        // T12/T13: Service layer returns { data: <validated_response> }
-        // For single entity: validated_response = { success, message, data: {...} }
-        const categoryRes = await categoryApi.get(slug!);
-        setCategory(categoryRes.data?.data as Category);
+  const categoryQuery = useQuery({
+    queryKey: ['category', slug],
+    enabled: Boolean(slug),
+    queryFn: async () => {
+      const response = await categoryApi.get(slug!);
+      return (response.data?.data as Category) ?? null;
+    },
+  });
 
-        // For paginated: validated_response = { success, message, data: [...items], pagination... }
-        const coursesRes = await courseApi.list({ category_id: slug });
-        const coursesData = coursesRes.data?.data || [];
-        setCourses(Array.isArray(coursesData) ? coursesData : []);
-      } catch (error) {
-        console.error('Failed to fetch category data:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (slug) {
-      fetchData();
-    }
-  }, [slug]);
+  const coursesQuery = useQuery({
+    queryKey: ['courses', 'category', slug],
+    enabled: Boolean(slug),
+    queryFn: async () => {
+      const response = await courseApi.list({ category_id: slug });
+      const coursesData = response.data?.data || [];
+      return Array.isArray(coursesData) ? (coursesData as Course[]) : [];
+    },
+  });
+
+  const category = categoryQuery.data ?? null;
+  const courses = coursesQuery.data ?? [];
+  const loading = categoryQuery.isLoading || coursesQuery.isLoading;
 
   // Apply sorting
   const sortedCourses = [...courses].sort((a, b) => {

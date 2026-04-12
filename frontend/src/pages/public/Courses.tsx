@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { courseApi, categoryApi } from '../../services/api';
 
@@ -32,9 +33,6 @@ interface Filters {
 }
 
 export default function Courses() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
   const [, setSearchParams] = useSearchParams();
 
   const [filters, setFilters] = useState<Filters>({
@@ -58,28 +56,28 @@ export default function Courses() {
     setSearchParams(params);
   }, [filters, setSearchParams]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [coursesRes, categoriesRes] = await Promise.all([
-          courseApi.list(filters as unknown as Record<string, unknown>),
-          categoryApi.list(),
-        ]);
-        // T12/T13: Service layer returns { data: <validated_response> }
-        // For paginated: validated_response = { success, message, data: [...items], pagination... }
-        // For non-paginated: validated_response = { success, message, data: [...] }
-        const coursesData = coursesRes.data?.data || [];
-        const categoriesData = categoriesRes.data?.data || [];
-        setCourses(Array.isArray(coursesData) ? coursesData : []);
-        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
-      } catch (error) {
-        console.error('Failed to fetch courses:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, [filters]);
+  const coursesQuery = useQuery({
+    queryKey: ['courses', filters],
+    queryFn: async () => {
+      const response = await courseApi.list(filters as unknown as Record<string, unknown>);
+      const coursesData = response.data?.data || [];
+      return Array.isArray(coursesData) ? (coursesData as Course[]) : [];
+    },
+    placeholderData: keepPreviousData,
+  });
+
+  const categoriesQuery = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await categoryApi.list();
+      const categoriesData = response.data?.data || [];
+      return Array.isArray(categoriesData) ? (categoriesData as Category[]) : [];
+    },
+  });
+
+  const courses = coursesQuery.data ?? [];
+  const categories = categoriesQuery.data ?? [];
+  const loading = coursesQuery.isLoading || categoriesQuery.isLoading;
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));

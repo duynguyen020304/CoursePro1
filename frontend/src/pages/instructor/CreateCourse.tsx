@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
@@ -11,8 +12,7 @@ interface Category {
 
 export default function CreateCourse() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -24,21 +24,42 @@ export default function CreateCourse() {
     requirements: [''],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const fetchCategories = useCallback(async () => {
-    try {
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ['instructor', 'course-create', 'categories'],
+    queryFn: async () => {
       const response = await categoryApi.list();
-      if (response.data.success) {
-        setCategories(response.data.data as Category[]);
-      }
-    } catch (err) {
-      console.error('Failed to fetch categories:', err);
-    }
-  }, []);
+      return response.data.success ? (response.data.data as Category[]) : [];
+    },
+  });
 
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+  const createCourseMutation = useMutation({
+    mutationFn: async () => {
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        difficulty: formData.difficulty,
+        language: formData.language,
+        category_ids: formData.category_ids,
+        objectives: formData.objectives.filter((o) => o.trim()),
+        requirements: formData.requirements.filter((r) => r.trim()),
+      };
+
+      return instructorApi.createCourse(payload);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['instructor', 'courses'] });
+      void queryClient.invalidateQueries({ queryKey: ['instructor', 'dashboard'] });
+      toast.success('Course created successfully!');
+      navigate('/instructor/courses');
+    },
+    onError: (err: unknown) => {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      const errorMessage = errorObj.response?.data?.message || 'Failed to create course';
+      setErrors({ submit: errorMessage });
+      toast.error(errorMessage);
+    },
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -115,30 +136,9 @@ export default function CreateCourse() {
     }
 
     try {
-      setLoading(true);
-      const payload = {
-        title: formData.title,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        difficulty: formData.difficulty,
-        language: formData.language,
-        category_ids: formData.category_ids,
-        objectives: formData.objectives.filter((o) => o.trim()),
-        requirements: formData.requirements.filter((r) => r.trim()),
-      };
-
-      const response = await instructorApi.createCourse(payload);
-      if (response.data.success) {
-        toast.success('Course created successfully!');
-        navigate('/instructor/courses');
-      }
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { message?: string } } };
-      const errorMessage = errorObj.response?.data?.message || 'Failed to create course';
-      setErrors({ submit: errorMessage });
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
+      await createCourseMutation.mutateAsync();
+    } catch {
+      // handled by mutation callbacks
     }
   };
 
@@ -354,10 +354,10 @@ export default function CreateCourse() {
           </button>
           <button
             type="submit"
-            disabled={loading}
+            disabled={createCourseMutation.isPending}
             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
           >
-            {loading ? 'Creating...' : 'Create Course'}
+            {createCourseMutation.isPending ? 'Creating...' : 'Create Course'}
           </button>
         </div>
       </form>
