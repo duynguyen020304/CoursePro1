@@ -51,6 +51,7 @@ temp/
 # OMC/Claude Code
 .claude/
 .omc/
+.omx/
 
 # Test coverage
 coverage/
