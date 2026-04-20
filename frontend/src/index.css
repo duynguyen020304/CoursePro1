@@ -1,9 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
 @import 'tailwindcss';
 
 /* Custom styles */
 body {
   margin: 0;
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
+.font-sora {
+  font-family: 'Sora', system-ui, sans-serif;
 }
 
 #root {

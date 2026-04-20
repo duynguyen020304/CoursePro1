@@ -1,4 +1,4 @@
-<!-- Generated: 2026-04-01 | Updated: 2026-04-12 -->
+<!-- Generated: 2026-04-01 | Updated: 2026-04-20 -->
 
 # CoursePro1
 
@@ -262,6 +262,14 @@ None configured — manual testing only.
 - `backend/app/AGENTS.md` - Controllers, models, services
 - `frontend/src/AGENTS.md` - React source structure, component patterns
 - `backend/database/AGENTS.md` - Migrations, seeders, factories
+- `backend/app/Contracts/` - Service interfaces for dependency injection
+- `backend/app/Support/` - RBAC permission mapping and seed data
+- `backend/app/Mail/` - Email mailable classes
+- `backend/config/` - Laravel configuration files
+- `backend/resources/` - Frontend assets and Blade templates
+- `backend/tests/` - PHPUnit test suite
+- `frontend/src/utils/` - Environment validation and API helpers
+- `frontend/src/__tests__/` - Vitest and Playwright test suites
 
 ## Statistics
 - **Backend**: 27 controllers, 26 models, 80+ migrations, 50+ API endpoints
